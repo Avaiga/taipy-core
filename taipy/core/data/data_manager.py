@@ -26,7 +26,7 @@ class DataManager:
     __DATA_NODE_CLASSES = {InMemoryDataNode, PickleDataNode, CSVDataNode, SQLDataNode, ExcelDataNode, GenericDataNode}
     __DATA_NODE_CLASS_MAP = {ds_class.storage_type(): ds_class for ds_class in __DATA_NODE_CLASSES}  # type: ignore
     repository = DataRepository(__DATA_NODE_CLASS_MAP)
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
 
     @classmethod
     def delete_all(cls):

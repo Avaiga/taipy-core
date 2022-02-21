@@ -23,7 +23,7 @@ class Config:
     """Singleton entry point to configure Taipy application and retrieve the configuration values."""
 
     ENVIRONMENT_VARIABLE_NAME_WITH_CONFIG_PATH = "TAIPY_CONFIG_PATH"
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
     _python_config = _Config()
     _file_config = None
     _env_file_config = None

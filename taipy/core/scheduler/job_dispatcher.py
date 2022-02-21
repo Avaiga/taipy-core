@@ -25,7 +25,7 @@ class JobDispatcher:
 
     def __init__(self, max_number_of_parallel_execution):
         self._executor, self._nb_worker_available = self.__create(max_number_of_parallel_execution or 1)
-        self.__logger = TaipyLogger.logger
+        self.__logger = TaipyLogger.get_logger()
 
     def can_execute(self) -> bool:
         """Returns True if a worker is available for a new run."""

@@ -27,7 +27,7 @@ class TaskManager:
     """
 
     repository: TaskRepository = TaskRepository()
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
     _scheduler = None
 
     @classmethod

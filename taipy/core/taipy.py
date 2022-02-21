@@ -35,7 +35,7 @@ from taipy.core.scenario.scenario_manager import ScenarioManager
 from taipy.core.task.task import Task
 from taipy.core.task.task_manager import TaskManager
 
-__logger = TaipyLogger.logger
+__logger = TaipyLogger.get_logger()
 
 
 def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):

@@ -18,7 +18,7 @@ class CycleManager:
     """
 
     repository = CycleRepository()
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
 
     @classmethod
     def create(

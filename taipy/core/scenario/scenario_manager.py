@@ -31,7 +31,7 @@ class ScenarioManager:
     """
 
     repository = ScenarioRepository()
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
 
     @classmethod
     def subscribe(cls, callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):

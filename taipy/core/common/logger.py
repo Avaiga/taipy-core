@@ -1,20 +1,30 @@
 import logging.config
 import os
+import sys
 
 
 class TaipyLogger:
+
     ENVIRONMENT_VARIABLE_NAME_WITH_LOGGER_CONFIG_PATH = "TAIPY_LOGGER_CONFIG_PATH"
-    if config_filename := os.environ.get(ENVIRONMENT_VARIABLE_NAME_WITH_LOGGER_CONFIG_PATH):
-        logging.config.fileConfig(config_filename)
-    logger = logging.getLogger("Taipy")
 
-    if not config_filename:
-        logger.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s] %(message)s")
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    __logger = None
 
-    if config_filename:
-        logger.info(f"Logger configuration '{config_filename}' successfully loaded.")
+    @classmethod
+    def get_logger(cls):
+        cls.ENVIRONMENT_VARIABLE_NAME_WITH_LOGGER_CONFIG_PATH = "TAIPY_LOGGER_CONFIG_PATH"
+
+        if cls.__logger:
+            return cls.__logger
+
+        if config_filename := os.environ.get(cls.ENVIRONMENT_VARIABLE_NAME_WITH_LOGGER_CONFIG_PATH):
+            logging.config.fileConfig(config_filename)
+            cls.__logger = logging.getLogger("Taipy")
+        else:
+            cls.__logger = logging.getLogger("Taipy")
+            cls.__logger.setLevel(logging.INFO)
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setLevel(logging.INFO)
+            formatter = logging.Formatter("[%(asctime)s][%(name)s][%(levelname)s] %(message)s")
+            ch.setFormatter(formatter)
+            cls.__logger.addHandler(ch)
+        return cls.__logger

@@ -43,7 +43,7 @@ class Job:
         self.creation_date = datetime.now()
         self._subscribers: List[Callable] = []
         self._exceptions: List[Exception] = []
-        self.__logger = TaipyLogger.logger
+        self.__logger = TaipyLogger.get_logger()
 
     def __contains__(self, task: Task):
         """Returns true if the Job contains a specific task.

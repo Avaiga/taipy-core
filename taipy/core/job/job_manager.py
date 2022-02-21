@@ -17,7 +17,7 @@ class JobManager:
     This class provides methods for creating, storing, updating, retrieving and deleting jobs.
     """
 
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
     repository = JobRepository()
     ID_PREFIX = "JOB_"
 

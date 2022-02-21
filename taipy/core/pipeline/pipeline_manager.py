@@ -19,7 +19,7 @@ class PipelineManager:
     """
 
     repository = PipelineRepository()
-    __logger = TaipyLogger.logger
+    __logger = TaipyLogger.get_logger()
 
     @classmethod
     def subscribe(cls, callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
