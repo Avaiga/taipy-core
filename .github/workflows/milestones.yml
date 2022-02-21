@@ -2,6 +2,8 @@ name: Trigger Milestones
 on:
   push:
     branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
 jobs:
   trigger:
     runs-on: ubuntu-latest
