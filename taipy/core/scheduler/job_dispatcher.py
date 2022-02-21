@@ -4,8 +4,8 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Any, List
 
-from taipy.core import TaipyLogger
 from taipy.core.common.alias import JobId
+from taipy.core.common.logger import TaipyLogger
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.exceptions.job import DataNodeWritingError

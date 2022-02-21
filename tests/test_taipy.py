@@ -193,10 +193,10 @@ class TestTaipy:
     def test_submit(self, scenario, pipeline):
         with mock.patch("taipy.core.scenario.scenario_manager.ScenarioManager.submit") as mck:
             tp.submit(scenario)
-            mck.assert_called_once_with(scenario)
+            mck.assert_called_once_with(scenario, force=False)
         with mock.patch("taipy.core.pipeline.pipeline_manager.PipelineManager.submit") as mck:
             tp.submit(pipeline)
-            mck.assert_called_once_with(pipeline)
+            mck.assert_called_once_with(pipeline, force=False)
 
     def test_get_tasks(self):
         with mock.patch("taipy.core.task.task_manager.TaskManager.get_all") as mck:
