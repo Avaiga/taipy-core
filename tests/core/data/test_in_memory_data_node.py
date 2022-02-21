@@ -1,12 +1,16 @@
 import pytest
 
 from taipy.core.common.alias import DataNodeId
+from taipy.core.data.data_manager import DataManager
 from taipy.core.data.in_memory import InMemoryDataNode
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions.data_node import NoData
 
 
 class TestInMemoryDataNodeEntity:
+    def test_exists_in_data_manager(self):
+        assert DataManager.has_data_node_class(InMemoryDataNode)
+
     def test_create(self):
         dn = InMemoryDataNode(
             "foobar BaZy",

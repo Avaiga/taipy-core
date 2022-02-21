@@ -15,6 +15,10 @@ from taipy.core.exceptions.data_node import NoData
 
 
 class TestCSVDataNode:
+
+    def test_exists_in_data_manager(self):
+        assert DataManager.has_data_node_class(CSVDataNode)
+
     def test_create(self):
         path = "data/node/path"
         dn = CSVDataNode("fOo BAr", Scope.PIPELINE, name="super name", properties={"path": path, "has_header": False})

@@ -32,6 +32,10 @@ class DataManager:
     repository = DataRepository(__DATA_NODE_CLASS_MAP)
 
     @classmethod
+    def has_data_node_class(cls, data_node_cls):
+        return data_node_cls in cls.__DATA_NODE_CLASSES
+
+    @classmethod
     def delete_all(cls):
         """Deletes all data nodes."""
         cls.repository.delete_all()
