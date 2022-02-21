@@ -6,5 +6,5 @@ from taipy.core.job.job import Job
 from taipy.core.job.status import Status
 from taipy.core.pipeline.pipeline import Pipeline
 from taipy.core.scenario.scenario import Scenario
-from taipy.core.taipy import Taipy
+from taipy.core.taipy import *
 from taipy.core.task.task import Task

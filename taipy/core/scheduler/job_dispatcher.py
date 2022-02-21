@@ -1,11 +1,10 @@
 __all__ = ["JobDispatcher"]
 
-import logging
 from concurrent.futures import ProcessPoolExecutor
-from datetime import datetime
 from functools import partial
-from typing import Any, List, Optional
+from typing import Any, List
 
+from taipy.core import TaipyLogger
 from taipy.core.common.alias import JobId
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
@@ -26,6 +25,7 @@ class JobDispatcher:
 
     def __init__(self, max_number_of_parallel_execution):
         self._executor, self._nb_worker_available = self.__create(max_number_of_parallel_execution or 1)
+        self.__logger = TaipyLogger.logger
 
     def can_execute(self) -> bool:
         """Returns True if a worker is available for a new run."""
@@ -38,6 +38,8 @@ class JobDispatcher:
             job: Element to execute.
         """
         if job.force or self._needs_to_run(job.task):
+            if job.force:
+                self.__logger.info(f"job {job.id} is forced to be executed.")
             job.running()
             JobManager.set(job)
             self._nb_worker_available -= 1
@@ -47,6 +49,7 @@ class JobDispatcher:
         else:
             job.skipped()
             JobManager.set(job)
+            self.__logger.info(f"job {job.id} is skipped.")
 
     def __release_worker(self, _):
         self._nb_worker_available += 1
@@ -103,17 +106,15 @@ class JobDispatcher:
                     DataManager.set(data_node)
                 except Exception as e:
                     exceptions.append(DataNodeWritingError(f"Error writing in datanode id {dn.id}: {e}"))
-                    logging.error(f"Error writing output {e}")
             return exceptions
         except Exception as e:
             return [e]
 
-    @staticmethod
-    def __extract_results(outputs: List[DataNode], results: Any) -> List[Any]:
+    @classmethod
+    def __extract_results(cls, outputs: List[DataNode], results: Any) -> List[Any]:
         _results: List[Any] = [results] if len(outputs) == 1 else results
 
         if len(_results) != len(outputs):
-            logging.error("Error: wrong number of result or task output")
             raise DataNodeWritingError("Error: wrong number of result or task output")
 
         return _results

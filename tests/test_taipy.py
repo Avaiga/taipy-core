@@ -2,7 +2,7 @@ import datetime
 import os
 from unittest import mock
 
-from taipy.core import Taipy as tp
+import taipy.core.taipy as tp
 from taipy.core.common.alias import JobId, PipelineId, ScenarioId, TaskId
 from taipy.core.config.config import Config
 from taipy.core.config.pipeline_config import PipelineConfig
