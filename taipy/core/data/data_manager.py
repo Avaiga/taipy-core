@@ -27,13 +27,9 @@ class DataManager:
     In particular, it is exposing methods for creating, storing, updating, retrieving, deleting data nodes.
     """
 
-    __DATA_NODE_CLASSES = {InMemoryDataNode, PickleDataNode, CSVDataNode, SQLDataNode, ExcelDataNode, GenericDataNode}
-    __DATA_NODE_CLASS_MAP = {ds_class.storage_type(): ds_class for ds_class in __DATA_NODE_CLASSES}  # type: ignore
+    _DATA_NODE_CLASSES = {InMemoryDataNode, PickleDataNode, CSVDataNode, SQLDataNode, ExcelDataNode, GenericDataNode}
+    __DATA_NODE_CLASS_MAP = {ds_class.storage_type(): ds_class for ds_class in _DATA_NODE_CLASSES}  # type: ignore
     repository = DataRepository(__DATA_NODE_CLASS_MAP)
-
-    @classmethod
-    def has_data_node_class(cls, data_node_cls):
-        return data_node_cls in cls.__DATA_NODE_CLASSES
 
     @classmethod
     def delete_all(cls):

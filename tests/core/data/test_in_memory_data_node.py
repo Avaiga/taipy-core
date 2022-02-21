@@ -9,7 +9,7 @@ from taipy.core.exceptions.data_node import NoData
 
 class TestInMemoryDataNodeEntity:
     def test_exists_in_data_manager(self):
-        assert DataManager.has_data_node_class(InMemoryDataNode)
+        assert InMemoryDataNode in DataManager._DATA_NODE_CLASSES
 
     def test_create(self):
         dn = InMemoryDataNode(

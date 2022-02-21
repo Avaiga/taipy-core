@@ -33,7 +33,7 @@ class TestSQLDataNode:
     ]
 
     def test_exists_in_data_manager(self):
-        assert DataManager.has_data_node_class(SQLDataNode)
+        assert SQLDataNode in DataManager._DATA_NODE_CLASSES
 
     @pytest.mark.parametrize("properties", __properties)
     def test_create(self, properties):

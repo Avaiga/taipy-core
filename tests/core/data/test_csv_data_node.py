@@ -15,9 +15,8 @@ from taipy.core.exceptions.data_node import NoData
 
 
 class TestCSVDataNode:
-
     def test_exists_in_data_manager(self):
-        assert DataManager.has_data_node_class(CSVDataNode)
+        assert CSVDataNode in DataManager._DATA_NODE_CLASSES
 
     def test_create(self):
         path = "data/node/path"
