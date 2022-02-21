@@ -51,7 +51,8 @@ class TestCSVDataNode:
     def test_read_with_header(self):
         not_existing_csv = CSVDataNode("foo", Scope.PIPELINE, properties={"path": "WRONG.csv", "has_header": True})
         with pytest.raises(NoData):
-            not_existing_csv.read()
+            assert not_existing_csv.read() is None
+            not_existing_csv.read_or_raise()
 
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
         # Create CSVDataNode without exposed_type (Default is pandas.DataFrame)
@@ -93,7 +94,8 @@ class TestCSVDataNode:
     def test_read_without_header(self):
         not_existing_csv = CSVDataNode("foo", Scope.PIPELINE, properties={"path": "WRONG.csv", "has_header": False})
         with pytest.raises(NoData):
-            not_existing_csv.read()
+            assert not_existing_csv.read() is None
+            not_existing_csv.read_or_raise()
 
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
         # Create CSVDataNode without exposed_type (Default is pandas.DataFrame)
