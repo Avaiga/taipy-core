@@ -11,8 +11,12 @@ from taipy.core.config.config import Config
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.excel import ExcelDataNode
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions import MissingRequiredProperty
-from taipy.core.exceptions.data_node import NoData, NonExistingExcelSheet, NotMatchSheetNameAndCustomObject
+from taipy.core.exceptions.data_node import (
+    MissingRequiredProperty,
+    NoData,
+    NonExistingExcelSheet,
+    NotMatchSheetNameAndCustomObject,
+)
 
 
 class TestExcelDataNode:

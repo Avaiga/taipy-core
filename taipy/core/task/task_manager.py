@@ -6,7 +6,7 @@ from taipy.core.common.logger import TaipyLogger
 from taipy.core.config.task_config import TaskConfig
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions import ModelNotFound
+from taipy.core.exceptions.repository import ModelNotFound
 from taipy.core.exceptions.task import MultipleTaskFromSameConfigWithSameParent
 from taipy.core.job.job_manager import JobManager
 from taipy.core.scheduler.abstract_scheduler import AbstractScheduler

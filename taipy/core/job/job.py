@@ -210,7 +210,7 @@ class Job:
             self.failed()
             self.__logger.error(f" {len(self._exceptions)} errors occurred during execution of job {self.id}")
             for e in self.exceptions:
-                self.__logger.error("".join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)))
+                self.__logger.error("".join(traceback.format_exception(type(e), value=e, tb=e.__traceback__)))
         else:
             self.completed()
             self.__logger.info(f"job {self.id} is completed.")

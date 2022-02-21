@@ -3,8 +3,8 @@ from typing import Callable, Iterable, List
 
 from taipy.core.common.alias import JobId
 from taipy.core.common.logger import TaipyLogger
-from taipy.core.exceptions import ModelNotFound
 from taipy.core.exceptions.job import JobNotDeletedException
+from taipy.core.exceptions.repository import ModelNotFound
 from taipy.core.job.job import Job
 from taipy.core.job.job_repository import JobRepository
 from taipy.core.task.task import Task

@@ -10,8 +10,7 @@ from taipy.core.config.config import Config
 from taipy.core.data.csv import CSVDataNode
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions import MissingRequiredProperty
-from taipy.core.exceptions.data_node import NoData
+from taipy.core.exceptions.data_node import MissingRequiredProperty, NoData
 
 
 class TestCSVDataNode:
