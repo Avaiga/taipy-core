@@ -6,8 +6,6 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.config.checker.checkers.data_node_config_checker import DataNodeConfigChecker
-from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions import MissingRequiredProperty
@@ -137,7 +135,3 @@ class CSVDataNode(DataNode):
         self._last_edition_date = datetime.now()
         if job_id:
             self.job_ids.append(job_id)
-
-
-# Register class into DataManager
-DataManager._DATA_NODE_CLASS_MAP[CSVDataNode.storage_type()] = CSVDataNode

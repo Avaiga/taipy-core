@@ -3,11 +3,21 @@ from typing import List, Optional, Union
 
 from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
 from taipy.core.config.data_node_config import DataNodeConfig
+from taipy.core.data.csv import CSVDataNode
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.data_repository import DataRepository
+from taipy.core.data.excel import ExcelDataNode
+from taipy.core.data.generic import GenericDataNode
+from taipy.core.data.in_memory import InMemoryDataNode
+from taipy.core.data.pickle import PickleDataNode
 from taipy.core.data.scope import Scope
+from taipy.core.data.sql import SQLDataNode
 from taipy.core.exceptions import ModelNotFound
-from taipy.core.exceptions.data_node import InvalidDataNodeType, MultipleDataNodeFromSameConfigWithSameParent
+from taipy.core.exceptions.data_node import (
+    InvalidDataNodeType,
+    MultipleDataNodeFromSameConfigWithSameParent,
+    NonExistingDataNode,
+)
 
 
 class DataManager:
@@ -17,8 +27,9 @@ class DataManager:
     In particular, it is exposing methods for creating, storing, updating, retrieving, deleting data nodes.
     """
 
-    _DATA_NODE_CLASS_MAP = {}  # type: ignore
-    repository = DataRepository(_DATA_NODE_CLASS_MAP)
+    _DATA_NODE_CLASSES = {InMemoryDataNode, PickleDataNode, CSVDataNode, SQLDataNode, ExcelDataNode, GenericDataNode}
+    __DATA_NODE_CLASS_MAP = {ds_class.storage_type(): ds_class for ds_class in _DATA_NODE_CLASSES}  # type: ignore
+    repository = DataRepository(__DATA_NODE_CLASS_MAP)
 
     @classmethod
     def delete_all(cls):
@@ -120,7 +131,7 @@ class DataManager:
             days = props.pop("validity_days", None)
             hours = props.pop("validity_hours", None)
             minutes = props.pop("validity_minutes", None)
-            return cls._DATA_NODE_CLASS_MAP[data_node_config.storage_type](  # type: ignore
+            return cls.__DATA_NODE_CLASS_MAP[data_node_config.storage_type](  # type: ignore
                 config_name=data_node_config.name,
                 scope=data_node_config.scope or DataNodeConfig.DEFAULT_SCOPE,
                 parent_id=parent_id,
