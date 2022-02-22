@@ -9,6 +9,8 @@ import pandas as pd
 from sqlalchemy import create_engine, table, text
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.config.checker.checkers.data_node_config_checker import DataNodeConfigChecker
+from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
@@ -228,3 +230,7 @@ class SQLDataNode(DataNode):
                 raise
             else:
                 transaction.commit()
+
+
+# Register class into DataManager
+DataManager._DATA_NODE_CLASS_MAP[SQLDataNode.storage_type()] = SQLDataNode  # type: ignore

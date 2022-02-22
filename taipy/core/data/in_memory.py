@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.config.checker.checkers.data_node_config_checker import DataNodeConfigChecker
+from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 
@@ -36,6 +38,7 @@ class InMemoryDataNode(DataNode):
 
     __STORAGE_TYPE = "in_memory"
     __DEFAULT_DATA_VALUE = "default_data"
+    REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
         self,
@@ -83,3 +86,7 @@ class InMemoryDataNode(DataNode):
 
     def _write(self, data):
         in_memory_storage[self.id] = data
+
+
+# Register class into DataManager
+DataManager._DATA_NODE_CLASS_MAP[InMemoryDataNode.storage_type()] = InMemoryDataNode

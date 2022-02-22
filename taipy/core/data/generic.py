@@ -3,6 +3,8 @@ from os.path import isfile
 from typing import Any, Dict, List, Optional
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.config.checker.checkers.data_node_config_checker import DataNodeConfigChecker
+from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions import MissingRequiredProperty
@@ -83,3 +85,7 @@ class GenericDataNode(DataNode):
 
     def _write(self, data: Any):
         return self.properties[self._REQUIRED_WRITE_FUNCTION_PROPERTY](data)
+
+
+# Register class into DataManager
+DataManager._DATA_NODE_CLASS_MAP[GenericDataNode.storage_type()] = GenericDataNode  # type: ignore

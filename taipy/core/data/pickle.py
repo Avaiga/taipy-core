@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List, Optional
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.config.checker.checkers.data_node_config_checker import DataNodeConfigChecker
+from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 
@@ -36,6 +38,7 @@ class PickleDataNode(DataNode):
     __STORAGE_TYPE = "pickle"
     __PICKLE_FILE_NAME = "path"
     __DEFAULT_DATA_VALUE = "default_data"
+    REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
         self,
@@ -102,3 +105,7 @@ class PickleDataNode(DataNode):
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path / f"{self.id}.p"
+
+
+# Register class into DataManager
+DataManager._DATA_NODE_CLASS_MAP[PickleDataNode.storage_type()] = PickleDataNode  # type: ignore
