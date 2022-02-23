@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Callable, Dict, List, Optional, Union
 
+from taipy.core.common.decorators.classproperty import classproperty
 from taipy.core.common.frequency import Frequency
 from taipy.core.config._config import _Config
 from taipy.core.config.checker.checker import Checker
@@ -29,12 +30,29 @@ class Config:
     _applied_config = _Config.default_config()
     collector = IssueCollector()
 
-    global_config = _applied_config.global_config
-    job_config = _applied_config.job_config
-    data_nodes = _applied_config.data_nodes
-    tasks = _applied_config.tasks
-    pipelines = _applied_config.pipelines
-    scenarios = _applied_config.scenarios
+    @classproperty
+    def job_config(cls) -> JobConfig:
+        return cls._applied_config.job_config
+
+    @classproperty
+    def global_config(cls) -> GlobalAppConfig:
+        return cls._applied_config.global_config
+
+    @classproperty
+    def data_nodes(cls) -> Dict[str, DataNodeConfig]:
+        return cls._applied_config.data_nodes
+
+    @classproperty
+    def tasks(cls) -> Dict[str, TaskConfig]:
+        return cls._applied_config.tasks
+
+    @classproperty
+    def pipelines(cls) -> Dict[str, PipelineConfig]:
+        return cls._applied_config.pipelines
+
+    @classproperty
+    def scenarios(cls) -> Dict[str, ScenarioConfig]:
+        return cls._applied_config.scenarios
 
     @classmethod
     def load(cls, filename):
@@ -244,16 +262,6 @@ class Config:
             cls._applied_config.update(cls._file_config)
         if cls._env_file_config:
             cls._applied_config.update(cls._env_file_config)
-        cls.__update_configs()
-
-    @classmethod
-    def __update_configs(cls):
-        cls.global_config = cls._applied_config.global_config
-        cls.job_config = cls._applied_config.job_config
-        cls.data_nodes = cls._applied_config.data_nodes
-        cls.tasks = cls._applied_config.tasks
-        cls.pipelines = cls._applied_config.pipelines
-        cls.scenarios = cls._applied_config.scenarios
 
     @classmethod
     def check(cls) -> IssueCollector:
