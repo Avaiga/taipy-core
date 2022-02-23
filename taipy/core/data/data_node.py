@@ -58,6 +58,7 @@ class DataNode:
 
     ID_PREFIX = "DATANODE"
     __ID_SEPARATOR = "_"
+    __logger = TaipyLogger.get_logger()
 
     def __init__(
         self,
@@ -170,7 +171,7 @@ class DataNode:
         try:
             return self.read_or_raise()
         except NoData:
-            TaipyLogger.get_logger().warning(f"Data node {self.id} is being read but has never been written.")
+            self.__logger.warning(f"Data node {self.id} is being read but has never been written.")
             return None
 
     def write(self, data, job_id: Optional[JobId] = None):
