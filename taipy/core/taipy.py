@@ -133,7 +133,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
         ModelNotFound : if no entity corresponds to `entity_id`
     """
     if entity_id.startswith(JobManager.ID_PREFIX):
-        return JobManager.delete(JobManager.get(JobId(entity_id)))
+        return JobManager.delete(JobManager.get(JobId(entity_id)))  # type: ignore
     if entity_id.startswith(Cycle.ID_PREFIX):
         return CycleManager.delete(CycleId(entity_id))
     if entity_id.startswith(Scenario.ID_PREFIX):

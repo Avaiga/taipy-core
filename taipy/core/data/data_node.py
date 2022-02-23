@@ -59,6 +59,7 @@ class DataNode:
     ID_PREFIX = "DATANODE"
     __ID_SEPARATOR = "_"
     __logger = TaipyLogger.get_logger()
+    REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
         self,
