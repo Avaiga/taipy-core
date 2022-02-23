@@ -272,7 +272,7 @@ class ScenarioManager:
         if not all([scenarios[0].config_name == scenario.config_name for scenario in scenarios]):
             raise DifferentScenarioConfigs
 
-        if scenario_config := Config.scenarios().get(scenarios[0].config_name, None):
+        if scenario_config := Config.scenarios.get(scenarios[0].config_name, None):
             results = {}
             if data_node_config_name:
                 if data_node_config_name in scenario_config.comparators.keys():

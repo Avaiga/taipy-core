@@ -539,7 +539,7 @@ class Taipy:
         Returns:
             bool: True if the operation succeeded, False otherwise.
         """
-        if not Config.global_config().clean_entities_enabled:
+        if not Config.global_config.clean_entities_enabled:
             logging.warning("Please set clean_entities_enabled to True in global app config to clean all entities.")
             return False
 

@@ -29,35 +29,12 @@ class Config:
     _applied_config = _Config.default_config()
     collector = IssueCollector()
 
-    @classmethod
-    def global_config(cls) -> GlobalAppConfig:
-        """Returns configuration values related to the global application."""
-        return cls._applied_config.global_config
-
-    @classmethod
-    def job_config(cls) -> JobConfig:
-        """Returns configuration values related to the job executions."""
-        return cls._applied_config.job_config
-
-    @classmethod
-    def data_nodes(cls) -> Dict[str, DataNodeConfig]:
-        """Returns data node configs by config name."""
-        return cls._applied_config.data_nodes
-
-    @classmethod
-    def tasks(cls) -> Dict[str, TaskConfig]:
-        """Returns task configs by config name."""
-        return cls._applied_config.tasks
-
-    @classmethod
-    def pipelines(cls) -> Dict[str, PipelineConfig]:
-        """Returns pipeline configs by config name."""
-        return cls._applied_config.pipelines
-
-    @classmethod
-    def scenarios(cls) -> Dict[str, ScenarioConfig]:
-        """Returns scenario configs by config name."""
-        return cls._applied_config.scenarios
+    global_config = _applied_config.global_config
+    job_config = _applied_config.job_config
+    data_nodes = _applied_config.data_nodes
+    tasks = _applied_config.tasks
+    pipelines = _applied_config.pipelines
+    scenarios = _applied_config.scenarios
 
     @classmethod
     def load(cls, filename):
@@ -267,6 +244,16 @@ class Config:
             cls._applied_config.update(cls._file_config)
         if cls._env_file_config:
             cls._applied_config.update(cls._env_file_config)
+        cls.__update_configs()
+
+    @classmethod
+    def __update_configs(cls):
+        cls.global_config = cls._applied_config.global_config
+        cls.job_config = cls._applied_config.job_config
+        cls.data_nodes = cls._applied_config.data_nodes
+        cls.tasks = cls._applied_config.tasks
+        cls.pipelines = cls._applied_config.pipelines
+        cls.scenarios = cls._applied_config.scenarios
 
     @classmethod
     def check(cls) -> IssueCollector:
