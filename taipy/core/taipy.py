@@ -87,7 +87,7 @@ def get(
         The entity corresponding to the provided identifier. None if no entity is found.
 
     Raises:
-        ModelNotFound: if `entity_id` does not match any entity type pattern.
+            ModelNotFound: if no entity corresponds to `entity_id`
     """
     if entity_id.startswith(JobManager.ID_PREFIX):
         return JobManager.get(JobId(entity_id))
@@ -114,20 +114,37 @@ def get_tasks() -> List[Task]:
     return TaskManager.get_all()
 
 
-def delete_scenario(scenario_id: ScenarioId):
+def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]):
     """
-    Deletes the scenario given as parameter and the nested pipelines, tasks, data nodes, and jobs.
+    Deletes the entity given as parameter and the nested entities
 
-    Deletes the scenario given as parameter and propagate the hard deletion. The hard delete is propagated to a
-    nested pipeline if the pipeline is not shared by another scenario.
+    Deletes the entity given as parameter and propagate the deletion. The deletion is propagated to a
+    nested entity if the nested entity is not shared by another entity.
+
+    If a CycleId is provided, the nested scenarios, pipelines, data nodes, and jobs are deleted.
+    If a ScenarioId is provided, the nested pipelines, tasks, data nodes, and jobs are deleted.
+    If a PipelineId is provided, the nested tasks, data nodes, and jobs are deleted.
+    If a TaskId is provided, the nested data nodes, and jobs are deleted.
 
     Parameters:
-    scenario_id (ScenarioId) : identifier of the scenario to hard delete.
+        entity_id (Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]) : id of the entity to delete.
 
     Raises:
-    ModelNotFound error if no scenario corresponds to scenario_id.
+        ModelNotFound : if no entity corresponds to `entity_id`
     """
-    return ScenarioManager.hard_delete(scenario_id)
+    if entity_id.startswith(JobManager.ID_PREFIX):
+        return JobManager.delete(JobManager.get(JobId(entity_id)))
+    if entity_id.startswith(Cycle.ID_PREFIX):
+        return CycleManager.delete(CycleId(entity_id))
+    if entity_id.startswith(Scenario.ID_PREFIX):
+        return ScenarioManager.hard_delete(ScenarioId(entity_id))
+    if entity_id.startswith(Pipeline.ID_PREFIX):
+        return PipelineManager.hard_delete(PipelineId(entity_id))
+    if entity_id.startswith(Task.ID_PREFIX):
+        return TaskManager.hard_delete(TaskId(entity_id))
+    if entity_id.startswith(DataNode.ID_PREFIX):
+        return DataManager.delete(DataNodeId(entity_id))
+    raise ModelNotFound("NOT_DETERMINED", entity_id)
 
 
 def get_scenarios(cycle: Optional[Cycle] = None) -> List[Scenario]:
@@ -228,22 +245,6 @@ def unsubscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Op
         The function will continue to be called for ongoing jobs.
     """
     return PipelineManager.unsubscribe(callback, pipeline)
-
-
-def delete_pipeline(pipeline_id: PipelineId):
-    """
-    Deletes the pipeline given as parameter and the nested tasks, data nodes, and jobs.
-
-    Deletes the pipeline given as parameter and propagate the hard deletion. The hard delete is propagated to a
-    nested task if the task is not shared by another pipeline.
-
-    Parameters:
-    pipeline_id (PipelineId) : identifier of the pipeline to hard delete.
-
-    Raises:
-    ModelNotFound error if no pipeline corresponds to pipeline_id.
-    """
-    return PipelineManager.hard_delete(pipeline_id)
 
 
 def get_pipelines() -> List[Pipeline]:
