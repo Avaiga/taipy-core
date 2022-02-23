@@ -8,7 +8,7 @@ class MissingRequiredProperty(Exception):
 
 class InvalidDataNodeType(Exception):
     """
-    Raised if a data node does not exist.
+    Raised if a data node storage type does not exist.
     """
 
     pass
@@ -59,4 +59,14 @@ class NonExistingExcelSheet(Exception):
 class NotMatchSheetNameAndCustomObject(Exception):
     """
     Raised if a provided list of sheet names does not match with the provided list of custom objects.
+    """
+
+class MissingReadFunction(Exception):
+    """
+    Raised if no read function is provided for the GenericDataNode
+    """
+    
+class MissingWriteFunction(Exception):
+    """
+    Raised if no write function is provided for the GenericDataNode
     """
