@@ -3,7 +3,7 @@ __all__ = ["Config"]
 import os
 from typing import Callable, Dict, List, Optional, Union
 
-from taipy.core.common.decorators.classproperty import classproperty
+from taipy.core.common.classproperty import classproperty
 from taipy.core.common.frequency import Frequency
 from taipy.core.common.logger import TaipyLogger
 from taipy.core.config._config import _Config

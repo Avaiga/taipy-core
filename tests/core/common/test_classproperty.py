@@ -1,6 +1,6 @@
 import pytest
 
-from taipy.core.common.decorators.classproperty import classproperty
+from taipy.core.common.classproperty import classproperty
 
 
 class TestClassProperty:
