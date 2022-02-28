@@ -5,7 +5,8 @@ import time
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+from functools import lru_cache
+from typing import Any, Dict, Generic, Iterable, Iterator, List, Optional, OrderedDict, Type, TypeVar, Union
 
 from taipy.core.exceptions.exceptions import ModelNotFound
 
@@ -43,7 +44,40 @@ class EntityCache(Generic[Entity]):
         self.last_modified_time = last_modified_time
 
 
+class EntityCacheManager(Generic[Entity]):
+    def __init__(self, limit=100) -> None:
+        self._cache: OrderedDict[str, EntityCache[Entity]] = OrderedDict()
+        self.limit = limit
+
+    def get(self, filepath: pathlib.Path) -> Optional[Entity]:
+        if entity_cache := self._cache.get(filepath.name):
+            if entity_cache.last_modified_time == filepath.stat().st_mtime_ns:
+                return entity_cache.data
+        return None
+
+    def save(self, filepath: pathlib.Path, value: Entity):
+        if filepath.name in self._cache:
+            self._cache[filepath.name].data = value
+            self._cache[filepath.name].last_modified_time = filepath.stat().st_mtime_ns
+        else:
+            self._cache[filepath.name] = EntityCache(value, filepath.stat().st_mtime_ns)
+        if len(self._cache) > self.limit:
+            self._cache.popitem(False)
+
+    def pop(self, filepath: pathlib.Path) -> Optional[Entity]:
+        if filepath.name in self._cache:
+            return self._cache.pop(filepath.name).data
+        return None
+
+    def __len__(self):
+        return len(self._cache)
+
+    def clear(self):
+        self._cache.clear()
+
+
 class _FileSystemRepository(Generic[ModelType, Entity]):
+    _CACHE_LIMIT = 100
     """
     Holds common methods to be used and extended when the need for saving
     dataclasses as JSON files in local storage emerges.
@@ -72,7 +106,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         ...
 
     @abstractmethod
-    def _from_model(self, model):
+    def _from_model(self, model) -> Entity:
         """
         Converts a model to its functional object.
         """
@@ -81,7 +115,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
         self.dir_name = dir_name
-        self._cache: Dict[str, EntityCache[Entity]] = {}
+        self._cache: EntityCacheManager[Entity] = EntityCacheManager(self._CACHE_LIMIT)
 
     @property
     def _directory(self) -> pathlib.Path:
@@ -101,7 +135,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _save(self, entity):
         model = self._to_model(entity)
         file_path = self.__get_model_filepath(model.id, False)
-        self._cache.pop(file_path.name, None)
+        self._cache.pop(file_path)
         file_path.write_text(json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=_CustomEncoder))
 
     def _delete_all(self):
@@ -135,15 +169,11 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return filepath
 
     def __to_entity(self, filepath: pathlib.Path) -> Entity:
-        # Check if the file has not been modified since the last time it was read, then use the cache.
-        if entity_cache := self._cache.get(filepath.name):
-            if entity_cache.last_modified_time == filepath.stat().st_mtime_ns:
-                return entity_cache.data
+        if entity := self._cache.get(filepath):
+            return entity
 
         with open(filepath, "r") as f:
             data = json.load(f, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         entity = self._from_model(model)
-        # Save the entity in the cache with the last modified time.
-        self._cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime_ns)
         return entity
