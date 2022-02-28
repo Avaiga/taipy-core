@@ -81,7 +81,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
         self.dir_name = dir_name
-        self.cache: Dict[str, EntityCache[Entity]] = {}
+        self._cache: Dict[str, EntityCache[Entity]] = {}
 
     @property
     def _directory(self) -> pathlib.Path:
@@ -100,9 +100,9 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def _save(self, entity):
         model = self._to_model(entity)
-        self.__get_model_filepath(model.id, False).write_text(
-            json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=_CustomEncoder)
-        )
+        file_path = self.__get_model_filepath(model.id, False)
+        self._cache.pop(file_path.name, None)
+        file_path.write_text(json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=_CustomEncoder))
 
     def _delete_all(self):
         shutil.rmtree(self._directory)
@@ -136,7 +136,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def __to_entity(self, filepath: pathlib.Path) -> Entity:
         # Check if the file has not been modified since the last time it was read, then use the cache.
-        if entity_cache := self.cache.get(filepath.name):
+        if entity_cache := self._cache.get(filepath.name):
             if entity_cache.last_modified_time == filepath.stat().st_mtime:
                 return entity_cache.data
 
@@ -145,5 +145,5 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         model = self.model.from_dict(data)  # type: ignore
         entity = self._from_model(model)
         # Save the entity in the cache with the last modified time.
-        self.cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime)
+        self._cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime)
         return entity
