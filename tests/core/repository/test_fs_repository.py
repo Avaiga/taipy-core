@@ -1,11 +1,13 @@
 import dataclasses
 import pathlib
 from dataclasses import dataclass
+from functools import cache
 from typing import Any, Dict
 from unittest import mock
 
 from taipy.core.config.config import Config
 from taipy.core.repository import FileSystemRepository
+from taipy.core.repository.fs_base import EntityCacheManager
 
 
 @dataclass
@@ -94,11 +96,11 @@ class TestFileSystemStorage:
 
         m = MockObj("uuid", "foo")
         r.save(m)
-        assert len(r._cache.keys()) == 0
+        assert len(r._cache) == 0
 
         # Load object for first time, cache should be saved
         e = r.load(m.id)
-        assert len(r._cache.keys()) == 1
+        assert len(r._cache) == 1
 
         # Load object again, cache should be used
         e2 = r.load(m.id)
@@ -108,7 +110,25 @@ class TestFileSystemStorage:
         # Save new object, cache should be invalidated
         m2 = MockObj("uuid", "bar")
         r.save(m2)
-        assert len(r._cache.keys()) == 0
+        assert len(r._cache) == 0
         e3 = r.load(m.id)
         # Should be a different object
         assert e3 is not e
+        assert len(r._cache) == 1
+
+    def test_entity_cache_limit(self):
+        r = MockRepository(model=MockModel, dir_name="foo")
+        limit = FileSystemRepository._CACHE_LIMIT
+        # Try to add more objects
+        for i in range(limit + 1):
+            m = MockObj(f"uuid-{i}", f"Foo{i}")
+            r.save(m)
+            r.load(m.id)
+
+        # Cache size should be limited
+        assert len(r._cache) == limit
+
+        m = MockObj(f"uuid-{limit + 2}", f"Foo{limit + 2}")
+        r.save(m)
+        r.load(m.id)
+        assert len(r._cache) == limit
