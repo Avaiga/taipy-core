@@ -1,13 +1,10 @@
 import dataclasses
 import pathlib
 from dataclasses import dataclass
-from functools import cache
 from typing import Any, Dict
-from unittest import mock
 
 from taipy.core.config.config import Config
 from taipy.core.repository import FileSystemRepository
-from taipy.core.repository.fs_base import EntityCacheManager
 
 
 @dataclass
