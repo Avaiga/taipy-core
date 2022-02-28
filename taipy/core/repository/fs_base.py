@@ -131,9 +131,9 @@ class FileSystemRepository(Generic[ModelType, Entity]):
         return filepath
 
     def __to_entity(self, filepath: pathlib.Path) -> Entity:
-        # Check if the file has been modified since the last time it was read, then use the cache.
+        # Check if the file has not been modified since the last time it was read, then use the cache.
         if entity_cache := self.cache.get(filepath.name):
-            if entity_cache.last_modified_time >= filepath.stat().st_mtime:
+            if entity_cache.last_modified_time == filepath.stat().st_mtime:
                 return entity_cache.data
 
         with open(filepath, "r") as f:
