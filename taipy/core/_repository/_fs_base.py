@@ -176,4 +176,5 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
             data = json.load(f, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         entity = self._from_model(model)
+        self._cache.save(filepath, entity)
         return entity
