@@ -122,7 +122,7 @@ class TestFileSystemStorage:
         assert len(r._cache) == 0
         e3 = r.load(m.id)
         # Should be a different object
-        assert e3 is not e
+        assert e3 is not e2
         assert len(r._cache) == 1
 
         entity_cache = list(r._cache._cache.values())[0]
@@ -130,7 +130,7 @@ class TestFileSystemStorage:
         entity_cache.last_modified_time = 0
         e4 = r.load(m.id)
         # Should be a different object
-        assert e4 is not e
+        assert e4 is not e3
 
     def test_entity_cache_limit(self):
         r = MockRepository(model=MockModel, dir_name="foo")
