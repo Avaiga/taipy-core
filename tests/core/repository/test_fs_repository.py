@@ -2,6 +2,7 @@ import dataclasses
 import pathlib
 from dataclasses import dataclass
 from typing import Any, Dict
+from unittest import mock
 
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.config.config import Config
@@ -98,3 +99,26 @@ class TestFileSystemStorage:
 
         assert m1 is None
         assert m == m2
+
+    def test_load_entity_caching(self):
+        r = MockRepository(model=MockModel, dir_name="foo")
+
+        m = MockObj("uuid", "foo")
+        r.save(m)
+        assert len(r.cache.keys()) == 0
+
+        # Load object for first time, cache should be saved
+        e = r.load(m.id)
+        assert len(r.cache.keys()) == 1
+
+        # Load object again, cache should be used
+        e2 = r.load(m.id)
+        # Expect the same object
+        assert e2 is e
+
+        # Save new object, cache should be invalidated
+        m2 = MockObj("uuid", "bar")
+        r.save(m2)
+        e3 = r.load(m.id)
+        # Should be a different object
+        assert e3 is not e

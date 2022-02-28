@@ -1,6 +1,7 @@
 import json
 import pathlib
 import shutil
+import time
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -34,6 +35,12 @@ class _CustomDecoder(json.JSONDecoder):
             return datetime.fromisoformat(source.get("__value__"))
         else:
             return source
+
+
+class EntityCache(Generic[Entity]):
+    def __init__(self, data: Entity, last_modified_time: float):
+        self.data = data
+        self.last_modified_time = last_modified_time
 
 
 class _FileSystemRepository(Generic[ModelType, Entity]):
@@ -74,6 +81,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
         self.dir_name = dir_name
+        self.cache: Dict[str, EntityCache[Entity]] = {}
 
     @property
     def _directory(self) -> pathlib.Path:
@@ -126,8 +134,16 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
         return filepath
 
-    def __to_entity(self, filepath):
+    def __to_entity(self, filepath: pathlib.Path) -> Entity:
+        # Check if the file has been modified since the last time it was read, then use the cache.
+        if entity_cache := self.cache.get(filepath.name):
+            if entity_cache.last_modified_time >= filepath.stat().st_mtime:
+                return entity_cache.data
+
         with open(filepath, "r") as f:
             data = json.load(f, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
-        return self._from_model(model)
+        entity = self._from_model(model)
+        # Save the entity in the cache with the last modified time.
+        self.cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime)
+        return entity
