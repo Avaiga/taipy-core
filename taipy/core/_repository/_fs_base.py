@@ -137,7 +137,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __to_entity(self, filepath: pathlib.Path) -> Entity:
         # Check if the file has not been modified since the last time it was read, then use the cache.
         if entity_cache := self._cache.get(filepath.name):
-            if entity_cache.last_modified_time == filepath.stat().st_mtime:
+            if entity_cache.last_modified_time == filepath.stat().st_mtime_ns:
                 return entity_cache.data
 
         with open(filepath, "r") as f:
@@ -145,5 +145,5 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         model = self.model.from_dict(data)  # type: ignore
         entity = self._from_model(model)
         # Save the entity in the cache with the last modified time.
-        self._cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime)
+        self._cache[filepath.name] = EntityCache(entity, filepath.stat().st_mtime_ns)
         return entity
