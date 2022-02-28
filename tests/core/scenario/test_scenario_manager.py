@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from multiprocessing import Process
+from time import sleep
 
 import pytest
 
@@ -264,6 +265,7 @@ def test_scenario_manager_only_creates_data_node_once():
 
 
 def test_notification_subscribe(mocker):
+    print("subscribe test begin")
     mocker.patch("taipy.core.common._reload._reload", side_effect=lambda m, o: o)
 
     scenario_config = Config._add_scenario(
@@ -288,7 +290,6 @@ def test_notification_subscribe(mocker):
     notify_1 = NotifyMock(scenario)
     notify_2 = NotifyMock(scenario)
     mocker.patch.object(_utils, "_load_fct", side_effect=[notify_1, notify_2])
-
     # test subscribing notification
     _ScenarioManager._subscribe(notify_1, scenario)
     _ScenarioManager._submit(scenario)
@@ -302,7 +303,6 @@ def test_notification_subscribe(mocker):
     _ScenarioManager._unsubscribe(notify_1, scenario)
     _ScenarioManager._subscribe(notify_2, scenario)
     _ScenarioManager._submit(scenario)
-
     notify_1.assert_not_called()
     notify_2.assert_called_3_times()
 
