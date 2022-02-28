@@ -105,13 +105,20 @@ class TestFileSystemStorage:
         assert e2 is e
 
         # Save new object, cache should be invalidated
-        m2 = MockObj("uuid", "bar")
+        m2 = MockObj(m.id, "bar")
         r.save(m2)
         assert len(r._cache) == 0
         e3 = r.load(m.id)
         # Should be a different object
         assert e3 is not e
         assert len(r._cache) == 1
+
+        entity_cache = list(r._cache._cache.values())[0]
+        # Make the cache outdated
+        entity_cache.last_modified_time = 0
+        e4 = r.load(m.id)
+        # Should be a different object
+        assert e4 is not e
 
     def test_entity_cache_limit(self):
         r = MockRepository(model=MockModel, dir_name="foo")
