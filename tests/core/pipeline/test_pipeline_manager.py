@@ -285,7 +285,7 @@ def test_pipeline_notification_subscribe(mocker):
     notify_2.__module__ = "notify_2"
     # Mocking this because NotifyMock is a class that does not loads correctly when getting the pipeline
     # from the storage.
-    mocker.patch.object(utils, "load_fct", side_effect=[notify_1, notify_1, notify_2])
+    mocker.patch.object(utils, "load_fct", side_effect=[notify_1, notify_2])
 
     # test subscription
     callback = mock.MagicMock()
