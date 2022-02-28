@@ -94,11 +94,11 @@ class TestFileSystemStorage:
 
         m = MockObj("uuid", "foo")
         r.save(m)
-        assert len(r.cache.keys()) == 0
+        assert len(r._cache.keys()) == 0
 
         # Load object for first time, cache should be saved
         e = r.load(m.id)
-        assert len(r.cache.keys()) == 1
+        assert len(r._cache.keys()) == 1
 
         # Load object again, cache should be used
         e2 = r.load(m.id)
@@ -108,6 +108,7 @@ class TestFileSystemStorage:
         # Save new object, cache should be invalidated
         m2 = MockObj("uuid", "bar")
         r.save(m2)
+        assert len(r._cache.keys()) == 0
         e3 = r.load(m.id)
         # Should be a different object
         assert e3 is not e
