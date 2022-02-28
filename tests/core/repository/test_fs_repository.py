@@ -1,9 +1,7 @@
 import dataclasses
 import pathlib
 from dataclasses import dataclass
-from functools import cache
 from typing import Any, Dict
-from unittest import mock
 
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.config.config import Config

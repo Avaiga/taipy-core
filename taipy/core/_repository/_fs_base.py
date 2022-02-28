@@ -1,11 +1,9 @@
 import json
 import pathlib
 import shutil
-import time
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
-from functools import lru_cache
 from typing import Any, Dict, Generic, Iterable, Iterator, List, Optional, OrderedDict, Type, TypeVar, Union
 
 from taipy.core.exceptions.exceptions import ModelNotFound
