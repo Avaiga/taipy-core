@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from multiprocessing import Process
-from time import sleep
 
 import pytest
 
