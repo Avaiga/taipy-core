@@ -31,7 +31,7 @@ class MockRepository(FileSystemRepository):
     def to_model(self, obj: MockEntity):
         return MockModel(obj.id, obj.name)
 
-    def from_model(self, model: MockEntity):
+    def from_model(self, model: MockModel):
         return MockEntity(model.id, model.name)
 
     @property
@@ -94,16 +94,14 @@ class TestFileSystemStorage:
         class MockModel:
             id: str
             name: str
-            _last_modified_time: Optional[int]
+            _timestamp: Optional[int]
 
             def to_dict(self):
                 return dataclasses.asdict(self)
 
             @staticmethod
             def from_dict(data: Dict[str, Any]):
-                return MockModel(
-                    id=data["id"], name=data["name"], _last_modified_time=data.get("_last_modified_time", None)
-                )
+                return MockModel(id=data["id"], name=data["name"], _timestamp=data.get("_timestamp", None))
 
         class MockEntity(Entity):
             def __init__(self, id, name):
@@ -113,7 +111,7 @@ class TestFileSystemStorage:
 
         class MockRepository(FileSystemRepository):
             def to_model(self, obj: MockEntity):
-                return MockModel(obj.id, obj.name, obj._last_modified_time)
+                return MockModel(obj.id, obj.name, obj._timestamp)
 
             def from_model(self, model: MockEntity):
                 return MockEntity(model.id, model.name)
@@ -133,8 +131,8 @@ class TestFileSystemStorage:
         assert isinstance(m1, MockEntity)
         assert m1.name == "foo"
         assert m1.id == "uuid"
-        assert m1._last_modified_time == filepath.stat().st_mtime_ns
-        assert m1._is_up_to_date(filepath)
+        assert m1._timestamp == filepath.stat().st_mtime_ns
+        assert r._is_up_to_date(m1, filepath)
 
         # m1 is never saved again so it should be up to date
         m2 = r.load(m1)
@@ -146,10 +144,9 @@ class TestFileSystemStorage:
         m2.name = "bar"
         r.save(m2)
         # Should be outdated
-        assert not m2._is_up_to_date(filepath)
-
+        assert not r._is_up_to_date(m2, filepath)
         # Load the object again
         m3 = r.load(m2)
         # Should be up to date again
-        assert m3._is_up_to_date(filepath)
+        assert r._is_up_to_date(m3, filepath)
         assert m3.name == "bar"

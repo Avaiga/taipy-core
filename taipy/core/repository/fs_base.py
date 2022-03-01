@@ -89,7 +89,7 @@ class FileSystemRepository(Generic[ModelType, EntityType]):
     def load(self, entity: Union[str, EntityType]) -> EntityType:
         id = entity if isinstance(entity, str) else entity.id  # type: ignore
         filepath = self._get_filepath(id)
-        if not entity or isinstance(entity, str) or not entity._is_up_to_date(filepath):  # type: ignore
+        if isinstance(entity, str) or not self._is_up_to_date(entity, filepath):  # type: ignore
             return self.__to_entity(filepath)
         return entity
 
@@ -133,5 +133,8 @@ class FileSystemRepository(Generic[ModelType, EntityType]):
             data = json.load(f, cls=CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         entity = self.from_model(model)
-        entity._last_modified_time = filepath.stat().st_mtime_ns  # type: ignore
+        entity._timestamp = filepath.stat().st_mtime_ns  # type: ignore
         return entity
+
+    def _is_up_to_date(self, entity: EntityType, filepath: pathlib.Path) -> bool:
+        return entity._timestamp == filepath.stat().st_mtime_ns  # type: ignore
