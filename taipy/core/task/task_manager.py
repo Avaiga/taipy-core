@@ -130,10 +130,9 @@ class TaskManager:
             default: The default value to return if no task is found. None is returned if no default value is provided.
         """
         try:
-            task_id = task.id if isinstance(task, Task) else task
-            return cls.repository.load(task_id)
+            return cls.repository.load(task)
         except ModelNotFound:
-            cls.__logger.warning(f"Task: {task_id} does not exist.")
+            cls.__logger.warning(f"Task: {task.id if isinstance(task,Task) else task} does not exist.")
             return default
 
     @classmethod

@@ -55,7 +55,7 @@ class CycleManager:
         cls.repository.save(cycle)
 
     @classmethod
-    def get(cls, cycle_id: CycleId, default=None) -> Cycle:
+    def get(cls, cycle: CycleId, default=None) -> Cycle:
         """
         Gets the cycle corresponding to the identifier given as parameter.
 
@@ -64,9 +64,9 @@ class CycleManager:
             default: Default value to return if no cycle is found. None is returned if no default value is provided.
         """
         try:
-            return cls.repository.load(cycle_id)
+            return cls.repository.load(cycle)
         except ModelNotFound:
-            cls.__logger.warning(f"Cycle entity: {cycle_id} does not exist.")
+            cls.__logger.warning(f"Cycle entity: {cycle.id if isinstance(cycle,Cycle) else cycle} does not exist.")
             return default
 
     @classmethod

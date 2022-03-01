@@ -77,6 +77,7 @@ class DataNode(Entity):
         edition_in_progress: bool = False,
         **kwargs,
     ):
+        super().__init__()
         self.config_name = protect_name(config_name)
         self.id = id or DataNodeId(self.__ID_SEPARATOR.join([self.ID_PREFIX, self.config_name, str(uuid.uuid4())]))
         self.parent_id = parent_id

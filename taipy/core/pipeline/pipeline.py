@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 import networkx as nx
 
 from taipy.core.common.alias import Dag, PipelineId
+from taipy.core.common.entity import Entity
 from taipy.core.common.reload import reload, self_reload
 from taipy.core.common.unicode_to_python_variable_name import protect_name
 from taipy.core.common.utils import fcts_to_dict
@@ -14,7 +15,7 @@ from taipy.core.pipeline.pipeline_model import PipelineModel
 from taipy.core.task.task import Task
 
 
-class Pipeline:
+class Pipeline(Entity):
     """
     A Pipeline entity that holds a list of tasks and additional arguments representing a set of data processing elements
     connected in series.
@@ -45,6 +46,7 @@ class Pipeline:
         parent_id: Optional[str] = None,
         subscribers: Set[Callable] = None,
     ):
+        super().__init__()
         self.config_name = protect_name(config_name)
         self.tasks = {task.config_name: task for task in tasks}
         self.id: PipelineId = pipeline_id or self.new_id(self.config_name)

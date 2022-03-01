@@ -6,10 +6,12 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
 
+from taipy.core.common.entity import Entity
 from taipy.core.exceptions.repository import ModelNotFound
 
 ModelType = TypeVar("ModelType")
-Entity = TypeVar("Entity")
+EntityType = TypeVar("EntityType")
+
 Json = Union[dict, list, str, int, float, bool, None]
 
 
@@ -36,7 +38,7 @@ class CustomDecoder(json.JSONDecoder):
             return source
 
 
-class FileSystemRepository(Generic[ModelType, Entity]):
+class FileSystemRepository(Generic[ModelType, EntityType]):
     """
     Holds common methods to be used and extended when the need for saving
     dataclasses as JSON files in local storage emerges.
@@ -65,7 +67,7 @@ class FileSystemRepository(Generic[ModelType, Entity]):
         ...
 
     @abstractmethod
-    def from_model(self, model):
+    def from_model(self, model) -> EntityType:
         """
         Converts a model to its functional object.
         """
@@ -84,20 +86,19 @@ class FileSystemRepository(Generic[ModelType, Entity]):
 
         return dir_path
 
-    def load(self, entity: Union[str, Entity]) -> Entity:
-        id = entity if isinstance(entity, str) else entity.id
-        filepath = self.__get_filepath(id)
-        if isinstance(entity, str) or not self._is_up_to_date(entity, filepath):
+    def load(self, entity: Union[str, EntityType]) -> EntityType:
+        id = entity if isinstance(entity, str) else entity.id  # type: ignore
+        filepath = self._get_filepath(id)
+        if not entity or isinstance(entity, str) or not entity._is_up_to_date(filepath):  # type: ignore
             return self.__to_entity(filepath)
-        else:
-            return entity
+        return entity
 
-    def load_all(self) -> List[Entity]:
+    def load_all(self) -> List[EntityType]:
         return [self.__to_entity(f) for f in self.directory.glob("*.json")]
 
     def save(self, entity):
         model = self.to_model(entity)
-        self.__get_filepath(model.id, False).write_text(
+        self._get_filepath(model.id, False).write_text(
             json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=CustomEncoder)
         )
 
@@ -105,21 +106,21 @@ class FileSystemRepository(Generic[ModelType, Entity]):
         shutil.rmtree(self.directory)
 
     def delete(self, model_id: str):
-        self.__get_filepath(model_id).unlink()
+        self._get_filepath(model_id).unlink()
 
-    def search(self, attribute: str, value: str) -> Optional[Entity]:
+    def search(self, attribute: str, value: str) -> Optional[EntityType]:
         return next(self._search(attribute, value), None)
 
-    def search_all(self, attribute: str, value: str) -> List[Entity]:
+    def search_all(self, attribute: str, value: str) -> List[EntityType]:
         return list(self._search(attribute, value))
 
     def _build_model(self, model_data: Dict) -> ModelType:
         return self.model.from_dict(model_data)  # type: ignore
 
-    def _search(self, attribute: str, value: str) -> Iterator[Entity]:
+    def _search(self, attribute: str, value: str) -> Iterator[EntityType]:
         return filter(lambda e: hasattr(e, attribute) and getattr(e, attribute) == value, self.load_all())
 
-    def __get_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
+    def _get_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
         filepath = self.directory / f"{model_id}.json"
 
         if not filepath.exists() and raise_if_not_exist:
@@ -130,12 +131,7 @@ class FileSystemRepository(Generic[ModelType, Entity]):
     def __to_entity(self, filepath: pathlib.Path):
         with open(filepath, "r") as f:
             data = json.load(f, cls=CustomDecoder)
-            version_timestamp = filepath.stat().st_mtime_ns
         model = self.model.from_dict(data)  # type: ignore
         entity = self.from_model(model)
-        entity._version_timestamp = version_timestamp
+        entity._last_modified_time = filepath.stat().st_mtime_ns  # type: ignore
         return entity
-
-    @staticmethod
-    def _is_up_to_date(entity: Entity, filepath: pathlib.Path):
-        return entity._version_timestamp and entity._version_timestamp >= filepath.stat().st_mtime_ns

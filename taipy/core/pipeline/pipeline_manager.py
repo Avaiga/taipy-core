@@ -133,10 +133,11 @@ class PipelineManager:
             default: default value to return if no pipeline is found. None is returned if no default value is provided.
         """
         try:
-            pipeline_id = pipeline.id if isinstance(pipeline, Pipeline) else pipeline
-            return cls.repository.load(pipeline_id)
+            return cls.repository.load(pipeline)
         except ModelNotFound:
-            cls.__logger.warning(f"Pipeline entity: {pipeline_id} does not exist.")
+            cls.__logger.warning(
+                f"Pipeline entity: {pipeline.id if isinstance(pipeline,Pipeline) else pipeline} does not exist."
+            )
             return default
 
     @classmethod

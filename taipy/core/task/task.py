@@ -2,12 +2,13 @@ import uuid
 from typing import Dict, Iterable, Optional
 
 from taipy.core.common.alias import TaskId
+from taipy.core.common.entity import Entity
 from taipy.core.common.unicode_to_python_variable_name import protect_name
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 
 
-class Task:
+class Task(Entity):
     """Holds user function that will be executed, its parameters qs data nodes and outputs as data nodes.
 
     This element bring together the user code as function, parameters and outputs.
@@ -44,6 +45,7 @@ class Task:
         id: TaskId = None,
         parent_id: Optional[str] = None,
     ):
+        super().__init__()
         self.config_name = protect_name(config_name)
         self.id = id or TaskId(self.__ID_SEPARATOR.join([self.ID_PREFIX, self.config_name, str(uuid.uuid4())]))
         self.parent_id = parent_id

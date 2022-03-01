@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List, Set
 
 from taipy.core.common.alias import ScenarioId
+from taipy.core.common.entity import Entity
 from taipy.core.common.reload import reload, self_reload
 from taipy.core.common.unicode_to_python_variable_name import protect_name
 from taipy.core.common.wrapper import Properties
@@ -10,7 +11,7 @@ from taipy.core.cycle.cycle import Cycle
 from taipy.core.pipeline.pipeline import Pipeline
 
 
-class Scenario:
+class Scenario(Entity):
     """
     Represents an instance of the  business case to solve.
 
@@ -47,6 +48,7 @@ class Scenario:
         subscribers: Set[Callable] = None,
         tags: Set[str] = None,
     ):
+        super().__init__()
         self.config_name = protect_name(config_name)
         self.id: ScenarioId = scenario_id or self.new_id(self.config_name)
         self.pipelines = {p.config_name: p for p in pipelines}

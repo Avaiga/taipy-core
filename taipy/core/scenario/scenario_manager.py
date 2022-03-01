@@ -141,11 +141,12 @@ class ScenarioManager:
             scenario (Union[Scenario, ScenarioId]) : scenario to get.
             default: Default value to return if scenario is not found. None is returned if no default value is provided.
         """
-        scenario_id = scenario.id if isinstance(scenario, Scenario) else scenario
         try:
-            return cls.repository.load(scenario_id)
+            return cls.repository.load(scenario)
         except ModelNotFound:
-            cls.__logger.warning(f"Scenario entity: {scenario_id} does not exist.")
+            cls.__logger.warning(
+                f"Scenario entity: {scenario.id if isinstance(scenario, Scenario) else scenario } does not exist."
+            )
             return default
 
     @classmethod

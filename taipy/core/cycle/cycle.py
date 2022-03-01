@@ -3,12 +3,13 @@ from datetime import datetime
 from typing import Any, Dict
 
 from taipy.core.common.alias import CycleId
+from taipy.core.common.entity import Entity
 from taipy.core.common.frequency import Frequency
 from taipy.core.common.unicode_to_python_variable_name import protect_name
 from taipy.core.common.wrapper import Properties
 
 
-class Cycle:
+class Cycle(Entity):
     """
     A Cycle object holds the frequency representing a work cycle.
 
@@ -35,6 +36,7 @@ class Cycle:
         name: str = None,
         id: CycleId = None,
     ):
+        super().__init__()
         self.frequency = frequency
         self.creation_date = creation_date
         self.start_date = start_date

@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Callable, List
 
 from taipy.core.common.alias import JobId
+from taipy.core.common.entity import Entity
 from taipy.core.common.logger import TaipyLogger
 from taipy.core.job.status import Status
 from taipy.core.task.task import Task
@@ -20,7 +21,7 @@ def _run_callbacks(fn):
     return __run_callbacks
 
 
-class Job:
+class Job(Entity):
     """Execution of a Task.
 
     A Job is the execution wrapper around a Task. It handles the status of the execution,
@@ -36,6 +37,7 @@ class Job:
     """
 
     def __init__(self, id: JobId, task: Task, force=False):
+        super().__init__()
         self.id = id
         self.task = task
         self.force = force
