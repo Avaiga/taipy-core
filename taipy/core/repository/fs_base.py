@@ -84,15 +84,20 @@ class FileSystemRepository(Generic[ModelType, Entity]):
 
         return dir_path
 
-    def load(self, model_id: str) -> Entity:
-        return self.__to_entity(self.__get_model(model_id))
+    def load(self, entity: Union[str, Entity]) -> Entity:
+        id = entity if isinstance(entity, str) else entity.id
+        filepath = self.__get_filepath(id)
+        if isinstance(entity, str) or not self._is_up_to_date(entity, filepath):
+            return self.__to_entity(filepath)
+        else:
+            return entity
 
     def load_all(self) -> List[Entity]:
         return [self.__to_entity(f) for f in self.directory.glob("*.json")]
 
-    def save(self, model):
-        model = self.to_model(model)
-        self.__get_model(model.id, False).write_text(
+    def save(self, entity):
+        model = self.to_model(entity)
+        self.__get_filepath(model.id, False).write_text(
             json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=CustomEncoder)
         )
 
@@ -100,7 +105,7 @@ class FileSystemRepository(Generic[ModelType, Entity]):
         shutil.rmtree(self.directory)
 
     def delete(self, model_id: str):
-        self.__get_model(model_id).unlink()
+        self.__get_filepath(model_id).unlink()
 
     def search(self, attribute: str, value: str) -> Optional[Entity]:
         return next(self._search(attribute, value), None)
@@ -114,7 +119,7 @@ class FileSystemRepository(Generic[ModelType, Entity]):
     def _search(self, attribute: str, value: str) -> Iterator[Entity]:
         return filter(lambda e: hasattr(e, attribute) and getattr(e, attribute) == value, self.load_all())
 
-    def __get_model(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
+    def __get_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
         filepath = self.directory / f"{model_id}.json"
 
         if not filepath.exists() and raise_if_not_exist:
@@ -122,8 +127,15 @@ class FileSystemRepository(Generic[ModelType, Entity]):
 
         return filepath
 
-    def __to_entity(self, filepath):
+    def __to_entity(self, filepath: pathlib.Path):
         with open(filepath, "r") as f:
             data = json.load(f, cls=CustomDecoder)
+            version_timestamp = filepath.stat().st_mtime_ns
         model = self.model.from_dict(data)  # type: ignore
-        return self.from_model(model)
+        entity = self.from_model(model)
+        entity._version_timestamp = version_timestamp
+        return entity
+
+    @staticmethod
+    def _is_up_to_date(entity: Entity, filepath: pathlib.Path):
+        return entity._version_timestamp and entity._version_timestamp >= filepath.stat().st_mtime_ns

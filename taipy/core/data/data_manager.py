@@ -98,10 +98,11 @@ class DataManager:
             default: default value to return if no data node is found. None is returned if no default value is provided.
         """
         try:
-            data_node_id = data_node.id if isinstance(data_node, DataNode) else data_node
-            return cls.repository.load(data_node_id)
+            return cls.repository.load(data_node)
         except ModelNotFound:
-            cls.__logger.warning(f"DataNode: {data_node_id} does not exist.")
+            cls.__logger.warning(
+                f"DataNode: {data_node.id if isinstance(data_node, DataNode) else data_node} does " f"not exist."
+            )
             return default
 
     @classmethod

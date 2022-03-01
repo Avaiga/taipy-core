@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.common.entity import Entity
 from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.reload import reload, self_reload
 from taipy.core.common.unicode_to_python_variable_name import protect_name
@@ -19,7 +20,7 @@ from taipy.core.data.scope import Scope
 from taipy.core.exceptions.data_node import NoData
 
 
-class DataNode:
+class DataNode(Entity):
     """
     Data Node represents a reference to a dataset but not the data itself.
 
