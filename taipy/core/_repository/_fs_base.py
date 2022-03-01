@@ -59,8 +59,8 @@ class EntityCacheManager(Generic[Entity]):
             self._cache.popitem(False)
 
     def pop(self, filepath: pathlib.Path) -> Optional[Entity]:
-        if filepath.name in self._cache:
-            return self._cache.pop(filepath.name).data
+        if v := self._cache.pop(filepath.name):
+            return v.data
         return None
 
     def __len__(self):
