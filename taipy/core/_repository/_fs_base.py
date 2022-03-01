@@ -59,7 +59,7 @@ class EntityCacheManager(Generic[Entity]):
             self._cache[filepath.name].last_modified_time = filepath.stat().st_mtime_ns
         else:
             self._cache[filepath.name] = EntityCache(value, filepath.stat().st_mtime_ns)
-        if len(self._cache) > self.limit:
+        while len(self._cache) > self.limit:
             self._cache.popitem(False)
 
     def pop(self, filepath: pathlib.Path) -> Optional[Entity]:
@@ -75,7 +75,6 @@ class EntityCacheManager(Generic[Entity]):
 
 
 class _FileSystemRepository(Generic[ModelType, Entity]):
-    _CACHE_LIMIT = 100
     """
     Holds common methods to be used and extended when the need for saving
     dataclasses as JSON files in local storage emerges.
@@ -87,6 +86,8 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         model (ModelType): Generic dataclass.
         dir_name (str): Folder that will hold the files for this dataclass model.
     """
+
+    _CACHE_LIMIT = 100
 
     @abstractmethod
     def _to_model(self, obj):
