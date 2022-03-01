@@ -265,7 +265,6 @@ def test_scenario_manager_only_creates_data_node_once():
 
 
 def test_notification_subscribe(mocker):
-    print("subscribe test begin")
     mocker.patch("taipy.core.common._reload._reload", side_effect=lambda m, o: o)
 
     scenario_config = Config._add_scenario(
