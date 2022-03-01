@@ -54,11 +54,7 @@ class EntityCacheManager(Generic[Entity]):
         return None
 
     def save(self, filepath: pathlib.Path, value: Entity):
-        if filepath.name in self._cache:
-            self._cache[filepath.name].data = value
-            self._cache[filepath.name].last_modified_time = filepath.stat().st_mtime_ns
-        else:
-            self._cache[filepath.name] = EntityCache(value, filepath.stat().st_mtime_ns)
+        self._cache[filepath.name] = EntityCache(value, filepath.stat().st_mtime_ns)
         while len(self._cache) > self.limit:
             self._cache.popitem(False)
 
