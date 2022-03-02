@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 
 from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
 from taipy.core.common.logger import TaipyLogger
+from taipy.core.common.manager import Manager
 from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.data.csv import CSVDataNode
 from taipy.core.data.data_node import DataNode
@@ -16,7 +17,7 @@ from taipy.core.exceptions.data_node import InvalidDataNodeType, MultipleDataNod
 from taipy.core.exceptions.repository import ModelNotFound
 
 
-class DataManager:
+class DataManager(Manager[DataNode]):
     """
     A Data Manager is responsible for all managing data node related capabilities.
 
@@ -24,26 +25,7 @@ class DataManager:
     """
 
     __DATA_NODE_CLASS_MAP = {c.storage_type(): c for c in DataNode.__subclasses__()}  # type: ignore
-    repository = DataRepository(__DATA_NODE_CLASS_MAP)
-    __logger = TaipyLogger.get_logger()
-
-    @classmethod
-    def delete_all(cls):
-        """Deletes all data nodes."""
-        cls.repository.delete_all()
-
-    @classmethod
-    def delete(cls, data_node_id: str):
-        """
-        Deletes the data node provided as parameter.
-
-        Parameters:
-            data_node_id (str) : identifier of the data node to delete.
-
-        Raises:
-            ModelNotFound: Raised if no data node corresponds to data_node_id.
-        """
-        cls.repository.delete(data_node_id)
+    _repository = DataRepository(__DATA_NODE_CLASS_MAP)
 
     @classmethod
     def get_or_create(
@@ -79,16 +61,6 @@ class DataManager:
             return cls._create_and_set(data_node_config, parent_id)
 
     @classmethod
-    def set(cls, data_node: DataNode):
-        """
-        Saves or Updates the data node given as parameter.
-
-        Parameters:
-            data_node (DataNode) : data node to save or update.
-        """
-        cls.repository.save(data_node)
-
-    @classmethod
     def get(cls, data_node: Union[DataNode, DataNodeId], default=None) -> DataNode:
         """
         Gets the data node corresponding to the DataNode or the identifier given as parameter.
@@ -99,19 +71,10 @@ class DataManager:
         """
         try:
             data_node_id = data_node.id if isinstance(data_node, DataNode) else data_node
-            return cls.repository.load(data_node_id)
+            return cls._repository.load(data_node_id)
         except ModelNotFound:
-            cls.__logger.warning(f"DataNode: {data_node_id} does not exist.")
+            cls._logger.warning(f"DataNode: {data_node_id} does not exist.")
             return default
-
-    @classmethod
-    def get_all(cls) -> List[DataNode]:
-        """Returns the list of all existing data nodes."""
-        return cls.repository.load_all()
-
-    @classmethod
-    def _get_all_by_config_name(cls, config_name: str) -> List[DataNode]:
-        return cls.repository.search_all("config_name", config_name)
 
     @classmethod
     def _create_and_set(cls, data_node_config: DataNodeConfig, parent_id: Optional[str]) -> DataNode:

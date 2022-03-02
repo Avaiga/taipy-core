@@ -2,7 +2,7 @@ from functools import partial
 from typing import Callable, List, Optional, Union
 
 from taipy.core.common.alias import PipelineId, ScenarioId
-from taipy.core.common.logger import TaipyLogger
+from taipy.core.common.manager import Manager
 from taipy.core.config.pipeline_config import PipelineConfig
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions.pipeline import MultiplePipelineFromSameConfigWithSameParent, NonExistingPipeline
@@ -13,13 +13,12 @@ from taipy.core.pipeline.pipeline_repository import PipelineRepository
 from taipy.core.task.task_manager import TaskManager
 
 
-class PipelineManager:
+class PipelineManager(Manager[Pipeline]):
     """
     The Pipeline Manager is responsible for managing all pipeline-related capabilities.
     """
 
-    repository = PipelineRepository()
-    __logger = TaipyLogger.get_logger()
+    _repository = PipelineRepository()
 
     @classmethod
     def subscribe(cls, callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
@@ -66,24 +65,6 @@ class PipelineManager:
         cls.set(pipeline)
 
     @classmethod
-    def delete_all(cls):
-        """
-        Deletes all pipelines.
-        """
-        cls.repository.delete_all()
-
-    @classmethod
-    def delete(cls, pipeline_id: PipelineId):
-        """Deletes the pipeline provided as parameter.
-
-        Parameters:
-            pipeline_id (str): identifier of the pipeline to delete.
-        Raises:
-            ModelNotFound: No pipeline corresponds to pipeline_id.
-        """
-        cls.repository.delete(pipeline_id)
-
-    @classmethod
     def get_or_create(cls, pipeline_config: PipelineConfig, scenario_id: Optional[ScenarioId] = None) -> Pipeline:
         """
         Returns a pipeline created from the pipeline configuration.
@@ -114,16 +95,6 @@ class PipelineManager:
             return pipeline
 
     @classmethod
-    def set(cls, pipeline: Pipeline):
-        """
-        Saves or updates a pipeline.
-
-        Parameters:
-            pipeline (Pipeline): the pipeline to save or update.
-        """
-        cls.repository.save(pipeline)
-
-    @classmethod
     def get(cls, pipeline: Union[Pipeline, PipelineId], default=None) -> Pipeline:
         """
         Gets a pipeline.
@@ -134,20 +105,10 @@ class PipelineManager:
         """
         try:
             pipeline_id = pipeline.id if isinstance(pipeline, Pipeline) else pipeline
-            return cls.repository.load(pipeline_id)
+            return cls._repository.load(pipeline_id)
         except ModelNotFound:
-            cls.__logger.warning(f"Pipeline entity: {pipeline_id} does not exist.")
+            cls._logger.warning(f"Pipeline entity: {pipeline_id} does not exist.")
             return default
-
-    @classmethod
-    def get_all(cls) -> List[Pipeline]:
-        """
-        Returns all existing pipelines.
-
-        Returns:
-            List[Pipeline]: the list of all pipelines managed by this pipeline manager.
-        """
-        return cls.repository.load_all()
 
     @classmethod
     def submit(
@@ -176,19 +137,6 @@ class PipelineManager:
     @staticmethod
     def __get_status_notifier_callbacks(pipeline: Pipeline) -> List:
         return [partial(c, pipeline) for c in pipeline.subscribers]
-
-    @classmethod
-    def _get_all_by_config_name(cls, config_name: str) -> List[Pipeline]:
-        """
-        Returns all the existing pipelines for a configuration.
-
-        Parameters:
-            config_name (str): The pipeline configuration name to be looked for.
-        Returns:
-            List[Pipeline]: the list of all pipelines, managed by this pipeline manager,
-                that use the indicated configuration name.
-        """
-        return cls.repository.search_all("config_name", config_name)
 
     @classmethod
     def hard_delete(cls, pipeline_id: PipelineId, scenario_id: Optional[ScenarioId] = None):

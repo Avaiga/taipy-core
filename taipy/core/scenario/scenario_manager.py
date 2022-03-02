@@ -4,6 +4,7 @@ from typing import Callable, List, Optional, Union
 
 from taipy.core.common.alias import ScenarioId
 from taipy.core.common.logger import TaipyLogger
+from taipy.core.common.manager import Manager
 from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle.cycle import Cycle
@@ -25,15 +26,14 @@ from taipy.core.scenario.scenario import Scenario
 from taipy.core.scenario.scenario_repository import ScenarioRepository
 
 
-class ScenarioManager:
+class ScenarioManager(Manager[Scenario]):
     """
     Scenario Manager is responsible for all managing scenario related capabilities. In particular, it is exposing
     methods for creating, storing, updating, retrieving, deleting, submitting scenarios.
     """
 
     AUTHORIZED_TAGS_KEY = "authorized_tags"
-    repository = ScenarioRepository()
-    __logger = TaipyLogger.get_logger()
+    _repository = ScenarioRepository()
 
     @classmethod
     def subscribe(cls, callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):
@@ -80,11 +80,6 @@ class ScenarioManager:
         cls.set(scenario)
 
     @classmethod
-    def delete_all(cls):
-        """Deletes all scenarios."""
-        cls.repository.delete_all()
-
-    @classmethod
     def create(
         cls,
         config: ScenarioConfig,
@@ -123,16 +118,6 @@ class ScenarioManager:
         return scenario
 
     @classmethod
-    def set(cls, scenario: Scenario):
-        """
-        Saves or Updates the scenario given as parameter.
-
-        Parameters:
-            scenario (Scenario) : Scenario to save or update.
-        """
-        cls.repository.save(scenario)
-
-    @classmethod
     def get(cls, scenario: Union[Scenario, ScenarioId], default=None) -> Scenario:
         """
         Returns the scenario corresponding to the scenario or the identifier given as parameter.
@@ -143,17 +128,10 @@ class ScenarioManager:
         """
         scenario_id = scenario.id if isinstance(scenario, Scenario) else scenario
         try:
-            return cls.repository.load(scenario_id)
+            return cls._repository.load(scenario_id)
         except ModelNotFound:
-            cls.__logger.warning(f"Scenario entity: {scenario_id} does not exist.")
+            cls._logger.warning(f"Scenario entity: {scenario_id} does not exist.")
             return default
-
-    @classmethod
-    def get_all(cls) -> List[Scenario]:
-        """
-        Returns the list of all existing scenarios.
-        """
-        return cls.repository.load_all()
 
     @classmethod
     def submit(cls, scenario: Union[Scenario, ScenarioId], force: bool = False):
@@ -301,7 +279,7 @@ class ScenarioManager:
         cls.set(scenario)
 
     @classmethod
-    def delete(cls, scenario_id: ScenarioId):
+    def delete(cls, scenario_id: ScenarioId):  # type: ignore
         """
         Deletes the scenario given as parameter.
 
@@ -313,7 +291,7 @@ class ScenarioManager:
         """
         if cls.get(scenario_id).is_master:
             raise DeletingMasterScenario
-        cls.repository.delete(scenario_id)
+        super().delete(scenario_id)
 
     @classmethod
     def compare(cls, *scenarios: Scenario, data_node_config_name: str = None):
@@ -383,4 +361,4 @@ class ScenarioManager:
             for pipeline in scenario.pipelines.values():
                 if pipeline.parent_id == scenario.id or pipeline.parent_id == pipeline.id:
                     PipelineManager.hard_delete(pipeline.id, scenario.id)
-            cls.repository.delete(scenario_id)
+            cls._repository.delete(scenario_id)
