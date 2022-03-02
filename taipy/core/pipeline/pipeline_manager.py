@@ -19,6 +19,7 @@ class PipelineManager(Manager[Pipeline]):
     """
 
     _repository = PipelineRepository()
+    ENTITY_NAME = Pipeline.__name__
 
     @classmethod
     def subscribe(cls, callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
@@ -95,22 +96,6 @@ class PipelineManager(Manager[Pipeline]):
             return pipeline
 
     @classmethod
-    def get(cls, pipeline: Union[Pipeline, PipelineId], default=None) -> Pipeline:
-        """
-        Gets a pipeline.
-
-        Parameters:
-            pipeline (Union[Pipeline, PipelineId]): pipeline identifier or the pipeline to get.
-            default: default value to return if no pipeline is found. None is returned if no default value is provided.
-        """
-        try:
-            pipeline_id = pipeline.id if isinstance(pipeline, Pipeline) else pipeline
-            return cls._repository.load(pipeline_id)
-        except ModelNotFound:
-            cls._logger.warning(f"Pipeline entity: {pipeline_id} does not exist.")
-            return default
-
-    @classmethod
     def submit(
         cls, pipeline: Union[PipelineId, Pipeline], callbacks: Optional[List[Callable]] = None, force: bool = False
     ):
@@ -160,3 +145,7 @@ class PipelineManager(Manager[Pipeline]):
             elif task.parent_id == pipeline.id:
                 TaskManager.hard_delete(task.id, None, pipeline_id)
         cls.delete(pipeline_id)
+
+    @classmethod
+    def _get_all_by_config_name(cls, config_name: str) -> List[Pipeline]:
+        return cls._repository.search_all("config_name", config_name)

@@ -19,6 +19,7 @@ class CycleManager(Manager[Cycle]):
     """
 
     _repository = CycleRepository()
+    ENTITY_NAME = Cycle.__name__
 
     @classmethod
     def create(
@@ -43,21 +44,6 @@ class CycleManager(Manager[Cycle]):
         )
         cls.set(cycle)
         return cycle
-
-    @classmethod
-    def get(cls, cycle_id: CycleId, default=None) -> Cycle:
-        """
-        Gets the cycle corresponding to the identifier given as parameter.
-
-        Parameters:
-            cycle_id (CycleId): The identifier of the cycle to retrieve.
-            default: Default value to return if no cycle is found. None is returned if no default value is provided.
-        """
-        try:
-            return cls._repository.load(cycle_id)
-        except ModelNotFound:
-            cls._logger.warning(f"Cycle entity: {cycle_id} does not exist.")
-            return default
 
     @classmethod
     def get_or_create(

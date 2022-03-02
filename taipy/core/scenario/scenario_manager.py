@@ -34,6 +34,7 @@ class ScenarioManager(Manager[Scenario]):
 
     AUTHORIZED_TAGS_KEY = "authorized_tags"
     _repository = ScenarioRepository()
+    ENTITY_NAME = Scenario.__name__
 
     @classmethod
     def subscribe(cls, callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):
@@ -116,22 +117,6 @@ class ScenarioManager(Manager[Scenario]):
         )
         cls.set(scenario)
         return scenario
-
-    @classmethod
-    def get(cls, scenario: Union[Scenario, ScenarioId], default=None) -> Scenario:
-        """
-        Returns the scenario corresponding to the scenario or the identifier given as parameter.
-
-        Parameters:
-            scenario (Union[Scenario, ScenarioId]) : scenario to get.
-            default: Default value to return if scenario is not found. None is returned if no default value is provided.
-        """
-        scenario_id = scenario.id if isinstance(scenario, Scenario) else scenario
-        try:
-            return cls._repository.load(scenario_id)
-        except ModelNotFound:
-            cls._logger.warning(f"Scenario entity: {scenario_id} does not exist.")
-            return default
 
     @classmethod
     def submit(cls, scenario: Union[Scenario, ScenarioId], force: bool = False):
@@ -362,3 +347,7 @@ class ScenarioManager(Manager[Scenario]):
                 if pipeline.parent_id == scenario.id or pipeline.parent_id == pipeline.id:
                     PipelineManager.hard_delete(pipeline.id, scenario.id)
             cls._repository.delete(scenario_id)
+
+    @classmethod
+    def _get_all_by_config_name(cls, config_name: str) -> List[Scenario]:
+        return cls._repository.search_all("config_name", config_name)

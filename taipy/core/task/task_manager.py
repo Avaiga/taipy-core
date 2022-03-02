@@ -28,6 +28,7 @@ class TaskManager(Manager[Task]):
     """
 
     _repository: TaskRepository = TaskRepository()
+    ENTITY_NAME = Task.__name__
     _scheduler = None
 
     @classmethod
@@ -93,22 +94,6 @@ class TaskManager(Manager[Task]):
             return task
 
     @classmethod
-    def get(cls, task: Union[Task, TaskId], default=None) -> Task:
-        """
-        Gets a task given the Task or the identifier.
-
-        Parameters:
-            task (Union[Task, TaskId]): The task identifier of the task to get.
-            default: The default value to return if no task is found. None is returned if no default value is provided.
-        """
-        try:
-            task_id = task.id if isinstance(task, Task) else task
-            return cls._repository.load(task_id)
-        except ModelNotFound:
-            cls._logger.warning(f"Task: {task_id} does not exist.")
-            return default
-
-    @classmethod
     def __save_data_nodes(cls, data_nodes):
         for i in data_nodes:
             DataManager.set(i)
@@ -153,3 +138,7 @@ class TaskManager(Manager[Task]):
         for data_node in data_nodes:
             if data_node.parent_id == id_:
                 DataManager.delete(data_node.id)
+
+    @classmethod
+    def _get_all_by_config_name(cls, config_name: str) -> List[Task]:
+        return cls._repository.search_all("config_name", config_name)

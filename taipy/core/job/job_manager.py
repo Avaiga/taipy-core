@@ -18,6 +18,7 @@ class JobManager(Manager[Job]):
     """
 
     _repository = JobRepository()
+    ENTITY_NAME = Job.__name__
     ID_PREFIX = "JOB_"
 
     @classmethod
@@ -35,20 +36,6 @@ class JobManager(Manager[Job]):
         cls.set(job)
         job.on_status_change(*callbacks)
         return job
-
-    @classmethod
-    def get(cls, job_id: JobId, default=None) -> Job:
-        """Gets the job from the job id given as parameter.
-
-        Parameters:
-            job_id (JobId): The job identifier.
-            default: Default value to return if no job is found. None is returned if no default value is provided.
-        """
-        try:
-            return cls._repository.load(job_id)
-        except ModelNotFound:
-            cls._logger.warning(f"Job: {job_id} does not exist.")
-            return default
 
     @classmethod
     def delete(cls, job: Job, force=False):  # type:ignore

@@ -26,6 +26,7 @@ class DataManager(Manager[DataNode]):
 
     __DATA_NODE_CLASS_MAP = {c.storage_type(): c for c in DataNode.__subclasses__()}  # type: ignore
     _repository = DataRepository(__DATA_NODE_CLASS_MAP)
+    ENTITY_NAME = DataNode.__name__
 
     @classmethod
     def get_or_create(
@@ -61,22 +62,6 @@ class DataManager(Manager[DataNode]):
             return cls._create_and_set(data_node_config, parent_id)
 
     @classmethod
-    def get(cls, data_node: Union[DataNode, DataNodeId], default=None) -> DataNode:
-        """
-        Gets the data node corresponding to the DataNode or the identifier given as parameter.
-
-        Parameters:
-            data_node (Union[DataNode, DataNodeId]) : data node to get.
-            default: default value to return if no data node is found. None is returned if no default value is provided.
-        """
-        try:
-            data_node_id = data_node.id if isinstance(data_node, DataNode) else data_node
-            return cls._repository.load(data_node_id)
-        except ModelNotFound:
-            cls._logger.warning(f"DataNode: {data_node_id} does not exist.")
-            return default
-
-    @classmethod
     def _create_and_set(cls, data_node_config: DataNodeConfig, parent_id: Optional[str]) -> DataNode:
         data_node = cls.__create(data_node_config, parent_id)
         cls.set(data_node)
@@ -100,3 +85,7 @@ class DataManager(Manager[DataNode]):
             )
         except KeyError:
             raise InvalidDataNodeType(data_node_config.storage_type)
+
+    @classmethod
+    def _get_all_by_config_name(cls, config_name: str) -> List[DataNode]:
+        return cls._repository.search_all("config_name", config_name)

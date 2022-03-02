@@ -1,6 +1,7 @@
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, List, TypeVar, Union
 
 from taipy.core.common.logger import TaipyLogger
+from taipy.core.exceptions.repository import ModelNotFound
 from taipy.core.repository import FileSystemRepository
 
 EntityType = TypeVar("EntityType")
@@ -9,6 +10,7 @@ EntityType = TypeVar("EntityType")
 class Manager(Generic[EntityType]):
     _repository: FileSystemRepository
     _logger = TaipyLogger.get_logger()
+    ENTITY_NAME: str = "Entity"
 
     @classmethod
     def delete_all(cls):
@@ -39,5 +41,13 @@ class Manager(Generic[EntityType]):
         return cls._repository.load_all()
 
     @classmethod
-    def _get_all_by_config_name(cls, config_name: str) -> List[EntityType]:
-        return cls._repository.search_all("config_name", config_name)
+    def get(cls, entity: Union[str, EntityType], default=None, *args: Any, **kwargs: Any) -> EntityType:
+        """
+        Returns an entity by id or reference.
+        """
+        entity_id = entity if isinstance(entity, str) else entity.id  # type: ignore
+        try:
+            return cls._repository.load(entity_id)
+        except ModelNotFound:
+            cls._logger.error(f"{cls.ENTITY_NAME} not found: {entity_id}")
+            return default
