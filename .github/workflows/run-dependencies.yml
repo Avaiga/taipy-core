@@ -10,3 +10,8 @@ jobs:
         run: gh workflow run run-all-demos.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/milestones
         env:
           GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
+
+      -   name: Run Airflow tests
+          run: gh workflow run test.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/taipy-airflow
+          env:
+              GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
