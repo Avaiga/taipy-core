@@ -40,10 +40,11 @@ __logger = TaipyLogger.get_logger()
 
 def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):
     """
-    Saves or updates a data node, a task, a job, a pipeline, a scenario or a cycle.
+    Saves or updates the data node, task, job, pipeline, scenario or cycle given as parameter.
 
     Args:
-        entity: The entity to save.
+        entity (Union[DataNode, Task, Pipeline, Scenario, Cycle]): The entity to save.
+
     """
     if isinstance(entity, Cycle):
         return CycleManager.set(entity)
@@ -61,11 +62,11 @@ def submit(entity: Union[Scenario, Pipeline], force: bool = False):
     """
     Submits the entity given as parameter for execution.
 
-    All the tasks of the entity task/pipeline/scenario will be submitted for execution.
+    All the tasks of the entity pipeline/scenario will be submitted for execution.
 
     Parameters:
-        entity (Union[Scenario, Pipeline]) : the entity to submit.
-        force (bool) : force execution even if the data nodes are in cache.
+        entity (Union[Scenario, Pipeline]): the entity to submit.
+        force (bool): force execution even if the data nodes are in cache.
     """
     if isinstance(entity, Scenario):
         return ScenarioManager.submit(entity, force=force)
@@ -84,10 +85,11 @@ def get(
             It must match the identifier pattern of one of the entities (task, data node, pipeline, scenario).
 
     Returns:
-        The entity corresponding to the provided identifier. None if no entity is found.
+        Union[Task, DataNode, Pipeline, Scenario, Job, Cycle]: The entity corresponding to the provided identifier.
+        None if no entity is found.
 
     Raises:
-            ModelNotFound: if no entity corresponds to `entity_id`
+            ModelNotFound: if `entity_id` does not match a correct entity id pattern.
     """
     if entity_id.startswith(JobManager.ID_PREFIX):
         return JobManager.get(JobId(entity_id))
@@ -109,7 +111,7 @@ def get_tasks() -> List[Task]:
     Returns the list of all existing tasks.
 
     Returns:
-        List: The list of tasks handled by this Task Manager.
+        List[Task]: The list of tasks.
     """
     return TaskManager.get_all()
 
@@ -121,16 +123,16 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
     Deletes the entity given as parameter and propagate the deletion. The deletion is propagated to a
     nested entity if the nested entity is not shared by another entity.
 
-    If a CycleId is provided, the nested scenarios, pipelines, data nodes, and jobs are deleted.
-    If a ScenarioId is provided, the nested pipelines, tasks, data nodes, and jobs are deleted.
-    If a PipelineId is provided, the nested tasks, data nodes, and jobs are deleted.
-    If a TaskId is provided, the nested data nodes, and jobs are deleted.
+    - If a CycleId is provided, the nested scenarios, pipelines, data nodes, and jobs are deleted.
+    - If a ScenarioId is provided, the nested pipelines, tasks, data nodes, and jobs are deleted.
+    - If a PipelineId is provided, the nested tasks, data nodes, and jobs are deleted.
+    - If a TaskId is provided, the nested data nodes, and jobs are deleted.
 
     Parameters:
-        entity_id (Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]) : id of the entity to delete.
+        entity_id (Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]): id of the entity to delete.
 
     Raises:
-        ModelNotFound : No entity corresponds to `entity_id`
+        ModelNotFound: No entity corresponds to `entity_id`
     """
     if entity_id.startswith(JobManager.ID_PREFIX):
         return JobManager.delete(JobManager.get(JobId(entity_id)))  # type: ignore
@@ -152,8 +154,11 @@ def get_scenarios(cycle: Optional[Cycle] = None, tag: Optional[str] = None) -> L
     Returns the list of all existing scenarios filtered by cycle and/or tag if given as parameter.
 
     Parameters:
-         cycle (Optional[Cycle]) : Cycle of the scenarios to return.
-         tag (Optional[str]) : Tag of the scenarios to return.
+         cycle (Optional[Cycle]): Cycle of the scenarios to return.
+         tag (Optional[str]): Tag of the scenarios to return.
+
+    Returns:
+        List[Scenario]: The list of scenarios filtered by cycle or tag if given as parameter.
     """
     if not cycle and not tag:
         return ScenarioManager.get_all()
@@ -172,64 +177,75 @@ def get_master(cycle: Cycle) -> Optional[Scenario]:
     Returns the master scenario of the cycle given as parameter. None if the cycle has no master scenario.
 
     Parameters:
-         cycle (Cycle) : cycle of the master scenario to return.
+         cycle (Cycle): cycle of the master scenario to return.
+
+    Returns:
+        Optional[Scenario]: The master scenario of the cycle given as parameter. None if the cycle has no scenario.
     """
     return ScenarioManager.get_master(cycle)
 
 
 def get_all_masters() -> List[Scenario]:
-    """Returns the list of all master scenarios."""
+    """
+    Returns the list of all master scenarios.
+
+    Returns:
+        List[Scenario]: The list of all master scenarios.
+    """
     return ScenarioManager.get_all_masters()
 
 
 def set_master(scenario: Scenario):
     """
-    Promotes scenario given as parameter as master scenario of its cycle. If the cycle already had a master scenario
+    Promotes scenario `scenario` given as parameter as master scenario of its cycle. If the cycle already had a master
+    scenario
     it will be demoted, and it will no longer be master for the cycle.
 
     Parameters:
-        scenario (Scenario) : scenario to promote as master.
+        scenario (Scenario): scenario to promote as master.
     """
     return ScenarioManager.set_master(scenario)
 
 
 def tag(scenario: Scenario, tag: str):
     """
-    Adds the tag to the scenario `scenario` given as parameter. If the scenario's cycle already have
+    Adds the tag `tag` to the scenario `scenario` given as parameter. If the scenario's cycle already have
     another scenario tagged by `tag` the other scenario will be untagged.
 
     Parameters:
-        scenario (Scenario) : scenario to tag.
-        tag (str) : Tag of the scenario to tag.
+        scenario (Scenario): scenario to tag.
+        tag (str): Tag of the scenario to tag.
     """
     return ScenarioManager.tag(scenario, tag)
 
 
 def untag(scenario: Scenario, tag: str):
     """
-    Removes `tag` given as parameter from the tag list of `scenario` given as parameter.
+    Removes tag `tag` given as parameter from the tag list of scenario `scenario` given as parameter.
 
     Parameters:
-        scenario (Scenario) : scenario to untag.
-        tag (str) : Tag to remove from scenario.
+        scenario (Scenario): scenario to untag.
+        tag (str): Tag to remove from scenario.
     """
     return ScenarioManager.untag(scenario, tag)
 
 
-def compare_scenarios(*scenarios: Scenario, data_node_config_id: str = None):
+def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] = None):
     """
-    Compares the data nodes of given scenarios with known datanode config name.
+    Compares the data nodes of given scenarios 'scenarios' with known datanode config id.
 
     Parameters:
-        scenarios (Scenario) : Scenario objects to compare
-        data_node_config_id (Optional[str]) : config name of the DataNode to compare scenarios, if no
-            datanode_config_id is provided, the scenarios will be compared based on all the previously defined
+        scenarios (*Scenario): Variable length argument list. List of scenarios to compare.
+        data_node_config_id (Optional[str]): Config id of the DataNode to compare scenarios, if no
+            datanode_config_id is provided, the scenarios will be compared based on all the defined
             comparators.
+    Returns:
+        Dict[str, Any]: The dictionary of comparison results. The key corresponds to the data node config id compared.
     Raises:
-        InsufficientScenarioToCompare: Provided only one or no scenario for comparison
-        NonExistingComparator: The provided comparator does not exist
-        DifferentScenarioConfigs: The provided scenarios do not share the same scenario_config
-        NonExistingScenarioConfig: Cannot find the shared scenario config of the provided scenarios
+        InsufficientScenarioToCompare: Provided only one or no scenario for comparison.
+        NonExistingComparator: The scenario comparator does not exist.
+        DifferentScenarioConfigs: The provided scenarios do not share the same scenario_config.
+        NonExistingScenarioConfig: Cannot find the shared scenario config of the provided scenarios.
     """
     return ScenarioManager.compare(*scenarios, data_node_config_id=data_node_config_id)
 
@@ -338,9 +354,9 @@ def create_scenario(config: ScenarioConfig, creation_date: datetime = None, name
     frequency attribute) is created if it does not exist yet.
 
     Parameters:
-        config (ScenarioConfig) : Scenario configuration object.
-        creation_date (Optional[datetime.datetime]) : Creation date. Current date time used as default value.
-        name (Optional[str]) : Display name of the scenario.
+        config (ScenarioConfig): Scenario configuration object.
+        creation_date (Optional[datetime.datetime]): Creation date. Current date time used as default value.
+        name (Optional[str]): Display name of the scenario.
     """
     return ScenarioManager.create(config, creation_date, name)
 
