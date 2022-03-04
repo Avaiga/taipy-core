@@ -274,13 +274,13 @@ class Config:
 
     @classmethod
     def __log_message(cls, config):
-        for issue in config.collector.warnings:
+        for issue in config.collector._warnings:
             cls.__logger.warning(str(issue))
-        for issue in config.collector.infos:
+        for issue in config.collector._infos:
             cls.__logger.info(str(issue))
-        for issue in config.collector.errors:
+        for issue in config.collector._errors:
             cls.__logger.error(str(issue))
-        if len(config.collector.errors) != 0:
+        if len(config.collector._errors) != 0:
             raise ConfigurationIssueError
 
 
