@@ -438,17 +438,16 @@ def export_configuration(filename):
 
 
 def configure_global_app(
-    notification: Union[bool, str] = None,
-    broker_endpoint: str = None,
     root_folder: str = None,
     storage_folder: str = None,
     clean_entities_enabled: Union[bool, str] = None,
     **properties,
 ) -> GlobalAppConfig:
-    """Configures fields related to global application."""
-    return Config.set_global_config(
-        notification, broker_endpoint, root_folder, storage_folder, clean_entities_enabled, **properties
-    )
+    """
+    Configures global application.
+
+    """
+    return Config.set_global_config(root_folder, storage_folder, clean_entities_enabled, **properties)
 
 
 def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = None, **properties) -> JobConfig:
