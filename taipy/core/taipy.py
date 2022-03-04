@@ -128,7 +128,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
 
     Parameters:
         entity_id (Union[`TaskId`, `DataNodeId`, `PipelineId`, `ScenarioId`, `JobId`, `CycleId`]): The id of the entity
-        to delete.
+            to delete.
     Raises:
         `ModelNotFound`: No entity corresponds to entity_id
     """
@@ -254,7 +254,7 @@ def subscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Opti
     Parameters:
         callback (Callable[[`Scenario`, `Job`], None]): The callable function to be called on status change.
         scenario (Optional[`Scenario`]): The scenario to subscribe on. If None, the subscription is active for all
-        scenarios.
+            scenarios.
     Note:
         Notification will be available only for jobs created after this subscription.
     """
@@ -269,7 +269,7 @@ def unsubscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Op
     Parameters:
         callback (Callable[[`Scenario`, `Job`], None]): The callable function to unsubscribe.
         scenario (Optional[`Scenario`]): The scenario to unsubscribe on. If None, the un-subscription is applied to all
-        scenarios.
+            scenarios.
     Note:
         The function will continue to be called for ongoing jobs.
     """
@@ -285,7 +285,7 @@ def subscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Opti
     Parameters:
         callback (Callable[[`Pipeline`, `Job`], None]): The callable function to be called on status change.
         pipeline (Optional[`Pipeline`]): The pipeline to subscribe on. If None, the subscription is active for all
-        pipelines.
+            pipelines.
     Note:
         Notification will be available only for jobs created after this subscription.
     """
@@ -300,7 +300,7 @@ def unsubscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Op
     Parameters:
         callback (Callable[[`Pipeline`, `Job`], None]): The callable function to be called on status change.
         pipeline (Optional[`Pipeline`]): The pipeline to unsubscribe on. If None, the un-subscription is applied to all
-        pipelines.
+            pipelines.
     Note:
         The function will continue to be called for ongoing jobs.
     """
