@@ -15,7 +15,6 @@ class DataNodeConfig:
 
     Attributes:
         id (str):  Unique identifier of the data node config. Must be a valid Python variable name.
-
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
             are : "csv", "excel", "pickle", "sql", "generic" and "In_memory". Default value is "pickle".
             Note that the "in_memory" value can only be used when JobConfig.mode is "standalone".

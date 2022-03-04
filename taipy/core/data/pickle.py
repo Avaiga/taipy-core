@@ -15,7 +15,6 @@ class PickleDataNode(DataNode):
 
     Attributes:
         config_id (str):  Identifier of the data node configuration. Must be a valid Python variable name.
-
         scope (Scope):  The usage scope of this data node.
         id (str): Unique identifier of this data node.
         name (str): User-readable name of the data node.

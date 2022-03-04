@@ -12,7 +12,6 @@ class TaskConfig:
 
     Attributes:
         id (str): Identifier of the task config. Must be a valid Python variable name.
-
         inputs (list): List of data node config inputs. Default value: [].
         outputs (list): List of data node config outputs. Default value: [].
         function (Callable): User function taking as inputs some parameters compatible with the exposed types
