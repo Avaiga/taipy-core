@@ -2,8 +2,8 @@ import datetime
 from functools import partial
 from typing import Callable, List, Optional, Union
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import ScenarioId
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.manager import Manager
 from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig

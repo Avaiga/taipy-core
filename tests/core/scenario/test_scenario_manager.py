@@ -3,7 +3,7 @@ from multiprocessing import Process
 
 import pytest
 
-from taipy.core.common import utils
+from taipy.core.common import _utils
 from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
 from taipy.core.common.frequency import Frequency
 from taipy.core.config.config import Config
@@ -252,7 +252,7 @@ def test_scenario_manager_only_creates_data_node_once():
 
 
 def test_notification_subscribe(mocker):
-    mocker.patch("taipy.core.common.reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
 
     scenario_config = Config.add_scenario(
         "Awesome scenario",
@@ -275,7 +275,7 @@ def test_notification_subscribe(mocker):
 
     notify_1 = NotifyMock(scenario)
     notify_2 = NotifyMock(scenario)
-    mocker.patch.object(utils, "load_fct", side_effect=[notify_1, notify_1, notify_2])
+    mocker.patch.object(_utils, "_load_fct", side_effect=[notify_1, notify_1, notify_2])
     # test subscribing notification
     ScenarioManager.subscribe(notify_1, scenario)
     ScenarioManager.submit(scenario.id)
@@ -302,7 +302,7 @@ def notify2(*args, **kwargs):
 
 
 def test_notification_unsubscribe(mocker):
-    mocker.patch("taipy.core.common.reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
 
     scenario_config = Config.add_scenario(
         "Awesome scenario",

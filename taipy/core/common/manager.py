@@ -1,6 +1,6 @@
 from typing import Any, Generic, List, TypeVar, Union
 
-from taipy.core.common.logger import TaipyLogger
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.exceptions.repository import ModelNotFound
 from taipy.core.repository import FileSystemRepository
 
@@ -9,7 +9,7 @@ EntityType = TypeVar("EntityType")
 
 class Manager(Generic[EntityType]):
     _repository: FileSystemRepository
-    _logger = TaipyLogger.get_logger()
+    _logger = _TaipyLogger._get_logger()
     ENTITY_NAME: str = "Entity"
 
     @classmethod

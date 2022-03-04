@@ -3,9 +3,9 @@ import os
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Union
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
 from taipy.core.common.frequency import Frequency
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.config.checker.issue_collector import IssueCollector
 from taipy.core.config.config import Config
 from taipy.core.config.data_node_config import DataNodeConfig
@@ -35,7 +35,7 @@ from taipy.core.scenario.scenario_manager import ScenarioManager
 from taipy.core.task.task import Task
 from taipy.core.task.task_manager import TaskManager
 
-__logger = TaipyLogger.get_logger()
+__logger = _TaipyLogger._get_logger()
 
 
 def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):

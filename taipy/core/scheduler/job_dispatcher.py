@@ -4,8 +4,8 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Any, List
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import JobId
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.data.data_manager import DataManager
 from taipy.core.data.data_node import DataNode
 from taipy.core.exceptions.job import DataNodeWritingError
@@ -25,7 +25,7 @@ class JobDispatcher:
 
     def __init__(self, max_number_of_parallel_execution):
         self._executor, self._nb_worker_available = self.__create(max_number_of_parallel_execution or 1)
-        self.__logger = TaipyLogger.get_logger()
+        self.__logger = _TaipyLogger._get_logger()
 
     def can_execute(self) -> bool:
         """Returns True if a worker is available for a new run."""

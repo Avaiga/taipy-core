@@ -2,9 +2,9 @@ import calendar
 from datetime import datetime, time, timedelta
 from typing import Optional
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.manager import Manager
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.cycle.cycle_repository import CycleRepository

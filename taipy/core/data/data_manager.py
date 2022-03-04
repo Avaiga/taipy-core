@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.manager import Manager
 from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.data.csv import CSVDataNode

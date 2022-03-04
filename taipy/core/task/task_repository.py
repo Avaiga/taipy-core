@@ -1,7 +1,7 @@
 import pathlib
 
+from taipy.core.common._utils import _load_fct
 from taipy.core.common.alias import TaskId
-from taipy.core.common.utils import load_fct
 from taipy.core.config.config import Config
 from taipy.core.data.data_manager import DataManager
 from taipy.core.exceptions.data_node import NonExistingDataNode
@@ -30,7 +30,7 @@ class TaskRepository(FileSystemRepository[TaskModel, Task]):
             id=TaskId(model.id),
             parent_id=model.parent_id,
             config_id=model.config_id,
-            function=load_fct(model.function_module, model.function_name),
+            function=_load_fct(model.function_module, model.function_name),
             input=self.__to_data_nodes(model.input_ids),
             output=self.__to_data_nodes(model.output_ids),
         )

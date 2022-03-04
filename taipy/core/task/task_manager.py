@@ -1,8 +1,8 @@
 import itertools
 from typing import Dict, List, Optional, Union
 
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.manager import Manager
 from taipy.core.config.task_config import TaskConfig
 from taipy.core.data.data_manager import DataManager

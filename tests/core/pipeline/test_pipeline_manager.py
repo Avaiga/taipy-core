@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from taipy.core.common import utils
+from taipy.core.common import _utils
 from taipy.core.common.alias import PipelineId, TaskId
 from taipy.core.config.config import Config
 from taipy.core.data.data_manager import DataManager
@@ -326,7 +326,7 @@ def notify2(*args, **kwargs):
 
 
 def test_pipeline_notification_subscribe(mocker):
-    mocker.patch("taipy.core.common.reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
 
     pipeline_config = Config.add_pipeline(
         "by 6",
@@ -350,7 +350,7 @@ def test_pipeline_notification_subscribe(mocker):
     notify_2.__module__ = "notify_2"
     # Mocking this because NotifyMock is a class that does not loads correctly when getting the pipeline
     # from the storage.
-    mocker.patch.object(utils, "load_fct", side_effect=[notify_1, notify_1, notify_2])
+    mocker.patch.object(_utils, "_load_fct", side_effect=[notify_1, notify_1, notify_2])
 
     # test subscription
     callback = mock.MagicMock()
@@ -378,7 +378,7 @@ def test_pipeline_notification_subscribe(mocker):
 
 
 def test_pipeline_notification_unsubscribe(mocker):
-    mocker.patch("taipy.core.common.reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
 
     pipeline_config = Config.add_pipeline(
         "by 6",
