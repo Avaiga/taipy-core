@@ -1,6 +1,10 @@
+import pytest
+
 import taipy.core.taipy as tp
 from taipy.core.common.frequency import Frequency
+from taipy.core.common.validate_id import to_identifier
 from taipy.core.cycle.cycle import Cycle
+from taipy.core.exceptions.configuration import InvalidConfigurationId
 
 
 def test_create_cycle_entity(current_datetime):
@@ -11,10 +15,10 @@ def test_create_cycle_entity(current_datetime):
         creation_date=current_datetime,
         start_date=current_datetime,
         end_date=current_datetime,
-        name="   bAr/ξéà    ",
+        name="foo",
     )
     assert cycle_1.id is not None
-    assert cycle_1.name == "bar-xea"
+    assert cycle_1.name == "foo"
     assert cycle_1.properties == {"key": "value"}
     assert cycle_1.creation_date == current_datetime
     assert cycle_1.start_date == current_datetime
@@ -23,20 +27,29 @@ def test_create_cycle_entity(current_datetime):
     assert cycle_1.frequency == Frequency.DAILY
 
     cycle_2 = Cycle(Frequency.YEARLY, {}, current_datetime, current_datetime, current_datetime)
-    assert cycle_2.name.startswith(str(Frequency.YEARLY))
+    assert cycle_2.name.startswith(to_identifier(str(Frequency.YEARLY)))
     assert cycle_2.frequency == Frequency.YEARLY
 
     cycle_3 = Cycle(Frequency.MONTHLY, {}, current_datetime, current_datetime, current_datetime)
-    assert cycle_3.name.startswith(str(Frequency.MONTHLY))
+    assert cycle_3.name.startswith(to_identifier(str(Frequency.MONTHLY)))
     assert cycle_3.frequency == Frequency.MONTHLY
 
     cycle_4 = Cycle(Frequency.WEEKLY, {}, current_datetime, current_datetime, current_datetime)
-    assert cycle_4.name.startswith(str(Frequency.WEEKLY))
+    assert cycle_4.name.startswith(to_identifier(str(Frequency.WEEKLY)))
     assert cycle_4.frequency == Frequency.WEEKLY
 
     cycle_5 = Cycle(Frequency.DAILY, {}, current_datetime, current_datetime, current_datetime)
-    assert cycle_5.name.startswith(str(Frequency.DAILY))
+    assert cycle_5.name.startswith(to_identifier(str(Frequency.DAILY)))
     assert cycle_5.frequency == Frequency.DAILY
+    with pytest.raises(InvalidConfigurationId):
+        Cycle(
+            Frequency.DAILY,
+            {"key": "value"},
+            creation_date=current_datetime,
+            start_date=current_datetime,
+            end_date=current_datetime,
+            name="   bAr/ξéà    ",
+        )
 
 
 def test_add_property_to_scenario(current_datetime):

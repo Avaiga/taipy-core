@@ -3,7 +3,7 @@ from copy import copy
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from taipy.core.common.frequency import Frequency
-from taipy.core.common.unicode_to_python_variable_name import protect_name
+from taipy.core.common.validate_id import validate_id
 from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
 from taipy.core.config.pipeline_config import PipelineConfig
 from taipy.core.exceptions.scenario import NonExistingComparator
@@ -36,7 +36,7 @@ class ScenarioConfig:
         comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
         **properties,
     ):
-        self.id = protect_name(id)
+        self.id = validate_id(id)
         self.properties = properties
         if pipelines:
             self.pipelines = [pipelines] if isinstance(pipelines, PipelineConfig) else copy(pipelines)
@@ -47,9 +47,9 @@ class ScenarioConfig:
         if comparators:
             for k, v in comparators.items():
                 if isinstance(v, list):
-                    self.comparators[protect_name(k)].extend(v)
+                    self.comparators[validate_id(k)].extend(v)
                 else:
-                    self.comparators[protect_name(k)].append(v)
+                    self.comparators[validate_id(k)].append(v)
 
     def __getattr__(self, item: str) -> Optional[Any]:
         return self.properties.get(item)
@@ -72,7 +72,7 @@ class ScenarioConfig:
     @classmethod
     def from_dict(cls, id: str, config_as_dict: Dict[str, Any], pipeline_configs: Dict[str, PipelineConfig]):
         config = ScenarioConfig(id)
-        config.id = protect_name(id)
+        config.id = validate_id(id)
         if pipeline_ids := config_as_dict.pop(cls.PIPELINE_KEY, None):
             config.pipelines = [pipeline_configs[p_id] for p_id in pipeline_ids if p_id in pipeline_configs]
         config.frequency = config_as_dict.pop(cls.FREQUENCY_KEY, None)

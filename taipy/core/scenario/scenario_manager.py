@@ -3,13 +3,11 @@ from functools import partial
 from typing import Callable, List, Optional, Union
 
 from taipy.core.common.alias import ScenarioId
-from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.manager import Manager
 from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.cycle.cycle_manager import CycleManager
-from taipy.core.exceptions.repository import ModelNotFound
 from taipy.core.exceptions.scenario import (
     DeletingMasterScenario,
     DifferentScenarioConfigs,

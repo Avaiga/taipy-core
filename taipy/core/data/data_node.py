@@ -10,7 +10,7 @@ import pandas as pd
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.common.logger import TaipyLogger
 from taipy.core.common.reload import reload, self_reload
-from taipy.core.common.unicode_to_python_variable_name import protect_name
+from taipy.core.common.validate_id import validate_id
 from taipy.core.common.wrapper import Properties
 from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.data.filter import FilterDataNode
@@ -68,7 +68,7 @@ class DataNode:
         edition_in_progress: bool = False,
         **kwargs,
     ):
-        self.config_id = protect_name(config_id)
+        self.config_id = validate_id(config_id)
         self.id = id or DataNodeId(self.__ID_SEPARATOR.join([self.ID_PREFIX, self.config_id, str(uuid.uuid4())]))
         self.parent_id = parent_id
         self.scope = scope
@@ -140,7 +140,7 @@ class DataNode:
         vars(self).update(state)
 
     def __getattr__(self, attribute_name):
-        protected_attribute_name = protect_name(attribute_name)
+        protected_attribute_name = validate_id(attribute_name)
         if protected_attribute_name in self.properties:
             return self.properties[protected_attribute_name]
         raise AttributeError(f"{attribute_name} is not an attribute of data node {self.id}")
