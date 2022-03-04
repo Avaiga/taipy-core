@@ -5,7 +5,7 @@ from typing import Any, Optional
 @dataclass
 class Issue:
     """
-    Represents an issue detected in the configuration.
+    An issue detected in the configuration.
 
     Attributes:
         level (str): Level of the issue among ERROR, WARNING, INFO.

@@ -10,21 +10,21 @@ from tests.core.config.named_temporary_file import NamedTemporaryFile
 
 def test_override_default_configuration_with_code_configuration():
     assert Config.job_config.nb_of_workers == 1
-    assert not Config.global_config.root_folder == "toto"
+    assert not Config.global_config.root_folder == "foo"
     assert len(Config.data_nodes) == 1
     assert len(Config.tasks) == 1
     assert len(Config.pipelines) == 1
     assert len(Config.scenarios) == 1
 
     Config.set_job_config(nb_of_workers=-1)
-    Config.set_global_config(root_folder="toto")
+    Config.set_global_config(root_folder="foo")
     foo_config = Config.add_data_node("foo", "in_memory")
     bar_config = Config.add_task("bar", print, [foo_config], [])
     baz_config = Config.add_pipeline("baz", [bar_config])
     qux_config = Config.add_scenario("qux", [baz_config])
 
     assert Config.job_config.nb_of_workers == -1
-    assert Config.global_config.root_folder == "toto"
+    assert Config.global_config.root_folder == "foo"
     assert len(Config.data_nodes) == 2
     assert "default" in Config.data_nodes
     assert foo_config.id in Config.data_nodes
@@ -241,7 +241,7 @@ clean_entities_enabled = false
     """
     )
 
-    with mock.patch.dict(os.environ, {"FOO": "/data/csv", "BAR": "/toto/data/csv"}):
+    with mock.patch.dict(os.environ, {"FOO": "/data/csv", "BAR": "/baz/data/csv"}):
         # Default config is applied
         assert Config.job_config.nb_of_workers == 1
         assert Config.global_config.clean_entities_enabled is False
@@ -252,7 +252,7 @@ clean_entities_enabled = false
         Config.add_data_node("my_datanode", path="ENV[BAR]")
         assert Config.global_config.clean_entities_enabled is True
         assert Config.job_config.nb_of_workers == -1
-        assert Config.data_nodes["my_datanode"].path == "/toto/data/csv"
+        assert Config.data_nodes["my_datanode"].path == "/baz/data/csv"
 
         # File config is applied
         Config.load(file_config.filename)

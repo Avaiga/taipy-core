@@ -5,13 +5,13 @@ from taipy.core.config.config_template_handler import ConfigTemplateHandler as t
 
 class GlobalAppConfig:
     """
-    Holds configuration fields related to the global application.
+    Configuration fields related to the global application.
 
     Parameters:
-        root_folder (str): Path of the base folder for the taipy application. Default value is "./taipy/"
-        storage_folder (str): Folder name used to store Taipy data. Default value is ".data/". It is used in conjunction
-            with the root_folder field. That means the storage path is <root_folder><storage_folder> (Default
-            path : "./taipy/.data/")
+        root_folder (str): Path of the base folder for the taipy application. The default value is "./taipy/"
+        storage_folder (str): Folder name used to store Taipy data. The default value is ".data/". It is used in
+            conjunction with the _root_folder_ field. That means the storage path is
+            <root_folder><storage_folder> (The Default path : "./taipy/.data/")
         clean_entities_enabled (bool): Boolean field to activate/deactivate the clean entities feature. Default: false
         properties (dict): Dictionary of additional properties.
     """

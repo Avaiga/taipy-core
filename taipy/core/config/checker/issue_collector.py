@@ -5,7 +5,7 @@ from taipy.core.config.checker.issue import Issue
 
 class IssueCollector:
     """
-    Holds a collection of issues (`Issue`).
+    A collection of `Issue`s.
 
     Attributes:
         errors (List[`Issue`]): List of ERROR issues collected.

@@ -453,7 +453,7 @@ def configure_global_app(
             It is used in conjunction with the root_folder field. That means the storage path is
             "<root_folder><storage_folder>".
         clean_entities_enabled (Optional[str]): The field to activate/deactivate the clean entities feature.
-            Default value is false.
+            The default value is false.
     Returns:
         `GlobalAppConfig`: The global application configuration.
     """
@@ -646,7 +646,7 @@ def configure_sql_data_node(
         db_engine (str): The database engine. Possible values are 'sqlite' or 'mssql'.
         read_query (str): The SQL query called by Taipy to read the data from the database.
         write_table (str): The name of the table in the database to write the data to.
-        db_port (int): The database port. Default value is 143.
+        db_port (int): The database port. The default value is 143.
         scope (`Scope`): The scope of the SQL data node configuration. The default value is Scope.SCENARIO.
         **properties (Dict[str, Any]): The variable length keyword arguments.
     Returns:
