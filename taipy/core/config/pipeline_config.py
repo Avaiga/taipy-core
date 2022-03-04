@@ -11,12 +11,7 @@ class PipelineConfig:
     Holds all the configuration fields needed to create actual pipelines from the PipelineConfig.
 
     Attributes:
-        id (str):  Unique identifier of the pipeline config.
-            We strongly recommend to use lowercase alphanumeric characters, dash character '-', or underscore character
-            '_'. Note that other characters are replaced according the following rules :
-            - Space characters are replaced by underscore characters ('_').
-            - Unicode characters are replaced by a corresponding alphanumeric character using the Unicode library.
-            - Other characters are replaced by dash characters ('-').
+        id (str): Identifier of the pipeline configuration. Must be a valid Python variable name.
         tasks (list): List of task configs. Default value: [].
         properties (dict): Dictionary of additional properties.
     """

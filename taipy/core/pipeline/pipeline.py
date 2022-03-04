@@ -20,13 +20,7 @@ class Pipeline:
     connected in series.
 
     Attributes:
-        config_id (str): Identifier of the pipeline configuration.
-            We strongly recommend to use lowercase alphanumeric characters, dash characters ('-'),
-            or underscore characters ('_').
-            Other characters are replaced according the following rules:
-            - Space characters are replaced by underscore characters ('_').
-            - Unicode characters are replaced by a corresponding alphanumeric character using the Unicode library.
-            - Other characters are replaced by dash characters ('-').
+        config_id (str): Identifier of the pipeline configuration. Must be a valid Python variable name.
         properties (dict):  List of additional arguments.
         tasks (List[Task]): List of tasks.
         pipeline_id (str): Unique identifier of this pipeline.

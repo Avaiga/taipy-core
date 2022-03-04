@@ -14,12 +14,8 @@ class DataNodeConfig:
     needed to create an actual data node.
 
     Attributes:
-        id (str):  Unique identifier of the data node config.
-            We strongly recommend to use lowercase alphanumeric characters, dash character '-', or underscore character
-            '_'. Note that other characters are replaced according the following rules :
-            - Space characters are replaced by underscore characters ('_').
-            - Unicode characters are replaced by a corresponding alphanumeric character using the Unicode library.
-            - Other characters are replaced by dash characters ('-').
+        id (str):  Unique identifier of the data node config. Must be a valid Python variable name.
+
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
             are : "csv", "excel", "pickle", "sql", "generic" and "In_memory". Default value is "pickle".
             Note that the "in_memory" value can only be used when JobConfig.mode is "standalone".
