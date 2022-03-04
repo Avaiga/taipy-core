@@ -167,7 +167,7 @@ class DataNode:
 
         self._write(data)
         self.unlock_edition(job_id=job_id)
-        DataManager.set(self)
+        DataManager._set(self)
 
     def lock_edition(self):
         self._edition_in_progress = True

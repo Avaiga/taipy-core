@@ -47,7 +47,7 @@ class TaskRepository(FileSystemRepository[TaskModel, Task]):
     def __to_data_nodes(data_nodes_ids):
         data_nodes = []
         for _id in data_nodes_ids:
-            if data_node := DataManager.get(_id):
+            if data_node := DataManager._get(_id):
                 data_nodes.append(data_node)
             else:
                 raise NonExistingDataNode(_id)

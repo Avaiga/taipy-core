@@ -58,7 +58,7 @@ class PipelineRepository(FileSystemRepository[PipelineModel, Pipeline]):
     def __to_tasks(task_ids):
         tasks = []
         for _id in task_ids:
-            if task := TaskManager.get(_id):
+            if task := TaskManager._get(_id):
                 tasks.append(task)
             else:
                 raise NonExistingTask(_id)

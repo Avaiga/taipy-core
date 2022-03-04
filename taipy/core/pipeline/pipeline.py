@@ -59,7 +59,7 @@ class Pipeline:
     def __setstate__(self, id):
         from taipy.core.pipeline.pipeline_manager import PipelineManager
 
-        p = PipelineManager.get(id)
+        p = PipelineManager._get(id)
         self.__dict__ = p.__dict__
 
     @property  # type: ignore

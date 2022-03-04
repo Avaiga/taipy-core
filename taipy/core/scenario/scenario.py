@@ -65,7 +65,7 @@ class Scenario:
     def __setstate__(self, id):
         from taipy.core.scenario.scenario_manager import ScenarioManager
 
-        sc = ScenarioManager.get(id)
+        sc = ScenarioManager._get(id)
         self.__dict__ = sc.__dict__
 
     @property  # type: ignore
