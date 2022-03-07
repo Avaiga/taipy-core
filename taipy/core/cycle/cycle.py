@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
-from taipy.core.common.validate_id import to_identifier, validate_id
+from taipy.core.common.get_valid_filename import get_valid_filename
 from taipy.core.common.wrapper import Properties
 
 
@@ -45,17 +45,17 @@ class Cycle:
 
     def new_name(self, name: str = None) -> str:
         return (
-            validate_id(name)
+            name
             if name
-            else to_identifier(Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()]))
+            else get_valid_filename(Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()]))
         )
 
     @staticmethod
     def new_id(name: str) -> CycleId:
-        return CycleId(Cycle.__SEPARATOR.join([Cycle.ID_PREFIX, validate_id(name), str(uuid.uuid4())]))
+        return CycleId(get_valid_filename(Cycle.__SEPARATOR.join([Cycle.ID_PREFIX, name, str(uuid.uuid4())])))
 
     def __getattr__(self, attribute_name):
-        protected_attribute_name = validate_id(attribute_name)
+        protected_attribute_name = attribute_name
         if protected_attribute_name in self.properties:
             return self.properties[protected_attribute_name]
         raise AttributeError(f"{attribute_name} is not an attribute of cycle {self.id}")
