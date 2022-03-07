@@ -44,11 +44,7 @@ class Cycle:
         self.properties = _Properties(self, **properties)
 
     def new_name(self, name: str = None) -> str:
-        return (
-            name
-            if name
-            else _get_valid_filename(Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()]))
-        )
+        return name if name else Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()])
 
     @staticmethod
     def new_id(name: str) -> CycleId:
