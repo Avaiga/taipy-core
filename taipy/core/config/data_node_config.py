@@ -1,7 +1,7 @@
 from copy import copy
 from typing import Any, Dict, Optional, Union
 
-from taipy.core.common.validate_id import validate_id
+from taipy.core.common._validate_id import _validate_id
 from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
 from taipy.core.data.scope import Scope
 
@@ -39,7 +39,7 @@ class DataNodeConfig:
     DEFAULT_IS_CACHEABLE_VALUE = False
 
     def __init__(self, id: str, storage_type: str = None, scope: Scope = None, **properties):
-        self.id = validate_id(id)
+        self.id = _validate_id(id)
         self.storage_type = storage_type
         self.scope = scope
         self.properties = properties
@@ -68,7 +68,7 @@ class DataNodeConfig:
     @classmethod
     def from_dict(cls, id: str, config_as_dict: Dict[str, Any]):
         config = DataNodeConfig(id)
-        config.id = validate_id(id)
+        config.id = _validate_id(id)
         config.storage_type = config_as_dict.pop(cls.STORAGE_TYPE_KEY, None)
         config.scope = config_as_dict.pop(cls.SCOPE_KEY, None)
         config.properties = config_as_dict

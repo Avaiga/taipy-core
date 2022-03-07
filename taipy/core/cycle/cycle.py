@@ -2,10 +2,10 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict
 
+from taipy.core.common._get_valid_filename import _get_valid_filename
+from taipy.core.common._properties import _Properties
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
-from taipy.core.common.get_valid_filename import get_valid_filename
-from taipy.core.common.wrapper import Properties
 
 
 class Cycle:
@@ -41,18 +41,18 @@ class Cycle:
         self.end_date = end_date
         self.name = self.new_name(name)
         self.id = id or self.new_id(self.name)
-        self.properties = Properties(self, **properties)
+        self.properties = _Properties(self, **properties)
 
     def new_name(self, name: str = None) -> str:
         return (
             name
             if name
-            else get_valid_filename(Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()]))
+            else _get_valid_filename(Cycle.__SEPARATOR.join([str(self.frequency), self.creation_date.isoformat()]))
         )
 
     @staticmethod
     def new_id(name: str) -> CycleId:
-        return CycleId(get_valid_filename(Cycle.__SEPARATOR.join([Cycle.ID_PREFIX, name, str(uuid.uuid4())])))
+        return CycleId(_get_valid_filename(Cycle.__SEPARATOR.join([Cycle.ID_PREFIX, name, str(uuid.uuid4())])))
 
     def __getattr__(self, attribute_name):
         protected_attribute_name = attribute_name
