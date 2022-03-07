@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Union
 
-from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
 
 
 class GlobalAppConfig:
@@ -71,11 +71,11 @@ class GlobalAppConfig:
         return config
 
     def update(self, config_as_dict):
-        self.root_folder = tpl.replace_templates(config_as_dict.pop(self.ROOT_FOLDER_KEY, self.root_folder))
-        self.storage_folder = tpl.replace_templates(config_as_dict.pop(self.STORAGE_FOLDER_KEY, self.storage_folder))
-        self.clean_entities_enabled = tpl.replace_templates(
+        self.root_folder = tpl._replace_templates(config_as_dict.pop(self.ROOT_FOLDER_KEY, self.root_folder))
+        self.storage_folder = tpl._replace_templates(config_as_dict.pop(self.STORAGE_FOLDER_KEY, self.storage_folder))
+        self.clean_entities_enabled = tpl._replace_templates(
             config_as_dict.pop(self.CLEAN_ENTITIES_ENABLED_KEY, self.clean_entities_enabled), bool
         )
         self.properties.update(config_as_dict)
         for k, v in self.properties.items():
-            self.properties[k] = tpl.replace_templates(v)
+            self.properties[k] = tpl._replace_templates(v)

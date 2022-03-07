@@ -2,13 +2,13 @@ from copy import copy
 from typing import Any, Dict, Optional, Union
 
 from taipy.core.common._unicode_to_python_variable_name import _protect_name
-from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
 from taipy.core.data.scope import Scope
 
 
 class DataNodeConfig:
     """
-    Holds all the configuration fields needed to create actual data nodes from the DataNodeConfig.
+    Holds all the configuration fields needed to instantiate actual data nodes from the `DataNodeConfig`.
 
     A Data Node config is made to be used as a generator for actual data nodes. It holds configuration information
     needed to create an actual data node.
@@ -81,13 +81,13 @@ class DataNodeConfig:
 
     def update(self, config_as_dict, default_dn_cfg=None):
         self.storage_type = config_as_dict.pop(self.STORAGE_TYPE_KEY, self.storage_type) or default_dn_cfg.storage_type
-        self.storage_type = tpl.replace_templates(self.storage_type)
+        self.storage_type = tpl._replace_templates(self.storage_type)
         self.scope = config_as_dict.pop(self.SCOPE_KEY, self.scope) or default_dn_cfg.scope
-        self.scope = tpl.replace_templates(
+        self.scope = tpl._replace_templates(
             config_as_dict.pop(self.SCOPE_KEY, self.scope) or default_dn_cfg.scope, Scope
         )
         self.properties.update(config_as_dict)
         if default_dn_cfg:
             self.properties = {**default_dn_cfg.properties, **self.properties}
         for k, v in self.properties.items():
-            self.properties[k] = tpl.replace_templates(v)
+            self.properties[k] = tpl._replace_templates(v)

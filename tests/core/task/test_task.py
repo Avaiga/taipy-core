@@ -85,7 +85,7 @@ def test_can_not_change_task_input(input):
 
 
 def test_can_not_change_task_config_output(output_config):
-    task_config = Config.add_task("name_1", print, [], output=output_config)
+    task_config = Config._add_task("name_1", print, [], output=output_config)
 
     assert task_config.output == output_config
     with pytest.raises(Exception):
@@ -97,7 +97,7 @@ def test_can_not_change_task_config_output(output_config):
 
 def test_can_not_update_task_output_values(output_config):
     data_node = DataNode("data_node")
-    task_config = Config.add_task("name_1", print, [], output=output_config)
+    task_config = Config._add_task("name_1", print, [], output=output_config)
 
     task_config.output.append(data_node)
     assert task_config.output == output_config
@@ -108,7 +108,7 @@ def test_can_not_update_task_output_values(output_config):
 
 def test_can_not_update_task_input_values(input_config):
     data_node_config = DataNodeConfig("data_node")
-    task_config = Config.add_task("name_1", print, input_config, [])
+    task_config = Config._add_task("name_1", print, input_config, [])
 
     task_config.input.append(data_node_config)
     assert task_config.input == input_config

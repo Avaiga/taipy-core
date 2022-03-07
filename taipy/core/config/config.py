@@ -7,7 +7,7 @@ from taipy.core.common._classproperty import _Classproperty
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.frequency import Frequency
 from taipy.core.config._config import _Config
-from taipy.core.config.checker.checker import Checker
+from taipy.core.config.checker._checker import _Checker
 from taipy.core.config.checker.issue_collector import IssueCollector
 from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.config.global_app_config import GlobalAppConfig
@@ -21,24 +21,24 @@ from taipy.core.exceptions.configuration import ConfigurationIssueError
 
 
 class Config:
-    """Singleton entry point to configure Taipy application and retrieve the configuration values."""
+    """Configuration singleton."""
 
-    ENVIRONMENT_VARIABLE_NAME_WITH_CONFIG_PATH = "TAIPY_CONFIG_PATH"
+    _ENVIRONMENT_VARIABLE_NAME_WITH_CONFIG_PATH = "TAIPY_CONFIG_PATH"
     __logger = _TaipyLogger._get_logger()
     _python_config = _Config()
     _file_config = None
     _env_file_config = None
     _applied_config = _Config.default_config()
-    collector = IssueCollector()
+    _collector = IssueCollector()
 
     @_Classproperty
     def job_config(cls) -> JobConfig:
-        """Returns configuration values related to the job executions."""
+        """Returns configuration values related to the job executions as a `JobConfig^`."""
         return cls._applied_config.job_config
 
     @_Classproperty
     def global_config(cls) -> GlobalAppConfig:
-        """Returns configuration values related to the global application."""
+        """Returns configuration values related to the global application as a `GlobalAppConfig^`."""
         return cls._applied_config.global_config
 
     @_Classproperty
@@ -62,34 +62,17 @@ class Config:
         return cls._applied_config.scenarios
 
     @classmethod
-    def load(cls, filename):
-        """
-        Loads configuration from file located at the filename given as parameter.
+    def _load(cls, filename):
 
-        Parameters:
-            filename (str or Path): File to load.
-        """
         cls._file_config = TomlSerializer().read(filename)
         cls.__compile_configs()
 
     @classmethod
-    def export(cls, filename):
-        """
-        Exports the configuration to a toml file.
-
-        The configuration exported is the configuration applied. It is compiled from the three possible methods to
-        configure the application: The python code configuration, the file configuration and the environment
-        configuration.
-
-        Parameters:
-            filename (str or Path): File to export.
-        Note:
-            Overwrite the file if it already exists.
-        """
+    def _export(cls, filename):
         TomlSerializer().write(cls._applied_config, filename)
 
     @classmethod
-    def export_code_config(cls, filename):
+    def _export_code_config(cls, filename):
         """
         Exports the python code configuration as a toml file.
 
@@ -101,14 +84,13 @@ class Config:
         TomlSerializer().write(cls._python_config, filename)
 
     @classmethod
-    def set_global_config(
+    def _set_global_config(
         cls,
         root_folder: str = None,
         storage_folder: str = None,
         clean_entities_enabled: Union[bool, str] = None,
         **properties,
     ) -> GlobalAppConfig:
-        """Configures fields related to global application."""
         cls._python_config.global_config = GlobalAppConfig(
             root_folder, storage_folder, clean_entities_enabled, **properties
         )
@@ -116,13 +98,12 @@ class Config:
         return cls._applied_config.global_config
 
     @classmethod
-    def set_job_config(
+    def _set_job_config(
         cls,
         mode: str = None,
         nb_of_workers: Union[int, str] = None,
         **properties,
     ):
-        """Configures fields related to job execution."""
         job_config = JobConfig(
             mode,
             nb_of_workers,
@@ -133,29 +114,27 @@ class Config:
         return cls._applied_config.job_config
 
     @classmethod
-    def add_data_node(
+    def _add_data_node(
         cls,
         id: str,
         storage_type: str = DataNodeConfig.DEFAULT_STORAGE_TYPE,
         scope: Scope = DataNodeConfig.DEFAULT_SCOPE,
         **properties,
     ):
-        """Adds a new data node configuration."""
         dn_config = DataNodeConfig(id, storage_type, scope, **properties)
         cls._python_config.data_nodes[dn_config.id] = dn_config
         cls.__compile_configs()
         return cls._applied_config.data_nodes[dn_config.id]
 
     @classmethod
-    def add_default_data_node(cls, storage_type: str, scope=DataNodeConfig.DEFAULT_SCOPE, **properties):
-        """Configures the default data node configuration."""
+    def _add_default_data_node(cls, storage_type: str, scope=DataNodeConfig.DEFAULT_SCOPE, **properties):
         data_node_config = DataNodeConfig(_Config.DEFAULT_KEY, storage_type, scope, **properties)
         cls._python_config.data_nodes[_Config.DEFAULT_KEY] = data_node_config
         cls.__compile_configs()
         return cls._applied_config.data_nodes[_Config.DEFAULT_KEY]
 
     @classmethod
-    def add_task(
+    def _add_task(
         cls,
         id: str,
         function,
@@ -163,44 +142,40 @@ class Config:
         output: Optional[Union[DataNodeConfig, List[DataNodeConfig]]] = None,
         **properties,
     ):
-        """Adds a new task configuration."""
         task_config = TaskConfig(id, function, input, output, **properties)
         cls._python_config.tasks[task_config.id] = task_config
         cls.__compile_configs()
         return cls._applied_config.tasks[task_config.id]
 
     @classmethod
-    def add_default_task(
+    def _add_default_task(
         cls,
         function,
         input: Optional[Union[DataNodeConfig, List[DataNodeConfig]]] = None,
         output: Optional[Union[DataNodeConfig, List[DataNodeConfig]]] = None,
         **properties,
     ):
-        """Configures the default task configuration."""
         task_config = TaskConfig(_Config.DEFAULT_KEY, function, input, output, **properties)
         cls._python_config.tasks[task_config.id] = task_config
         cls.__compile_configs()
         return cls._applied_config.tasks[_Config.DEFAULT_KEY]
 
     @classmethod
-    def add_pipeline(cls, id: str, task_configs: Union[TaskConfig, List[TaskConfig]], **properties):
-        """Adds a new pipeline configuration."""
+    def _add_pipeline(cls, id: str, task_configs: Union[TaskConfig, List[TaskConfig]], **properties):
         pipeline_config = PipelineConfig(id, task_configs, **properties)
         cls._python_config.pipelines[pipeline_config.id] = pipeline_config
         cls.__compile_configs()
         return cls._applied_config.pipelines[pipeline_config.id]
 
     @classmethod
-    def add_default_pipeline(cls, task_configs: Union[TaskConfig, List[TaskConfig]], **properties):
-        """Configures the default pipeline configuration."""
+    def _add_default_pipeline(cls, task_configs: Union[TaskConfig, List[TaskConfig]], **properties):
         pipeline_config = PipelineConfig(_Config.DEFAULT_KEY, task_configs, **properties)
         cls._python_config.pipelines[_Config.DEFAULT_KEY] = pipeline_config
         cls.__compile_configs()
         return cls._applied_config.pipelines[_Config.DEFAULT_KEY]
 
     @classmethod
-    def add_scenario(
+    def _add_scenario(
         cls,
         id: str,
         pipeline_configs: List[PipelineConfig],
@@ -208,7 +183,6 @@ class Config:
         comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
         **properties,
     ):
-        """Adds a new scenario configuration."""
         scenario_config = ScenarioConfig(
             id, pipeline_configs, frequency=frequency, comparators=comparators, **properties
         )
@@ -217,7 +191,7 @@ class Config:
         return cls._applied_config.scenarios[scenario_config.id]
 
     @classmethod
-    def add_scenario_from_tasks(
+    def _add_scenario_from_tasks(
         cls,
         id: str,
         task_configs: List[TaskConfig],
@@ -226,21 +200,19 @@ class Config:
         pipeline_id: Optional[str] = None,
         **properties,
     ):
-        """Adds a new scenario configuration with a pipeline built from the given task configs."""
         if not pipeline_id:
             pipeline_id = f"{id}_pipeline"
-        pipeline_config = cls.add_pipeline(pipeline_id, task_configs, **properties)
-        return cls.add_scenario(id, [pipeline_config], frequency=frequency, comparators=comparators, **properties)
+        pipeline_config = cls._add_pipeline(pipeline_id, task_configs, **properties)
+        return cls._add_scenario(id, [pipeline_config], frequency=frequency, comparators=comparators, **properties)
 
     @classmethod
-    def add_default_scenario(
+    def _add_default_scenario(
         cls,
         pipeline_configs: List[PipelineConfig],
         frequency: Optional[Frequency] = None,
         comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
         **properties,
     ):
-        """Configures the default scenario configuration."""
         scenario_config = ScenarioConfig(
             _Config.DEFAULT_KEY, pipeline_configs, frequency=frequency, comparators=comparators, **properties
         )
@@ -250,7 +222,7 @@ class Config:
 
     @classmethod
     def _load_environment_file_config(cls):
-        if config_filename := os.environ.get(cls.ENVIRONMENT_VARIABLE_NAME_WITH_CONFIG_PATH):
+        if config_filename := os.environ.get(cls._ENVIRONMENT_VARIABLE_NAME_WITH_CONFIG_PATH):
             cls.__logger.info(f"Loading configuration provided by environment variable. Filename: '{config_filename}'")
             cls._env_file_config = TomlSerializer().read(config_filename)
             cls.__logger.info(f"Configuration '{config_filename}' successfully loaded.")
@@ -267,20 +239,20 @@ class Config:
             cls._applied_config.update(cls._env_file_config)
 
     @classmethod
-    def check(cls) -> IssueCollector:
-        cls.collector = Checker().check(cls._applied_config)
+    def _check(cls) -> IssueCollector:
+        cls._collector = _Checker()._check(cls._applied_config)
         cls.__log_message(cls)
-        return cls.collector
+        return cls._collector
 
     @classmethod
     def __log_message(cls, config):
-        for issue in config.collector._warnings:
+        for issue in config._collector._warnings:
             cls.__logger.warning(str(issue))
-        for issue in config.collector._infos:
+        for issue in config._collector._infos:
             cls.__logger.info(str(issue))
-        for issue in config.collector._errors:
+        for issue in config._collector._errors:
             cls.__logger.error(str(issue))
-        if len(config.collector._errors) != 0:
+        if len(config._collector._errors) != 0:
             raise ConfigurationIssueError
 
 

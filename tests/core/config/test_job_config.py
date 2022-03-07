@@ -23,7 +23,7 @@ def test_job_config():
     assert Config.job_config.mode == "standalone"
     assert Config.job_config.nb_of_workers == 1
 
-    Config.set_job_config(
+    Config._set_job_config(
         mode=Config.job_config.MODE_VALUE_AIRFLOW,
         hostname="http://localhost:8080",
         nb_of_workers=2,
@@ -45,7 +45,7 @@ def test_job_config():
     assert Config.job_config.airflow_password == "password"
 
     with mock.patch.dict(os.environ, {"FOO": "36", "BAR": "baz", "USER": "user", "PASS": "pass"}):
-        Config.set_job_config(
+        Config._set_job_config(
             mode=Config.job_config.MODE_VALUE_AIRFLOW,
             hostname="http://localhost:8080",
             nb_of_workers="ENV[FOO]",

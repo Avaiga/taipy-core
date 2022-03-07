@@ -2,7 +2,7 @@ from copy import copy
 from typing import Any, Dict, List, Optional, Union
 
 from taipy.core.common._unicode_to_python_variable_name import _protect_name
-from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
 from taipy.core.config.data_node_config import DataNodeConfig
 
 
@@ -96,4 +96,4 @@ class TaskConfig:
         if default_task_cfg:
             self.properties = {**default_task_cfg.properties, **self.properties}
         for k, v in self.properties.items():
-            self.properties[k] = tpl.replace_templates(v)
+            self.properties[k] = tpl._replace_templates(v)

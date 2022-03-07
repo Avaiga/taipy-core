@@ -2,7 +2,7 @@ from importlib import util
 from typing import Any, Dict, Optional, Union
 
 from taipy.core.common._utils import _load_fct
-from taipy.core.config.config_template_handler import ConfigTemplateHandler as tpl
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
 from taipy.core.exceptions.scheduler import DependencyNotInstalled
 
 
@@ -78,8 +78,8 @@ class JobConfig:
         return config
 
     def update(self, cfg_as_dict):
-        mode = tpl.replace_templates(cfg_as_dict.pop(self.MODE_KEY, self.mode))
-        self.nb_of_workers = tpl.replace_templates(cfg_as_dict.pop(self.NB_OF_WORKERS_KEY, self.nb_of_workers), int)
+        mode = tpl._replace_templates(cfg_as_dict.pop(self.MODE_KEY, self.mode))
+        self.nb_of_workers = tpl._replace_templates(cfg_as_dict.pop(self.NB_OF_WORKERS_KEY, self.nb_of_workers), int)
 
         if self.mode != mode:
             self.mode = mode
@@ -90,7 +90,7 @@ class JobConfig:
 
         self.properties.update(cfg_as_dict)
         for k, v in self.properties.items():
-            self.properties[k] = tpl.replace_templates(v)
+            self.properties[k] = tpl._replace_templates(v)
 
     @property
     def is_standalone(self) -> bool:

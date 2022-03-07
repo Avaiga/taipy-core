@@ -417,7 +417,7 @@ def load_configuration(filename):
         filename (str or Path): The path of the toml configuration file to load.
     """
     __logger.info(f"Loading configuration. Filename: '{filename}'")
-    cfg = Config.load(filename)
+    cfg = Config._load(filename)
     __logger.info(f"Configuration '{filename}' successfully loaded.")
     return cfg
 
@@ -435,7 +435,7 @@ def export_configuration(filename):
     Note:
         It overwrites the file if it already exists.
     """
-    return Config.export(filename)
+    return Config._export(filename)
 
 
 def configure_global_app(
@@ -457,7 +457,7 @@ def configure_global_app(
     Returns:
         `GlobalAppConfig`: The global application configuration.
     """
-    return Config.set_global_config(root_folder, storage_folder, clean_entities_enabled, **properties)
+    return Config._set_global_config(root_folder, storage_folder, clean_entities_enabled, **properties)
 
 
 def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = None, **properties) -> JobConfig:
@@ -473,7 +473,7 @@ def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = 
     Returns:
         `JobConfig`: The job execution configuration.
     """
-    return Config.set_job_config(mode, nb_of_workers, **properties)
+    return Config._set_job_config(mode, nb_of_workers, **properties)
 
 
 def configure_data_node(
@@ -491,7 +491,7 @@ def configure_data_node(
     Returns:
         `DataNodeConfig`: The new data node configuration.
     """
-    return Config.add_data_node(id, storage_type, scope, **properties)
+    return Config._add_data_node(id, storage_type, scope, **properties)
 
 
 def configure_default_data_node(
@@ -508,7 +508,7 @@ def configure_default_data_node(
     Returns:
         `DataNodeConfig`: The default data node configuration.
     """
-    return Config.add_default_data_node(storage_type, scope, **properties)
+    return Config._add_default_data_node(storage_type, scope, **properties)
 
 
 def configure_csv_data_node(id: str, path: str, has_header=True, scope=DataNodeConfig.DEFAULT_SCOPE, **properties):
@@ -524,7 +524,7 @@ def configure_csv_data_node(id: str, path: str, has_header=True, scope=DataNodeC
     Returns:
         `DataNodeConfig`: The new CSV data node configuration.
     """
-    return Config.add_data_node(
+    return Config._add_data_node(
         id, CSVDataNode.storage_type(), scope=scope, path=path, has_header=has_header, **properties
     )
 
@@ -550,7 +550,7 @@ def configure_excel_data_node(
     Returns:
         `DataNodeConfig`: The new CSV data node configuration.
     """
-    return Config.add_data_node(
+    return Config._add_data_node(
         id,
         ExcelDataNode.storage_type(),
         scope=scope,
@@ -580,7 +580,7 @@ def configure_generic_data_node(
     Returns:
         `DataNodeConfig`: The new Generic data node configuration.
     """
-    return Config.add_data_node(
+    return Config._add_data_node(
         id, GenericDataNode.storage_type(), scope=scope, read_fct=read_fct, write_fct=write_fct, **properties
     )
 
@@ -600,7 +600,7 @@ def configure_in_memory_data_node(
     Returns:
         `DataNodeConfig`: The new in_memory data node configuration.
     """
-    return Config.add_data_node(
+    return Config._add_data_node(
         id, InMemoryDataNode.storage_type(), scope=scope, default_data=default_data, **properties
     )
 
@@ -620,7 +620,9 @@ def configure_pickle_data_node(
     Returns:
         `DataNodeConfig`: The new pickle data node configuration.
     """
-    return Config.add_data_node(id, PickleDataNode.storage_type(), scope=scope, default_data=default_data, **properties)
+    return Config._add_data_node(
+        id, PickleDataNode.storage_type(), scope=scope, default_data=default_data, **properties
+    )
 
 
 def configure_sql_data_node(
@@ -652,7 +654,7 @@ def configure_sql_data_node(
     Returns:
         `DataNodeConfig`: The new SQL data node configuration.
     """
-    return Config.add_data_node(
+    return Config._add_data_node(
         id,
         SQLDataNode.storage_type(),
         scope=scope,
@@ -688,7 +690,7 @@ def configure_task(
     Returns:
         `TaskConfig`: The new task configuration.
     """
-    return Config.add_task(id, function, input, output, **properties)
+    return Config._add_task(id, function, input, output, **properties)
 
 
 def configure_default_task(
@@ -710,7 +712,7 @@ def configure_default_task(
     Returns:
         `TaskConfig`: The default task configuration.
     """
-    return Config.add_default_task(function, input, output, **properties)
+    return Config._add_default_task(function, input, output, **properties)
 
 
 def configure_pipeline(id: str, task_configs: Union[TaskConfig, List[TaskConfig]], **properties) -> PipelineConfig:
@@ -724,7 +726,7 @@ def configure_pipeline(id: str, task_configs: Union[TaskConfig, List[TaskConfig]
     Returns:
         `PipelineConfig`: The new pipeline configuration.
     """
-    return Config.add_pipeline(id, task_configs, **properties)
+    return Config._add_pipeline(id, task_configs, **properties)
 
 
 def configure_default_pipeline(task_configs: Union[TaskConfig, List[TaskConfig]], **properties) -> PipelineConfig:
@@ -737,7 +739,7 @@ def configure_default_pipeline(task_configs: Union[TaskConfig, List[TaskConfig]]
     Returns:
         `PipelineConfig`: The default pipeline configuration.
     """
-    return Config.add_default_pipeline(task_configs, **properties)
+    return Config._add_default_pipeline(task_configs, **properties)
 
 
 def configure_scenario(
@@ -765,7 +767,7 @@ def configure_scenario(
     Returns:
         `ScenarioConfig`: The new scenario configuration.
     """
-    return Config.add_scenario(id, pipeline_configs, frequency, comparators, **properties)
+    return Config._add_scenario(id, pipeline_configs, frequency, comparators, **properties)
 
 
 def configure_scenario_from_tasks(
@@ -796,7 +798,7 @@ def configure_scenario_from_tasks(
     Returns:
         `ScenarioConfig`: The new scenario configuration.
     """
-    return Config.add_scenario_from_tasks(id, task_configs, frequency, comparators, pipeline_id, **properties)
+    return Config._add_scenario_from_tasks(id, task_configs, frequency, comparators, pipeline_id, **properties)
 
 
 def configure_default_scenario(
@@ -822,7 +824,7 @@ def configure_default_scenario(
     Returns:
         `ScenarioConfig`: The default scenario configuration.
     """
-    return Config.add_default_scenario(pipeline_configs, frequency, comparators, **properties)
+    return Config._add_default_scenario(pipeline_configs, frequency, comparators, **properties)
 
 
 def clean_all_entities() -> bool:
@@ -861,4 +863,4 @@ def check_configuration() -> IssueCollector:
     Returns:
         `IssueCollector`: Collector containing the info, the warning and the error issues.
     """
-    return Config.check()
+    return Config._check()
