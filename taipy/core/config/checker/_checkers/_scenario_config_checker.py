@@ -11,7 +11,7 @@ class _ScenarioConfigChecker(_ConfigChecker):
         super().__init__(config, collector)
 
     def _check(self) -> IssueCollector:
-        scenario_configs = self._config.scenarios
+        scenario_configs = self._config._scenarios
         for scenario_config_id, scenario_config in scenario_configs.items():
             if scenario_config_id != _Config.DEFAULT_KEY:
                 self._check_existing_config_id(scenario_config)
@@ -24,24 +24,24 @@ class _ScenarioConfigChecker(_ConfigChecker):
         self._check_children(
             ScenarioConfig,
             scenario_config_id,
-            scenario_config.PIPELINE_KEY,
-            scenario_config.pipelines,
+            scenario_config._PIPELINE_KEY,
+            scenario_config.pipeline_configs,
             PipelineConfig,
         )
 
     def _check_frequency(self, scenario_config_id: str, scenario_config: ScenarioConfig):
         if scenario_config.frequency and not isinstance(scenario_config.frequency, Frequency):
             self._error(
-                scenario_config.FREQUENCY_KEY,
+                scenario_config._FREQUENCY_KEY,
                 scenario_config.frequency,
-                f"{scenario_config.FREQUENCY_KEY} field of Scenario {scenario_config_id} must be populated with a "
+                f"{scenario_config._FREQUENCY_KEY} field of Scenario {scenario_config_id} must be populated with a "
                 f"Frequency value.",
             )
 
     def _check_comparators(self, scenario_config_id: str, scenario_config: ScenarioConfig):
         if not scenario_config.comparators:
             self._info(
-                scenario_config.COMPARATOR_KEY,
+                scenario_config._COMPARATOR_KEY,
                 scenario_config.comparators,
-                f"No scenario {scenario_config.COMPARATOR_KEY} defined for scenario {scenario_config_id}",
+                f"No scenario {scenario_config._COMPARATOR_KEY} defined for scenario {scenario_config_id}",
             )

@@ -13,7 +13,7 @@ def reset_configuration_singleton():
     Config._python_config = _Config()
     Config._file_config = _Config()
     Config._env_file_config = _Config()
-    Config._applied_config = _Config.default_config()
+    Config._applied_config = _Config._default_config()
 
 
 task1_config = Config._add_task("task1", print, [], [])
@@ -45,7 +45,7 @@ def test_pipeline_getitem():
     pipeline = Config._add_pipeline(pipeline_config_id, [task1_config, task2_config])
 
     assert Config.pipelines[pipeline_config_id].id == pipeline.id
-    assert Config.pipelines[pipeline_config_id].tasks == pipeline.tasks
+    assert Config.pipelines[pipeline_config_id]._tasks == pipeline._tasks
     assert Config.pipelines[pipeline_config_id].properties == pipeline.properties
 
 

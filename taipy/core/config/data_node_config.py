@@ -14,37 +14,37 @@ class DataNodeConfig:
     needed to create an actual data node.
 
     Attributes:
-        id (str):  Unique identifier of the data node config. Must be a valid Python variable name.
+        id (str):  Unique identifier of the data node config. It must be a valid Python variable name.
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
             are : "csv", "excel", "pickle", "sql", "generic" and "In_memory". The default value is "pickle".
-            Note that the "in_memory" value can only be used when JobConfig.mode is "standalone".
+            Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Scope):  The usage scope of the data nodes created from the data node config. The default value is
-            Pipeline.
+            SCENARIO.
         properties (dict): Dictionary of additional properties.
     """
 
-    STORAGE_TYPE_KEY = "storage_type"
-    STORAGE_TYPE_VALUE_PICKLE = "pickle"
-    STORAGE_TYPE_VALUE_SQL = "sql"
-    STORAGE_TYPE_VALUE_CSV = "csv"
-    STORAGE_TYPE_VALUE_EXCEL = "excel"
-    STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
-    STORAGE_TYPE_VALUE_GENERIC = "generic"
-    DEFAULT_STORAGE_TYPE = STORAGE_TYPE_VALUE_PICKLE
+    _STORAGE_TYPE_KEY = "storage_type"
+    _STORAGE_TYPE_VALUE_PICKLE = "pickle"
+    _STORAGE_TYPE_VALUE_SQL = "sql"
+    _STORAGE_TYPE_VALUE_CSV = "csv"
+    _STORAGE_TYPE_VALUE_EXCEL = "excel"
+    _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
+    _STORAGE_TYPE_VALUE_GENERIC = "generic"
+    _DEFAULT_STORAGE_TYPE = _STORAGE_TYPE_VALUE_PICKLE
 
-    SCOPE_KEY = "scope"
-    DEFAULT_SCOPE = Scope.SCENARIO
+    _SCOPE_KEY = "scope"
+    _DEFAULT_SCOPE = Scope.SCENARIO
 
-    IS_CACHEABLE_KEY = "cacheable"
-    DEFAULT_IS_CACHEABLE_VALUE = False
+    _IS_CACHEABLE_KEY = "cacheable"
+    _DEFAULT_IS_CACHEABLE_VALUE = False
 
     def __init__(self, id: str, storage_type: str = None, scope: Scope = None, **properties):
         self.id = _validate_id(id)
         self.storage_type = storage_type
         self.scope = scope
         self.properties = properties
-        if self.properties.get(self.IS_CACHEABLE_KEY) is None:
-            self.properties[self.IS_CACHEABLE_KEY] = self.DEFAULT_IS_CACHEABLE_VALUE
+        if self.properties.get(self._IS_CACHEABLE_KEY) is None:
+            self.properties[self._IS_CACHEABLE_KEY] = self._DEFAULT_IS_CACHEABLE_VALUE
 
     def __getattr__(self, item: str) -> Optional[Any]:
         return self.properties.get(item)
@@ -54,32 +54,32 @@ class DataNodeConfig:
 
     @classmethod
     def default_config(cls, id):
-        return DataNodeConfig(id, cls.DEFAULT_STORAGE_TYPE, cls.DEFAULT_SCOPE)
+        return DataNodeConfig(id, cls._DEFAULT_STORAGE_TYPE, cls._DEFAULT_SCOPE)
 
-    def to_dict(self):
+    def _to_dict(self):
         as_dict = {}
         if self.storage_type is not None:
-            as_dict[self.STORAGE_TYPE_KEY] = self.storage_type
+            as_dict[self._STORAGE_TYPE_KEY] = self.storage_type
         if self.scope is not None:
-            as_dict[self.SCOPE_KEY] = self.scope
+            as_dict[self._SCOPE_KEY] = self.scope
         as_dict.update(self.properties)
         return as_dict
 
     @classmethod
-    def from_dict(cls, id: str, config_as_dict: Dict[str, Any]):
+    def _from_dict(cls, id: str, config_as_dict: Dict[str, Any]):
         config = DataNodeConfig(id)
         config.id = _validate_id(id)
-        config.storage_type = config_as_dict.pop(cls.STORAGE_TYPE_KEY, None)
-        config.scope = config_as_dict.pop(cls.SCOPE_KEY, None)
+        config.storage_type = config_as_dict.pop(cls._STORAGE_TYPE_KEY, None)
+        config.scope = config_as_dict.pop(cls._SCOPE_KEY, None)
         config.properties = config_as_dict
         return config
 
-    def update(self, config_as_dict, default_dn_cfg=None):
-        self.storage_type = config_as_dict.pop(self.STORAGE_TYPE_KEY, self.storage_type) or default_dn_cfg.storage_type
+    def _update(self, config_as_dict, default_dn_cfg=None):
+        self.storage_type = config_as_dict.pop(self._STORAGE_TYPE_KEY, self.storage_type) or default_dn_cfg.storage_type
         self.storage_type = tpl._replace_templates(self.storage_type)
-        self.scope = config_as_dict.pop(self.SCOPE_KEY, self.scope) or default_dn_cfg.scope
+        self.scope = config_as_dict.pop(self._SCOPE_KEY, self.scope) or default_dn_cfg.scope
         self.scope = tpl._replace_templates(
-            config_as_dict.pop(self.SCOPE_KEY, self.scope) or default_dn_cfg.scope, Scope
+            config_as_dict.pop(self._SCOPE_KEY, self.scope) or default_dn_cfg.scope, Scope
         )
         self.properties.update(config_as_dict)
         if default_dn_cfg:

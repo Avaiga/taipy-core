@@ -186,7 +186,7 @@ class TestDataManager:
         assert DataManager._get(pickle_dn).properties == pickle_dn.properties
 
     def test_create_raises_exception_with_wrong_type(self):
-        wrong_type_dn_config = DataNodeConfig(id="foo", storage_type="bar", scope=DataNodeConfig.DEFAULT_SCOPE)
+        wrong_type_dn_config = DataNodeConfig(id="foo", storage_type="bar", scope=DataNodeConfig._DEFAULT_SCOPE)
         with pytest.raises(InvalidDataNodeType):
             DataManager._create_and_set(wrong_type_dn_config, None)
 

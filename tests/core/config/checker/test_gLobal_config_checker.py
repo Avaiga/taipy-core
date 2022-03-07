@@ -10,15 +10,15 @@ class TestGlobalConfigChecker:
         config = _Config()
         _GlobalConfigChecker(config, collector)._check()
         assert len(collector.errors) == 1
-        assert collector.errors[0].field == GlobalAppConfig.CLEAN_ENTITIES_ENABLED_KEY
+        assert collector.errors[0].field == GlobalAppConfig._CLEAN_ENTITIES_ENABLED_KEY
         assert collector.errors[0].value is None
 
-        config.global_config.clean_entities_enabled = True
+        config._global_config.clean_entities_enabled = True
         collector = IssueCollector()
         _GlobalConfigChecker(config, collector)._check()
         assert len(collector.errors) == 0
 
-        config.global_config.clean_entities_enabled = False
+        config._global_config.clean_entities_enabled = False
         collector = IssueCollector()
         _GlobalConfigChecker(config, collector)._check()
         assert len(collector.errors) == 0

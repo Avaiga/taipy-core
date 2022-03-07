@@ -10,7 +10,7 @@ class _TaskConfigChecker(_ConfigChecker):
         super().__init__(config, collector)
 
     def _check(self) -> IssueCollector:
-        task_configs = self._config.tasks
+        task_configs = self._config._tasks
         for task_config_id, task_config in task_configs.items():
             if task_config_id != _Config.DEFAULT_KEY:
                 self._check_existing_config_id(task_config)
@@ -20,22 +20,26 @@ class _TaskConfigChecker(_ConfigChecker):
         return self._collector
 
     def _check_inputs(self, task_config_id: str, task_config: TaskConfig):
-        self._check_children(TaskConfig, task_config_id, task_config.INPUT_KEY, task_config.inputs, DataNodeConfig)
+        self._check_children(
+            TaskConfig, task_config_id, task_config._INPUT_KEY, task_config.input_configs, DataNodeConfig
+        )
 
     def _check_outputs(self, task_config_id: str, task_config: TaskConfig):
-        self._check_children(TaskConfig, task_config_id, task_config.OUTPUT_KEY, task_config.outputs, DataNodeConfig)
+        self._check_children(
+            TaskConfig, task_config_id, task_config._OUTPUT_KEY, task_config.output_configs, DataNodeConfig
+        )
 
     def _check_existing_function(self, task_config_id: str, task_config: TaskConfig):
         if not task_config.function:
             self._error(
-                task_config.FUNCTION,
+                task_config._FUNCTION,
                 task_config.function,
-                f"{task_config.FUNCTION} field of Task {task_config_id} is empty.",
+                f"{task_config._FUNCTION} field of Task {task_config_id} is empty.",
             )
         else:
             if not callable(task_config.function):
                 self._error(
-                    task_config.FUNCTION,
+                    task_config._FUNCTION,
                     task_config.function,
-                    f"{task_config.FUNCTION} field of task {task_config_id} must be populated with Callable value.",
+                    f"{task_config._FUNCTION} field of task {task_config_id} must be populated with Callable value.",
                 )

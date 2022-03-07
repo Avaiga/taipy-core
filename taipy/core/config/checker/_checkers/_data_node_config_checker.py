@@ -14,7 +14,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
         self._storage_types = [c.storage_type() for c in DataNode.__subclasses__()]
 
     def _check(self) -> IssueCollector:
-        data_node_configs = self._config.data_nodes
+        data_node_configs = self._config._data_nodes
         for data_node_config_id, data_node_config in data_node_configs.items():
             self._check_existing_config_id(data_node_config)
             self._check_storage_type(data_node_config_id, data_node_config)
@@ -27,18 +27,18 @@ class _DataNodeConfigChecker(_ConfigChecker):
     def _check_storage_type(self, data_node_config_id: str, data_node_config: DataNodeConfig):
         if data_node_config.storage_type not in self._storage_types:
             self._error(
-                data_node_config.STORAGE_TYPE_KEY,
+                data_node_config._STORAGE_TYPE_KEY,
                 data_node_config.storage_type,
-                f"{data_node_config.STORAGE_TYPE_KEY} field of DataNode {data_node_config_id} must be either csv, "
+                f"{data_node_config._STORAGE_TYPE_KEY} field of DataNode {data_node_config_id} must be either csv, "
                 f"sql, pickle, excel or in_memory.",
             )
 
     def _check_scope(self, data_node_config_id: str, data_node_config: DataNodeConfig):
         if not isinstance(data_node_config.scope, Scope):
             self._error(
-                data_node_config.SCOPE_KEY,
+                data_node_config._SCOPE_KEY,
                 data_node_config.scope,
-                f"{data_node_config.SCOPE_KEY} field of DataNode {data_node_config_id} must be populated with a Scope "
+                f"{data_node_config._SCOPE_KEY} field of DataNode {data_node_config_id} must be populated with a Scope "
                 f"value.",
             )
 

@@ -9,14 +9,14 @@ class _GlobalConfigChecker(_ConfigChecker):
         super().__init__(config, collector)
 
     def _check(self) -> IssueCollector:
-        global_config = self._config.global_config
+        global_config = self._config._global_config
         self._check_bolean_field(global_config)
         return self._collector
 
     def _check_bolean_field(self, global_config: GlobalAppConfig):
         if not isinstance(global_config.clean_entities_enabled, bool):
             self._error(
-                global_config.CLEAN_ENTITIES_ENABLED_KEY,
+                global_config._CLEAN_ENTITIES_ENABLED_KEY,
                 global_config.clean_entities_enabled,
-                f"{global_config.CLEAN_ENTITIES_ENABLED_KEY} field must be populated with a boolean value.",
+                f"{global_config._CLEAN_ENTITIES_ENABLED_KEY} field must be populated with a boolean value.",
             )

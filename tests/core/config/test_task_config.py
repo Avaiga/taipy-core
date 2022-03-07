@@ -13,7 +13,7 @@ def reset_configuration_singleton():
     Config._python_config = _Config()
     Config._file_config = _Config()
     Config._env_file_config = _Config()
-    Config._applied_config = _Config.default_config()
+    Config._applied_config = _Config._default_config()
 
 
 def test_task_config_creation():
@@ -44,13 +44,13 @@ def test_task_getitem():
     input_config = Config._add_data_node("input")
     output_config = Config._add_data_node("output")
     task_id = "tasks1"
-    task = Config._add_task(task_id, print, input_config, output_config)
+    task_cfg = Config._add_task(task_id, print, input_config, output_config)
 
-    assert Config.tasks[task_id].id == task.id
-    assert Config.tasks[task_id].properties == task.properties
-    assert Config.tasks[task_id].function == task.function
-    assert Config.tasks[task_id].inputs == task.inputs
-    assert Config.tasks[task_id].outputs == task.outputs
+    assert Config.tasks[task_id].id == task_cfg.id
+    assert Config.tasks[task_id].properties == task_cfg.properties
+    assert Config.tasks[task_id].function == task_cfg.function
+    assert Config.tasks[task_id].input_configs == task_cfg.input_configs
+    assert Config.tasks[task_id].output_configs == task_cfg.output_configs
 
 
 def test_task_creation_no_duplication():

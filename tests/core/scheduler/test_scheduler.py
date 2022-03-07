@@ -27,7 +27,7 @@ def reset_configuration_singleton():
     Config._python_config = _Config()
     Config._file_config = None
     Config._env_file_config = None
-    Config._applied_config = _Config.default_config()
+    Config._applied_config = _Config._default_config()
 
     for f in glob.glob("*.p"):
         print(f"deleting file {f}")

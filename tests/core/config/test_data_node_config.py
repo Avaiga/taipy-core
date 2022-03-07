@@ -16,7 +16,7 @@ def reset_configuration_singleton():
     Config._python_config = _Config()
     Config._file_config = _Config()
     Config._env_file_config = _Config()
-    Config._applied_config = _Config.default_config()
+    Config._applied_config = _Config._default_config()
 
 
 def test_data_node_config_check():

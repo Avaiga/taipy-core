@@ -477,7 +477,7 @@ def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = 
 
 
 def configure_data_node(
-    id: str, storage_type: str = "pickle", scope: Scope = DataNodeConfig.DEFAULT_SCOPE, **properties
+    id: str, storage_type: str = "pickle", scope: Scope = DataNodeConfig._DEFAULT_SCOPE, **properties
 ) -> DataNodeConfig:
     """
     Configures a new data node configuration.
@@ -495,7 +495,7 @@ def configure_data_node(
 
 
 def configure_default_data_node(
-    storage_type: str = "pickle", scope=DataNodeConfig.DEFAULT_SCOPE, **properties
+    storage_type: str = "pickle", scope=DataNodeConfig._DEFAULT_SCOPE, **properties
 ) -> DataNodeConfig:
     """
     Configures the default values of the data node configurations.
@@ -511,7 +511,7 @@ def configure_default_data_node(
     return Config._add_default_data_node(storage_type, scope, **properties)
 
 
-def configure_csv_data_node(id: str, path: str, has_header=True, scope=DataNodeConfig.DEFAULT_SCOPE, **properties):
+def configure_csv_data_node(id: str, path: str, has_header=True, scope=DataNodeConfig._DEFAULT_SCOPE, **properties):
     """
     Configures a new CSV data node configuration.
 
@@ -534,7 +534,7 @@ def configure_excel_data_node(
     path: str,
     has_header: bool = True,
     sheet_name: Union[List[str], str] = "Sheet1",
-    scope: Scope = DataNodeConfig.DEFAULT_SCOPE,
+    scope: Scope = DataNodeConfig._DEFAULT_SCOPE,
     **properties,
 ):
     """
@@ -565,7 +565,7 @@ def configure_generic_data_node(
     id: str,
     read_fct: Callable = None,
     write_fct: Callable = None,
-    scope: Scope = DataNodeConfig.DEFAULT_SCOPE,
+    scope: Scope = DataNodeConfig._DEFAULT_SCOPE,
     **properties,
 ):
     """
@@ -586,7 +586,7 @@ def configure_generic_data_node(
 
 
 def configure_in_memory_data_node(
-    id: str, default_data: Optional[Any] = None, scope: Scope = DataNodeConfig.DEFAULT_SCOPE, **properties
+    id: str, default_data: Optional[Any] = None, scope: Scope = DataNodeConfig._DEFAULT_SCOPE, **properties
 ):
     """
     Configures a new in_memory data node configuration.
@@ -606,7 +606,7 @@ def configure_in_memory_data_node(
 
 
 def configure_pickle_data_node(
-    id: str, default_data: Optional[Any] = None, scope: Scope = DataNodeConfig.DEFAULT_SCOPE, **properties
+    id: str, default_data: Optional[Any] = None, scope: Scope = DataNodeConfig._DEFAULT_SCOPE, **properties
 ):
     """
     Configures a new pickle data node configuration.
@@ -634,7 +634,7 @@ def configure_sql_data_node(
     read_query: str,
     write_table: str,
     db_port: int = 143,
-    scope: Scope = DataNodeConfig.DEFAULT_SCOPE,
+    scope: Scope = DataNodeConfig._DEFAULT_SCOPE,
     **properties,
 ):
     """

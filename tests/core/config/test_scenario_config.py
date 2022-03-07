@@ -18,7 +18,7 @@ def reset_configuration_singleton():
     Config._python_config = _Config()
     Config._file_config = _Config()
     Config._env_file_config = _Config()
-    Config._applied_config = _Config.default_config()
+    Config._applied_config = _Config._default_config()
 
 
 pipeline1_config = Config._add_pipeline(
@@ -59,7 +59,7 @@ def test_scenario_getitem():
     scenario = Config._add_scenario(scenario_id, [pipeline1_config, pipeline2_config])
 
     assert Config.scenarios[scenario_id].id == scenario.id
-    assert Config.scenarios[scenario_id].pipelines == scenario.pipelines
+    assert Config.scenarios[scenario_id]._pipelines == scenario._pipelines
     assert Config.scenarios[scenario_id].properties == scenario.properties
 
 
@@ -123,11 +123,11 @@ def test_scenario_create_from_tasks():
     ScenarioManager.submit(ScenarioManager.create(scenario_config_1))
     assert len(ScenarioManager._get_all()) == 1
     assert len(PipelineManager._get_all()) == 1
-    assert len(scenario_config_1.pipelines) == 1
-    assert len(scenario_config_1.pipelines[0].tasks) == 2
+    assert len(scenario_config_1.pipeline_configs) == 1
+    assert len(scenario_config_1.pipeline_configs[0].task_configs) == 2
     # Should create a default pipeline name
-    assert isinstance(scenario_config_1.pipelines[0].id, str)
-    assert scenario_config_1.pipelines[0].id == f"{scenario_config_1.id}_pipeline"
+    assert isinstance(scenario_config_1.pipeline_configs[0].id, str)
+    assert scenario_config_1.pipeline_configs[0].id == f"{scenario_config_1.id}_pipeline"
 
     pipeline_name = "p1"
     scenario_config_2 = Config._add_scenario_from_tasks(
@@ -136,4 +136,4 @@ def test_scenario_create_from_tasks():
     ScenarioManager.submit(ScenarioManager.create(scenario_config_2))
     assert len(ScenarioManager._get_all()) == 2
     assert len(PipelineManager._get_all()) == 2
-    assert scenario_config_2.pipelines[0].id == pipeline_name
+    assert scenario_config_2.pipeline_configs[0].id == pipeline_name
