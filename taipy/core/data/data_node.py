@@ -158,11 +158,11 @@ class DataNode:
             return None
 
     def write(self, data, job_id: Optional[JobId] = None):
-        from taipy.core.data.data_manager import DataManager
+        from taipy.core.data._data_manager import _DataManager
 
         self._write(data)
         self.unlock_edition(job_id=job_id)
-        DataManager._set(self)
+        _DataManager._set(self)
 
     def lock_edition(self):
         self._edition_in_progress = True

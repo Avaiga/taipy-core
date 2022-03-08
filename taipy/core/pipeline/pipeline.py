@@ -9,7 +9,7 @@ from taipy.core.common._utils import _fcts_to_dict
 from taipy.core.common._validate_id import _validate_id
 from taipy.core.common.alias import PipelineId
 from taipy.core.data.data_node import DataNode
-from taipy.core.pipeline.pipeline_model import PipelineModel
+from taipy.core.pipeline._pipeline_model import _PipelineModel
 from taipy.core.task.task import Task
 
 
@@ -51,9 +51,9 @@ class Pipeline:
         return self.id
 
     def __setstate__(self, id):
-        from taipy.core.pipeline.pipeline_manager import PipelineManager
+        from taipy.core.pipeline._pipeline_manager import _PipelineManager
 
-        p = PipelineManager._get(id)
+        p = _PipelineManager._get(id)
         self.__dict__ = p.__dict__
 
     @property  # type: ignore
@@ -121,8 +121,8 @@ class Pipeline:
         self._subscribers = reload("pipeline", self)._subscribers
         self._subscribers.remove(callback)
 
-    def to_model(self) -> PipelineModel:
-        return PipelineModel(
+    def to_model(self) -> _PipelineModel:
+        return _PipelineModel(
             self.id,
             self.parent_id,
             self.config_id,
