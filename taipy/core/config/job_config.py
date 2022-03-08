@@ -28,10 +28,7 @@ class JobConfig:
     def __init__(self, mode: str = None, nb_of_workers: Union[int, str] = None, **properties):
         self.mode = mode
 
-        if nb_of_workers is None:
-            self.nb_of_workers = self._DEFAULT_NB_OF_WORKERS
-        else:
-            self.nb_of_workers = nb_of_workers  # type: ignore
+        self.nb_of_workers = nb_of_workers
 
         self.config = None
         if self.mode and self.mode != self._DEFAULT_MODE:
@@ -85,7 +82,7 @@ class JobConfig:
     @property
     def is_standalone(self) -> bool:
         """True if the config is set to standalone execution"""
-        return self.mode == self._MODE_VALUE_STANDALONE
+        return self.mode == self._DEFAULT_MODE
 
     @property
     def is_multiprocess(self) -> bool:
