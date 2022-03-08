@@ -79,9 +79,6 @@ class DataNode:
     @property  # type: ignore
     @self_reload("data")
     def validity_period(self) -> Optional[timedelta]:
-        """
-        Number of minutes where the Data Node is up-to-date.
-        """
         return self._validity_period if self._validity_period else None
 
     @property  # type: ignore
