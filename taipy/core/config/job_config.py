@@ -97,3 +97,6 @@ class JobConfig:
         if not util.find_spec(dep):
             raise DependencyNotInstalled(mode)
         return _load_fct(dep + ".config", "Config")(**properties)
+
+    def _is_default_mode(self) -> bool:
+        return self.mode == self._DEFAULT_MODE
