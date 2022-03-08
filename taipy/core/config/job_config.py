@@ -28,7 +28,10 @@ class JobConfig:
     def __init__(self, mode: str = None, nb_of_workers: Union[int, str] = None, **properties):
         self.mode = mode
 
-        self.nb_of_workers = nb_of_workers
+        if nb_of_workers is None:
+            self.nb_of_workers = self._DEFAULT_NB_OF_WORKERS
+        else:
+            self.nb_of_workers = nb_of_workers  # type: ignore
 
         self.config = None
         if self.mode and self.mode != self._DEFAULT_MODE:
