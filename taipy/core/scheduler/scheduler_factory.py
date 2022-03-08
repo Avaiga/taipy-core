@@ -1,5 +1,3 @@
-from importlib import util
-
 from taipy.core.common._utils import _load_fct
 from taipy.core.config.config import Config
 from taipy.core.scheduler.abstract_scheduler import AbstractScheduler

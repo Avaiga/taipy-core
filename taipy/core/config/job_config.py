@@ -11,8 +11,8 @@ class JobConfig:
     Holds configuration fields related to the job executions.
 
     Parameters:
-        mode (str): Field representing the Taipy operating mode. Possible values are "standalone", "airflow". The
-            default value is "standalone".
+        mode (str): Field representing the Taipy operating mode. By default is "standalone" but you can install
+            other package to override this behaviours (ex: airflow).
         nb_of_workers (int): Maximum number of running workers to execute jobs. It must be a positive integer.
             The default value is 1.
         properties (dict): Dictionary of additional properties.
@@ -20,9 +20,7 @@ class JobConfig:
     """
 
     _MODE_KEY = "mode"
-    _MODE_VALUE_STANDALONE = "standalone"
-    _MODE_VALUE_AIRFLOW = "airflow"
-    _DEFAULT_MODE = _MODE_VALUE_STANDALONE
+    _DEFAULT_MODE = "standalone"
 
     _NB_OF_WORKERS_KEY = "nb_of_workers"
     _DEFAULT_NB_OF_WORKERS = 1
