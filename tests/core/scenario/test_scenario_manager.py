@@ -178,7 +178,9 @@ def test_create_and_delete_scenario():
     assert scenario_1.tags == set()
 
     with pytest.raises(DeletingMasterScenario):
-        _ScenarioManager._delete(scenario_1.id)
+        _ScenarioManager._delete(
+            scenario_1.id,
+        )
 
     scenario_2 = _ScenarioManager._create(scenario_config, creation_date=creation_date_2)
     assert scenario_2.config_id == "sc"
@@ -195,10 +197,14 @@ def test_create_and_delete_scenario():
     assert scenario_1.cycle == scenario_2.cycle
 
     assert len(_ScenarioManager._get_all()) == 2
-    _ScenarioManager._delete(scenario_2.id)
+    _ScenarioManager._delete(
+        scenario_2.id,
+    )
     assert len(_ScenarioManager._get_all()) == 1
     with pytest.raises(DeletingMasterScenario):
-        _ScenarioManager._delete(scenario_1.id)
+        _ScenarioManager._delete(
+            scenario_1.id,
+        )
     assert _ScenarioManager._get(scenario_2) is None
 
 

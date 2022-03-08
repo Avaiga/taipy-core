@@ -162,16 +162,16 @@ class _ScenarioManager(_Manager[Scenario]):
             if old_tagged_scenario:
                 old_tagged_scenario.remove_tag(tag)
                 cls._set(old_tagged_scenario)
-        scenario.add_tag(tag)
+        scenario._add_tag(tag)
         cls._set(scenario)
 
     @classmethod
     def _untag(cls, scenario: Scenario, tag: str):
-        scenario.remove_tag(tag)
+        scenario._remove_tag(tag)
         cls._set(scenario)
 
     @classmethod
-    def _delete(cls, scenario_id: ScenarioId):  # type: ignore
+    def _delete(cls, scenario_id: ScenarioId, **kwargs):  # type: ignore
         if cls._get(scenario_id).is_master:
             raise DeletingMasterScenario
         super()._delete(scenario_id)
