@@ -255,9 +255,9 @@ class TestTaipy:
             tp.get_official(cycle)
             mck.assert_called_once_with(cycle)
 
-    def test_get_all_official(self):
-        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_all_official") as mck:
-            tp.get_all_official()
+    def test_get_official_scenarios(self):
+        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_official_scenarios") as mck:
+            tp.get_official_scenarios()
             mck.assert_called_once_with()
 
     def test_set_official(self, scenario):

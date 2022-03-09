@@ -181,14 +181,14 @@ def get_official(cycle: Cycle) -> Optional[Scenario]:
     return _ScenarioManager._get_official(cycle)
 
 
-def get_all_official() -> List[Scenario]:
+def get_official_scenarios() -> List[Scenario]:
     """
     Returns the list of all official scenarios.
 
     Returns:
         List[Scenario]: The list of all official scenarios.
     """
-    return _ScenarioManager._get_all_official()
+    return _ScenarioManager._get_official_scenarios()
 
 
 def set_official(scenario: Scenario):

@@ -133,7 +133,7 @@ class _ScenarioManager(_Manager[Scenario]):
         return scenarios
 
     @classmethod
-    def _get_all_official(cls) -> List[Scenario]:
+    def _get_official_scenarios(cls) -> List[Scenario]:
         official_scenarios = []
         for scenario in cls._get_all():
             if scenario.is_official:

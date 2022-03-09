@@ -391,18 +391,18 @@ def test_get_set_official_scenario():
     _ScenarioManager._set(scenario_1)
     _ScenarioManager._set(scenario_2)
 
-    assert len(_ScenarioManager._get_all_official()) == 0
+    assert len(_ScenarioManager._get_official_scenarios()) == 0
     assert len(_ScenarioManager._get_all_by_cycle(cycle_1)) == 2
 
     _ScenarioManager._set_official(scenario_1)
 
-    assert len(_ScenarioManager._get_all_official()) == 1
+    assert len(_ScenarioManager._get_official_scenarios()) == 1
     assert len(_ScenarioManager._get_all_by_cycle(cycle_1)) == 2
     assert _ScenarioManager._get_official(cycle_1) == scenario_1
 
     _ScenarioManager._set_official(scenario_2)
 
-    assert len(_ScenarioManager._get_all_official()) == 1
+    assert len(_ScenarioManager._get_official_scenarios()) == 1
     assert len(_ScenarioManager._get_all_by_cycle(cycle_1)) == 2
     assert _ScenarioManager._get_official(cycle_1) == scenario_2
 
