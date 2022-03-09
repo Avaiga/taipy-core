@@ -23,17 +23,17 @@ def _run_callbacks(fn):
 
 
 class Job(_Entity):
-    """Execution of a Task.
+    """
+    Unique execution of a `Task^`.
 
-    A Job is the execution wrapper around a Task. It handles the status of the execution,
-    contains raising exceptions during the execution and notifies subscriber when the job is
-    finished.
+    A `Job` handles the status of the execution, contains raising exceptions during the execution, and notifies
+    subscriber when on status change.
 
     Attributes:
         id (str): The identifier of the Job.
-        task (`Task^`): The task of the job.
+        task (`Task^`): The `Task^` of the job.
         force (bool): Enforce the job's execution whatever the output data nodes are in cache or not.
-        status (`Status^`): The current status of the job.
+        status (`Status^`): The current `Status^` of the job.
         creation_date (datetime): The date of the job's creation.
         exceptions (List[Exception]): The list of exceptions raised during the execution.
     """
