@@ -1,7 +1,7 @@
 name: Trigger Milestones
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/#21-trigger-taipy-rest ]
 jobs:
   trigger:
     timeout-minutes: 5
