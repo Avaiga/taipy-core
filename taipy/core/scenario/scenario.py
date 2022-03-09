@@ -25,7 +25,7 @@ class Scenario:
         properties (dict): Dictionary of additional properties of the scenario.
         scenario_id (str): Unique identifier of this scenario. Will be generated if None value provided.
         creation_date (datetime): Date and time of the creation of the scenario.
-        is_master (bool): True if the scenario is the master of its cycle. False otherwise.
+        is_official (bool): True if the scenario is the official of its cycle. False otherwise.
         cycle (Cycle): Cycle of the scenario.
     """
 
@@ -39,7 +39,7 @@ class Scenario:
         properties: Dict[str, Any],
         scenario_id: ScenarioId = None,
         creation_date=None,
-        is_master: bool = False,
+        is_official: bool = False,
         cycle: Cycle = None,
         subscribers: Set[Callable] = None,
         tags: Set[str] = None,
@@ -51,7 +51,7 @@ class Scenario:
         self.cycle = cycle
 
         self._subscribers = subscribers or set()
-        self._master_scenario = is_master
+        self._official_scenario = is_official
         self._tags = tags or set()
 
         self._properties = _Properties(self, **properties)
@@ -67,8 +67,8 @@ class Scenario:
 
     @property  # type: ignore
     @self_reload("scenario")
-    def is_master(self):
-        return self._master_scenario
+    def is_official(self):
+        return self._official_scenario
 
     @property  # type: ignore
     @self_reload("scenario")
@@ -148,10 +148,10 @@ class Scenario:
 
         return _ScenarioManager._submit(self, force)
 
-    def set_master(self):
+    def set_official(self):
         from taipy.core.scenario._scenario_manager import _ScenarioManager
 
-        return _ScenarioManager._set_master(self)
+        return _ScenarioManager._set_official(self)
 
     def add_tag(self, tag: str):
         from taipy.core.scenario._scenario_manager import _ScenarioManager

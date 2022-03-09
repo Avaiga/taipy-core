@@ -13,14 +13,14 @@ from taipy.core.task.task import Task
 
 
 def test_create_scenario(cycle, current_datetime):
-    scenario_entity_1 = Scenario("foo", [], {"key": "value"}, is_master=True, cycle=cycle)
+    scenario_entity_1 = Scenario("foo", [], {"key": "value"}, is_official=True, cycle=cycle)
     assert scenario_entity_1.id is not None
     assert scenario_entity_1.config_id == "foo"
     assert scenario_entity_1.pipelines == {}
     assert scenario_entity_1.properties == {"key": "value"}
     assert scenario_entity_1.key == "value"
     assert scenario_entity_1.creation_date is not None
-    assert scenario_entity_1.is_master
+    assert scenario_entity_1.is_official
     assert scenario_entity_1.cycle == cycle
     assert scenario_entity_1.tags == set()
 
@@ -30,7 +30,7 @@ def test_create_scenario(cycle, current_datetime):
     assert scenario_entity_2.pipelines == {}
     assert scenario_entity_2.properties == {}
     assert scenario_entity_2.creation_date == current_datetime
-    assert not scenario_entity_2.is_master
+    assert not scenario_entity_2.is_official
     assert scenario_entity_2.cycle is None
     assert scenario_entity_2.tags == set()
 
