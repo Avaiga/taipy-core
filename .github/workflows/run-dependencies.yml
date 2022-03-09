@@ -1,7 +1,7 @@
 name: Trigger Milestones
 on:
   push:
-    branches: [ develop, feature/#21-trigger-taipy-rest ]
+    branches: [ develop ]
 jobs:
   trigger:
     timeout-minutes: 5
@@ -13,7 +13,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
 
       - name: Run tests on taipy-airflow
-        run: gh workflow run test.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/taipy-airflow
+        run: gh workflow run tests.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/taipy-airflow
         env:
           GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
 
