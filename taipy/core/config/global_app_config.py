@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from typing import Any, Dict, Optional, Union
 
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
+from taipy.core.exceptions.configuration import MissingEnvVariableError
 
 
 class GlobalAppConfig:
@@ -23,16 +26,14 @@ class GlobalAppConfig:
     _DEFAULT_STORAGE_FOLDER = ".data/"
 
     _CLEAN_ENTITIES_ENABLED_KEY = "clean_entities_enabled"
-    _CLEAN_ENTITIES_ENABLED_VALUE_TRUE = True
-    _CLEAN_ENTITIES_ENABLED_VALUE_FALSE = False
-    _DEFAULT_CLEAN_ENTITIES_ENABLED = _CLEAN_ENTITIES_ENABLED_VALUE_FALSE
+    _CLEAN_ENTITIES_ENABLED_ENV_VAR = "TAIPY_CLEAN_ENTITIES_ENABLED"
 
     def __init__(
         self,
         root_folder: str = None,
         storage_folder: str = None,
         clean_entities_enabled: Union[bool, str] = None,
-        **properties
+        **properties,
     ):
         self.root_folder = root_folder
         self.storage_folder = storage_folder
@@ -43,11 +44,15 @@ class GlobalAppConfig:
         return self.properties.get(item)
 
     @classmethod
-    def default_config(cls):
+    def default_config(cls) -> GlobalAppConfig:
         config = GlobalAppConfig()
         config.root_folder = cls._DEFAULT_ROOT_FOLDER
         config.storage_folder = cls._DEFAULT_STORAGE_FOLDER
-        config.clean_entities_enabled = cls._DEFAULT_CLEAN_ENTITIES_ENABLED
+        config.clean_entities_enabled = False
+        try:
+            config.clean_entities_enabled = tpl._replace_templates(f"ENV[{cls._CLEAN_ENTITIES_ENABLED_ENV_VAR}]", bool)
+        except MissingEnvVariableError:
+            pass
         return config
 
     def _to_dict(self):
