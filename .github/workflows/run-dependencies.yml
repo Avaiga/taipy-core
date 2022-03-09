@@ -18,6 +18,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
 
       - name: Run tests on taipy-rest
-        run: gh workflow run test.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/taipy-rest
+        run: gh workflow run tests.yml -f user-to-notify=$GITHUB_ACTOR -R Avaiga/taipy-rest
         env:
           GITHUB_TOKEN: ${{ secrets.TRIGGER_OTHER_ACTION }}
