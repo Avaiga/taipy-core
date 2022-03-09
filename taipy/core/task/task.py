@@ -30,7 +30,7 @@ class Task(_Entity):
 
     ID_PREFIX = "TASK"
     __ID_SEPARATOR = "_"
-    MANAGER_NAME = "task"
+    _MANAGER_NAME = "task"
 
     def __init__(
         self,
@@ -58,12 +58,12 @@ class Task(_Entity):
         vars(self).update(state)
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def config_id(self):
         return self._config_id
 
     @config_id.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def config_id(self, val):
         self._config_id = val
 
@@ -76,22 +76,22 @@ class Task(_Entity):
         return self.__output
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def parent_id(self):
         return self._parent_id
 
     @parent_id.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def parent_id(self, val):
         self._parent_id = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def function(self):
         return self._function
 
     @function.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def function(self, val):
         self._function = val
 

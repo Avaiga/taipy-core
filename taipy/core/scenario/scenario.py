@@ -31,7 +31,7 @@ class Scenario(_Entity):
     """
 
     ID_PREFIX = "SCENARIO"
-    MANAGER_NAME = "scenario"
+    _MANAGER_NAME = "scenario"
     __SEPARATOR = "_"
 
     def __init__(
@@ -67,72 +67,72 @@ class Scenario(_Entity):
         self.__dict__ = sc.__dict__
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def config_id(self):
         return self._config_id
 
     @config_id.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def config_id(self, val):
         self._config_id = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def pipelines(self):
         return self._pipelines
 
     @pipelines.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def pipelines(self, val: List[Pipeline]):
         self._pipelines = {p.config_id: p for p in val}
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def creation_date(self):
         return self._creation_date
 
     @creation_date.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def creation_date(self, val):
         self._creation_date = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def cycle(self):
         return self._cycle
 
     @cycle.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def cycle(self, val):
         self._cycle = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def is_official(self):
         return self._official_scenario
 
     @is_official.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def is_official(self, val):
         self._official_scenario = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def subscribers(self):
         return self._subscribers
 
     @subscribers.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def subscribers(self, val):
         self._subscribers = val or set()
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def tags(self):
         return self._tags
 
     @tags.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def tags(self, val):
         self._tags = val or set()
 

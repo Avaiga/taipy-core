@@ -32,7 +32,7 @@ class Pipeline(_Entity):
 
     ID_PREFIX = "PIPELINE"
     __SEPARATOR = "_"
-    MANAGER_NAME = "pipeline"
+    _MANAGER_NAME = "pipeline"
 
     def __init__(
         self,
@@ -62,42 +62,42 @@ class Pipeline(_Entity):
         self.__dict__ = p.__dict__
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def config_id(self):
         return self._config_id
 
     @config_id.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def config_id(self, val):
         self._config_id = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def tasks(self):
         return self._tasks
 
     @tasks.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def tasks(self, val):
         self._tasks = {task.config_id: task for task in val}
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def parent_id(self):
         return self._parent_id
 
     @parent_id.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def parent_id(self, val):
         self._parent_id = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def subscribers(self):
         return self._subscribers
 
     @subscribers.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def subscribers(self, val):
         self._subscribers = val or set()
 

@@ -99,7 +99,7 @@ def get(
         return _PipelineManager._get(PipelineId(entity_id))
     if entity_id.startswith(Task.ID_PREFIX):
         return _TaskManager._get(TaskId(entity_id))
-    if entity_id.startswith(DataNode.ID_PREFIX):
+    if entity_id.startswith(DataNode._ID_PREFIX):
         return _DataManager._get(DataNodeId(entity_id))
     raise ModelNotFound("NOT_DETERMINED", entity_id)
 
@@ -142,7 +142,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
         return _PipelineManager._hard_delete(PipelineId(entity_id))
     if entity_id.startswith(Task.ID_PREFIX):
         return _TaskManager._hard_delete(TaskId(entity_id))
-    if entity_id.startswith(DataNode.ID_PREFIX):
+    if entity_id.startswith(DataNode._ID_PREFIX):
         return _DataManager._delete(DataNodeId(entity_id))
     raise ModelNotFound("NOT_DETERMINED", entity_id)
 

@@ -3,8 +3,8 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
+from taipy.core.data._filter import FilterDataNode
 from taipy.core.data.data_node import DataNode
-from taipy.core.data.filter import FilterDataNode
 
 
 class FakeDataframeDataNode(DataNode):

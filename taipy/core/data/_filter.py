@@ -14,14 +14,14 @@ class FilterDataNode:
         self.data_node_id = data_node_id
         self.data = data
         self.data_type = None
-        if self.is_pandas_object():
+        if self._is_pandas_object():
             self.data_type = self.__DATAFRAME_DATA_TYPE
         elif self.is_multi_sheet_excel():
             self.data_type = self.__MULTI_SHEET_EXCEL_DATA_TYPE
         else:
             self.data_type = self.__CUSTOM_DATA_TYPE
 
-    def is_pandas_object(self) -> bool:
+    def _is_pandas_object(self) -> bool:
         return isinstance(self.data, pd.DataFrame) or isinstance(self.data, pd.Series)
 
     def is_multi_sheet_excel(self) -> bool:

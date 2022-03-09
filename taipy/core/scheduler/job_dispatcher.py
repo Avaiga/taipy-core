@@ -70,7 +70,7 @@ class JobDispatcher:
         """
         if len(task.output) == 0:
             return True
-        are_outputs_in_cache = all(_DataManager()._get(dn.id).is_in_cache for dn in task.output.values())
+        are_outputs_in_cache = all(_DataManager()._get(dn.id)._is_in_cache for dn in task.output.values())
         if not are_outputs_in_cache:
             return True
         if len(task.input) == 0:

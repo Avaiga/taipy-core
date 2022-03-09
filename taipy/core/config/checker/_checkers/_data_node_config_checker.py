@@ -10,7 +10,7 @@ from taipy.core.data.scope import Scope
 class _DataNodeConfigChecker(_ConfigChecker):
     def __init__(self, config: _Config, collector: IssueCollector):
         super().__init__(config, collector)
-        self._required_properties = {c.storage_type(): c.REQUIRED_PROPERTIES for c in DataNode.__subclasses__()}
+        self._required_properties = {c.storage_type(): c._REQUIRED_PROPERTIES for c in DataNode.__subclasses__()}
         self._storage_types = [c.storage_type() for c in DataNode.__subclasses__()]
 
     def _check(self) -> IssueCollector:

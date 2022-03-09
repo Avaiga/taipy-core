@@ -38,7 +38,7 @@ class Job(_Entity):
         exceptions (List[Exception]): The list of exceptions raised during the execution.
     """
 
-    MANAGER_NAME = "job"
+    _MANAGER_NAME = "job"
 
     def __init__(self, id: JobId, task: Task, force=False):
         self.id = id
@@ -51,42 +51,42 @@ class Job(_Entity):
         self.__logger = _TaipyLogger._get_logger()
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def task(self):
         return self._task
 
     @task.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def task(self, val):
         self._task = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def force(self):
         return self._force
 
     @force.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def force(self, val):
         self._force = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def status(self):
         return self._status
 
     @status.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def status(self, val):
         self._status = val
 
     @property  # type: ignore
-    @self_reload(MANAGER_NAME)
+    @self_reload(_MANAGER_NAME)
     def creation_date(self):
         return self._creation_date
 
     @creation_date.setter  # type: ignore
-    @self_setter(MANAGER_NAME)
+    @self_setter(_MANAGER_NAME)
     def creation_date(self, val):
         self._creation_date = val
 
