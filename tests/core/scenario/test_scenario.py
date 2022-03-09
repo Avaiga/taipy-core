@@ -84,10 +84,10 @@ def test_add_and_remove_subscriber():
 
     scenario = Scenario("foo", [], {})
 
-    scenario.add_subscriber(mock_function)
+    scenario._add_subscriber(mock_function)
     assert len(scenario.subscribers) == 1
 
-    scenario.remove_subscriber(mock_function)
+    scenario._remove_subscriber(mock_function)
     assert len(scenario.subscribers) == 0
 
 

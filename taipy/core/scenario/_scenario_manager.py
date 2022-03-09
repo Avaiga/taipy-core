@@ -52,12 +52,12 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def __add_subscriber(cls, callback, scenario):
-        scenario.add_subscriber(callback)
+        scenario._add_subscriber(callback)
         cls._set(scenario)
 
     @classmethod
     def __remove_subscriber(cls, callback, scenario):
-        scenario.remove_subscriber(callback)
+        scenario._remove_subscriber(callback)
         cls._set(scenario)
 
     @classmethod
@@ -67,7 +67,7 @@ class _ScenarioManager(_Manager[Scenario]):
         creation_date: datetime.datetime = None,
         display_name: str = None,
     ) -> Scenario:
-        scenario_id = Scenario.new_id(config.id)
+        scenario_id = Scenario._new_id(config.id)
         pipelines = [_PipelineManager._get_or_create(p_config, scenario_id) for p_config in config.pipeline_configs]
         cycle = _CycleManager._get_or_create(config.frequency, creation_date) if config.frequency else None
         is_official_scenario = len(cls._get_all_by_cycle(cycle)) == 0 if cycle else False

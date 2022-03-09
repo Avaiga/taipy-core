@@ -190,7 +190,7 @@ def test_submit_scenario_from_tasks_with_one_or_no_input_output():
 
     _TaskManager._set(task_no_input_no_output)
     _PipelineManager._set(pipeline_1)
-    assert len(pipeline_1.get_sorted_tasks()) == 1
+    assert len(pipeline_1._get_sorted_tasks()) == 1
 
     _PipelineManager._submit(pipeline_1)
     assert g == 1
@@ -207,7 +207,7 @@ def test_submit_scenario_from_tasks_with_one_or_no_input_output():
 
     _TaskManager._set(task_one_input_no_output)
     _PipelineManager._set(pipeline_2)
-    assert len(pipeline_2.get_sorted_tasks()) == 1
+    assert len(pipeline_2._get_sorted_tasks()) == 1
 
     _PipelineManager._submit(pipeline_2)
     assert g == 3
@@ -224,7 +224,7 @@ def test_submit_scenario_from_tasks_with_one_or_no_input_output():
 
     _TaskManager._set(task_no_input_one_output)
     _PipelineManager._set(pipeline_3)
-    assert len(pipeline_2.get_sorted_tasks()) == 1
+    assert len(pipeline_2._get_sorted_tasks()) == 1
 
     _PipelineManager._submit(pipeline_3)
     assert data_node_output.read() == 3
@@ -257,12 +257,12 @@ def test_get_or_create_data():
 
     assert len(_DataManager._get_all()) == 3
     assert len(_TaskManager._get_all()) == 2
-    assert len(pipeline.get_sorted_tasks()) == 2
+    assert len(pipeline._get_sorted_tasks()) == 2
     assert pipeline.foo.read() == 1
     assert pipeline.bar.read() == 0
     assert pipeline.baz.read() == 0
-    assert pipeline.get_sorted_tasks()[0][0].config_id == task_config_mult_by_2.id
-    assert pipeline.get_sorted_tasks()[1][0].config_id == task_config_mult_by_3.id
+    assert pipeline._get_sorted_tasks()[0][0].config_id == task_config_mult_by_2.id
+    assert pipeline._get_sorted_tasks()[1][0].config_id == task_config_mult_by_3.id
 
     _PipelineManager._submit(pipeline.id)
     assert pipeline.foo.read() == 1

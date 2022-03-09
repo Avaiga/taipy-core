@@ -39,17 +39,17 @@ class _PipelineManager(_Manager[Pipeline]):
 
     @classmethod
     def __add_subscriber(cls, callback, pipeline):
-        pipeline.add_subscriber(callback)
+        pipeline._add_subscriber(callback)
         cls._set(pipeline)
 
     @classmethod
     def __remove_subscriber(cls, callback, pipeline):
-        pipeline.remove_subscriber(callback)
+        pipeline._remove_subscriber(callback)
         cls._set(pipeline)
 
     @classmethod
     def _get_or_create(cls, pipeline_config: PipelineConfig, scenario_id: Optional[ScenarioId] = None) -> Pipeline:
-        pipeline_id = Pipeline.new_id(pipeline_config.id)
+        pipeline_id = Pipeline._new_id(pipeline_config.id)
         tasks = [
             _TaskManager._get_or_create(t_config, scenario_id, pipeline_id) for t_config in pipeline_config.task_configs
         ]
