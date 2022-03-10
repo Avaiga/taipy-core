@@ -49,7 +49,7 @@ class JobDispatcher:
         else:
             job.skipped()
             _JobManager._set(job)
-            self.__unlock_edition_on_inputs(job)
+            self.__unlock_edition_on_outputs(job)
             self.__logger.info(f"job {job.id} is skipped.")
 
     def __release_worker(self, _):
@@ -130,6 +130,6 @@ class JobDispatcher:
             return Synchronous(), 1
 
     @staticmethod
-    def __unlock_edition_on_inputs(job):
+    def __unlock_edition_on_outputs(job):
         for dn in job.task.output.values():
             dn.unlock_edition(job_id=job.id)
