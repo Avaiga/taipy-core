@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import pytest
-
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
 from taipy.core.cycle._cycle_manager import _CycleManager

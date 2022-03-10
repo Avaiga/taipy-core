@@ -109,14 +109,10 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
 
     scenario_2 = _ScenarioManager._get(scenario_1)
     assert scenario_1.config_id == "foo"
-    scenario_1._config_id = "fgh"
-    assert scenario_1.config_id == "foo"
     scenario_1.config_id = "fgh"
     assert scenario_1.config_id == "fgh"
     assert scenario_2.config_id == "fgh"
 
-    assert len(scenario_1.pipelines) == 0
-    scenario_1._pipelines = [pipeline]
     assert len(scenario_1.pipelines) == 0
     scenario_1.pipelines = [pipeline]
     assert len(scenario_1.pipelines) == 1
@@ -127,35 +123,25 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
     new_datetime = current_datetime + timedelta(1)
 
     assert scenario_1.creation_date == current_datetime
-    scenario_1._creation_date = new_datetime
-    assert scenario_1.creation_date == current_datetime
     scenario_1.creation_date = new_datetime
     assert scenario_1.creation_date == new_datetime
     assert scenario_2.creation_date == new_datetime
 
-    assert scenario_1.cycle is None
-    scenario_1._cycle = cycle
     assert scenario_1.cycle is None
     scenario_1.cycle = cycle
     assert scenario_1.cycle == cycle
     assert scenario_2.cycle == cycle
 
     assert not scenario_1.is_official
-    scenario_1._official_scenario = True
-    assert not scenario_1.is_official
     scenario_1.is_official = True
     assert scenario_1.is_official
     assert scenario_2.is_official
 
     assert len(scenario_1.subscribers) == 0
-    scenario_1._subscribers = {print}
-    assert len(scenario_1.subscribers) == 0
     scenario_1.subscribers = {print}
     assert len(scenario_1.subscribers) == 1
     assert len(scenario_2.subscribers) == 1
 
-    assert len(scenario_1.tags) == 0
-    scenario_1._tags = {"hi"}
     assert len(scenario_1.tags) == 0
     scenario_1.tags = {"hi"}
     assert len(scenario_1.tags) == 1
