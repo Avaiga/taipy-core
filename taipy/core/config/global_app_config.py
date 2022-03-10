@@ -50,10 +50,7 @@ class GlobalAppConfig:
         config.root_folder = cls._DEFAULT_ROOT_FOLDER
         config.storage_folder = cls._DEFAULT_STORAGE_FOLDER
         config.clean_entities_enabled = cls._DEFAULT_CLEAN_ENTITIES_ENABLED
-        try:
-            config.clean_entities_enabled = tpl._replace_templates(f"ENV[{cls._CLEAN_ENTITIES_ENABLED_ENV_VAR}]", bool)
-        except MissingEnvVariableError:
-            pass
+        config.clean_entities_enabled = cls._DEFAULT_CLEAN_ENTITIES_ENABLED 
         return config
 
     def _to_dict(self):
