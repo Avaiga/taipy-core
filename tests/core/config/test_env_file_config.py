@@ -1,11 +1,6 @@
 import os
-from unittest import mock
-
-import pytest
 
 from taipy.core.config.config import Config
-from taipy.core.config.global_app_config import GlobalAppConfig
-from taipy.core.exceptions.configuration import InconsistentEnvVariableError
 from tests.core.config.named_temporary_file import NamedTemporaryFile
 
 

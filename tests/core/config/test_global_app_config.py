@@ -1,5 +1,4 @@
 import os
-from distutils.command.config import config
 from unittest import mock
 
 import pytest
