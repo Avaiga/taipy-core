@@ -27,7 +27,7 @@ class Pipeline(_Entity):
         properties (dict[str, Any]): A dictionary of additional properties.
         tasks (List[`Task^`]): The list of `Task^`s.
         pipeline_id (str): The Unique identifier of the pipeline.
-        parent_id (str):  The identifier of the parent (pipeline_id, scenario_id, cycle_id) or `None`.
+        parent_id (str):  The identifier of the parent (scenario_id, cycle_id) or `None`.
     """
 
     _ID_PREFIX = "PIPELINE"
