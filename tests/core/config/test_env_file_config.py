@@ -33,7 +33,7 @@ nb_of_workers = 21
 
 
 def test_clean_entities_enabled_default():
-    assert GlobalAppConfig.default_config().clean_entities_enabled is False
+    assert GlobalAppConfig.default_config().clean_entities_enabled is GlobalAppConfig._DEFAULT_CLEAN_ENTITIES_ENABLED
     with mock.patch.dict(os.environ, {f"{GlobalAppConfig._CLEAN_ENTITIES_ENABLED_ENV_VAR}": "true"}):
         assert GlobalAppConfig.default_config().clean_entities_enabled is True
     with mock.patch.dict(os.environ, {f"{GlobalAppConfig._CLEAN_ENTITIES_ENABLED_ENV_VAR}": "false"}):
