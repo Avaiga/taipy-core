@@ -1,6 +1,6 @@
 class CycleAlreadyExists(Exception):
     """
-    Exception raised if it is trying to create a Cycle that has already exists
+    Raised if it is trying to create a Cycle that has already exists
     """
 
     pass
@@ -8,5 +8,5 @@ class CycleAlreadyExists(Exception):
 
 class NonExistingCycle(Exception):
     """
-    Exception raised if we request a cycle not known by the cycle manager.
+    Raised if we request a cycle not known by the cycle manager.
     """

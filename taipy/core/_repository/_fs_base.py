@@ -60,7 +60,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     @abstractmethod
     def _storage_folder(self) -> pathlib.Path:
         """
-        Base folder used by repository to store data
+        Base folder used by _repository to store data
         """
         ...
 

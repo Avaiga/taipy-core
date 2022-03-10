@@ -18,7 +18,7 @@ class NonExistingPipelineConfig(Exception):
 
 class MultiplePipelineFromSameConfigWithSameParent(Exception):
     """
-    Exception raised if it exists multiple pipelines from the same pipeline config and with the same parent_id
+    Raised if it exists multiple pipelines from the same pipeline config and with the same parent_id
     """
 
     pass

@@ -1,4 +1,8 @@
 class DependencyNotInstalled(Exception):
+    """
+    Raised if a package is missing
+    """
+
     def __init__(self, package_name: str):
         self.message = f"""
         Package '{package_name}' should be installed.

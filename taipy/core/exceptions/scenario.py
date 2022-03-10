@@ -1,6 +1,6 @@
 class NonExistingScenario(Exception):
     """
-    Raised when a requested scenario is not known by the Scenario Manager.
+    Raised if a requested scenario is not known by the Scenario Manager.
     """
 
     def __init__(self, scenario_id: str):
@@ -9,7 +9,7 @@ class NonExistingScenario(Exception):
 
 class NonExistingScenarioConfig(Exception):
     """
-    Raised when a requested scenario configuration is not known by the Scenario Manager.
+    Raised if a requested scenario configuration is not known by the Scenario Manager.
     """
 
     def __init__(self, scenario_config_id: str):
@@ -18,7 +18,7 @@ class NonExistingScenarioConfig(Exception):
 
 class DoesNotBelongToACycle(Exception):
     """
-    Raised when setting a scenario to be the official scenario but it doesn't belong to any cycle
+    Raised if a scenario without any cycle is promoted as official scenario.
     """
 
     pass
@@ -26,7 +26,7 @@ class DoesNotBelongToACycle(Exception):
 
 class DeletingOfficialScenario(Exception):
     """
-    Raised when trying to remove an official scenario
+    Raised if an official scenario is deleted
     """
 
     pass

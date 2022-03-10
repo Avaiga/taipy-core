@@ -24,7 +24,7 @@ class MultipleDataNodeFromSameConfigWithSameParent(Exception):
 
 class NoData(Exception):
     """
-    Raised when reading a data node before it has been written.
+    Raised if a data node is read before it has been written.
     """
 
     pass
@@ -32,7 +32,7 @@ class NoData(Exception):
 
 class UnknownDatabaseEngine(Exception):
     """
-    Exception raised when creating a connection with a SQLDataNode
+    Raised if the database engine is not known when creating a connection with a SQLDataNode
     """
 
     pass
@@ -61,11 +61,13 @@ class NotMatchSheetNameAndCustomObject(Exception):
     Raised if a provided list of sheet names does not match with the provided list of custom objects.
     """
 
+
 class MissingReadFunction(Exception):
     """
     Raised if no read function is provided for the GenericDataNode
     """
-    
+
+
 class MissingWriteFunction(Exception):
     """
     Raised if no write function is provided for the GenericDataNode

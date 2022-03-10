@@ -1,6 +1,6 @@
 class NonExistingTask(Exception):
     """
-    Raised when a requested task is not known by the Task Manager.
+    Raised if a requested task is not known by the Task Manager.
     """
 
     def __init__(self, task_id: str):
@@ -9,7 +9,7 @@ class NonExistingTask(Exception):
 
 class NonExistingTaskConfig(Exception):
     """
-    Raised when a requested task configuration is not known by the Task Manager.
+    Raised if a requested task configuration is not known by the Task Manager.
     """
 
     def __init__(self, id: str):
