@@ -28,6 +28,7 @@ class GlobalAppConfig:
     _CLEAN_ENTITIES_ENABLED_KEY = "clean_entities_enabled"
     _DEFAULT_CLEAN_ENTITIES_ENABLED = False
     _CLEAN_ENTITIES_ENABLED_ENV_VAR = "TAIPY_CLEAN_ENTITIES_ENABLED"
+    _CLEAN_ENTITIES_ENABLED_TEMPLATE = f"ENV[{_CLEAN_ENTITIES_ENABLED_ENV_VAR}]"
 
     def __init__(
         self,
@@ -49,11 +50,7 @@ class GlobalAppConfig:
         config = GlobalAppConfig()
         config.root_folder = cls._DEFAULT_ROOT_FOLDER
         config.storage_folder = cls._DEFAULT_STORAGE_FOLDER
-        config.clean_entities_enabled = cls._DEFAULT_CLEAN_ENTITIES_ENABLED
-        try:
-            config.clean_entities_enabled = tpl._replace_templates(f"ENV[{cls._CLEAN_ENTITIES_ENABLED_ENV_VAR}]", bool)
-        except MissingEnvVariableError:
-            pass
+        config.clean_entities_enabled = cls._CLEAN_ENTITIES_ENABLED_TEMPLATE
         return config
 
     def _to_dict(self):
@@ -80,7 +77,10 @@ class GlobalAppConfig:
         self.root_folder = tpl._replace_templates(config_as_dict.pop(self._ROOT_FOLDER_KEY, self.root_folder))
         self.storage_folder = tpl._replace_templates(config_as_dict.pop(self._STORAGE_FOLDER_KEY, self.storage_folder))
         self.clean_entities_enabled = tpl._replace_templates(
-            config_as_dict.pop(self._CLEAN_ENTITIES_ENABLED_KEY, self.clean_entities_enabled), bool
+            config_as_dict.pop(self._CLEAN_ENTITIES_ENABLED_KEY, self.clean_entities_enabled),
+            type=bool,
+            required=False,
+            default=self._DEFAULT_CLEAN_ENTITIES_ENABLED,
         )
         self.properties.update(config_as_dict)
         for k, v in self.properties.items():
