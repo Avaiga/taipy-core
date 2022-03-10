@@ -1,6 +1,6 @@
 ---
 name: Bug reports
-about: Bug reports help improve the product quality.
+about: Bug report help improve the product quality.
 title: BUG-
 labels: bug
 assignees: ''
@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Description**
-A complete and clear description of the problem is.
+A complete and clear description of the problem.
 
 **How to reproduce**
 A code fragment
