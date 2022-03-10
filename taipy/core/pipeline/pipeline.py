@@ -7,13 +7,11 @@ import networkx as nx
 
 from taipy.core.common._entity import _Entity
 from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import reload, self_reload, self_setter
-from taipy.core.common._utils import _fcts_to_dict
+from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._validate_id import _validate_id
 from taipy.core.common.alias import PipelineId
 from taipy.core.data.data_node import DataNode
 from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_model import _PipelineModel
 from taipy.core.task.task import Task
 
 
@@ -62,48 +60,48 @@ class Pipeline(_Entity):
         self.__dict__ = p.__dict__
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def config_id(self):
         return self._config_id
 
     @config_id.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def config_id(self, val):
         self._config_id = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def tasks(self):
         return self._tasks
 
     @tasks.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def tasks(self, val):
         self._tasks = {task.config_id: task for task in val}
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def parent_id(self):
         return self._parent_id
 
     @parent_id.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def parent_id(self, val):
         self._parent_id = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def subscribers(self):
         return self._subscribers
 
     @subscribers.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def subscribers(self, val):
         self._subscribers = val or set()
 
     @property  # type: ignore
     def properties(self):
-        self._properties = reload("pipeline", self)._properties
+        self._properties = _reload("pipeline", self)._properties
         return self._properties
 
     def __eq__(self, other):
@@ -154,11 +152,11 @@ class Pipeline(_Entity):
         return graph
 
     def _add_subscriber(self, callback: Callable):
-        self._subscribers = reload("pipeline", self)._subscribers
+        self._subscribers = _reload("pipeline", self)._subscribers
         self._subscribers.add(callback)
 
     def _remove_subscriber(self, callback: Callable):
-        self._subscribers = reload("pipeline", self)._subscribers
+        self._subscribers = _reload("pipeline", self)._subscribers
         self._subscribers.remove(callback)
 
     def _get_sorted_tasks(self) -> List[List[Task]]:

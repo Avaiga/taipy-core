@@ -11,8 +11,7 @@ from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.in_memory import InMemoryDataNode
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions.pipeline import NonExistingPipeline
-from taipy.core.exceptions.task import NonExistingTask
+from taipy.core.exceptions.exceptions import NonExistingPipeline, NonExistingTask
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.pipeline._pipeline_manager import _PipelineManager
 from taipy.core.pipeline.pipeline import Pipeline
@@ -319,7 +318,7 @@ def notify2(*args, **kwargs):
 
 
 def test_pipeline_notification_subscribe(mocker):
-    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload._reload", side_effect=lambda m, o: o)
 
     pipeline_config = Config._add_pipeline(
         "by_6",
@@ -371,7 +370,7 @@ def test_pipeline_notification_subscribe(mocker):
 
 
 def test_pipeline_notification_unsubscribe(mocker):
-    mocker.patch("taipy.core.common._reload.reload", side_effect=lambda m, o: o)
+    mocker.patch("taipy.core.common._reload._reload", side_effect=lambda m, o: o)
 
     pipeline_config = Config._add_pipeline(
         "by_6",

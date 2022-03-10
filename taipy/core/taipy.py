@@ -25,7 +25,7 @@ from taipy.core.data.in_memory import InMemoryDataNode
 from taipy.core.data.pickle import PickleDataNode
 from taipy.core.data.scope import Scope
 from taipy.core.data.sql import SQLDataNode
-from taipy.core.exceptions.repository import ModelNotFound
+from taipy.core.exceptions.exceptions import ModelNotFound
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.job.job import Job
 from taipy.core.pipeline._pipeline_manager import _PipelineManager

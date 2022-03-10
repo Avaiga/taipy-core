@@ -8,7 +8,7 @@ from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle._cycle_manager import _CycleManager
 from taipy.core.cycle.cycle import Cycle
-from taipy.core.exceptions.scenario import (
+from taipy.core.exceptions.exceptions import (
     DeletingOfficialScenario,
     DifferentScenarioConfigs,
     DoesNotBelongToACycle,

@@ -5,7 +5,7 @@ from taipy.core.common._manager import _Manager
 from taipy.core.common.alias import PipelineId, ScenarioId
 from taipy.core.config.pipeline_config import PipelineConfig
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions.pipeline import MultiplePipelineFromSameConfigWithSameParent, NonExistingPipeline
+from taipy.core.exceptions.exceptions import MultiplePipelineFromSameConfigWithSameParent, NonExistingPipeline
 from taipy.core.job.job import Job
 from taipy.core.pipeline._pipeline_repository import _PipelineRepository
 from taipy.core.pipeline.pipeline import Pipeline

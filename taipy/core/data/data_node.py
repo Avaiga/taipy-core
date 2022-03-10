@@ -9,15 +9,15 @@ import pandas as pd
 
 from taipy.core.common._entity import _Entity
 from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import reload, self_reload, self_setter
+from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common._validate_id import _validate_id
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.data._filter import FilterDataNode
+from taipy.core.data._filter import _FilterDataNode
 from taipy.core.data.operator import JoinOperator, Operator
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions.data_node import NoData
+from taipy.core.exceptions.exceptions import NoData
 
 
 class DataNode(_Entity):
@@ -78,57 +78,57 @@ class DataNode(_Entity):
         self._properties = _Properties(self, **kwargs)
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def config_id(self):
         return self._config_id
 
     @config_id.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def config_id(self, val):
         self._config_id = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def parent_id(self):
         return self._parent_id
 
     @parent_id.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def parent_id(self, val):
         self._parent_id = val
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def last_edition_date(self):
         return self._last_edition_date
 
     @last_edition_date.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def last_edition_date(self, val):
         self._last_edition_date = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def scope(self):
         return self._scope
 
     @scope.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def scope(self, val):
         self._scope = val
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def validity_period(self) -> Optional[timedelta]:
         return self._validity_period if self._validity_period else None
 
     @validity_period.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def validity_period(self, val):
         self._validity_period = val
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def expiration_date(self) -> datetime:
         if not self._last_edition_date:
             raise NoData
@@ -136,22 +136,22 @@ class DataNode(_Entity):
         return self._last_edition_date + self.validity_period if self.validity_period else self._last_edition_date
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def name(self):
         return self._name
 
     @name.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def name(self, val):
         self._name = val
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def edition_in_progress(self):
         return self._edition_in_progress
 
     @edition_in_progress.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def edition_in_progress(self, val):
         self._edition_in_progress = val
 
@@ -161,7 +161,7 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     def properties(self):
-        r = reload("data", self)
+        r = _reload("data", self)
         self._properties = r._properties
         return self._properties
 
@@ -362,10 +362,10 @@ class DataNode(_Entity):
         return NotImplemented
 
     def __getitem__(self, items):
-        return FilterDataNode(self.id, self._read())[items]
+        return _FilterDataNode(self.id, self._read())[items]
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def is_ready_for_reading(self):
         """
         Returns `False` if the data is locked for edition or if the data has never been written. `True` otherwise.
@@ -378,7 +378,7 @@ class DataNode(_Entity):
         return True
 
     @property  # type: ignore
-    @self_reload("data")
+    @_self_reload("data")
     def _is_in_cache(self):
         if not self._properties.get(DataNodeConfig._IS_CACHEABLE_KEY):
             return False

@@ -5,13 +5,12 @@ import pytest
 
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.data._data_manager import _DataManager
-from taipy.core.data._filter import FilterDataNode
+from taipy.core.data._filter import _FilterDataNode
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.in_memory import InMemoryDataNode
 from taipy.core.data.operator import JoinOperator, Operator
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions.configuration import InvalidConfigurationId
-from taipy.core.exceptions.data_node import NoData
+from taipy.core.exceptions.exceptions import InvalidConfigurationId, NoData
 
 
 class FakeDataNode(InMemoryDataNode):
@@ -225,8 +224,8 @@ class TestDataNode:
         df_dn = FakeDataframeDataNode("fake_dataframe_dn", default_data_frame)
         COLUMN_NAME_1 = "a"
         COLUMN_NAME_2 = "b"
-        assert isinstance(df_dn[COLUMN_NAME_1], FilterDataNode)
-        assert isinstance(df_dn[[COLUMN_NAME_1, COLUMN_NAME_2]], FilterDataNode)
+        assert isinstance(df_dn[COLUMN_NAME_1], _FilterDataNode)
+        assert isinstance(df_dn[[COLUMN_NAME_1, COLUMN_NAME_2]], _FilterDataNode)
 
     def test_filter(self, default_data_frame):
         dn = FakeDataNode("fake_dn")

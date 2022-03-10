@@ -5,7 +5,7 @@ from typing import Any, Dict
 from taipy.core.common._entity import _Entity
 from taipy.core.common._get_valid_filename import _get_valid_filename
 from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import reload, self_reload, self_setter
+from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
 
@@ -50,58 +50,58 @@ class Cycle(_Entity):
         return name if name else Cycle.__SEPARATOR.join([str(self._frequency), self._creation_date.isoformat()])
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def frequency(self):
         return self._frequency
 
     @frequency.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def frequency(self, val):
         self._frequency = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def creation_date(self):
         return self._creation_date
 
     @creation_date.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def creation_date(self, val):
         self._creation_date = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def start_date(self):
         return self._start_date
 
     @start_date.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def start_date(self, val):
         self._start_date = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def end_date(self):
         return self._end_date
 
     @end_date.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def end_date(self, val):
         self._end_date = val
 
     @property  # type: ignore
-    @self_reload(_MANAGER_NAME)
+    @_self_reload(_MANAGER_NAME)
     def name(self):
         return self._name
 
     @name.setter  # type: ignore
-    @self_setter(_MANAGER_NAME)
+    @_self_setter(_MANAGER_NAME)
     def name(self, val):
         self._name = val
 
     @property  # type: ignore
     def properties(self):
-        self._properties = reload(self._MANAGER_NAME, self)._properties
+        self._properties = _reload(self._MANAGER_NAME, self)._properties
         return self._properties
 
     @staticmethod

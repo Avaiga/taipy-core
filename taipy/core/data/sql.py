@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, table, text
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
-from taipy.core.exceptions.data_node import MissingRequiredProperty, UnknownDatabaseEngine
+from taipy.core.exceptions.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
 
 
 class SQLDataNode(DataNode):
@@ -99,7 +99,7 @@ class SQLDataNode(DataNode):
 
     @staticmethod
     def __build_conn_string(engine, username, host, password, database, port, path) -> str:
-        # TODO: Add support to other SQL engines
+        # TODO: Add support to other SQL engines, the engine value should be checked.
         if engine == "mssql":
             return "mssql+pyodbc:///?odbc_connect=" + urllib.parse.quote_plus(
                 f"DRIVER=FreeTDS;SERVER={host};PORT={port};DATABASE={database};UID={username};PWD={password};TDS_Version=8.0;"
