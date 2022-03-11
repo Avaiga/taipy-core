@@ -1,5 +1,5 @@
 ---
-name: Bug reports
+name: Bug report
 about: Bug reports help improve the product quality.
 title: BUG-
 labels: bug
