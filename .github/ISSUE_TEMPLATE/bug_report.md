@@ -1,6 +1,6 @@
 ---
 name: Bug reports
-about: Bug report help improve the product quality.
+about: Bug reports help improve the product quality.
 title: BUG-
 labels: bug
 assignees: ''
