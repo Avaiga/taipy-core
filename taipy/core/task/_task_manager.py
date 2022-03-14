@@ -3,10 +3,12 @@ from typing import List, Optional
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
 from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
+from taipy.core.common._hard_delete_result import _TaskHardDeleteResult
 from taipy.core.common._manager import _Manager
 from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
 from taipy.core.config.task_config import TaskConfig
 from taipy.core.data._data_manager import _DataManager
+from taipy.core.data.data_node import DataNode
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions.exceptions import MultipleTaskFromSameConfigWithSameParent
 from taipy.core.job._job_manager import _JobManager
@@ -66,19 +68,35 @@ class _TaskManager(_Manager[Task]):
     @classmethod
     def _hard_delete(
         cls, task_id: TaskId, scenario_id: Optional[ScenarioId] = None, pipeline_id: Optional[PipelineId] = None
-    ):
+    ) -> _TaskHardDeleteResult:
         task = cls._get(task_id)
         jobs = _JobManager._get_all()
+
         for job in jobs:
             if job.task.id == task.id:
                 _JobManager._delete(job)
-        if scenario_id:
-            cls._remove_if_parent_id_eq(task.input.values(), scenario_id)
-            cls._remove_if_parent_id_eq(task.output.values(), scenario_id)
-        if pipeline_id:
-            cls._remove_if_parent_id_eq(task.input.values(), pipeline_id)
-            cls._remove_if_parent_id_eq(task.output.values(), pipeline_id)
+
+        data_nodes: List[DataNode] = []
+        data_nodes.extend(task.input.values())
+        data_nodes.extend(task.output.values())
+
+        if scenario_id and task.parent_id == scenario_id:
+            ids = set()
+            for dn in data_nodes:
+                if dn.scope == Scope.SCENARIO and dn.parent_id == scenario_id:
+                    ids.add(dn.id)
+            return _TaskHardDeleteResult(scenario_data_node_ids=ids)  # type: ignore
+
+        if pipeline_id and task.parent_id == pipeline_id:
+            ids = set()
+            for dn in data_nodes:
+                if dn.scope == Scope.PIPELINE and dn.parent_id == pipeline_id:
+                    ids.add(dn.id)
+            cls._delete(task_id)
+            return _TaskHardDeleteResult(pipeline_data_node_ids=ids)  # type:ignore
+
         cls._delete(task_id)
+        return _TaskHardDeleteResult()
 
     @classmethod
     def _remove_if_parent_id_eq(cls, data_nodes, id_):

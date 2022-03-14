@@ -1,9 +1,11 @@
 from functools import partial
 from typing import Callable, List, Optional, Union
 
+from taipy.core.common._hard_delete_result import _PipelineHardDeleteResult
 from taipy.core.common._manager import _Manager
 from taipy.core.common.alias import PipelineId, ScenarioId
 from taipy.core.config.pipeline_config import PipelineConfig
+from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.scope import Scope
 from taipy.core.exceptions.exceptions import MultiplePipelineFromSameConfigWithSameParent, NonExistingPipeline
 from taipy.core.job.job import Job
@@ -83,14 +85,28 @@ class _PipelineManager(_Manager[Pipeline]):
         return [partial(c, pipeline) for c in pipeline.subscribers]
 
     @classmethod
-    def _hard_delete(cls, pipeline_id: PipelineId, scenario_id: Optional[ScenarioId] = None):
+    def _hard_delete(
+        cls, pipeline_id: PipelineId, scenario_id: Optional[ScenarioId] = None
+    ) -> _PipelineHardDeleteResult:
         pipeline = cls._get(pipeline_id)
+        scenario_data_node_ids = set()
+        scenario_task_ids = set()
+        pipeline_data_node_ids = set()
+
         for task in pipeline.tasks.values():
             if scenario_id and task.parent_id == scenario_id:
-                _TaskManager._hard_delete(task.id, scenario_id)
+                result = _TaskManager._hard_delete(task.id, scenario_id)
+                scenario_data_node_ids.update(result.scenario_data_node_ids)
+                scenario_task_ids.add(task.id)
             elif task.parent_id == pipeline.id:
-                _TaskManager._hard_delete(task.id, None, pipeline_id)
+                result = _TaskManager._hard_delete(task.id, None, pipeline_id)
+                pipeline_data_node_ids.update(result.pipeline_data_node_ids)
+
         cls._delete(pipeline_id)
+        for data_node_id in pipeline_data_node_ids:
+            _DataManager._delete(data_node_id)
+
+        return _PipelineHardDeleteResult(scenario_data_node_ids, scenario_task_ids)
 
     @classmethod
     def _get_all_by_config_id(cls, config_id: str) -> List[Pipeline]:

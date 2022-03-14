@@ -679,6 +679,20 @@ def test_hard_delete():
     assert len(_JobManager._get_all()) == 0
 
 
+def test_hard_delete_shared_entities():
+    input_dn = Config._add_data_node("my_input", "in_memory", scope=Scope.PIPELINE, default_data="testing")
+    output_dn_1 = Config._add_data_node("my_output_1", "in_memory", scope=Scope.SCENARIO, default_data="testing")
+    task_1 = Config._add_task("task_1", print, input_dn, output_dn_1)
+    task_2 = Config._add_task("task_2", print, input_dn, output_dn_1)
+    pipeline_config = Config._add_pipeline("pipeline_config", [task_1, task_2])
+    pipeline = _PipelineManager._get_or_create(pipeline_config)
+    # Should not throw error when tasks have shared data nodes
+    _PipelineManager._hard_delete(pipeline.id)
+    assert len(_PipelineManager._get_all()) == 0
+    assert len(_TaskManager._get_all()) == 0
+    assert len(_DataManager._get_all()) == 1
+
+
 def test_automatic_reload():
     dn_input_config = Config._add_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
     dn_output_config = Config._add_data_node("output", "pickle")

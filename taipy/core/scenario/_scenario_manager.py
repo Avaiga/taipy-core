@@ -8,6 +8,7 @@ from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle._cycle_manager import _CycleManager
 from taipy.core.cycle.cycle import Cycle
+from taipy.core.data._data_manager import _DataManager
 from taipy.core.exceptions.exceptions import (
     DeletingOfficialScenario,
     DifferentScenarioConfigs,
@@ -22,6 +23,7 @@ from taipy.core.job.job import Job
 from taipy.core.pipeline._pipeline_manager import _PipelineManager
 from taipy.core.scenario._scenario_repository import _ScenarioRepository
 from taipy.core.scenario.scenario import Scenario
+from taipy.core.task._task_manager import _TaskManager
 
 
 class _ScenarioManager(_Manager[Scenario]):
@@ -214,11 +216,21 @@ class _ScenarioManager(_Manager[Scenario]):
         scenario = cls._get(scenario_id)
         if scenario.is_official:
             raise DeletingOfficialScenario
-        else:
-            for pipeline in scenario.pipelines.values():
-                if pipeline.parent_id == scenario.id or pipeline.parent_id == pipeline.id:
-                    _PipelineManager._hard_delete(pipeline.id, scenario.id)
-            cls._repository._delete(scenario_id)
+
+        scenario_task_ids = set()
+        scenario_data_node_ids = set()
+        for pipeline in scenario.pipelines.values():
+            if pipeline.parent_id == scenario.id or pipeline.parent_id == pipeline.id:
+                result = _PipelineManager._hard_delete(pipeline.id, scenario.id)
+                scenario_task_ids.update(result.scenario_task_ids)
+                scenario_data_node_ids.update(result.scenario_data_node_ids)
+        cls._repository._delete(scenario_id)
+
+        for task_id in scenario_task_ids:
+            _TaskManager._delete(task_id)
+
+        for data_node_id in scenario_data_node_ids:
+            _DataManager._delete(data_node_id)
 
     @classmethod
     def _get_all_by_config_id(cls, config_id: str) -> List[Scenario]:

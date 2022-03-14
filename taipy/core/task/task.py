@@ -65,11 +65,11 @@ class Task(_Entity):
         self._config_id = val
 
     @property  # type: ignore
-    def input(self):
+    def input(self) -> Dict[str, DataNode]:
         return self.__input
 
     @property  # type: ignore
-    def output(self):
+    def output(self) -> Dict[str, DataNode]:
         return self.__output
 
     @property  # type: ignore

@@ -538,6 +538,29 @@ def test_hard_delete():
     assert _ScenarioManager._get(scenario_6.id) is not None
 
 
+def test_hard_delete_shared_entities():
+    dn_config_1 = Config._add_data_node("my_input_1", "in_memory", scope=Scope.PIPELINE, default_data="testing")
+    dn_config_2 = Config._add_data_node("my_input_2", "in_memory", scope=Scope.SCENARIO, default_data="testing")
+    dn_config_3 = Config._add_data_node("my_input_3", "in_memory", scope=Scope.GLOBAL, default_data="testing")
+    dn_config_4 = Config._add_data_node("my_input_4", "in_memory", scope=Scope.GLOBAL, default_data="testing")
+    task_config_1 = Config._add_task("task_config_1", print, dn_config_1, dn_config_2)
+    task_config_2 = Config._add_task("task_config_2", print, dn_config_2, dn_config_3)
+    task_config_3 = Config._add_task("task_config_3", print, dn_config_3, dn_config_4)  # scope = global
+    pipeline_config_1 = Config._add_pipeline("pipeline_config_1", [task_config_1, task_config_2])
+    pipeline_config_2 = Config._add_pipeline("pipeline_config_2", [task_config_1, task_config_2])
+    pipeline_config_3 = Config._add_pipeline("pipeline_config_3", [task_config_3])  # scope = global
+    scenario_config_1 = Config._add_scenario(
+        "scenario_config_1", [pipeline_config_1, pipeline_config_2, pipeline_config_3]
+    )
+    scenario_1 = _ScenarioManager._create(scenario_config_1)
+    # Should not throw error when pipelines have shared tasks and tasks have shared data nodes
+    _ScenarioManager._hard_delete(scenario_1.id)
+    assert len(_ScenarioManager._get_all()) == 0
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_DataManager._get_all()) == 2
+
+
 def test_submit():
     data_node_1 = InMemoryDataNode("foo", Scope.PIPELINE, "s1")
     data_node_2 = InMemoryDataNode("bar", Scope.PIPELINE, "s2")
