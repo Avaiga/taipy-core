@@ -87,18 +87,18 @@ class _TaskManager(_Manager[Task]):
         scenario_data_node_ids = set()
         pipeline_data_node_ids = set()
 
-        if pipeline_id:
+        if pipeline_id and not scenario_id:
             for dn in data_nodes:
-                if dn.scope == Scope.PIPELINE:
+                if dn.parent_id == pipeline_id:
                     pipeline_data_node_ids.add(dn.id)
             if task.parent_id == pipeline_id:
                 cls._delete(task_id)
 
         if scenario_id:
             for dn in data_nodes:
-                if dn.scope == Scope.SCENARIO:
+                if dn.parent_id == scenario_id:
                     scenario_data_node_ids.add(dn.id)
-                elif dn.scope == Scope.PIPELINE:
+                elif pipeline_id and dn.parent_id == pipeline_id:
                     pipeline_data_node_ids.add(dn.id)
         return _TaskHardDeleteResult(pipeline_data_node_ids, scenario_data_node_ids)  # type:ignore
 
