@@ -230,9 +230,8 @@ class _ScenarioManager(_Manager[Scenario]):
             if pipeline.parent_id == pipeline.id or pipeline.parent_id == scenario.id:
                 entity_ids.pipeline_ids.add(pipeline.id)
             for task in pipeline.tasks.values():
-                if not (task.parent_id == pipeline.id or task.parent_id == scenario.id):
-                    continue
-                entity_ids.task_ids.add(task.id)
+                if task.parent_id == pipeline.id or task.parent_id == scenario.id:
+                    entity_ids.task_ids.add(task.id)
                 for data_node in task.data_nodes.values():
                     if not (data_node.parent_id == pipeline.id or data_node.parent_id == scenario.id):
                         continue
