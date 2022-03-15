@@ -94,13 +94,14 @@ class _PipelineManager(_Manager[Pipeline]):
         pipeline_data_node_ids = set()
 
         for task in pipeline.tasks.values():
-            if scenario_id and task.parent_id == scenario_id:
-                result = _TaskManager._hard_delete(task.id, scenario_id, pipeline_id)
+            if scenario_id:
+
+                result = _TaskManager._hard_delete(task.id, scenario_id)
                 pipeline_data_node_ids.update(result.pipeline_data_node_ids)
                 scenario_data_node_ids.update(result.scenario_data_node_ids)
                 scenario_task_ids.add(task.id)
             elif task.parent_id == pipeline.id:
-                result = _TaskManager._hard_delete(task.id, scenario_id, pipeline_id)
+                result = _TaskManager._hard_delete(task.id, None, pipeline_id)
                 pipeline_data_node_ids.update(result.pipeline_data_node_ids)
 
         cls._delete(pipeline_id)
