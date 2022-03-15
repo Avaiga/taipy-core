@@ -96,7 +96,7 @@ class _PipelineManager(_Manager[Pipeline]):
         entity_ids = _EntityIds()
         entity_ids.pipeline_ids.add(pipeline.id)
 
-        for task in pipeline.tasks.values():
+        for task in pipeline._tasks.values():
             if not task.parent_id == pipeline.id:
                 continue
             entity_ids.task_ids.add(task.id)
