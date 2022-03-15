@@ -218,8 +218,9 @@ class _ScenarioManager(_Manager[Scenario]):
         scenario = cls._get(scenario_id)
         if scenario.is_official:
             raise DeletingOfficialScenario
-        entity_ids = cls._get_owned_entity_ids(scenario)
-        cls._delete_entities_of_multiple_types(entity_ids)
+        entity_ids_to_delete = cls._get_owned_entity_ids(scenario)
+        entity_ids_to_delete.scenario_ids.add(scenario.id)
+        cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
     def _get_owned_entity_ids(cls, scenario: Scenario) -> _EntityIds:

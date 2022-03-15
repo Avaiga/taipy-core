@@ -68,14 +68,13 @@ class _TaskManager(_Manager[Task]):
     @classmethod
     def _hard_delete(cls, task_id: TaskId):
         task = cls._get(task_id)
-        _owned_entity_ids = cls._get_owned_entity_ids(task)
-        cls._delete_entities_of_multiple_types(_owned_entity_ids)
+        _entity_ids_to_delete = cls._get_owned_entity_ids(task)
+        _entity_ids_to_delete.task_ids.add(task.id)
+        cls._delete_entities_of_multiple_types(_entity_ids_to_delete)
 
     @classmethod
     def _get_owned_entity_ids(cls, task: Task):
         entity_ids = _EntityIds()
-        entity_ids.task_ids.add(task.id)
-
         jobs = _JobManager._get_all()
         for job in jobs:
             if job.task.id == task.id:
