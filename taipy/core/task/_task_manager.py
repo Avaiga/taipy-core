@@ -76,27 +76,33 @@ class _TaskManager(_Manager[Task]):
             if job.task.id == task.id:
                 _JobManager._delete(job)
 
+        if not pipeline_id and not scenario_id:
+            cls._delete(task_id)
+            return _TaskHardDeleteResult()
+
         data_nodes: List[DataNode] = []
         data_nodes.extend(task.input.values())
         data_nodes.extend(task.output.values())
 
-        if scenario_id and task.parent_id == scenario_id:
-            ids = set()
-            for dn in data_nodes:
-                if dn.scope == Scope.SCENARIO and dn.parent_id == scenario_id:
-                    ids.add(dn.id)
-            return _TaskHardDeleteResult(scenario_data_node_ids=ids)  # type: ignore
+        scenario_data_node_ids = set()
+        pipeline_data_node_ids = set()
 
         if pipeline_id and task.parent_id == pipeline_id:
-            ids = set()
             for dn in data_nodes:
-                if dn.scope == Scope.PIPELINE and dn.parent_id == pipeline_id:
-                    ids.add(dn.id)
+                if dn.parent_id == pipeline_id:
+                    pipeline_data_node_ids.add(dn.id)
+                elif dn.scope == Scope.SCENARIO and dn.parent_id == scenario_id:
+                    scenario_data_node_ids.add(dn.id)
             cls._delete(task_id)
-            return _TaskHardDeleteResult(pipeline_data_node_ids=ids)  # type:ignore
+        elif scenario_id and task.parent_id == scenario_id:
+            for dn in data_nodes:
+                if dn.parent_id == scenario_id:
+                    scenario_data_node_ids.add(dn.id)
+                elif dn.scope == Scope.PIPELINE and dn.parent_id == pipeline_id:
+                    scenario_data_node_ids.add(dn.id)
+                    pipeline_data_node_ids.add(dn.id)
 
-        cls._delete(task_id)
-        return _TaskHardDeleteResult()
+        return _TaskHardDeleteResult(pipeline_data_node_ids, scenario_data_node_ids)  # type:ignore
 
     @classmethod
     def _remove_if_parent_id_eq(cls, data_nodes, id_):

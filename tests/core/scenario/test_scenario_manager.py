@@ -474,7 +474,7 @@ def test_hard_delete():
     assert len(_ScenarioManager._get_all()) == 0
     assert len(_PipelineManager._get_all()) == 0
     assert len(_TaskManager._get_all()) == 0
-    assert len(_DataManager._get_all()) == 1
+    assert len(_DataManager._get_all()) == 0
     assert len(_JobManager._get_all()) == 0
 
     _ScenarioManager._delete_all()
