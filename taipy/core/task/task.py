@@ -73,6 +73,10 @@ class Task(_Entity):
         return self.__output
 
     @property  # type: ignore
+    def data_nodes(self) -> Dict[str, DataNode]:
+        return {**self.input, **self.output}
+
+    @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def parent_id(self):
         return self._parent_id

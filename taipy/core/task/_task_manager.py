@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
 from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
-from taipy.core.common._hard_delete_result import _TaskHardDeleteResult
+from taipy.core.common._entity_ids import _EntityIds
 from taipy.core.common._manager import _Manager
 from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
 from taipy.core.config.task_config import TaskConfig
@@ -66,47 +66,21 @@ class _TaskManager(_Manager[Task]):
             _DataManager._set(i)
 
     @classmethod
-    def _hard_delete(
-        cls, task_id: TaskId, scenario_id: Optional[ScenarioId] = None, pipeline_id: Optional[PipelineId] = None
-    ) -> _TaskHardDeleteResult:
+    def _hard_delete(cls, task_id: TaskId):
         task = cls._get(task_id)
-        jobs = _JobManager._get_all()
-
-        for job in jobs:
-            if job.task.id == task.id:
-                _JobManager._delete(job)
-
-        if not pipeline_id and not scenario_id:
-            cls._delete(task_id)
-            return _TaskHardDeleteResult()
-
-        data_nodes: List[DataNode] = []
-        data_nodes.extend(task.input.values())
-        data_nodes.extend(task.output.values())
-
-        scenario_data_node_ids = set()
-        pipeline_data_node_ids = set()
-
-        if pipeline_id and not scenario_id:
-            for dn in data_nodes:
-                if dn.parent_id == pipeline_id:
-                    pipeline_data_node_ids.add(dn.id)
-            if task.parent_id == pipeline_id:
-                cls._delete(task_id)
-
-        if scenario_id:
-            for dn in data_nodes:
-                if dn.parent_id == scenario_id:
-                    scenario_data_node_ids.add(dn.id)
-                elif pipeline_id and dn.parent_id == pipeline_id:
-                    pipeline_data_node_ids.add(dn.id)
-        return _TaskHardDeleteResult(pipeline_data_node_ids, scenario_data_node_ids)  # type:ignore
+        _owned_entity_ids = cls._get_owned_entity_ids(task)
+        cls._delete_entities_of_multiple_types(_owned_entity_ids)
 
     @classmethod
-    def _remove_if_parent_id_eq(cls, data_nodes, id_):
-        for data_node in data_nodes:
-            if data_node.parent_id == id_:
-                _DataManager._delete(data_node.id)
+    def _get_owned_entity_ids(cls, task: Task):
+        entity_ids = _EntityIds()
+        entity_ids.task_ids.add(task.id)
+
+        jobs = _JobManager._get_all()
+        for job in jobs:
+            if job.task.id == task.id:
+                entity_ids.job_ids.add(job.id)
+        return entity_ids
 
     @classmethod
     def _get_all_by_config_id(cls, config_id: str) -> List[Task]:
