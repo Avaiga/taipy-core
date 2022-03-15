@@ -233,9 +233,8 @@ class _ScenarioManager(_Manager[Scenario]):
                 if task.parent_id == pipeline.id or task.parent_id == scenario.id:
                     entity_ids.task_ids.add(task.id)
                 for data_node in task.data_nodes.values():
-                    if not (data_node.parent_id == pipeline.id or data_node.parent_id == scenario.id):
-                        continue
-                    entity_ids.data_node_ids.add(data_node.id)
+                    if data_node.parent_id == pipeline.id or data_node.parent_id == scenario.id:
+                        entity_ids.data_node_ids.add(data_node.id)
 
         jobs = _JobManager._get_all()
         for job in jobs:
