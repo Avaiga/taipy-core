@@ -226,7 +226,7 @@ class _ScenarioManager(_Manager[Scenario]):
     def _get_owned_entity_ids(cls, scenario: Scenario) -> _EntityIds:
         entity_ids = _EntityIds()
 
-        for pipeline in scenario.pipelines.values():
+        for pipeline in scenario._pipelines.values():
             if pipeline.parent_id == pipeline.id or pipeline.parent_id == scenario.id:
                 entity_ids.pipeline_ids.add(pipeline.id)
             for task in pipeline.tasks.values():
