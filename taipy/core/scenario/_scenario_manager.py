@@ -9,7 +9,6 @@ from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle._cycle_manager import _CycleManager
 from taipy.core.cycle.cycle import Cycle
-from taipy.core.data._data_manager import _DataManager
 from taipy.core.exceptions.exceptions import (
     DeletingOfficialScenario,
     DifferentScenarioConfigs,
@@ -25,7 +24,6 @@ from taipy.core.job.job import Job
 from taipy.core.pipeline._pipeline_manager import _PipelineManager
 from taipy.core.scenario._scenario_repository import _ScenarioRepository
 from taipy.core.scenario.scenario import Scenario
-from taipy.core.task._task_manager import _TaskManager
 
 
 class _ScenarioManager(_Manager[Scenario]):
