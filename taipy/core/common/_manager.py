@@ -21,7 +21,7 @@ class _Manager(Generic[EntityType]):
         cls._repository._delete_all()
 
     @classmethod
-    def _delete_many(cls, ids: Iterable[Any], *args: Any, **kwargs: Any):
+    def _delete_many(cls, ids: Iterable[Any], *args, **kwargs):
         """
         Deletes entities by a list of ids.
         """
