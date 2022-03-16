@@ -102,10 +102,9 @@ class _PipelineManager(_Manager[Pipeline]):
                 if data_node.parent_id == pipeline.id:
                     entity_ids.data_node_ids.add(data_node.id)
         jobs = _JobManager._get_all()
-        for task_id in entity_ids.task_ids:
-            for job in jobs:
-                if job.task.id == task_id:
-                    entity_ids.job_ids.add(job.id)
+        for job in jobs:
+            if job.task.id in entity_ids.task_ids:
+                entity_ids.job_ids.add(job.id)
         return entity_ids
 
     @classmethod
