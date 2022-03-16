@@ -110,3 +110,34 @@ def test_data_node_with_env_variable_value():
     with mock.patch.dict(os.environ, {"BAR": "baz"}):
         Config._add_data_node("data_node", prop="ENV[BAR]")
         assert Config.data_nodes["data_node"].prop == "baz"
+
+
+def test_data_node_with_env_variable_in_write_fct_params():
+    with mock.patch.dict(os.environ, {"BAR": "baz", "FOO": "foz"}):
+        Config._add_data_node(
+            "data_node",
+            storage_type="generic",
+            write_fct_params=("ENV[BAR]", {"my_key": "ENV[FOO]", "deeper": ["ENV[BAR]", {"foo": "ENV[FOO]"}]}),
+        )
+        assert Config.data_nodes["data_node"].write_fct_params == (
+            "baz",
+            {"my_key": "foz", "deeper": ["baz", {"foo": "foz"}]},
+        )
+
+
+def test_data_node_with_env_variable_in_read_fct_params():
+    with mock.patch.dict(os.environ, {"BAR": "baz", "FOO": "foz", "FOOBAR": "fozbaz"}):
+        Config._add_data_node(
+            "data_node",
+            storage_type="generic",
+            read_fct_params=(
+                [
+                    "ENV[BAR]",
+                    {"my_key": "ENV[FOO]", "deeper": ["ENV[BAR]", {"foo": "ENV[FOO]"}]},
+                    ({"foobar": "ENV[FOOBAR]"}, "ENV[FOOBAR]"),
+                ]
+            ),
+        )
+        assert Config.data_nodes["data_node"].read_fct_params == (
+            ["baz", {"my_key": "foz", "deeper": ["baz", {"foo": "foz"}]}, ({"foobar": "fozbaz"}, "fozbaz")]
+        )
