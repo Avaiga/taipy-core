@@ -199,7 +199,10 @@ def test_hard_delete_shared_entities():
     assert len(_TaskManager._get_all()) == 7
     assert len(_DataManager._get_all()) == 8
     assert len(_JobManager._get_all()) == 11
+    assert len(_CycleManager._get_all()) == 1
+    breakpoint()
     _CycleManager._hard_delete(scenario_1.cycle.id)
+    assert len(_CycleManager._get_all()) == 0
     assert len(_ScenarioManager._get_all()) == 1
     assert len(_PipelineManager._get_all()) == 1
     assert len(_TaskManager._get_all()) == 1

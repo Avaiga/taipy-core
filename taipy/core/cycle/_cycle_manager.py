@@ -74,7 +74,7 @@ class _CycleManager(_Manager[Cycle]):
     def _hard_delete(cls, cycle_id: CycleId):
         cycle = cls._get(cycle_id)
         entity_ids_to_delete = cls._get_owned_entities(cycle)
-        entity_ids_to_delete.cycle_ids.add(cycle)
+        entity_ids_to_delete.cycle_ids.add(cycle.id)
         cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
