@@ -148,6 +148,11 @@ class Scenario(_Entity):
     def name(self) -> Optional[str]:
         return self._properties.get("name")
 
+    @name.setter  # type: ignore
+    @_self_setter(_MANAGER_NAME)
+    def name(self, val):
+        self._properties["name"] = val
+        
     def __eq__(self, other):
         return self.id == other.id
 
