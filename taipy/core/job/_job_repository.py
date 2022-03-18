@@ -5,7 +5,7 @@ from typing import List
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._utils import _fct_to_dict, _fcts_to_dict, _load_fct
 from taipy.core.config.config import Config
-from taipy.core.exceptions.exceptions import InvalidSubscriber, LoadingAnonymousFunction
+from taipy.core.exceptions.exceptions import InvalidSubscriber
 from taipy.core.job._job_model import _JobModel
 from taipy.core.job.job import Job
 from taipy.core.task._task_repository import _TaskRepository
