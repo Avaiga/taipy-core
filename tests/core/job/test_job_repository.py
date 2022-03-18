@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 
-from taipy.core.common._utils import _fcts_to_dict
 from taipy.core.common.alias import DataNodeId, JobId, TaskId
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.csv import CSVDataNode
