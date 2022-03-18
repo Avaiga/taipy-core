@@ -23,7 +23,7 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
             job._force,
             job._creation_date.isoformat(),
             self._serialize_subscribers(job._subscribers),
-            self._serialize_exceptions(job.exceptions),
+            self._serialize_exceptions(job._exceptions),
         )
 
     def _from_model(self, model: _JobModel):
