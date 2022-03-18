@@ -9,8 +9,8 @@ def _load_fct(module_name: str, fct_name: str) -> Callable:
 
 
 def _get_fct_name(f) -> Optional[str]:
-    # Mock function does not have __qualname__ attribute
-    # Partial or anonymous function does not have __name__ or __qualname__ attribute
+    # Mock function does not have __qualname__ attribute -> return __name__
+    # Partial or anonymous function does not have __name__ or __qualname__ attribute -> return None
     name = getattr(f, "__qualname__", getattr(f, "__name__", None))
     return name
 
@@ -23,9 +23,4 @@ def _fct_to_dict(obj):
 
 
 def _fcts_to_dict(objs):
-    fcts = []
-    for obj in objs:
-        d = _fct_to_dict(obj)
-        if d:
-            fcts.append(d)
-    return fcts
+    return [d for obj in objs if (d := _fct_to_dict(obj)) is not None]
