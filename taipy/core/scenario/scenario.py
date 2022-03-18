@@ -144,7 +144,7 @@ class Scenario(_Entity):
         self._properties = _reload("scenario", self)._properties
         return self._properties
 
-    @property
+    @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def name(self) -> Optional[str]:
         return self._properties.get("name")
@@ -153,7 +153,7 @@ class Scenario(_Entity):
     @_self_setter(_MANAGER_NAME)
     def name(self, val):
         self._properties["name"] = val
-        
+
     def __eq__(self, other):
         return self.id == other.id
 
