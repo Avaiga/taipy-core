@@ -1,16 +1,11 @@
-from functools import reduce
 from importlib import import_module
+from operator import attrgetter
 from typing import Callable, Optional
-
-
-def _rgetattr(obj, attr):
-    """Recursive getattr."""
-    return reduce(getattr, attr.split("."), obj)
 
 
 def _load_fct(module_name: str, fct_name: str) -> Callable:
     module = import_module(module_name)
-    return _rgetattr(module, fct_name)
+    return attrgetter(fct_name)(module)
 
 
 def _get_fct_name(f) -> Optional[str]:
