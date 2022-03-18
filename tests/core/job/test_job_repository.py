@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 
+from taipy.core.common._utils import _fcts_to_dict
 from taipy.core.common.alias import DataNodeId, JobId, TaskId
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.csv import CSVDataNode
@@ -29,7 +30,26 @@ data_node = CSVDataNode(
 
 task = Task("config_id", print, [data_node], [], TaskId("task_id"), parent_id="parent_id")
 
+
+def f():
+    pass
+
+
+class A:
+    def f(self):
+        pass
+
+    @classmethod
+    def g(cls):
+        pass
+
+    @staticmethod
+    def h():
+        pass
+
+
 job = Job(JobId("id"), task)
+job._subscribers = [f, A.f, A.g, A.h]
 
 job_model = _JobModel(
     id=JobId("id"),
@@ -37,7 +57,7 @@ job_model = _JobModel(
     status=Status(Status.SUBMITTED),
     force=False,
     creation_date=job._creation_date.isoformat(),
-    subscribers=[],
+    subscribers=_fcts_to_dict(job._subscribers),
     exceptions=[],
 )
 

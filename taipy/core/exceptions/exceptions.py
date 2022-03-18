@@ -96,6 +96,10 @@ class InvalidSubscriber(RuntimeError):
     """Raised if we try to load a function that is not valid."""
 
 
+class LoadingAnonymousFunction(Exception):
+    """Raised if we try to load an anonymous function."""
+
+
 class NonExistingPipeline(Exception):
     """Raised if a requested Pipeline is not known by the Pipeline Manager."""
 
