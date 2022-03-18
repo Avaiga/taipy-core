@@ -206,6 +206,4 @@ def test_hard_delete_shared_entities():
     assert len(_PipelineManager._get_all()) == 1
     assert len(_TaskManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 3
-    # Should be 1 here but Scope.CYCLE behaves the same as Scope.GLOBAL
-    # This is because we haven't implemented the mechanism to set cycle id as parent id for any entity yet.
     assert len(_DataManager._get_all()) == 2
