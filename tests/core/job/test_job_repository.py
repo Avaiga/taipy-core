@@ -10,6 +10,7 @@ from taipy.core.data.scope import Scope
 from taipy.core.exceptions.exceptions import ModelNotFound
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.job._job_model import _JobModel
+from taipy.core.job._job_repository import _JobRepository
 from taipy.core.job.job import Job
 from taipy.core.job.status import Status
 from taipy.core.task._task_manager import _TaskManager
@@ -50,6 +51,7 @@ class A:
 
 job = Job(JobId("id"), task)
 job._subscribers = [f, A.f, A.g, A.h]
+job._exceptions = [Exception()]
 
 job_model = _JobModel(
     id=JobId("id"),
@@ -57,8 +59,8 @@ job_model = _JobModel(
     status=Status(Status.SUBMITTED),
     force=False,
     creation_date=job._creation_date.isoformat(),
-    subscribers=_fcts_to_dict(job._subscribers),
-    exceptions=[],
+    subscribers=_JobRepository._serialize_subscribers(job._subscribers),
+    exceptions=_JobRepository._serialize_exceptions(job._exceptions),
 )
 
 

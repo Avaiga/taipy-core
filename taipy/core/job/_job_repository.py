@@ -22,8 +22,8 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
             job._status,
             job._force,
             job._creation_date.isoformat(),
-            self.__serialize_subscribers(job._subscribers),
-            self.__serialize_exceptions(job.exceptions),
+            self._serialize_subscribers(job._subscribers),
+            self._serialize_exceptions(job.exceptions),
         )
 
     def _from_model(self, model: _JobModel):
@@ -46,9 +46,9 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
         return pathlib.Path(Config.global_config.storage_folder)  # type: ignore
 
     @staticmethod
-    def __serialize_exceptions(exceptions: List) -> List:
+    def _serialize_exceptions(exceptions: List) -> List:
         return [{**_fct_to_dict(type(e)), "args": e.args} for e in exceptions]
 
     @staticmethod
-    def __serialize_subscribers(subscribers: List) -> List:
+    def _serialize_subscribers(subscribers: List) -> List:
         return _fcts_to_dict(subscribers)
