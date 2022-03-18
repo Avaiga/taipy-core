@@ -145,6 +145,7 @@ class Scenario(_Entity):
         return self._properties
 
     @property
+    @_self_reload(_MANAGER_NAME)
     def name(self) -> Optional[str]:
         return self._properties.get("name")
 
