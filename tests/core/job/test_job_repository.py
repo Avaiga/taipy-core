@@ -37,6 +37,10 @@ def f():
 
 
 class A:
+    class B:
+        def f(self):
+            pass
+
     def f(self):
         pass
 
@@ -50,7 +54,7 @@ class A:
 
 
 job = Job(JobId("id"), task)
-job._subscribers = [f, A.f, A.g, A.h]
+job._subscribers = [f, A.f, A.g, A.h, A.B.f]
 job._exceptions = [Exception()]
 
 job_model = _JobModel(
