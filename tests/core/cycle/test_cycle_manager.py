@@ -186,7 +186,7 @@ def test_hard_delete_shared_entities():
         creation_date=creation_date,
         frequency=Frequency.DAILY,
     )
-    scenario_config_2 = Config._add_scenario("scenario_config_2", [pipeline_config_3])  # scope = global
+    scenario_config_2 = Config._add_scenario("scenario_config_2", [pipeline_config_3])  # No Frequency so cycle attached to scenarios
     scenario_1 = _ScenarioManager._create(scenario_config_1)
     scenario_2 = _ScenarioManager._create(scenario_config_1)
     scenario_3 = _ScenarioManager._create(scenario_config_2)
