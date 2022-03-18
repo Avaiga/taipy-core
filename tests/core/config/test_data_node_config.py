@@ -115,12 +115,12 @@ def test_data_node_with_env_variable_value():
 def test_data_node_with_env_variable_in_write_fct_params():
     with mock.patch.dict(os.environ, {"Foo": "bar", "BAZ": "qux"}):
         Config._add_data_node(
-            "data_node", storage_type="generic", write_fct_params=("ENV[FOO]", "my_param", "ENV[BAZ]")
+            "data_node", storage_type="generic", write_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"]
         )
-        assert Config.data_nodes["data_node"].write_fct_params == ("bar", "my_param", "qux")
+        assert Config.data_nodes["data_node"].write_fct_params == ["bar", "my_param", "qux"]
 
 
 def test_data_node_with_env_variable_in_read_fct_params():
     with mock.patch.dict(os.environ, {"Foo": "bar", "BAZ": "qux"}):
-        Config._add_data_node("data_node", storage_type="generic", read_fct_params=("ENV[FOO]", "my_param", "ENV[BAZ]"))
-        assert Config.data_nodes["data_node"].read_fct_params == ("bar", "my_param", "qux")
+        Config._add_data_node("data_node", storage_type="generic", read_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"])
+        assert Config.data_nodes["data_node"].read_fct_params == ["bar", "my_param", "qux"]
