@@ -122,6 +122,9 @@ class _TomlSerializer:
                         return _ConfigTemplateHandler._to_float(actual_val)
                     elif dynamic_type == "str":
                         return actual_val
+                    else:
+                        error_msg = f"Error loading toml configuration at {val}. {dynamic_type} type is not supported."
+                        raise LoadingError(error_msg)
             if isinstance(val, dict):
                 return {str(k): cls._pythonify(v) for k, v in val.items()}
             if isinstance(val, list):
