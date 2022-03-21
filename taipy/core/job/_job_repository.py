@@ -37,7 +37,14 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
                 job._subscribers.append(_load_fct(it.get("fct_module"), it.get("fct_name")))  # type:ignore
             except AttributeError:
                 raise InvalidSubscriber(f"The subscriber function {it.get('fct_name')} cannot be loaded.")
-        job._exceptions = [_load_fct(e["fct_module"], e["fct_name"])(*e["args"]) for e in model.exceptions]
+        job._exceptions = []
+        for e in model.exceptions:
+            try:
+                job._exceptions.append(_load_fct(e["fct_module"], e["fct_name"])(*e["args"]))  # type:ignore
+            except Exception as ex:
+                print(f"Error while loading exception: {ex}")
+                print(e)
+                pass
 
         return job
 

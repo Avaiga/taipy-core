@@ -101,9 +101,7 @@ class SQLDataNode(DataNode):
     def __build_conn_string(engine, username, host, password, database, port, path) -> str:
         # TODO: Add support to other SQL engines, the engine value should be checked.
         if engine == "mssql":
-            return "mssql+pyodbc:///?odbc_connect=" + urllib.parse.quote_plus(
-                f"DRIVER=FreeTDS;SERVER={host};PORT={port};DATABASE={database};UID={username};PWD={password};TDS_Version=8.0;"
-            )
+            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver=ODBC+Driver+17+for+SQL+Server"
         elif engine == "sqlite":
             return os.path.join("sqlite:///", path, f"{database}.sqlite3")
         raise UnknownDatabaseEngine(f"Unknown engine: {engine}")
