@@ -126,7 +126,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __get_model_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
         filepath = self._directory / f"{model_id}.json"
 
-        if not filepath.exists() and raise_if_not_exist:
+        if raise_if_not_exist and not filepath.exists():
             raise ModelNotFound(str(self._directory), model_id)
 
         return filepath
