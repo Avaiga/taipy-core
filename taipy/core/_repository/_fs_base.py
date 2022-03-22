@@ -73,16 +73,11 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
-        self.dir_name = dir_name
+        self.dir_path = self._storage_folder / dir_name
 
     @property
     def _directory(self) -> pathlib.Path:
-        dir_path = self._storage_folder / self.dir_name
-
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-
-        return dir_path
+        return self.dir_path
 
     def load(self, model_id: str) -> Entity:
         return self.__to_entity(self.__get_model_filepath(model_id))
@@ -91,13 +86,15 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return [self.__to_entity(f) for f in self._directory.glob("*.json")]
 
     def _save(self, entity):
+        self.__create_directory_if_not_exists()
+
         model = self._to_model(entity)
         self.__get_model_filepath(model.id, False).write_text(
             json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=_CustomEncoder)
         )
 
     def _delete_all(self):
-        shutil.rmtree(self._directory)
+        shutil.rmtree(self._directory, ignore_errors=True)
 
     def _delete(self, model_id: str):
         self.__get_model_filepath(model_id).unlink()
@@ -121,7 +118,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return self.model.from_dict(model_data)  # type: ignore
 
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
-        return filter(lambda e: hasattr(e, attribute) and getattr(e, attribute) == value, self._load_all())
+        return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
 
     def __get_model_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
         filepath = self._directory / f"{model_id}.json"
@@ -136,3 +133,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
             data = json.load(f, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
+
+    def __create_directory_if_not_exists(self):
+        if not self.dir_path.exists():
+            self.dir_path.mkdir(parents=True, exist_ok=True)
