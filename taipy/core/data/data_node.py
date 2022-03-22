@@ -236,7 +236,7 @@ class DataNode(_Entity):
         Locks the edition of the data node.
 
         Note:
-            It can be unlocked with the method `DataNode.unlock_edition()^`
+            It can be unlocked with the method `(DataNode.)unlock_edition()^`
         """
         self.edition_in_progress = True
 
