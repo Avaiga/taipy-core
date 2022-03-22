@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 
 from taipy.core._repository import _FileSystemRepository
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common._utils import _fct_to_dict, _fcts_to_dict, _load_fct
 from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import InvalidSubscriber
@@ -12,6 +13,8 @@ from taipy.core.task._task_repository import _TaskRepository
 
 
 class _JobRepository(_FileSystemRepository[_JobModel, Job]):
+    __logger = _TaipyLogger._get_logger()
+
     def __init__(self):
         super().__init__(model=_JobModel, dir_name="jobs")
 
@@ -41,10 +44,8 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
         for e in model.exceptions:
             try:
                 job._exceptions.append(_load_fct(e["fct_module"], e["fct_name"])(*e["args"]))  # type:ignore
-            except Exception as ex:
-                print(f"Error while loading exception: {ex}")
-                print(e)
-                pass
+            except Exception:
+                self.__logger.error(e)
 
         return job
 

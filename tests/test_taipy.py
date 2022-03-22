@@ -100,7 +100,7 @@ class TestTaipy:
             mck.assert_called_once_with(a, "pickle", scope=c, default_data=b, path=d)
 
     def test_configure_sql_data_node(self):
-        a, b, c, d, e, f, g, h, i, j, k = (
+        a, b, c, d, e, f, g, h, i, j, scope, k = (
             "foo",
             "user",
             "pwd",
@@ -110,15 +110,16 @@ class TestTaipy:
             "write",
             "port",
             "host",
+            "driver",
             Scope.PIPELINE,
             "qux",
         )
         with mock.patch("taipy.core.config.config.Config._add_data_node") as mck:
-            tp.configure_sql_data_node(a, b, c, d, e, f, g, h, i, j, property=k)
+            tp.configure_sql_data_node(a, b, c, d, e, f, g, h, i, j, scope=scope, property=k)
             mck.assert_called_once_with(
                 a,
                 "sql",
-                scope=j,
+                scope=scope,
                 db_username=b,
                 db_password=c,
                 db_name=d,
@@ -127,6 +128,7 @@ class TestTaipy:
                 write_table=g,
                 db_port=h,
                 db_host=i,
+                db_driver=j,
                 property=k,
             )
 
