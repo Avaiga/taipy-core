@@ -82,4 +82,4 @@ class _TaskManager(_Manager[Task]):
 
     @classmethod
     def _get_all_by_config_id(cls, config_id: str) -> List[Task]:
-        return cls._repository._search_all("config_id", config_id)
+        return cls._repository._search_by_config_id(config_id)
