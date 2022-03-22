@@ -1,0 +1,57 @@
+name: Documentation Generation
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      user-to-notify:
+        description: "Github username to notify"
+        required: false
+        default: ""
+
+jobs:
+  Deploy-Doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install pipenv and dependencies
+        run: |
+          python -m pip install pipenv
+          python -m pipenv install --dev
+      - name: Fetch Taipy Core code
+        uses: actions/checkout@v2
+        with:
+          repository: Avaiga/taipy-core
+          ref: develop
+          path: taipy-core
+          token: ${{ secrets.TAIPY_REPOS_ACCESS_TOKEN }}
+      - name: Save Taipy Core code
+        run: |
+          mv taipy-core/taipy .
+          rm -rf taipy-core
+      - name: Fetch Taipy Gui code and elements doc
+        uses: actions/checkout@v2
+        with:
+          repository: Avaiga/taipy-gui
+          ref: develop
+          path: taipy-gui
+          token: ${{ secrets.TAIPY_REPOS_ACCESS_TOKEN }}
+      - name: Save Taipy Gui code
+        run: |
+          (cd taipy-gui;tar cf - taipy gui)|tar xf -
+          rm -rf taipy-gui
+      - name: Create Taipy __init__ file
+        run: |
+          echo "from taipy.core import *" >taipy/__init__.py
+          echo "import taipy.gui as gui" >>taipy/__init__.py
+      - name: Pre-process root package and GUI doc
+        run: |
+          pipenv run python tools/setup_generation.py
+      - name: Build doc and deploy
+        run: |
+          pipenv run mkdocs gh-deploy --force
