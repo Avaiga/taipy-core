@@ -106,13 +106,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _search(self, attribute: str, value: str) -> Optional[Entity]:
         return next(self.__search(attribute, value), None)
 
-    def _search_by_config_id(self, config_id: str) -> List[Entity]:
-        # Should be a get
-        r = []
-        for e in [self.__to_entity(f) for f in self._directory.glob(f"*_{config_id}_*.json")]:
-            if getattr(e, "config_id", None) == config_id:
-                r.append(e)
-        return r
+    def _get_by_config_and_parent_ids(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
+        for f in self._directory.glob(f"*_{config_id}_*.json"):
+            entity = self.__to_entity(f)
+            if entity._config_id == config_id and entity._parent_id == parent_id:
+                return entity
+        return None
 
     def _build_model(self, model_data: Dict) -> ModelType:
         return self.model.from_dict(model_data)  # type: ignore
