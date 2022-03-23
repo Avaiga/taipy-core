@@ -109,7 +109,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _get_by_config_and_parent_ids(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
         for f in self._directory.glob(f"*_{config_id}_*.json"):
             entity = self.__to_entity(f)
-            if entity._config_id == config_id and entity._parent_id == parent_id:
+            if entity.config_id == config_id and entity.parent_id == parent_id:
                 return entity
         return None
 

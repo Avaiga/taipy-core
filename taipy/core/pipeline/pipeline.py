@@ -41,10 +41,10 @@ class Pipeline(_Entity):
         parent_id: Optional[str] = None,
         subscribers: Set[Callable] = None,
     ):
-        self._config_id = _validate_id(config_id)
+        self.config_id = _validate_id(config_id)
+        self.id: PipelineId = pipeline_id or self._new_id(self.config_id)
+        self.parent_id = parent_id
         self._tasks = {task.config_id: task for task in tasks}
-        self.id: PipelineId = pipeline_id or self._new_id(self._config_id)
-        self._parent_id = parent_id
         self.is_consistent = self.__is_consistent()
 
         self._subscribers = subscribers or set()
@@ -61,16 +61,6 @@ class Pipeline(_Entity):
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
-    def config_id(self):
-        return self._config_id
-
-    @config_id.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
-    def config_id(self, val):
-        self._config_id = val
-
-    @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
     def tasks(self):
         return self._tasks
 
@@ -78,16 +68,6 @@ class Pipeline(_Entity):
     @_self_setter(_MANAGER_NAME)
     def tasks(self, val):
         self._tasks = {task.config_id: task for task in val}
-
-    @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
-    def parent_id(self):
-        return self._parent_id
-
-    @parent_id.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
-    def parent_id(self, val):
-        self._parent_id = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)

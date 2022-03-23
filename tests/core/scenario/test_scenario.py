@@ -109,9 +109,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
 
     scenario_2 = _ScenarioManager._get(scenario_1)
     assert scenario_1.config_id == "foo"
-    scenario_1.config_id = "fgh"
-    assert scenario_1.config_id == "fgh"
-    assert scenario_2.config_id == "fgh"
+    assert scenario_2.config_id == "foo"
 
     assert scenario_1.name == "bar"
     scenario_1.name = "baz"
@@ -158,7 +156,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
     assert scenario_2.properties["qux"] == 5
 
     with scenario_1 as scenario:
-        assert scenario.config_id == "fgh"
+        assert scenario.config_id == "foo"
         assert len(scenario.pipelines) == 1
         assert scenario.pipelines[pipeline.config_id] == pipeline
         assert scenario.creation_date == new_datetime
@@ -170,7 +168,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
         assert scenario.name == "baz"
 
         new_datetime_2 = new_datetime + timedelta(1)
-        scenario.config_id = "abc"
+        scenario.config_id = "foo"
         scenario.pipelines = []
         scenario.creation_date = new_datetime_2
         scenario.cycle = None
@@ -179,8 +177,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
         scenario.tags = None
         scenario.name = "qux"
 
-        assert scenario._config_id == "abc"
-        assert scenario.config_id == "fgh"
+        assert scenario.config_id == "foo"
         assert len(scenario.pipelines) == 1
         assert scenario.pipelines[pipeline.config_id] == pipeline
         assert scenario.creation_date == new_datetime
@@ -191,7 +188,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
         assert scenario._is_in_context
         assert scenario.name == "qux"  # should be baz here
 
-    assert scenario_1.config_id == "abc"
+    assert scenario_1.config_id == "foo"
     assert len(scenario_1.pipelines) == 0
     assert scenario_1.creation_date == new_datetime_2
     assert scenario_1.cycle is None

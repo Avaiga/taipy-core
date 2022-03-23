@@ -25,8 +25,8 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
                 task_datanode_edges[task_id].append(str(successor.id))
         return _PipelineModel(
             pipeline.id,
-            pipeline._parent_id,
-            pipeline._config_id,
+            pipeline.parent_id,
+            pipeline.config_id,
             pipeline._properties.data,
             [task.id for task in pipeline._tasks.values()],
             _utils._fcts_to_dict(pipeline._subscribers),
