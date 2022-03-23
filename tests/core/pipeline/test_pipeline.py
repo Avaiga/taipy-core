@@ -127,38 +127,59 @@ def test_auto_set_and_reload(task):
     assert pipeline_1.parent_id is None
     assert pipeline_2.parent_id is None
 
-    assert len(pipeline_1.subscribers) == 0
-    pipeline_1.subscribers = set([print])
-    assert len(pipeline_1.subscribers) == 1
-    assert len(pipeline_2.subscribers) == 1
-
     assert pipeline_1.properties == {}
     pipeline_1.properties["qux"] = 5
     assert pipeline_1.properties["qux"] == 5
     assert pipeline_2.properties["qux"] == 5
+
+    assert len(pipeline_1.subscribers) == 0
+    pipeline_1.subscribers.append(print)
+    assert len(pipeline_1.subscribers) == 1
+    assert len(pipeline_2.subscribers) == 1
+
+    pipeline_1.subscribers.clear()
+    assert len(pipeline_1.subscribers) == 0
+    assert len(pipeline_2.subscribers) == 0
+
+    pipeline_1.subscribers.extend([print, map])
+    assert len(pipeline_1.subscribers) == 2
+    assert len(pipeline_2.subscribers) == 2
+
+    pipeline_1.subscribers.remove(print)
+    assert len(pipeline_1.subscribers) == 1
+    assert len(pipeline_2.subscribers) == 1
+
+    pipeline_1.subscribers + print + len
+    assert len(pipeline_1.subscribers) == 3
+    assert len(pipeline_2.subscribers) == 3
+
+    pipeline_1.subscribers = []
+    assert len(pipeline_1.subscribers) == 0
+    assert len(pipeline_2.subscribers) == 0
 
     with pipeline_1 as pipeline:
         assert pipeline.config_id == "foo"
         assert len(pipeline.tasks) == 1
         assert pipeline.tasks[task.config_id].id == task.id
         assert pipeline.parent_id is None
-        assert len(pipeline.subscribers) == 1
+        assert len(pipeline.subscribers) == 0
         assert pipeline._is_in_context
 
         pipeline.tasks = []
-        pipeline.subscribers = None
+        pipeline.parent_id = None
+        pipeline.subscribers = [print]
 
         assert pipeline.config_id == "foo"
         assert len(pipeline.tasks) == 1
         assert pipeline.tasks[task.config_id].id == task.id
         assert pipeline.parent_id is None
-        assert len(pipeline.subscribers) == 1
+        assert len(pipeline.subscribers) == 0
         assert pipeline._is_in_context
 
     assert pipeline_1.config_id == "foo"
     assert len(pipeline_1.tasks) == 0
     assert pipeline_1.parent_id is None
-    assert len(pipeline_1.subscribers) == 0
+    assert len(pipeline_1.subscribers) == 1
     assert not pipeline_1._is_in_context
 
 

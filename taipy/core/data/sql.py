@@ -1,4 +1,5 @@
 import os
+import re
 import urllib.parse
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
@@ -79,6 +80,7 @@ class SQLDataNode(DataNode):
             properties.get("db_password"),
             properties.get("db_name"),
             properties.get("db_port", 1433),
+            properties.get("db_driver", "ODBC Driver 17 for SQL Server"),
             properties.get("path", ""),
         )
 
@@ -98,18 +100,17 @@ class SQLDataNode(DataNode):
             self.unlock_edition()
 
     @staticmethod
-    def __build_conn_string(engine, username, host, password, database, port, path) -> str:
+    def __build_conn_string(engine, username, host, password, database, port, driver, path) -> str:
         # TODO: Add support to other SQL engines, the engine value should be checked.
         if engine == "mssql":
-            return "mssql+pyodbc:///?odbc_connect=" + urllib.parse.quote_plus(
-                f"DRIVER=FreeTDS;SERVER={host};PORT={port};DATABASE={database};UID={username};PWD={password};TDS_Version=8.0;"
-            )
+            driver = re.sub(r"\s+", "+", driver)
+            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver={driver}"
         elif engine == "sqlite":
             return os.path.join("sqlite:///", path, f"{database}.sqlite3")
         raise UnknownDatabaseEngine(f"Unknown engine: {engine}")
 
-    def __create_engine(self, engine, username, host, password, database, port=1433, path=""):
-        conn_str = self.__build_conn_string(engine, username, host, password, database, port, path)
+    def __create_engine(self, engine, username, host, password, database, port, driver, path):
+        conn_str = self.__build_conn_string(engine, username, host, password, database, port, driver, path)
         return create_engine(conn_str)
 
     @classmethod
@@ -125,7 +126,7 @@ class SQLDataNode(DataNode):
 
     def _read_as(self, query, custom_class):
         with self.__engine.connect() as connection:
-            query_result = connection.dispatch(text(query))
+            query_result = connection.execute(text(query))
         return list(map(lambda row: custom_class(**row), query_result))
 
     def _read_as_numpy(self):
@@ -178,7 +179,7 @@ class SQLDataNode(DataNode):
                 markers = markers
                 ins = "INSERT INTO {tablename} VALUES {markers}"
                 ins = ins.format(tablename=write_table.name, markers=markers)
-                connection.dispatch(ins, list(data))
+                connection.execute(ins, list(data))
             except:
                 transaction.rollback()
                 raise
@@ -203,7 +204,7 @@ class SQLDataNode(DataNode):
                 ins = "INSERT INTO {tablename} VALUES ({markers})"
                 ins = ins.format(tablename=write_table.name, markers=markers)
 
-                connection.dispatch(ins, data)
+                connection.execute(ins, data)
             except:
                 transaction.rollback()
                 raise
@@ -222,7 +223,7 @@ class SQLDataNode(DataNode):
         """
         with connection.begin() as transaction:
             try:
-                connection.dispatch(write_table.insert(), data)
+                connection.execute(write_table.insert(), data)
             except:
                 transaction.rollback()
                 raise
