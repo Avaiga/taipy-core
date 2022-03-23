@@ -1,7 +1,7 @@
 import functools
 
 
-@functools.cache
+@functools.lru_cache
 def _get_manager(manager: str):
     from taipy.core.cycle._cycle_manager import _CycleManager
     from taipy.core.data._data_manager import _DataManager
