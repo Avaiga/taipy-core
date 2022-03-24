@@ -402,9 +402,7 @@ class TestTaipy:
         scenario = _ScenarioManager._create(scenario_config)
         _ScenarioManager._submit(scenario)
 
-        pickle_data_node = scenario.d2
         # Initial assertion
-        assert isinstance(pickle_data_node, PickleDataNode)
         assert len(_DataManager._get_all()) == 2
         assert len(_TaskManager._get_all()) == 1
         assert len(_PipelineManager._get_all()) == 1
