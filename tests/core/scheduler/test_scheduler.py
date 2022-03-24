@@ -17,6 +17,7 @@ from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.scope import Scope
 from taipy.core.task.task import Task
+from tests.core.utils import assert_true_after_1_minute_max
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -238,7 +239,7 @@ def test_blocked_task():
         assert_true_after_1_minute_max(job_1.is_completed)  # job1 unlocked and can complete
         assert _DataManager._get(task_1.bar.id).is_ready_for_reading  # bar becomes ready
         assert _DataManager._get(task_1.bar.id).read() == 2  # the data is computed and written
-        assert job_2.is_running()  # And job 2 can run
+        assert_true_after_1_minute_max(job_2.is_running)  # And job 2 can start running
         assert len(scheduler.blocked_jobs) == 0
     assert_true_after_1_minute_max(job_2.is_completed)  # job 2 unlocked so it can complete
     assert _DataManager._get(task_2.baz.id).is_ready_for_reading  # baz becomes ready
@@ -281,15 +282,3 @@ def _create_task(function, nb_outputs=1):
         input=input_dn,
         output=output_dn,
     )
-
-
-def assert_true_after_1_minute_max(assertion):
-    start = datetime.now()
-    while (datetime.now() - start).seconds < 60:
-        sleep(0.1)  # Limit CPU usage
-        try:
-            if assertion():
-                return
-        except Exception as e:
-            print("Raise (test_scheduler):", e)
-    assert assertion()
