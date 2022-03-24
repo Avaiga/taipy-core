@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
@@ -135,7 +135,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
     if entity_id.startswith(_JobManager._ID_PREFIX):
         return _JobManager._delete(_JobManager._get(JobId(entity_id)))  # type: ignore
     if entity_id.startswith(Cycle._ID_PREFIX):
-        return _CycleManager._delete(CycleId(entity_id))
+        return _CycleManager._hard_delete(CycleId(entity_id))
     if entity_id.startswith(Scenario._ID_PREFIX):
         return _ScenarioManager._hard_delete(ScenarioId(entity_id))
     if entity_id.startswith(Pipeline._ID_PREFIX):
@@ -169,37 +169,37 @@ def get_scenarios(cycle: Optional[Cycle] = None, tag: Optional[str] = None) -> L
     return []
 
 
-def get_official(cycle: Cycle) -> Optional[Scenario]:
+def get_primary(cycle: Cycle) -> Optional[Scenario]:
     """
-    Returns the official scenario of the cycle given as parameter. None if the cycle has no official scenario.
+    Returns the primary scenario of the cycle given as parameter. None if the cycle has no primary scenario.
 
     Parameters:
-         cycle (`Cycle`): The cycle of the official scenario to return.
+         cycle (`Cycle`): The cycle of the primary scenario to return.
     Returns:
-        Optional[`Scenario`]: The official scenario of the cycle given as parameter. None if the cycle has no scenario.
+        Optional[`Scenario`]: The primary scenario of the cycle given as parameter. None if the cycle has no scenario.
     """
-    return _ScenarioManager._get_official(cycle)
+    return _ScenarioManager._get_primary(cycle)
 
 
-def get_official_scenarios() -> List[Scenario]:
+def get_primary_scenarios() -> List[Scenario]:
     """
-    Returns the list of all official scenarios.
+    Returns the list of all primary scenarios.
 
     Returns:
-        List[Scenario]: The list of all official scenarios.
+        List[Scenario]: The list of all primary scenarios.
     """
-    return _ScenarioManager._get_official_scenarios()
+    return _ScenarioManager._get_primary_scenarios()
 
 
-def set_official(scenario: Scenario):
+def set_primary(scenario: Scenario):
     """
-    Promotes scenario `scenario` given as parameter as official scenario of its cycle. If the cycle already had an
-    official scenario, it will be demoted, and it will no longer be official for the cycle.
+    Promotes scenario `scenario` given as parameter as primary scenario of its cycle. If the cycle already had an
+    primary scenario, it will be demoted, and it will no longer be primary for the cycle.
 
     Parameters:
-        scenario (`Scenario`): The scenario to promote as official.
+        scenario (`Scenario`): The scenario to promote as primary.
     """
-    return _ScenarioManager._set_official(scenario)
+    return _ScenarioManager._set_primary(scenario)
 
 
 def tag(scenario: Scenario, tag: str):
@@ -565,8 +565,8 @@ def configure_generic_data_node(
     id: str,
     read_fct: Callable = None,
     write_fct: Callable = None,
-    read_fct_params: Tuple = None,
-    write_fct_params: Tuple = None,
+    read_fct_params: List = None,
+    write_fct_params: List = None,
     scope: Scope = DataNodeConfig._DEFAULT_SCOPE,
     **properties,
 ):
@@ -578,8 +578,8 @@ def configure_generic_data_node(
         read_fct (Callable): The python function called by Taipy to read the data.
         write_fct (Callable): The python function called by Taipy to write the data. The provided function must have at least
             1 parameter to receive the date to be written.
-        read_fct_params (Union[Dict, List]): The parameters that will be passed to read_fct to read the data.
-        write_fct_params (Union[Dict, List]): The parameters that will be passed to write_fct to write the data.
+        read_fct_params (List): The parameters that will be passed to read_fct to read the data.
+        write_fct_params (List): The parameters that will be passed to write_fct to write the data.
         scope (`Scope`): The scope of the Generic data node configuration. The default value is Scope.SCENARIO.
         **properties (Dict[str, Any]): The variable length keyword arguments.
     Returns:

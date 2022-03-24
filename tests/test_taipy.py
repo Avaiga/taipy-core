@@ -222,7 +222,7 @@ class TestTaipy:
             mck.assert_called_once_with(scenario_id)
 
     def test_delete(self):
-        with mock.patch("taipy.core.cycle._cycle_manager._CycleManager._delete") as mck:
+        with mock.patch("taipy.core.cycle._cycle_manager._CycleManager._hard_delete") as mck:
             cycle_id = CycleId("CYCLE_id")
             tp.delete(cycle_id)
             mck.assert_called_once_with(cycle_id)
@@ -244,19 +244,19 @@ class TestTaipy:
             tp.get(scenario_id)
             mck.assert_called_once_with(scenario_id)
 
-    def test_get_official(self, cycle):
-        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_official") as mck:
-            tp.get_official(cycle)
+    def test_get_primary(self, cycle):
+        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_primary") as mck:
+            tp.get_primary(cycle)
             mck.assert_called_once_with(cycle)
 
-    def test_get_official_scenarios(self):
-        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_official_scenarios") as mck:
-            tp.get_official_scenarios()
+    def test_get_primary_scenarios(self):
+        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._get_primary_scenarios") as mck:
+            tp.get_primary_scenarios()
             mck.assert_called_once_with()
 
-    def test_set_official(self, scenario):
-        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._set_official") as mck:
-            tp.set_official(scenario)
+    def test_set_primary(self, scenario):
+        with mock.patch("taipy.core.scenario._scenario_manager._ScenarioManager._set_primary") as mck:
+            tp.set_primary(scenario)
             mck.assert_called_once_with(scenario)
 
     def test_tag_and_untag(self, scenario):
