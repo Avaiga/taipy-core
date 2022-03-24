@@ -232,12 +232,11 @@ class DataNode(_Entity):
         Unlocks the edition of the data node and update its _last_edition_date_.
 
         Parameters:
-            at (datetime): The optional datetime of the last edition. 
+            at (datetime): The optional datetime of the last edition.
                 If no _at_ datetime is provided, the current datetime is used.
             job_id (JobId): An optional identifier of the writer.
         Note:
             It can be locked with the method `(DataNode.)lock_edition()^`
-        """
         """
         self.last_edition_date = at or datetime.now()  # type: ignore
         self.edition_in_progress = False  # type: ignore
