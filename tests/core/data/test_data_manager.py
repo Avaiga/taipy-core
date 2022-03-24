@@ -357,9 +357,6 @@ class TestDataManager:
         generated_pickle_dn_config_1 = Config._add_data_node(id="d2", storage_type="pickle", default_data="d")
         generated_pickle_dn_config_2 = Config._add_data_node(id="d3", storage_type="pickle", default_data="d")
 
-        _DataManager._get_or_create(user_pickle_dn_config)
-        _DataManager._get_or_create(generated_pickle_dn_config_1)
-        _DataManager._get_or_create(generated_pickle_dn_config_2)
 
         user_pickle_dn = _DataManager._get_or_create(user_pickle_dn_config)
         generated_pickle_dn_1 = _DataManager._get_or_create(generated_pickle_dn_config_1)
