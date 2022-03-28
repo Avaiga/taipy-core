@@ -64,7 +64,7 @@ def submit(entity: Union[Scenario, Pipeline, Task], force: bool = False):
     All the tasks of the entity pipeline/scenario will be submitted for execution.
 
     Parameters:
-        entity (Union[`Scenario^`, `Pipeline^`,`Task^`]): The entity to submit.
+        entity (Union[`Scenario^`, `Pipeline^`, `Task^`]): The entity to submit.
         force (bool): Force execution even if the data nodes are in cache.
     """
     if isinstance(entity, Scenario):
