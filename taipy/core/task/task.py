@@ -98,7 +98,7 @@ class Task(_Entity):
 
     def submit(self, callbacks: Optional[List[Callable]] = None, force: bool = False):
         """
-        Submit the task for execution.
+        Submits the task for execution.
 
         Parameters:
             callbacks (List[Callable]): The list of callable functions to be called on status change.
