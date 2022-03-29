@@ -20,6 +20,8 @@ class JobConfig:
     _MODE_KEY = "mode"
     _DEFAULT_MODE = "standalone"
 
+    _TYPE_MAP_KEY = "_TYPE_MAP"
+
     def __init__(self, mode: str = None, **properties):
         self.mode = mode or self._DEFAULT_MODE
         self.config = self._create_config(self.mode, **properties)
@@ -50,11 +52,24 @@ class JobConfig:
 
     def _update(self, config_as_dict: Dict[str, Any]):
         mode = _tpl._replace_templates(config_as_dict.pop(self._MODE_KEY, self.mode))
-        self.mode = mode
         if self.mode != mode:
+            self.mode = mode
             self.config = self._create_config(self.mode, **config_as_dict)
         if self.config:
-            self.config._update(config_as_dict)
+            self._update_config(config_as_dict)
+
+    def _update_config(self, config_as_dict: Dict[str, Any]):
+        d = {}
+        for k, v in config_as_dict.items():
+            type_conversion_map = getattr(self.config, self._TYPE_MAP_KEY, {})
+            type_to_convert = type_conversion_map.get(k, None)
+            if type_to_convert:
+                d[k] = _tpl._replace_templates(v, type_to_convert)
+            else:
+                d[k] = _tpl._replace_templates(v)
+
+        d = {k: v for k, v in d.items() if v is not None}
+        self.properties.update(d)
 
     @property
     def is_standalone(self) -> bool:
