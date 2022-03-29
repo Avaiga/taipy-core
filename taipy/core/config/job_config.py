@@ -69,7 +69,7 @@ class JobConfig:
                 d[k] = _tpl._replace_templates(v)
 
         d = {k: v for k, v in d.items() if v is not None}
-        self.properties.update(d)
+        self.config.properties.update(d)
 
     @property
     def is_standalone(self) -> bool:
