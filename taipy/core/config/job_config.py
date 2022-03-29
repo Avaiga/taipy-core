@@ -27,7 +27,7 @@ class JobConfig:
         self.config = self._create_config(self.mode, **properties)
 
     def __getattr__(self, key: str) -> Optional[Any]:
-        return getattr(self.config, key, None)
+        return self.config.properties.get(key, None)
 
     @property
     def properties(self):
@@ -41,7 +41,7 @@ class JobConfig:
         as_dict = {}
         if self.mode is not None:
             as_dict[self._MODE_KEY] = self.mode
-        as_dict.update(self.config._to_dict())
+        as_dict.update(self.config.properties)
         return as_dict
 
     @classmethod
@@ -53,6 +53,7 @@ class JobConfig:
     def _update(self, config_as_dict: Dict[str, Any]):
         mode = _tpl._replace_templates(config_as_dict.pop(self._MODE_KEY, self.mode))
         if self.mode != mode:
+            print("Taipy mode changed from {} to {}".format(self.mode, mode))
             self.mode = mode
             self.config = self._create_config(self.mode, **config_as_dict)
         if self.config:

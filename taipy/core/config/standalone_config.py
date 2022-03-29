@@ -23,14 +23,3 @@ class StandaloneConfig:
             self._NB_OF_WORKERS_KEY: nb_of_workers or self._DEFAULT_NB_OF_WORKERS,
             **other_properties,
         }
-
-    def __getattr__(self, key):
-        return self.properties.get(key)
-
-    def _to_dict(self):
-        return {k: v for k, v in self.properties.items() if v is not None}
-
-    @classmethod
-    def _from_dict(cls, config_as_dict: Dict[str, Any]):
-        config = StandaloneConfig(**config_as_dict)
-        return config
