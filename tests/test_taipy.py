@@ -38,10 +38,10 @@ class TestTaipy:
             set_global.assert_called_once_with(a, b, c, property=d)
 
     def test_configure_job_executions(self):
-        a, b, my_property = "foo", "bar", "garphy"
+        a, my_property = "foo", "bar"
         with mock.patch("taipy.core.config.config.Config._set_job_config") as mck:
-            tp.configure_job_executions(a, b, my_property=my_property)
-            mck.assert_called_once_with(a, b, my_property=my_property)
+            tp.configure_job_executions(a, my_property=my_property)
+            mck.assert_called_once_with(a, my_property=my_property)
 
     def test_configure_data_node(self):
         a, b, c, d = "foo", "bar", Scope.PIPELINE, "qux"

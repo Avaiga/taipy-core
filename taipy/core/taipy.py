@@ -462,7 +462,7 @@ def configure_global_app(
     return Config._set_global_config(root_folder, storage_folder, clean_entities_enabled, **properties)
 
 
-def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = None, **properties) -> JobConfig:
+def configure_job_executions(mode: str = None, **properties) -> JobConfig:
     """
     Configures job execution.
 
@@ -475,7 +475,7 @@ def configure_job_executions(mode: str = None, nb_of_workers: Union[int, str] = 
     Returns:
         `JobConfig`: The job execution configuration.
     """
-    return Config._set_job_config(mode, nb_of_workers, **properties)
+    return Config._set_job_config(mode, **properties)
 
 
 def configure_data_node(

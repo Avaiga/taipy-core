@@ -90,12 +90,10 @@ class Config:
     def _set_job_config(
         cls,
         mode: str = None,
-        nb_of_workers: Union[int, str] = None,
         **properties,
     ):
         job_config = JobConfig(
             mode,
-            nb_of_workers,
             **properties,
         )
         cls._python_config._job_config = job_config
