@@ -103,8 +103,8 @@ def get_tasks() -> List[Task]:
 def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]):
     """Delete an entity and its nested entities.
 
-    The given entity is deleted. The deletion is propagated to a nested entities if they
-    are not shared by another entity.
+    The given entity is deleted. The deletion is propagated to all nested entities that are
+    not shared by another entity.
 
     - If a `CycleId^` is provided, the nested scenarios, pipelines, data nodes, and jobs are deleted.
     - If a `ScenarioId^` is provided, the nested pipelines, tasks, data nodes, and jobs are deleted.
@@ -180,7 +180,7 @@ def get_primary_scenarios() -> List[Scenario]:
 def set_primary(scenario: Scenario):
     """Promote a scenario as the primary scenario of its cycle.
     
-    If the cycle of _scenario_ already has an primary scenario, it is demoted and
+    If the cycle of _scenario_ already has a primary scenario, it is demoted and
     is no longer the primary scenario for its cycle.
 
     Parameters:
@@ -190,7 +190,7 @@ def set_primary(scenario: Scenario):
 
 
 def tag(scenario: Scenario, tag: str):
-    """Add a tag  to a scenario.
+    """Add a tag to a scenario.
     
     If the _scenario_'s cycle already has another scenario tagged with _tag_, then this other
     scenario is untagged.
@@ -280,7 +280,7 @@ def subscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Opti
         pipeline (Optional[`Pipeline^`]): The pipeline to subscribe on. If None, the subscription
             is active for all pipelines.
     Note:
-        Notifications are performed only for jobs created **after** this subscription.
+        Notifications are applied only for jobs created **after** this subscription.
     """
     return _PipelineManager._subscribe(callback, pipeline)
 
@@ -322,7 +322,7 @@ def delete_job(job: Job, force=False):
 
     Parameters:
         job (`Job^`): The job to delete.
-        force: If True, forces the deletion of job `job`, even if it is not completed yet.
+        force (bool): If True, forces the deletion of job `job`, even if it is not completed yet.
     Raises:
         `JobNotDeletedException^`: If the job is not finished.
     """
@@ -398,7 +398,7 @@ def clean_all_entities() -> bool:
     """Delete all entities from the Taipy data folder.
     
     !!! important
-        Invoking this function is recommended only for development purpose.
+        Invoking this function is recommended only for development purposes.
 
     Returns:
         bool: True if the operation succeeded, False otherwise.
