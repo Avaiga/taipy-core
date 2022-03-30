@@ -108,7 +108,7 @@ class Config:
                 It is used in conjunction with the root_folder field: the storage path is
                 "<root_folder><storage_folder>".
             clean_entities_enabled (Optional[str]): The field to activate or deactivate the
-               'clean entities' feature. The default value is False.
+                'clean entities' feature. The default value is False.
         Returns:
             `GlobalAppConfig^`: The global application configuration.
         """
