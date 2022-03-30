@@ -18,8 +18,6 @@ class StandaloneConfig:
         _NB_OF_WORKERS_KEY: int,
     }
 
-    def __init__(self, nb_of_workers: Union[int, str] = None, *args, **other_properties):
-        self.properties = {
-            self._NB_OF_WORKERS_KEY: nb_of_workers or self._DEFAULT_NB_OF_WORKERS,
-            **other_properties,
-        }
+    _DEFAULT_CONFIG = {
+        _NB_OF_WORKERS_KEY: _DEFAULT_NB_OF_WORKERS,
+    }

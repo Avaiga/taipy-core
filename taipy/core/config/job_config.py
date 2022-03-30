@@ -1,5 +1,5 @@
 from importlib import util
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from taipy.core.common._utils import _load_fct
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
@@ -21,17 +21,15 @@ class JobConfig:
     _DEFAULT_MODE = "standalone"
 
     _TYPE_MAP_KEY = "_TYPE_MAP"
+    _DEFAULT_CONFIG_KEY = "_DEFAULT_CONFIG"
 
     def __init__(self, mode: str = None, **properties):
         self.mode = mode or self._DEFAULT_MODE
-        self.config = self._create_config(self.mode, **properties)
+        self.config_cls = self._config_cls(self.mode)
+        self.config = self._create_config(self.config_cls, **properties)
 
     def __getattr__(self, key: str) -> Optional[Any]:
-        return self.config.properties.get(key, None)
-
-    @property
-    def properties(self):
-        return self.config.properties
+        return self.config.get(key, None)
 
     @classmethod
     def default_config(cls):
@@ -41,7 +39,7 @@ class JobConfig:
         as_dict = {}
         if self.mode is not None:
             as_dict[self._MODE_KEY] = self.mode
-        as_dict.update(self.config.properties)
+        as_dict.update(self.config)
         return as_dict
 
     @classmethod
@@ -54,22 +52,33 @@ class JobConfig:
         mode = _tpl._replace_templates(config_as_dict.pop(self._MODE_KEY, self.mode))
         if self.mode != mode:
             self.mode = mode
-            self.config = self._create_config(self.mode, **config_as_dict)
+            self.config_cls = self._config_cls(self.mode)
+            self.config = self._create_config(self.config_cls, **config_as_dict)
         if self.config:
             self._update_config(config_as_dict)
 
     def _update_config(self, config_as_dict: Dict[str, Any]):
         d = {}
         for k, v in config_as_dict.items():
-            type_conversion_map = getattr(self.config, self._TYPE_MAP_KEY, {})
-            type_to_convert = type_conversion_map.get(k, None)
+            type_map = getattr(self.config_cls, self._TYPE_MAP_KEY, {})
+            type_to_convert = type_map.get(k, None)
             if type_to_convert:
                 d[k] = _tpl._replace_templates(v, type_to_convert)
             else:
                 d[k] = _tpl._replace_templates(v)
 
         d = {k: v for k, v in d.items() if v is not None}
-        self.config.properties.update(d)
+        self.config.update(d)
+
+    @classmethod
+    def _config_cls(cls, mode: str):
+        if mode == cls._DEFAULT_MODE:
+            return StandaloneConfig
+        dep = f"taipy.{mode}"
+        if not util.find_spec(dep):
+            raise DependencyNotInstalled(mode)
+        config_cls = _load_fct(dep + ".config", "Config")
+        return config_cls
 
     @property
     def is_standalone(self) -> bool:
@@ -82,17 +91,9 @@ class JobConfig:
         return self.is_standalone and int(self.nb_of_workers) > 1  # type: ignore
 
     @classmethod
-    def _create_config(cls, mode, **properties):
-        if mode == cls._DEFAULT_MODE:
-            return StandaloneConfig(**properties)
-        return cls._external_config(mode, **properties)
-
-    @staticmethod
-    def _external_config(mode, **properties):
-        dep = f"taipy.{mode}"
-        if not util.find_spec(dep):
-            raise DependencyNotInstalled(mode)
-        return _load_fct(dep + ".config", "Config")(**properties)
+    def _create_config(cls, config_cls, **properties):
+        default_config = getattr(config_cls, cls._DEFAULT_CONFIG_KEY, {})
+        return {**default_config, **properties}
 
     def _is_default_mode(self) -> bool:
         return self.mode == self._DEFAULT_MODE
