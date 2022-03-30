@@ -131,11 +131,11 @@ class Config:
             mode (Optional[str]): The job execution mode.
                 Possible values are: _"standalone"_ (the default value) or
                 _"airflow"_ (Enterprise version only).
-            nb_of_workers (Optional[int, str]): The maximum number of jobs able to run in parallel.
-                The default value is 1.<br/>
-                A string can be provided to dynamically set the value using an environment variable.
-                The string must follow the pattern: `ENV[<env_var>]` where `<env_var>` is the name
-                of environment variable.
+            nb_of_workers (Optional[int, str]): The maximum number of jobs able to run in
+                parallel. The default value is 1.<br/>
+                A string can be provided to dynamically set the value using an environment
+                variable. The string must follow the pattern: `ENV[&lt;env_var&gt;]` where
+                `&lt;env_var&gt;` is the name of environment variable.
         Returns:
             `JobConfig^`: The job execution configuration.
         """
