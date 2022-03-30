@@ -50,7 +50,7 @@ def submit(entity: Union[Scenario, Pipeline, Task], force: bool = False):
 
     Parameters:
         entity (Union[`Scenario^`, `Pipeline^`, `Task^`]): The entity to submit.
-        force: If True, the execution is forced even if the data nodes are in cache.
+        force (bool): If True, the execution is forced even if the data nodes are in cache.
     """
     if isinstance(entity, Scenario):
         return _ScenarioManager._submit(entity, force=force)
@@ -160,7 +160,7 @@ def get_primary(cycle: Cycle) -> Optional[Scenario]:
     """Return the primary scenario of a cycle.
 
     Parameters:
-         cycle (`Cycle`): The cycle of the primary scenario to return.
+         cycle (`Cycle^`): The cycle of the primary scenario to return.
     Returns:
         Optional[`Scenario`]: The primary scenario of the cycle _cycle_.
             If the cycle has no primary scenario, this method returns None.
@@ -197,7 +197,7 @@ def tag(scenario: Scenario, tag: str):
 
     Parameters:
         scenario (`Scenario^`): The scenario to tag.
-        tag: The tag to apply to the scenario.
+        tag (str): The tag to apply to the scenario.
     """
     return _ScenarioManager._tag(scenario, tag)
 
@@ -207,7 +207,7 @@ def untag(scenario: Scenario, tag: str):
 
     Parameters:
         scenario (`Scenario^`): The scenario to remove the tag from.
-        tag: The _tag_ to remove from _scenario_.
+        tag (str): The _tag_ to remove from _scenario_.
     """
     return _ScenarioManager._untag(scenario, tag)
 
@@ -226,7 +226,7 @@ def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] =
             comparators.
     Returns:
         Dict[str, Any]: The comparison results. The key is the data node config identifier
-        that is compared.
+            that is compared.
     Raises:
         `InsufficientScenarioToCompare^`: Only one or no scenario for comparison is provided.
         `NonExistingComparator^`: The scenario comparator does not exist.
@@ -249,7 +249,7 @@ def subscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Opti
         scenario (Optional[`Scenario^`]): The scenario that subscribes to _callback_.
             If None, the subscription is registered for all scenarios.
     Note:
-        Notifications are performed only for jobs created **after** this subscription.
+        Notifications are applied only for jobs created **after** this subscription.
     """
     return _ScenarioManager._subscribe(callback, scenario)
 

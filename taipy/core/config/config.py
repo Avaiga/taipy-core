@@ -156,11 +156,11 @@ class Config:
         scope: Scope = DataNodeConfig._DEFAULT_SCOPE,
         **properties,
     ) -> DataNodeConfig:
-        """Create a new data node configuration.
+        """Configure a new data node configuration.
 
         Parameters:
-            id: The unique identifier of the new data node configuration.
-            storage_type: The data node configuration storage type. The possible values
+            id (str): The unique identifier of the new data node configuration.
+            storage_type (str): The data node configuration storage type. The possible values
                 are _"pickle"_ (which the default value, unless it has been overloaded by the
                 _storage_type_ value set in the default data node configuration
                 (see `configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql"_,
@@ -188,7 +188,7 @@ class Config:
         values when needed.
 
         Parameters:
-            storage_type: The default storage type for all data node configurations.
+            storage_type (str): The default storage type for all data node configurations.
                 The possible values are "pickle" (the default value), "csv", "excel", "sql",
                 "in_memory", or "generic".
             scope (`Scope^`): The default scope fot all data node configurations.
@@ -215,7 +215,7 @@ class Config:
         """Configure a new task configuration.
 
         Parameters:
-            id: The unique identifier of this task configuration.
+            id (str): The unique identifier of this task configuration.
             function (Callable): The python function called by Taipy to run the task.
             input (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
                 function input data node configurations. This can be a unique data node
@@ -272,10 +272,10 @@ class Config:
         """Configure a new pipeline configuration.
 
         Parameters:
-            id: The unique identifier of the new pipeline configuration.
-            task_configs: The list of the task configurations that make this new
-                pipeline. This can be a single task configuration object is this
-                pipeline holds a single task.
+            id (str): The unique identifier of the new pipeline configuration.
+            task_configs (Union[TaskConfig, List[TaskConfig]]): The list of the task
+                configurations that make this new pipeline. This can be a single task
+                configuration object is this pipeline holds a single task.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -297,9 +297,9 @@ class Config:
         values when needed.
 
         Parameters:
-            task_configs: The list of the task configurations that make the
-                default pipeline configuration. This can be a single task configuration object
-                is this pipeline holds a single task.
+            task_configs (Union[TaskConfig, List[TaskConfig]]): The list of the task
+                configurations that make the default pipeline configuration. This can be
+                a single task configuration object is this pipeline holds a single task.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -322,16 +322,17 @@ class Config:
         """Configures a new scenario configuration.
 
         Parameters:
-            id: The unique identifier of the new scenario configuration.
-            pipeline_configs: The list of pipeline configurations used by this new scenario
-                configuration.
+            id (str): The unique identifier of the new scenario configuration.
+            pipeline_configs (List[`PipelineConfig^`]): The list of pipeline configurations used
+                by this new scenario configuration.
             frequency (Optional[`Frequency^`]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to the
                 relevant cycle.
-            comparators: The list of functions used to compare scenarios. A comparator function
-                is attached to a scenario's data node configuration. The key of the dictionary
-                parameter corresponds to the data node configuration id. During the scenarios'
+            comparators (Optional[Dict[str, Union[List[Callable], Callable]]]): The list of
+                functions used to compare scenarios. A comparator function is attached to a
+                scenario's data node configuration. The key of the dictionary parameter
+                corresponds to the data node configuration id. During the scenarios'
                 comparison, each comparator is applied to all the data nodes instantiated from
                 the data node configuration attached to the comparator. See
                 `(taipy.)compare_scenarios()` more more details.
@@ -364,16 +365,17 @@ class Config:
         post-fixed by '_pipeline'.
 
         Parameters:
-            id: The unique identifier of the scenario configuration.
-            task_configs: The list of task configurations used by the new pipeline
-                configuration that is created.
+            id (str): The unique identifier of the scenario configuration.
+            task_configs (List[TaskConfig]): The list of task configurations used by the
+                new pipeline configuration that is created.
             frequency (Optional[`Frequency^`]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to the
                 relevant cycle.
-            comparators: The list of functions used to compare scenarios. A comparator function
-                is attached to a scenario's data node configuration. The key of the dictionary
-                parameter corresponds to the data node configuration id. During the scenarios'
+            comparators (Optional[Dict[str, Union[List[Callable], Callable]]]): The list of
+                functions used to compare scenarios. A comparator function is attached to a
+                scenario's data node configuration. The key of the dictionary parameter
+                corresponds to the data node configuration id. During the scenarios'
                 comparison, each comparator is applied to all the data nodes instantiated from
                 the data node configuration attached to the comparator. See
                 `(taipy.)compare_scenarios()` more more details.
@@ -404,15 +406,16 @@ class Config:
         values when needed.
 
         Parameters:
-            pipeline_configs: The list of pipeline configurations used by this scenario
-                configuration.
+            pipeline_configs (List[PipelineConfig]): The list of pipeline configurations used
+                by this scenario configuration.
             frequency (Optional[`Frequency`]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to
                 the relevant cycle.
-            comparators: The list of functions used to compare scenarios. A comparator function
-                is attached to a scenario's data node configuration. The key of the dictionary
-                parameter corresponds to the data node configuration id. During the scenarios'
+            comparators (Optional[Dict[str, Union[List[Callable], Callable]]]): The list of
+                functions used to compare scenarios. A comparator function is attached to a
+                scenario's data node configuration. The key of the dictionary parameter
+                corresponds to the data node configuration id. During the scenarios'
                 comparison, each comparator is applied to all the data nodes instantiated from
                 the data node configuration attached to the comparator. See
                 `(taipy.)compare_scenarios()` more more details.
@@ -472,14 +475,19 @@ class Config:
 
     @classmethod
     def configure_csv_data_node(
-        cls, id: str, path: str, has_header=True, scope=DataNodeConfig._DEFAULT_SCOPE, **properties
+        cls,
+        id: str,
+        path: str,
+        has_header: bool = True,
+        scope=DataNodeConfig._DEFAULT_SCOPE,
+        **properties
     ):
         """Configure a new CSV data node configuration.
 
         Parameters:
-            id: The unique identifier of the new CSV data node configuration.
-            path: The path of the CSV file.
-            has_header: If True, indicates that the CSV file has a header.
+            id (str): The unique identifier of the new CSV data node configuration.
+            path (str): The path of the CSV file.
+            has_header (bool): If True, indicates that the CSV file has a header.
             scope (`Scope^`): The scope of the CSV data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -506,9 +514,9 @@ class Config:
         """Configure a new Excel data node configuration.
 
         Parameters:
-            id: The unique identifier of the new Excel data node configuration.
-            path: The path of the Excel file.
-            has_header: If True, indicates that the Excel file has a header.
+            id (str): The unique identifier of the new Excel data node configuration.
+            path (str): The path of the Excel file.
+            has_header (bool): If True, indicates that the Excel file has a header.
             sheet_name (Union[List[str], str]): The list of sheet names to be used. This
                 can be a unique name.
             scope (`Scope^`): The scope of the Excel data node configuration. The default
@@ -544,12 +552,14 @@ class Config:
         """Configure a new generic data node configuration.
 
         Parameters:
-            id: The unique identifier of the new generic data node configuration.
-            read_fct: The Python function called to read the data.
-            write_fct: The Python function called to write the data. The provided function must
-                have at least one parameter that receives the data to be written.
-            read_fct_params: The parameters that are passed to _read_fct_ to read the data.
-            write_fct_params: The parameters that are passed to _write_fct_ to write the data.
+            id (str): The unique identifier of the new generic data node configuration.
+            read_fct (Callable): The Python function called to read the data.
+            write_fct (Callable): The Python function called to write the data. The provided
+                function must have at least one parameter that receives the data to be written.
+            read_fct_params (List): The parameters that are passed to _read_fct_ to read the
+                data.
+            write_fct_params (List): The parameters that are passed to _write_fct_ to write the
+                data.
             scope (`Scope^`): The scope of the Generic data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -577,9 +587,9 @@ class Config:
         """Configure a new _in_memory_ data node configuration.
 
         Parameters:
-            id: The unique identifier of the new in_memory data node configuration.
-            default_data: The default data of the data nodes instantiated from this in_memory data
-                node configuration.
+            id (str): The unique identifier of the new in_memory data node configuration.
+            default_data (Optional[Any]): The default data of the data nodes instantiated from
+                this in_memory data node configuration.
             scope (`Scope^`): The scope of the in_memory data node configuration. The default
                 value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -600,8 +610,8 @@ class Config:
         """Configure a new pickle data node configuration.
 
         Parameters:
-            id: The unique identifier of the new pickle data node configuration.
-            default_data: The default data of the data nodes instantiated from this pickle data
+            id (str): The unique identifier of the new pickle data node configuration.
+            default_data (Optional[Any]): The default data of the data nodes instantiated from this pickle data
                 node configuration.
             scope (`Scope`): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -634,16 +644,17 @@ class Config:
         """Configure a new SQL data node configuration.
 
         Parameters:
-            id: The unique identifier of the new SQL data node configuration.
-            db_username: The database username.
-            db_password: The database password.
-            db_name: The database name.
-            db_engine: The database engine. Possible values are 'sqlite' or 'mssql'.
-            read_query: The SQL query string used to read the data from the database.
-            write_table: The name of the table in the database to write the data to.
-            db_port: The database port. The default value is 1433.
-            db_host: The database host. The default value is 'localhost'.
-            db_driver: The database driver. The default value is 'ODBC Driver 17 for SQL Server'.
+            id (str): The unique identifier of the new SQL data node configuration.
+            db_username (str): The database username.
+            db_password (str): The database password.
+            db_name (str): The database name.
+            db_engine (str): The database engine. Possible values are "sqlite" or "mssql".
+            read_query (str): The SQL query string used to read the data from the database.
+            write_table (str): The name of the table in the database to write the data to.
+            db_port (int): The database port. The default value is 1433.
+            db_host (str): The database host. The default value is "localhost".
+            db_driver (str): The database driver. The default value is
+                "ODBC Driver 17 for SQL Server".
             scope (`Scope^`): The scope of the SQL data node configuration. The default value is
                 Scope.SCENARIO.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
