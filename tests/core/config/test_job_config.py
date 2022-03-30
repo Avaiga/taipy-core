@@ -9,5 +9,5 @@ def test_job_config():
     assert Config.job_config.mode == "standalone"
     assert Config.job_config.nb_of_workers == 2
 
-    Config._set_job_config(foo="bar")
+    Config.configure_job_executions(foo="bar")
     assert Config.job_config.foo == "bar"
