@@ -215,7 +215,7 @@ def untag(scenario: Scenario, tag: str):
 def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] = None):
     """Compare the data nodes of several scenarios.
     
-    You can specify which data node config identifier should the comparison be perfomed
+    You can specify which data node config identifier should the comparison be performed
     on.
 
     Parameters:
@@ -278,7 +278,7 @@ def subscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Opti
         callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to be called on
             status change.
         pipeline (Optional[`Pipeline^`]): The pipeline to subscribe on. If None, the subscription
-            is active for all pipelines.
+            is actived for all pipelines.
     Note:
         Notifications are applied only for jobs created **after** this subscription.
     """
@@ -291,8 +291,8 @@ def unsubscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Op
     Parameters:
         callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to be called on
             status change.
-        pipeline (Optional[`Pipeline^`]): The pipeline to unsubscribe on. If None, the un-subscription
-            is applied to all pipelines.
+        pipeline (Optional[`Pipeline^`]): The pipeline to unsubscribe to. If None, all pipelines
+            unsubscribe to _callback_.
     Note:
         The function will continue to be called for ongoing jobs.
     """
