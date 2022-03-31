@@ -322,7 +322,8 @@ def delete_job(job: Job, force=False):
 
     Parameters:
         job (`Job^`): The job to delete.
-        force (bool): If True, forces the deletion of job `job`, even if it is not completed yet.
+        force (Optional[bool]): If True, forces the deletion of job `job`, even if it is not
+            completed yet.
     Raises:
         `JobNotDeletedException^`: If the job is not finished.
     """
@@ -398,7 +399,7 @@ def clean_all_entities() -> bool:
     """Delete all entities from the Taipy data folder.
     
     !!! important
-        Invoking this function is recommended only for development purposes.
+        Invoking this function is only recommended for development purposes.
 
     Returns:
         bool: True if the operation succeeded, False otherwise.

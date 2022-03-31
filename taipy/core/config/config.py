@@ -250,10 +250,10 @@ class Config:
         Parameters:
             function (Callable): The python function called by Taipy to run the task.
             input (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
-                function input data node configurations. This can be a unique data node
+                input data node configurations. This can be a unique data node
                 configuration if there is a single input data node, or None if there are none.
             output (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
-                function output data node configurations. This can be a unique data node
+                output data node configurations. This can be a unique data node
                 configuration if there is a single output data node, or None if there are none.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
@@ -319,7 +319,7 @@ class Config:
         comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
         **properties,
     ) -> ScenarioConfig:
-        """Configures a new scenario configuration.
+        """Configure a new scenario configuration.
 
         Parameters:
             id (str): The unique identifier of the new scenario configuration.
@@ -406,7 +406,7 @@ class Config:
         values when needed.
 
         Parameters:
-            pipeline_configs (List[PipelineConfig]): The list of pipeline configurations used
+            pipeline_configs (List[PipelineConfig^]): The list of pipeline configurations used
                 by this scenario configuration.
             frequency (Optional[`Frequency`]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
@@ -553,15 +553,16 @@ class Config:
 
         Parameters:
             id (str): The unique identifier of the new generic data node configuration.
-            read_fct (Callable): The Python function called to read the data.
-            write_fct (Callable): The Python function called to write the data. The provided
-                function must have at least one parameter that receives the data to be written.
-            read_fct_params (List): The parameters that are passed to _read_fct_ to read the
-                data.
-            write_fct_params (List): The parameters that are passed to _write_fct_ to write the
-                data.
-            scope (`Scope^`): The scope of the Generic data node configuration. The default value
-                is `Scope.SCENARIO`.
+            read_fct (Optional[Callable]): The Python function called to read the data.
+            write_fct (Optional[Callable]): The Python function called to write the data.
+                The provided function must have at least one parameter that receives the data
+                to be written.
+            read_fct_params (Optional[List]): The parameters that are passed to _read_fct_
+                to read the data.
+            write_fct_params (Optional[List]): The parameters that are passed to _write_fct_
+                to write the data.
+            scope (Optional[`Scope^`]): The scope of the Generic data node configuration.
+                The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
