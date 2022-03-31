@@ -58,16 +58,13 @@ class JobConfig:
             self._update_config(config_as_dict)
 
     def _update_config(self, config_as_dict: Dict[str, Any]):
+        type_map = getattr(self.config_cls, self._TYPE_MAP_KEY, {})
         d = {}
         for k, v in config_as_dict.items():
-            type_map = getattr(self.config_cls, self._TYPE_MAP_KEY, {})
-            type_to_convert = type_map.get(k, None)
-            if type_to_convert:
-                d[k] = _tpl._replace_templates(v, type_to_convert)
-            else:
-                d[k] = _tpl._replace_templates(v)
-
-        d = {k: v for k, v in d.items() if v is not None}
+            type_to_convert = type_map.get(k, str)
+            value = _tpl._replace_templates(v, type_to_convert)
+            if value is not None:
+                d[k] = value
         self.config.update(d)
 
     @classmethod
