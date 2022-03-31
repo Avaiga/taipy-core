@@ -165,7 +165,7 @@ class Config:
                 _storage_type_ value set in the default data node configuration
                 (see `configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql"_,
                 _"in_memory"_, or _"generic"_.
-            scope (`Scope`): The scope of the data node configuration. The default value is
+            scope (`Scope^`): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in `configure_default_data_node()^`).
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
@@ -614,7 +614,7 @@ class Config:
             id (str): The unique identifier of the new pickle data node configuration.
             default_data (Optional[Any]): The default data of the data nodes instantiated from this pickle data
                 node configuration.
-            scope (`Scope`): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
+            scope (`Scope^`): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
