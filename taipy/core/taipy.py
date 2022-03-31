@@ -27,7 +27,7 @@ def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):
     """Save or update an entity.
 
     Parameters:
-        entity (Union[`DataNode^`, `Task^`, `Job^`, `Pipeline^`, `Scenario^`, `Cycle^`]): The
+        entity (Union[DataNode^, Task^, Job^, Pipeline^, Scenario^, Cycle^]): The
             entity to save.
     """
     if isinstance(entity, Cycle):
@@ -49,7 +49,7 @@ def submit(entity: Union[Scenario, Pipeline, Task], force: bool = False):
     submitted for execution.
 
     Parameters:
-        entity (Union[`Scenario^`, `Pipeline^`, `Task^`]): The entity to submit.
+        entity (Union[Scenario^, Pipeline^, Task^]): The entity to submit.
         force (bool): If True, the execution is forced even if the data nodes are in cache.
     """
     if isinstance(entity, Scenario):
@@ -139,10 +139,10 @@ def get_scenarios(cycle: Optional[Cycle] = None, tag: Optional[str] = None) -> L
     that belong to _cycle_ **and** that hold the tag _tag_.
 
     Parameters:
-         cycle (Optional[`Cycle`]): Cycle of the scenarios to return.
+         cycle (Optional[Cycle^]): Cycle of the scenarios to return.
          tag (Optional[str]): Tag of the scenarios to return.
     Returns:
-        List[`Scenario`]: The list of scenarios filtered by cycle or tag.
+        List[Scenario^]: The list of scenarios filtered by cycle or tag.
     """
     if not cycle and not tag:
         return _ScenarioManager._get_all()
@@ -160,9 +160,9 @@ def get_primary(cycle: Cycle) -> Optional[Scenario]:
     """Return the primary scenario of a cycle.
 
     Parameters:
-         cycle (`Cycle^`): The cycle of the primary scenario to return.
+         cycle (Cycle^): The cycle of the primary scenario to return.
     Returns:
-        Optional[`Scenario`]: The primary scenario of the cycle _cycle_.
+        Optional[Scenario^]: The primary scenario of the cycle _cycle_.
             If the cycle has no primary scenario, this method returns None.
     """
     return _ScenarioManager._get_primary(cycle)
@@ -172,7 +172,7 @@ def get_primary_scenarios() -> List[Scenario]:
     """Return the list of all primary scenarios.
 
     Returns:
-        List[Scenario]: The list of all primary scenarios.
+        List[Scenario^]: The list of all primary scenarios.
     """
     return _ScenarioManager._get_primary_scenarios()
 
@@ -184,7 +184,7 @@ def set_primary(scenario: Scenario):
     is no longer the primary scenario for its cycle.
 
     Parameters:
-        scenario (`Scenario^`): The scenario to promote as _primary_.
+        scenario (Scenario^): The scenario to promote as _primary_.
     """
     return _ScenarioManager._set_primary(scenario)
 
@@ -196,7 +196,7 @@ def tag(scenario: Scenario, tag: str):
     scenario is untagged.
 
     Parameters:
-        scenario (`Scenario^`): The scenario to tag.
+        scenario (Scenario^): The scenario to tag.
         tag (str): The tag to apply to the scenario.
     """
     return _ScenarioManager._tag(scenario, tag)
@@ -206,7 +206,7 @@ def untag(scenario: Scenario, tag: str):
     """Remove a tag from a scenario.
 
     Parameters:
-        scenario (`Scenario^`): The scenario to remove the tag from.
+        scenario (Scenario^): The scenario to remove the tag from.
         tag (str): The _tag_ to remove from _scenario_.
     """
     return _ScenarioManager._untag(scenario, tag)
@@ -219,7 +219,7 @@ def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] =
     on.
 
     Parameters:
-        scenarios (*`Scenario`): The list of the scenarios to compare.
+        scenarios (*Scenario^): The list of the scenarios to compare.
         data_node_config_id (Optional[str]): Config identifier of the DataNode to compare
             scenarios.<br/>
             if _datanode_config_id_ is None, the scenarios are compared based on all the defined
@@ -244,9 +244,9 @@ def subscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Opti
     If no scenario is provided, the subscription applies to all scenarios.
 
     Parameters:
-        callback (Callable[[`Scenario^`, `Job^`], None]): The function to be called on
+        callback (Callable[[Scenario^, Job^], None]): The function to be called on
             status change.
-        scenario (Optional[`Scenario^`]): The scenario that subscribes to _callback_.
+        scenario (Optional[Scenario^]): The scenario that subscribes to _callback_.
             If None, the subscription is registered for all scenarios.
     Note:
         Notifications are applied only for jobs created **after** this subscription.
@@ -260,8 +260,8 @@ def unsubscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Op
     If _scenario_ is not provided, the subscription is removed for all scenarios.
 
     Parameters:
-        callback (Callable[[`Scenario^`, `Job^`], None]): The function to unsubscribe to.
-        scenario (Optional[`Scenario^`]): The scenario to unsubscribe to. If None, all scenarios
+        callback (Callable[[Scenario^, Job^], None]): The function to unsubscribe to.
+        scenario (Optional[Scenario^]): The scenario to unsubscribe to. If None, all scenarios
             unsubscribe to _callback_.
     Note:
         The function will continue to be called for ongoing jobs.
@@ -275,9 +275,9 @@ def subscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Opti
     The subscription is applied to all jobs created for the execution of _pipeline_.
 
     Parameters:
-        callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to be called on
+        callback (Callable[[Pipeline^, Job^], None]): The callable function to be called on
             status change.
-        pipeline (Optional[`Pipeline^`]): The pipeline to subscribe on. If None, the subscription
+        pipeline (Optional[Pipeline^]): The pipeline to subscribe on. If None, the subscription
             is actived for all pipelines.
     Note:
         Notifications are applied only for jobs created **after** this subscription.
@@ -289,9 +289,9 @@ def unsubscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Op
     """Unsubscribe a function that is called when the status of a Job changes.
 
     Parameters:
-        callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to be called on
+        callback (Callable[[Pipeline^, Job^], None]): The callable function to be called on
             status change.
-        pipeline (Optional[`Pipeline^`]): The pipeline to unsubscribe to. If None, all pipelines
+        pipeline (Optional[Pipeline^]): The pipeline to unsubscribe to. If None, all pipelines
             unsubscribe to _callback_.
     Note:
         The function will continue to be called for ongoing jobs.
@@ -303,7 +303,7 @@ def get_pipelines() -> List[Pipeline]:
     """Return all existing pipelines.
 
     Returns:
-        List[`Pipeline^`]: The list of all pipelines.
+        List[Pipeline^]: The list of all pipelines.
     """
     return _PipelineManager._get_all()
 
@@ -312,7 +312,7 @@ def get_jobs() -> List[Job]:
     """Return all the existing jobs.
 
     Returns:
-        List[`Job^`]: The list of all jobs.
+        List[Job^]: The list of all jobs.
     """
     return _JobManager._get_all()
 
@@ -321,7 +321,7 @@ def delete_job(job: Job, force=False):
     """Delete a job.
 
     Parameters:
-        job (`Job^`): The job to delete.
+        job (Job^): The job to delete.
         force (Optional[bool]): If True, forces the deletion of job `job`, even if it is not
             completed yet.
     Raises:
@@ -339,9 +339,9 @@ def get_latest_job(task: Task) -> Optional[Job]:
     """Return the latest job of a task.
 
     Parameters:
-        task (`Task^`): The task to retrieve the latest job from.
+        task (Task^): The task to retrieve the latest job from.
     Returns:
-        Optional[`Job^`]: The latest job created from _task_. This is None if no job has been
+        Optional[Job^]: The latest job created from _task_. This is None if no job has been
         created from _task_.
     """
     return _JobManager._get_latest(task)
@@ -351,7 +351,7 @@ def get_data_nodes() -> List[DataNode]:
     """Return all the existing data nodes.
 
     Returns:
-        List[`DataNode^`]: The list of all data nodes.
+        List[DataNode^]: The list of all data nodes.
     """
     return _DataManager._get_all()
 
@@ -360,7 +360,7 @@ def get_cycles() -> List[Cycle]:
     """Return the list of all existing cycles.
 
     Returns:
-        List[`Cycle^`]: The list of all cycles.
+        List[Cycle^]: The list of all cycles.
     """
     return _CycleManager._get_all()
 
@@ -374,12 +374,12 @@ def create_scenario(
     and the configuration frequency attribute) is created if it does not exist yet.
 
     Parameters:
-        config (`ScenarioConfig^`): The scenario configuration.
+        config (ScenarioConfig^): The scenario configuration.
         creation_date (Optional[datetime.datetime]): The creation date of the scenario.
             If None, the current date time is used.
         name (Optional[str]): The displayable name of the scenario.
     Returns:
-        `Scenario^`: The new created scenario.
+        Scenario^: The new created scenario.
     """
     return _ScenarioManager._create(config, creation_date, name)
 
@@ -388,9 +388,9 @@ def create_pipeline(config: PipelineConfig) -> Pipeline:
     """Create and return a new pipeline from a pipeline configuration.
 
     Parameters:
-        config (`PipelineConfig^`): The pipeline configuration.
+        config (PipelineConfig^): The pipeline configuration.
     Returns:
-        `Pipeline^`: The new created pipeline.
+        Pipeline^: The new created pipeline.
     """
     return _PipelineManager._get_or_create(config)
 

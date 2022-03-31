@@ -110,7 +110,7 @@ class Config:
             clean_entities_enabled (Optional[str]): The field to activate or deactivate the
                 'clean entities' feature. The default value is False.
         Returns:
-            `GlobalAppConfig^`: The global application configuration.
+            GlobalAppConfig^: The global application configuration.
         """
         cls._python_config._global_config = GlobalAppConfig(
             root_folder, storage_folder, clean_entities_enabled, **properties
@@ -137,7 +137,7 @@ class Config:
                 variable. The string must follow the pattern: `ENV[&lt;env_var&gt;]` where
                 `&lt;env_var&gt;` is the name of environment variable.
         Returns:
-            `JobConfig^`: The job execution configuration.
+            JobConfig^: The job execution configuration.
         """
         job_config = JobConfig(
             mode,
@@ -165,12 +165,12 @@ class Config:
                 _storage_type_ value set in the default data node configuration
                 (see `configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql"_,
                 _"in_memory"_, or _"generic"_.
-            scope (`Scope^`): The scope of the data node configuration. The default value is
+            scope (Scope^): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in `configure_default_data_node()^`).
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new data node configuration.
+            DataNodeConfig^: The new data node configuration.
         """
         dn_config = DataNodeConfig(id, storage_type, scope, **properties)
         cls._python_config._data_nodes[dn_config.id] = dn_config
@@ -191,12 +191,12 @@ class Config:
             storage_type (str): The default storage type for all data node configurations.
                 The possible values are _"pickle"_ (the default value), _"csv"_, _"excel"_,
                 _"sql"_, _"in_memory"_, or _"generic"_.
-            scope (`Scope^`): The default scope fot all data node configurations.
-                The default value is Scope.SCENARIO.
+            scope (Scope^): The default scope fot all data node configurations.
+                The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The default data node configuration.
+            DataNodeConfig^: The default data node configuration.
         """
         data_node_config = DataNodeConfig(_Config.DEFAULT_KEY, storage_type, scope, **properties)
         cls._python_config._data_nodes[_Config.DEFAULT_KEY] = data_node_config
@@ -226,7 +226,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `TaskConfig`: The new task configuration.
+            TaskConfig^: The new task configuration.
         """
         task_config = TaskConfig(id, function, input, output, **properties)
         cls._python_config._tasks[task_config.id] = task_config
@@ -258,7 +258,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `TaskConfig`: The default task configuration.
+            TaskConfig^: The default task configuration.
         """
         task_config = TaskConfig(_Config.DEFAULT_KEY, function, input, output, **properties)
         cls._python_config._tasks[task_config.id] = task_config
@@ -273,13 +273,13 @@ class Config:
 
         Parameters:
             id (str): The unique identifier of the new pipeline configuration.
-            task_configs (Union[TaskConfig, List[TaskConfig]]): The list of the task
+            task_configs (Union[TaskConfig^, List[TaskConfig^]]): The list of the task
                 configurations that make this new pipeline. This can be a single task
                 configuration object is this pipeline holds a single task.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `PipelineConfig^`: The new pipeline configuration.
+            PipelineConfig^: The new pipeline configuration.
         """
         pipeline_config = PipelineConfig(id, task_configs, **properties)
         cls._python_config._pipelines[pipeline_config.id] = pipeline_config
@@ -297,13 +297,13 @@ class Config:
         values when needed.
 
         Parameters:
-            task_configs (Union[TaskConfig, List[TaskConfig]]): The list of the task
+            task_configs (Union[TaskConfig^, List[TaskConfig^]]): The list of the task
                 configurations that make the default pipeline configuration. This can be
                 a single task configuration object is this pipeline holds a single task.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `PipelineConfig^`: The default pipeline configuration.
+            PipelineConfig^: The default pipeline configuration.
         """
         pipeline_config = PipelineConfig(_Config.DEFAULT_KEY, task_configs, **properties)
         cls._python_config._pipelines[_Config.DEFAULT_KEY] = pipeline_config
@@ -339,7 +339,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `ScenarioConfig^`: The new scenario configuration.
+            ScenarioConfig^: The new scenario configuration.
         """
         scenario_config = ScenarioConfig(
             id, pipeline_configs, frequency=frequency, comparators=comparators, **properties
@@ -384,7 +384,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `ScenarioConfig^`: The new scenario configuration.
+            ScenarioConfig^: The new scenario configuration.
         """
         if not pipeline_id:
             pipeline_id = f"{id}_pipeline"
@@ -422,7 +422,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `ScenarioConfig^`: The default scenario configuration.
+            ScenarioConfig^: The default scenario configuration.
         """
         scenario_config = ScenarioConfig(
             _Config.DEFAULT_KEY, pipeline_configs, frequency=frequency, comparators=comparators, **properties
@@ -456,7 +456,7 @@ class Config:
         This method logs issue messages and returns an issue collector.
 
         Returns:
-            `IssueCollector^`: Collector containing the info, warning and error issues.
+            IssueCollector^: Collector containing the info, warning and error issues.
         """
         cls._collector = _Checker()._check(cls._applied_config)
         cls.__log_message(cls)
@@ -488,12 +488,12 @@ class Config:
             id (str): The unique identifier of the new CSV data node configuration.
             path (str): The path of the CSV file.
             has_header (bool): If True, indicates that the CSV file has a header.
-            scope (`Scope^`): The scope of the CSV data node configuration. The default value
+            scope (Scope^): The scope of the CSV data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new CSV data node configuration.
+            DataNodeConfig^: The new CSV data node configuration.
         """
         from taipy.core.data import CSVDataNode
 
@@ -519,12 +519,12 @@ class Config:
             has_header (bool): If True, indicates that the Excel file has a header.
             sheet_name (Union[List[str], str]): The list of sheet names to be used. This
                 can be a unique name.
-            scope (`Scope^`): The scope of the Excel data node configuration. The default
+            scope (Scope^): The scope of the Excel data node configuration. The default
                 value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new CSV data node configuration.
+            DataNodeConfig^: The new CSV data node configuration.
         """
         from taipy.core.data import ExcelDataNode
 
@@ -566,7 +566,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new Generic data node configuration.
+            DataNodeConfig^: The new Generic data node configuration.
         """
         from taipy.core.data import GenericDataNode
 
@@ -591,12 +591,12 @@ class Config:
             id (str): The unique identifier of the new in_memory data node configuration.
             default_data (Optional[Any]): The default data of the data nodes instantiated from
                 this in_memory data node configuration.
-            scope (`Scope^`): The scope of the in_memory data node configuration. The default
+            scope (Scope^): The scope of the in_memory data node configuration. The default
                 value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new in_memory data node configuration.
+            DataNodeConfig^: The new in_memory data node configuration.
         """
         from taipy.core.data import InMemoryDataNode
 
@@ -614,11 +614,11 @@ class Config:
             id (str): The unique identifier of the new pickle data node configuration.
             default_data (Optional[Any]): The default data of the data nodes instantiated from this pickle data
                 node configuration.
-            scope (`Scope^`): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
+            scope (Scope^): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new pickle data node configuration.
+            DataNodeConfig^: The new pickle data node configuration.
         """
         from taipy.core.data import PickleDataNode
 
@@ -649,19 +649,19 @@ class Config:
             db_username (str): The database username.
             db_password (str): The database password.
             db_name (str): The database name.
-            db_engine (str): The database engine. Possible values are "sqlite" or "mssql".
+            db_engine (str): The database engine. Possible values are _"sqlite"_ or _"mssql"_.
             read_query (str): The SQL query string used to read the data from the database.
             write_table (str): The name of the table in the database to write the data to.
             db_port (int): The database port. The default value is 1433.
             db_host (str): The database host. The default value is "localhost".
             db_driver (str): The database driver. The default value is
-                "ODBC Driver 17 for SQL Server".
-            scope (`Scope^`): The scope of the SQL data node configuration. The default value is
-                Scope.SCENARIO.
+                _"ODBC Driver 17 for SQL Server"_.
+            scope (Scope^): The scope of the SQL data node configuration. The default value is
+                `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            `DataNodeConfig^`: The new SQL data node configuration.
+            DataNodeConfig^: The new SQL data node configuration.
         """
         from taipy.core.data import SQLDataNode
 
