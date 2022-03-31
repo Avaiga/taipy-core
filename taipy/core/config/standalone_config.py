@@ -1,7 +1,9 @@
 from typing import Any, Dict, Union
 
+from taipy.core.config.job_mode_config import JobModeConfig
 
-class StandaloneConfig:
+
+class StandaloneConfig(JobModeConfig):
     """
     Holds configuration fields related to the job executions.
 
@@ -11,9 +13,6 @@ class StandaloneConfig:
         other_properties (dict): A dictionary of additional properties.
     """
 
-    _NB_OF_WORKERS_KEY = "nb_of_workers"
-    _DEFAULT_NB_OF_WORKERS = 1
-
     _DEFAULT_CONFIG = {
-        _NB_OF_WORKERS_KEY: _DEFAULT_NB_OF_WORKERS,
+        "nb_of_workers": 1,
     }

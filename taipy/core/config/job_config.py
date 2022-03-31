@@ -1,8 +1,9 @@
 from importlib import util
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 from taipy.core.common._utils import _load_fct
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
+from taipy.core.config.job_mode_config import JobModeConfig
 from taipy.core.config.standalone_config import StandaloneConfig
 from taipy.core.exceptions.exceptions import DependencyNotInstalled
 
@@ -57,7 +58,7 @@ class JobConfig:
             self._update_config(config_as_dict)
 
     def _update_config(self, config_as_dict: Dict[str, Any]):
-        default_config = getattr(self.config_cls, self._DEFAULT_CONFIG_KEY, {})
+        default_config = self.config_cls._DEFAULT_CONFIG
         for k, v in config_as_dict.items():
             type_to_convert = type(default_config.get(k, None)) or str
             value = _tpl._replace_templates(v, type_to_convert)
@@ -65,14 +66,14 @@ class JobConfig:
                 self.config[k] = value
 
     @classmethod
-    def _config_cls(cls, mode: str):
+    def _config_cls(cls, mode: str) -> Type[JobModeConfig]:
         if mode == cls._DEFAULT_MODE:
             return StandaloneConfig
         dep = f"taipy.{mode}"
         if not util.find_spec(dep):
             raise DependencyNotInstalled(mode)
         config_cls = _load_fct(dep + ".config", "Config")
-        return config_cls
+        return config_cls  # type:ignore
 
     @property
     def is_standalone(self) -> bool:
