@@ -14,10 +14,6 @@ class StandaloneConfig:
     _NB_OF_WORKERS_KEY = "nb_of_workers"
     _DEFAULT_NB_OF_WORKERS = 1
 
-    _TYPE_MAP = {
-        _NB_OF_WORKERS_KEY: int,
-    }
-
     _DEFAULT_CONFIG = {
         _NB_OF_WORKERS_KEY: _DEFAULT_NB_OF_WORKERS,
     }
