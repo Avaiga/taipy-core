@@ -74,7 +74,7 @@ def get(
         Union[Task^, DataNode^, Pipeline^, Scenario^, Job^, Cycle^]: The entity
         matching the corresponding identifier. None if no entity is found.
     Raises:
-        `ModelNotFound^`: If _entity_id_ does not match a correct entity pattern.
+        ModelNotFound^: If _entity_id_ does not match a correct entity pattern.
     """
     if entity_id.startswith(_JobManager._ID_PREFIX):
         return _JobManager._get(JobId(entity_id))
@@ -115,7 +115,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
         entity_id (Union[TaskId^, DataNodeId^, PipelineId^, ScenarioId^, JobId^, CycleId^]): The
             identifier of the entity to delete.
     Raises:
-        `ModelNotFound^`: No entity corresponds to _entity_id_.
+        ModelNotFound^: No entity corresponds to _entity_id_.
     """
     if entity_id.startswith(_JobManager._ID_PREFIX):
         return _JobManager._delete(_JobManager._get(JobId(entity_id)))  # type: ignore
@@ -228,10 +228,10 @@ def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] =
         Dict[str, Any]: The comparison results. The key is the data node config identifier
             that is compared.
     Raises:
-        `InsufficientScenarioToCompare^`: Only one or no scenario for comparison is provided.
-        `NonExistingComparator^`: The scenario comparator does not exist.
-        `DifferentScenarioConfigs^`: _scenarios_ do not share the same scenario config.
-        `NonExistingScenarioConfig^`: The scenario config of the provided scenarios could not
+        InsufficientScenarioToCompare^: Only one or no scenario for comparison is provided.
+        NonExistingComparator^: The scenario comparator does not exist.
+        DifferentScenarioConfigs^: _scenarios_ do not share the same scenario config.
+        NonExistingScenarioConfig^: The scenario config of the provided scenarios could not
             be found.
     """
     return _ScenarioManager._compare(*scenarios, data_node_config_id=data_node_config_id)
@@ -255,7 +255,7 @@ def subscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Opti
 
 
 def unsubscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):
-    """Unsubscribe a function that is called when the status of a Job changes.
+    """Unsubscribe a function that is called when the status of a `Job^` changes.
 
     If _scenario_ is not provided, the subscription is removed for all scenarios.
 
@@ -322,10 +322,10 @@ def delete_job(job: Job, force=False):
 
     Parameters:
         job (Job^): The job to delete.
-        force (Optional[bool]): If True, forces the deletion of job `job`, even if it is not
+        force (Optional[bool]): If True, forces the deletion of _job_, even if it is not
             completed yet.
     Raises:
-        `JobNotDeletedException^`: If the job is not finished.
+        JobNotDeletedException^: If the job is not finished.
     """
     return _JobManager._delete(job, force)
 
@@ -342,7 +342,7 @@ def get_latest_job(task: Task) -> Optional[Job]:
         task (Task^): The task to retrieve the latest job from.
     Returns:
         Optional[Job^]: The latest job created from _task_. This is None if no job has been
-        created from _task_.
+            created from _task_.
     """
     return _JobManager._get_latest(task)
 
@@ -379,7 +379,7 @@ def create_scenario(
             If None, the current date time is used.
         name (Optional[str]): The displayable name of the scenario.
     Returns:
-        Scenario^: The new created scenario.
+        Scenario^: The new scenario.
     """
     return _ScenarioManager._create(config, creation_date, name)
 
@@ -390,7 +390,7 @@ def create_pipeline(config: PipelineConfig) -> Pipeline:
     Parameters:
         config (PipelineConfig^): The pipeline configuration.
     Returns:
-        Pipeline^: The new created pipeline.
+        Pipeline^: The new pipeline.
     """
     return _PipelineManager._get_or_create(config)
 

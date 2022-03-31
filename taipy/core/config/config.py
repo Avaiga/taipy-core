@@ -418,7 +418,7 @@ class Config:
                 corresponds to the data node configuration id. During the scenarios'
                 comparison, each comparator is applied to all the data nodes instantiated from
                 the data node configuration attached to the comparator. See
-                `(taipy.)compare_scenarios()` more more details.
+                `taipy.compare_scenarios()^` more more details.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -596,7 +596,7 @@ class Config:
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new in_memory data node configuration.
+            DataNodeConfig^: The new _in_memory_ data node configuration.
         """
         from taipy.core.data import InMemoryDataNode
 
@@ -612,9 +612,10 @@ class Config:
 
         Parameters:
             id (str): The unique identifier of the new pickle data node configuration.
-            default_data (Optional[Any]): The default data of the data nodes instantiated from this pickle data
-                node configuration.
-            scope (Scope^): The scope of the pickle data node configuration. The default value is Scope.SCENARIO.
+            default_data (Optional[Any]): The default data of the data nodes instantiated from
+                this pickle data node configuration.
+            scope (Scope^): The scope of the pickle data node configuration. The default value
+                is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -653,7 +654,7 @@ class Config:
             read_query (str): The SQL query string used to read the data from the database.
             write_table (str): The name of the table in the database to write the data to.
             db_port (int): The database port. The default value is 1433.
-            db_host (str): The database host. The default value is "localhost".
+            db_host (str): The database host. The default value is _"localhost"_.
             db_driver (str): The database driver. The default value is
                 _"ODBC Driver 17 for SQL Server"_.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
