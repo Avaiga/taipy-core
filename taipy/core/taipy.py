@@ -66,12 +66,12 @@ def get(
     """Get an entity from its identifier.
 
     Parameters:
-        entity_id (Union[`TaskId^`, `DataNodeId^`, `PipelineId^`, `ScenarioId^`]): The identifier
+        entity_id (Union[TaskId^, DataNodeId^, PipelineId^, ScenarioId^]): The identifier
             of the entity to get.<br/>
             It must match the identifier pattern of one of the entities (`Task^`, `DataNode^`,
             `Pipeline^` or `Scenario^`).
     Returns:
-        Union[`Task^`, `DataNode^`, `Pipeline^`, `Scenario^`, `Job^`, `Cycle^`]: The entity
+        Union[Task^, DataNode^, Pipeline^, Scenario^, Job^, Cycle^]: The entity
         matching the corresponding identifier. None if no entity is found.
     Raises:
         `ModelNotFound^`: If _entity_id_ does not match a correct entity pattern.
@@ -95,7 +95,7 @@ def get_tasks() -> List[Task]:
     """Return the list of all existing tasks.
 
     Returns:
-        List[`Task^`]: The list of tasks.
+        List[Task^]: The list of tasks.
     """
     return _TaskManager._get_all()
 
@@ -112,7 +112,7 @@ def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, C
     - If a `TaskId^` is provided, the nested data nodes, and jobs are deleted.
 
     Parameters:
-        entity_id (Union[`TaskId^`, `DataNodeId^`, `PipelineId^`, `ScenarioId^`, `JobId^`, `CycleId^`]): The
+        entity_id (Union[TaskId^, DataNodeId^, PipelineId^, ScenarioId^, JobId^, CycleId^]): The
             identifier of the entity to delete.
     Raises:
         `ModelNotFound^`: No entity corresponds to _entity_id_.

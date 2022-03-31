@@ -61,7 +61,7 @@ class Config:
 
     @classmethod
     def load(cls, filename):
-        """Loads a configuration file.
+        """Load a configuration file.
 
         Parameters:
             filename (Union[str, Path]): The path of the toml configuration file to load.
@@ -189,8 +189,8 @@ class Config:
 
         Parameters:
             storage_type (str): The default storage type for all data node configurations.
-                The possible values are "pickle" (the default value), "csv", "excel", "sql",
-                "in_memory", or "generic".
+                The possible values are _"pickle"_ (the default value), _"csv"_, _"excel"_,
+                _"sql"_, _"in_memory"_, or _"generic"_.
             scope (`Scope^`): The default scope fot all data node configurations.
                 The default value is Scope.SCENARIO.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -217,10 +217,10 @@ class Config:
         Parameters:
             id (str): The unique identifier of this task configuration.
             function (Callable): The python function called by Taipy to run the task.
-            input (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
+            input (Optional[Union[DataNodeConfig^, List[DataNodeConfig^]]]): The list of the
                 function input data node configurations. This can be a unique data node
                 configuration if there is a single input data node, or None if there are none.
-            output (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
+            output (Optional[Union[DataNodeConfig^, List[DataNodeConfig^]]]): The list of the
                 function output data node configurations. This can be a unique data node
                 configuration if there is a single output data node, or None if there are none.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -249,10 +249,10 @@ class Config:
 
         Parameters:
             function (Callable): The python function called by Taipy to run the task.
-            input (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
+            input (Optional[Union[DataNodeConfig^, List[DataNodeConfig^]]]): The list of the
                 input data node configurations. This can be a unique data node
                 configuration if there is a single input data node, or None if there are none.
-            output (Optional[Union[DataNodeConfig, List[DataNodeConfig]]]): The list of the
+            output (Optional[Union[DataNodeConfig^, List[DataNodeConfig^]]]): The list of the
                 output data node configurations. This can be a unique data node
                 configuration if there is a single output data node, or None if there are none.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -323,9 +323,9 @@ class Config:
 
         Parameters:
             id (str): The unique identifier of the new scenario configuration.
-            pipeline_configs (List[`PipelineConfig^`]): The list of pipeline configurations used
+            pipeline_configs (List[PipelineConfig^]): The list of pipeline configurations used
                 by this new scenario configuration.
-            frequency (Optional[`Frequency^`]): The scenario frequency.
+            frequency (Optional[Frequency^]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to the
                 relevant cycle.
@@ -335,7 +335,7 @@ class Config:
                 corresponds to the data node configuration id. During the scenarios'
                 comparison, each comparator is applied to all the data nodes instantiated from
                 the data node configuration attached to the comparator. See
-                `(taipy.)compare_scenarios()` more more details.
+                `(taipy.)compare_scenarios()^` more more details.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -366,9 +366,9 @@ class Config:
 
         Parameters:
             id (str): The unique identifier of the scenario configuration.
-            task_configs (List[TaskConfig]): The list of task configurations used by the
+            task_configs (List[TaskConfig^]): The list of task configurations used by the
                 new pipeline configuration that is created.
-            frequency (Optional[`Frequency^`]): The scenario frequency.
+            frequency (Optional[Frequency^]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to the
                 relevant cycle.
@@ -408,7 +408,7 @@ class Config:
         Parameters:
             pipeline_configs (List[PipelineConfig^]): The list of pipeline configurations used
                 by this scenario configuration.
-            frequency (Optional[`Frequency`]): The scenario frequency.
+            frequency (Optional[Frequency^]): The scenario frequency.
                 It corresponds to the recurrence of the scenarios instantiated from this
                 configuration. Based on this frequency each scenario will be attached to
                 the relevant cycle.
@@ -561,7 +561,7 @@ class Config:
                 to read the data.
             write_fct_params (Optional[List]): The parameters that are passed to _write_fct_
                 to write the data.
-            scope (Optional[`Scope^`]): The scope of the Generic data node configuration.
+            scope (Optional[Scope^]): The scope of the Generic data node configuration.
                 The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
