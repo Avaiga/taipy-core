@@ -20,7 +20,6 @@ class JobConfig:
     _MODE_KEY = "mode"
     _DEFAULT_MODE = "standalone"
 
-    _TYPE_MAP_KEY = "_TYPE_MAP"
     _DEFAULT_CONFIG_KEY = "_DEFAULT_CONFIG"
 
     def __init__(self, mode: str = None, **properties):
