@@ -18,7 +18,7 @@ from taipy.core.pipeline.pipeline import Pipeline
 class Scenario(_Entity):
     """Instance of a Business case to solve.
 
-    Scenarios hold a list of pipelines (instances of `Pipeline^` class) to submit for execution
+    A scenario holds a list of pipelines (instances of `Pipeline^` class) to submit for execution
     in order to solve the Business case.
 
     Attributes:
