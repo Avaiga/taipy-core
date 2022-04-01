@@ -20,7 +20,7 @@ class Cycle(_Entity):
         start_date (datetime): The date and time of the start of this cycle.
         end_date (datetime): The date and time of the end of this cycle.
         name (str): The name of this cycle.
-        properties: A dictionary of additional properties.
+        properties (dict[str, Any]): A dictionary of additional properties.
     """
 
     _ID_PREFIX = "CYCLE"

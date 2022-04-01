@@ -240,9 +240,7 @@ class Job(_Entity):
             self.on_status_change(*functions)
 
     def update_status(self, ft: Future):
-        """Update the job status based on its execution status.
-        
-        TODO?
+        """Update the job status based on the success or the failure of its execution.
         """
         self._exceptions = ft.result()
         if self._exceptions:

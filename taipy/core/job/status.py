@@ -2,7 +2,7 @@ from taipy.core.common._repr_enum import _ReprEnum
 
 
 class Status(_ReprEnum):
-    """Rxecution status of a `Job^`.
+    """Execution status of a `Job^`.
 
     It is implemented as an enumeration.
     
@@ -15,7 +15,7 @@ class Status(_ReprEnum):
         to be available for its execution.
 
     - `BLOCKED`: A `BLOCKED` job has been blocked because its input data nodes are not ready yet.
-        It is typically waiting for another `Job^` to be completed.
+        It is waiting for the completion of another `Job^`
 
     - `RUNNING`: A `RUNNING` job is currently executed by a dedicated executor.
 
