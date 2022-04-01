@@ -219,7 +219,7 @@ class Job(_Entity):
         """
         return self.is_completed() or self.is_failed() or self.is_cancelled() or self.is_skipped()
 
-    def on_status_change(self, *functions):
+    def _on_status_change(self, *functions):
         """Get a notification when the status of the job changes.
 
         Job are assigned different statuses (_submitted_, _pending_, etc.) before being finished.
@@ -237,7 +237,7 @@ class Job(_Entity):
             function(self)
 
         if functions:
-            self.on_status_change(*functions)
+            self._on_status_change(*functions)
 
     def update_status(self, ft: Future):
         """Update the job status based on the success or the failure of its execution.

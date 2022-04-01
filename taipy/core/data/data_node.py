@@ -29,8 +29,10 @@ class DataNode(_Entity):
     properties of the data.<br/>
     A Data Node also contains information and methods needed to access the dataset. This
     information depends on the type of storage, and it is held by subclasses (such as
-    SQL Data Node, CSV Data Node, ...). It is strongly recommended to
-    only instantiate subclasses of Data Node through a Data Manager.
+    SQL Data Node, CSV Data Node, ...).
+    
+    !!! note
+        It is recommended not to instantiate subclasses of DataNode directly.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. It must be a valid Python
