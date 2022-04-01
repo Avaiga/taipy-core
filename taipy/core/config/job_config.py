@@ -84,8 +84,8 @@ class JobConfig:
         return self.is_standalone and int(self.nb_of_workers) > 1  # type: ignore
 
     @classmethod
-    def _create_config(cls, config_cls, **properties):
-        default_config = getattr(config_cls, cls._DEFAULT_CONFIG_KEY, {})
+    def _create_config(cls, config_cls: Type[JobModeConfig], **properties):
+        default_config = config_cls._DEFAULT_CONFIG
         return {**default_config, **properties}
 
     def _is_default_mode(self) -> bool:
