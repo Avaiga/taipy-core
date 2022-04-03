@@ -7,8 +7,8 @@ import pandas as pd
 from openpyxl import load_workbook
 
 from taipy.core.common.alias import DataNodeId, JobId
+from taipy.core.common.scope import Scope
 from taipy.core.data.data_node import DataNode
-from taipy.core.data.scope import Scope
 from taipy.core.exceptions.exceptions import (
     MissingRequiredProperty,
     NonExistingExcelSheet,
@@ -17,23 +17,28 @@ from taipy.core.exceptions.exceptions import (
 
 
 class ExcelDataNode(DataNode):
-    """
-    A Data Node stored as an Excel file (xlsx format).
+    """Data Node stored as an Excel file.
+    
+    The Excel file format is _xlsx_.
 
     Attributes:
-        config_id (str): Identifier of the data node configuration. It must be a valid Python variable name.
-        scope (`Scope^`): The `Scope^` of the data node.
-        id (str): The unique identifier of the data node.
-        name (str): A user-readable name of the data node.
-        parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or `None`.
+        config_id (str): Identifier of this data node configuration. It must be a valid Python
+            identifier.
+        scope (Scope^): The scope of this data node.
+        id (str): The unique identifier of this data node.
+        name (str): A user-readable name of this data node.
+        parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or
+            `None`.
         last_edition_date (datetime): The date and time of the last edition.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
-        validity_period (Optional[timedelta]): The validity period of a cacheable data node. Implemented as a
-            timedelta. If _validity_period_ is set to None, the data_node is always up-to-date.
-        edition_in_progress (bool): True if a task computing the data node has been submitted and not completed yet.
-            False otherwise.
-        properties (dict[str, Any]): A dictionary of additional properties. Note that the _properties_ parameter must
-            at least contain a "path" entry representing the path of the Excel file (xlsx format).
+        validity_period (Optional[timedelta]): The validity period of a cacheable data node.
+            Implemented as a timedelta. If _validity_period_ is set to None, the data node is
+            always up-to-date.
+        edition_in_progress (bool): True if a task computing the data node has been submitted
+            and not completed yet. False otherwise.
+        properties (dict[str, Any]): A dictionary of additional properties. Note that the
+            _properties_ parameter must at least contain a _"path"_ entry representing the path
+            of the Excel file (xlsx format).
     """
 
     __STORAGE_TYPE = "excel"
@@ -42,7 +47,6 @@ class ExcelDataNode(DataNode):
     __REQUIRED_PATH_PROPERTY = "path"
     __HAS_HEADER_PROPERTY = "has_header"
     __SHEET_NAME_PROPERTY = "sheet_name"
-    __DEFAULT_SHEET_NAME = "Sheet1"
     _REQUIRED_PROPERTIES: List[str] = [__REQUIRED_PATH_PROPERTY]
 
     def __init__(
@@ -65,7 +69,7 @@ class ExcelDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
         if self.__SHEET_NAME_PROPERTY not in properties.keys():
-            properties[self.__SHEET_NAME_PROPERTY] = self.__DEFAULT_SHEET_NAME
+            properties[self.__SHEET_NAME_PROPERTY] = None
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
         if self.__EXPOSED_TYPE_PROPERTY in properties.keys():
@@ -91,7 +95,7 @@ class ExcelDataNode(DataNode):
             return properties[self.__EXPOSED_TYPE_PROPERTY]
         if isinstance(properties[self.__EXPOSED_TYPE_PROPERTY], Dict):
             return properties[self.__EXPOSED_TYPE_PROPERTY]
-        sheet_names = self.__sheet_name_to_list(properties[self.__SHEET_NAME_PROPERTY])
+        sheet_names = self.__sheet_name_to_list(properties)
         if isinstance(properties[self.__EXPOSED_TYPE_PROPERTY], List):
             if len(sheet_names) == len(properties[self.__EXPOSED_TYPE_PROPERTY]):
                 return {
@@ -112,8 +116,13 @@ class ExcelDataNode(DataNode):
             return self._read_as()
         return self._read_as_pandas_dataframe()
 
-    def __sheet_name_to_list(self, sheet_names=None):
-        sheet_names = sheet_names if sheet_names else self.properties[self.__SHEET_NAME_PROPERTY]
+    def __sheet_name_to_list(self, properties):
+        if properties[self.__SHEET_NAME_PROPERTY]:
+            sheet_names = properties[self.__SHEET_NAME_PROPERTY]
+        else:
+            excel_file = load_workbook(properties[self.__REQUIRED_PATH_PROPERTY])
+            sheet_names = excel_file.sheetnames
+            excel_file.close()
         return sheet_names if isinstance(sheet_names, (List, Set, Tuple)) else [sheet_names]
 
     def _read_as(self):
@@ -138,13 +147,15 @@ class ExcelDataNode(DataNode):
                     res[i] = custom_class(*row)
             work_books[sheet_name] = res
 
+        excel_file.close()
+
         if len(custom_class_dict) == 1:
             return work_books[list(custom_class_dict.keys())[0]]
 
         return work_books
 
     def _read_as_numpy(self):
-        sheet_names = self.__sheet_name_to_list()
+        sheet_names = self.__sheet_name_to_list(self.properties)
         if len(sheet_names) > 1:
             return {sheet_name: df.to_numpy() for sheet_name, df in self._read_as_pandas_dataframe().items()}
         return self._read_as_pandas_dataframe().to_numpy()
@@ -187,13 +198,12 @@ class ExcelDataNode(DataNode):
             pd.DataFrame(data).to_excel(self.properties[self.__REQUIRED_PATH_PROPERTY], index=False)
 
     def write_with_column_names(self, data: Any, columns: List[str] = None, job_id: Optional[JobId] = None):
-        """
-        Write only the columns provided in _columns_ parameter.
+        """Write a set of columns.
 
         Parameters:
             data (Any): The data to write.
-            columns (List[str]): The list of columns to write.
-            job_id (`JobId^`): An optional identifier of the writer.
+            columns (List[str]): The list of column names to write.
+            job_id (JobId^): An optional identifier of the writer.
         """
         if not columns:
             df = pd.DataFrame(data)
