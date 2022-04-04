@@ -24,7 +24,7 @@ class SQLDataNode(DataNode):
         id (str): The unique identifier of this data node.
         name (str): A user-readable name of this data node.
         parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or
-            `None`.
+            None.
         last_edition_date (datetime): The date and time of the last edition.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
