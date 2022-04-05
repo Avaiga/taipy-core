@@ -20,7 +20,7 @@ jobs:
   publish:
     strategy:
       matrix:
-        python-versions: [3.9]
+        python-versions: [3.8]
         os: [ubuntu-18.04]
     runs-on: ${{ matrix.os }}
     environment: ${{ github.event.inputs.environment }}
