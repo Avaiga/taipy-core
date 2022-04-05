@@ -7,7 +7,7 @@ More information on our website: `https://www.taipy.io`.
 
 ## What is _taipy-core_
 
-Taipy is split into multiple repositories to let users install the minimum they need.
+Taipy is split into multiple repositories so that a minimal installation can be performed.
 
 _taipy-core_ mostly includes business-oriented features. It helps users
 create and manage business applications and improve analyses capability through time,
