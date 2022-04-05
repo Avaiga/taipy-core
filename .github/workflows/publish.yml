@@ -9,8 +9,6 @@
 name: Publish taipy-core to PyPI
 
 on:
-  # release:
-    # types: [published]
   workflow_dispatch:
 
 jobs:
