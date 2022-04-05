@@ -47,8 +47,7 @@ jobs:
         run: |
           rm -r taipy
           pip install pytest pytest-mock
-          pytest > pytest_res
-          cat pytest_res
+          pytest
 
       - name: Publish taipy-core to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
