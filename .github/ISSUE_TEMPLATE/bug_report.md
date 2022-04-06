@@ -11,16 +11,21 @@ assignees: ''
 A complete and clear description of the problem.
 
 **How to reproduce**
-A code fragment
-```
-from taipy import *;
-...
-```
 
-Or a sequence of events:
-- Click this button
-- Set that control to that value
-...
+- Configuration files or code:
+    ```
+    from taipy import Config;
+
+
+    Config.configure_data_nodes(...)
+    ...
+    ```
+- A code fragment
+    ```
+    import taipy as tp;
+    tp.create_scenario(...)
+    ...
+    ```
 
 **Expected behavior**
 Description of what would be the expected outcome.
@@ -31,5 +36,5 @@ When available and relevant, screenshots better help show the problem.
 **Runtime environment**
 Please specify relevant indications.
  - OS: [e.g. Linux, Windows] and version
- - Browser: [e.g. Chrome, Edge, Safari] and version
+ - Taipy version:
 and any other relevant information.
