@@ -86,7 +86,7 @@ jobs:
           pip install build
 
       - name: Build package
-        run: python -m build
+        run: python setup.py build_py && python -m build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
