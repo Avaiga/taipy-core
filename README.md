@@ -15,7 +15,7 @@ specific language governing permissions and limitations under the License.
 ## Usage
 - [License](#license)
 - [Usage](#usage)
-- [Taipy Rest](#what-is-taipy-core)
+- [Taipy Core](#what-is-taipy-core)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [Code of conduct](#code-of-conduct)
