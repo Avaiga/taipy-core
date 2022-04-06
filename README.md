@@ -18,8 +18,8 @@ Taipy is a Python library for creating Business Applications. More information o
 [website](https://www.taipy.io). Taipy is split into multiple repositories including _taipy-core_ to let users
 install the minimum they need.
 
-_taipy-core_ mostly includes back-end business-oriented features. It helps users create and manage business
-applications and improve analysis capability through time, conditions and hypothesis.
+[Taipy Core](https://github.com/Avaiga/taipy-core) mostly includes business-oriented features. It helps users
+create and manage business applications and improve analyses capability through time, conditions and hypothesis.
 
 ## Installation
 
