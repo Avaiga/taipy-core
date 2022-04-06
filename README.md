@@ -12,7 +12,16 @@ Unless required by applicable law or agreed to in writing, software distributed 
 an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-## What is _Taipy-core_
+## Usage
+- [License](#license)
+- [Usage](#usage)
+- [Taipy Rest](#what-is-taipy-core)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [Code of conduct](#code-of-conduct)
+- [Directory Structure](#directory-structure)
+
+## What is Taipy Core
 
 Taipy is a Python library for creating Business Applications. More information on our
 [website](https://www.taipy.io). Taipy is split into multiple repositories including _taipy-core_ to let users
@@ -20,6 +29,8 @@ install the minimum they need.
 
 [Taipy Core](https://github.com/Avaiga/taipy-core) mostly includes business-oriented features. It helps users
 create and manage business applications and improve analyses capability through time, conditions and hypothesis.
+
+A more in depth documentation of taipy can be found [here](http://insert-link-for-taipy-docs).
 
 ## Installation
 
