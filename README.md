@@ -15,8 +15,8 @@ specific language governing permissions and limitations under the License.
 ## What is _Taipy-core_
 
 Taipy is a Python library for creating Business Applications. More information on our
-[website](https://www.taipy.io). Taipy is split into multiple repositories including _taipy-core_ so that a minimal
-installation can be performed.
+[website](https://www.taipy.io). Taipy is split into multiple repositories including _taipy-core_ to let users
+install the minimum they need.
 
 _taipy-core_ mostly includes back-end business-oriented features. It helps users create and manage business
 applications and improve analysis capability through time, conditions and hypothesis.
