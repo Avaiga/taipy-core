@@ -64,6 +64,7 @@ Want to be part of the _Taipy Core_ community? Check out our [`CODE_OF_CONDUCT.m
 - `CODE_OF_CONDUCT.md`: Code of conduct for members and contributors of _taipy-core_.
 - `CONTRIBUTING.md`: Instructions to contribute to _taipy-core_.
 - `INSTALLATION.md`: Instructions to install _taipy-core_.
+- `LICENSE`: The Apache 2.0 License.
 - `Pipfile`: File used by the Pipenv virtual environment to manage project dependencies.
 - `README.md`: Current file.
 - `setup.py`: The setup script managing building, distributing, and installing _taipy-core_.
