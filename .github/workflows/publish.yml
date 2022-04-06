@@ -14,6 +14,7 @@ on:
 jobs:
   publish-test:
     name: Publish to TestPyPI
+    environment: test
     strategy:
       matrix:
         python-versions: [3.8]
@@ -40,6 +41,20 @@ jobs:
           password: ${{ secrets.TEST_PYPI_API_TOKEN}}
           repository_url: ${{ secrets.TEST_PYPI_PUBLISH_URL }}
 
+  test-publish-test:
+    name: Test package on TestPyPI
+    need: [publish-test]
+    environment: test
+    strategy:
+      matrix:
+        python-versions: ['3.8','3.9','3.10']
+        os: [ubuntu-18.04,windows-latest,macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-versions }}
+
       - name: Install from TestPyPI
         run: pip install --index-url ${{ secrets.TEST_PYPI_INSTALL_URL }} taipy-core
 
@@ -49,9 +64,11 @@ jobs:
           pip install pytest pytest-mock
           pytest
 
+
   publish-prod:
-    needs: [publish-test]
+    needs: [test-publish-test]
     name: Publish to PyPI
+    environment: prod
     strategy:
       matrix:
         python-versions: [3.8]
@@ -76,6 +93,21 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN}}
+
+
+  test-publish-prod:
+    name: Test package on PyPI
+    need: [publish-prod]
+    environment: prod
+    strategy:
+      matrix:
+        python-versions: ['3.8','3.9','3.10']
+        os: [ubuntu-18.04,windows-latest,macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-versions }}
 
       - name: Install from PyPI
         run: pip install taipy-core
