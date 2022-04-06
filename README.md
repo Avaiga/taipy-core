@@ -45,8 +45,6 @@ Want to be part of the _Taipy Core_ community? Check out our [`CODE_OF_CONDUCT.m
 
 ## Directory Structure
 
-The files needed to build _taipy-core_ are located in subdirectories that store files as follows:
-
 - `taipy/core`:
     - `taipy/core`:
         - `_repository`: Internal layer for data storage.
