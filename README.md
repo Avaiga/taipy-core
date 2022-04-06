@@ -1,4 +1,4 @@
-# Taipy-Core
+# Taipy Core
 
 ## license
 Copyright 2022 Avaiga Private Limited
@@ -66,7 +66,7 @@ The files needed to build _taipy-core_ are located in subdirectories that store 
 - `CODE_OF_CONDUCT.md`: Code of conduct for members and contributors of _taipy-core_.
 - `CONTRIBUTING.md`: Instructions to contribute to _taipy-core_.
 - `INSTALLATION.md`: Instructions to install _taipy-core_.
-- `Pipfile`: TODO.
+- `Pipfile`: File used by the Pipenv virtual environment to manage project dependencies.
 - `README.md`: Current file.
-- `setup.py`: TODO.
+- `setup.py`: The setup script managing building, distributing, and installing _taipy-core_.
 - `tox.ini`: Contains test scenarios to be run.
