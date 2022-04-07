@@ -47,8 +47,8 @@ Want to be part of the _Taipy Core_ community? Check out our [`CODE_OF_CONDUCT.m
 
 - `taipy/core`:
     - `taipy/core`:
-        - `_repository`: Internal layer for data storage.
-        - `_scheduler`: Internal layer for task scheduling and execution.
+        - `_repository`: Internal package for data storage.
+        - `_scheduler`: Internal package for task scheduling and execution.
         - `common`: Shared data structures, types, and functions.
         - `config`: Configuration definition, management and implementation. `config.config.Config` is the main
           entrypoint for configuring a Taipy Core application.
