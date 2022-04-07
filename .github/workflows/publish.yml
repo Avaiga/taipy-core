@@ -18,8 +18,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [3.8]
-        os: [ubuntu-18.04]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -42,13 +41,14 @@ jobs:
           repository_url: ${{ secrets.PYPI_PUBLISH_URL }}
 
   test-publish-test:
+    needs: [publish-test]
     name: Test package on TestPyPI
-    need: [publish-test]
     environment: test
     strategy:
       matrix:
         python-versions: ['3.8','3.9','3.10']
         os: [ubuntu-18.04,windows-latest,macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -56,7 +56,9 @@ jobs:
           python-version: ${{ matrix.python-versions }}
 
       - name: Install from TestPyPI
-        run: pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} taipy-core
+        run: |
+          echo "Will publish the package ${{ github.repository }}"
+          pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} ${{ github.repository }}
 
       - name: Run tests
         run: |
