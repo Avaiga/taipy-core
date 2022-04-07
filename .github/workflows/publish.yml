@@ -14,9 +14,7 @@ on:
       branches: [ feature/publish-pypi ]
 
 jobs:
-  publish-test:
-    name: Publish to TestPyPI
-    environment: test
+  test-package:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -29,47 +27,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
 
-      - name: Build package
-        run: python setup.py build_py && python -m build
-
-      - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-
-  test-publish-test:
-    needs: [publish-test]
-    name: Test package on TestPyPI
-    environment: test
-    strategy:
-      matrix:
-        python-versions: ['3.8','3.9','3.10']
-        os: [ubuntu-18.04,windows-latest,macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-versions }}
-
-      - name: Install from TestPyPI
+      - name: Build and test the package
         run: |
-          echo "Will install package ${{ github.event.repository.name }}"
-          pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} ${{ github.event.repository.name }}
-
-      - name: Run tests
-        run: |
-          rm -r src taipy
+          python setup.py build_py && python -m build
+          rm -rf src taipy
+          pip install dist/*.tar.gz
           pip install pytest pytest-mock
           pytest
 
 
-  publish-prod:
-    needs: [test-publish-test]
-    name: Publish to PyPI
-    environment: prod
+  publish-to-pypi:
+    needs: [test-package]
+    environment: production
     strategy:
       matrix:
         python-versions: [3.8]
@@ -95,9 +64,8 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
 
-  test-publish-prod:
-    needs: [publish-prod]
-    name: Test package on PyPI
+  test-published-package:
+    needs: [publish-to-pypi]
     environment: production
     strategy:
       matrix:
@@ -110,11 +78,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
-      - name: Install from PyPI
-        run: pip install ${{ github.event.repository.name }}
-
-      - name: Run tests
+      - name: Prepare tests
         run: |
-          rm -r src taipy
+          rm -rf src taipy
           pip install pytest pytest-mock
+
+      - name: Install and test package
+        run: |
+          pip install ${{ github.event.repository.name }}
           pytest
