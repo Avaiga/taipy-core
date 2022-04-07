@@ -51,7 +51,7 @@ setup(
     install_requires=requirements,
     long_description=readme,
     long_description_content_type="text/markdown",
-    license="MIT license",
+    license="Apache License 2.0",
     keywords="taipy-core",
     name="taipy-core",
     packages=find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
