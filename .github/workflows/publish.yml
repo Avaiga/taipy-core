@@ -60,7 +60,7 @@ jobs:
 
 
   test-published-package:
-    needs: [publish-to-pypi]
+#    needs: [publish-to-pypi]
     strategy:
       matrix:
         python-versions: ['3.8','3.9','3.10']
