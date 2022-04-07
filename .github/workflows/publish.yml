@@ -15,15 +15,12 @@ jobs:
   publish-test:
     name: Publish to TestPyPI
     environment: test
-    strategy:
-      matrix:
-        python-versions: [3.8]
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-versions }}
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
@@ -57,8 +54,8 @@ jobs:
 
       - name: Install from TestPyPI
         run: |
-          echo "Will publish the package ${{ github.repository }}"
-          pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} ${{ github.repository }}
+          echo "Will publish the package ${{ github.event.repository.name }} to TestPyPI"
+          pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} ${{ github.event.repository.name }}
 
       - name: Run tests
         run: |
@@ -71,16 +68,12 @@ jobs:
     needs: [test-publish-test]
     name: Publish to PyPI
     environment: prod
-    strategy:
-      matrix:
-        python-versions: [3.8]
-        os: [ubuntu-18.04]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-versions }}
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
@@ -99,12 +92,13 @@ jobs:
 
   test-publish-prod:
     name: Test package on PyPI
-    need: [publish-prod]
+    needs: [publish-prod]
     environment: prod
     strategy:
       matrix:
         python-versions: ['3.8','3.9','3.10']
         os: [ubuntu-18.04,windows-latest,macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -112,7 +106,7 @@ jobs:
           python-version: ${{ matrix.python-versions }}
 
       - name: Install from PyPI
-        run: pip install taipy-core
+        run: pip install ${{ github.event.repository.name }}
 
       - name: Run tests
         run: |
