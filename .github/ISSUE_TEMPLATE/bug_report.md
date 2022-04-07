@@ -17,7 +17,7 @@ A complete and clear description of the problem.
     from taipy import Config;
 
 
-    Config.configure_data_nodes(...)
+    Config.configure_data_node(...)
     ...
     ```
 - A code fragment
