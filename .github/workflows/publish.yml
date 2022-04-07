@@ -83,7 +83,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           dir
-          rmdir /q/s taipy
+          rmdir taipy /q/s
           pip install pytest pytest-mock
 
       - name: Install and test package
