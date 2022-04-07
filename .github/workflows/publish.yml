@@ -39,9 +39,6 @@ jobs:
   publish-to-pypi:
     needs: [test-package]
     environment: production
-    strategy:
-      matrix:
-        python-versions: [3.8]
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
