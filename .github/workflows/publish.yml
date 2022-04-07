@@ -54,7 +54,6 @@ jobs:
 
       - name: Install from TestPyPI
         run: |
-          echo "Will publish the package ${{ github.event.repository.name }} to TestPyPI"
           pip install --index-url ${{ secrets.PYPI_INSTALL_URL }} ${{ github.event.repository.name }}
 
       - name: Run tests
