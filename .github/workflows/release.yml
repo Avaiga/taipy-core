@@ -9,8 +9,6 @@ jobs:
   release:
     name: Release taipy-core Package
 
-    needs: build
-
     strategy:
       matrix:
         os: [ubuntu-18.04]
