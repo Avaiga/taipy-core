@@ -63,7 +63,8 @@ jobs:
 #    needs: [publish-to-pypi]
     strategy:
       matrix:
-        python-versions: ['3.8','3.9','3.10']
+        python-versions: ['3.8']
+#        python-versions: ['3.8','3.9','3.10']
 #        os: [ubuntu-18.04,windows-latest,macos-latest]
         os: [windows-latest]
     runs-on: ${{ matrix.os }}
@@ -76,14 +77,14 @@ jobs:
       - name: Prepare tests on unix
         if: matrix.os != 'windows-latest'
         run: |
-          rm -rf taipy
+          rm -rf taipy src
           pip install pytest pytest-mock
 
       - name: Prepare tests on windows
         if: matrix.os == 'windows-latest'
         run: |
-          dir
-          rmdir taipy /q/s
+          rmdir -Recurse -Force taipy
+          rmdir -Recurse -Force src
           pip install pytest pytest-mock
 
       - name: Install and test package
