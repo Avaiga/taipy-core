@@ -32,7 +32,7 @@ The Taipy team will analyse your issue and return to you as soon as possible.
 ## Improve Documentation
 
 Do not hesitate to create an issue or pull request directly on the
-[taipy-doc repository](https://github.com/Avaiga/taipy-doc).
+[taipy-doc repository](https://github.com/Avaiga/taipy-doc/issues).
 
 ## Implement Features
 
