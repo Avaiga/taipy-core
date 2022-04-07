@@ -1,7 +1,7 @@
 # Contributions
 
 Thanks for your interest in helping improve Taipy! Contributions are welcome, and they are greatly appreciated!
-Every little helps and credit will always be given.
+Every little help and credit will always be given.
 
 There are multiple ways to contribute to Taipy: code, but also reporting bugs, creating feature requests, helping
 other users in our forums, [stack**overflow**](https://stackoverflow.com/), etc.
