@@ -10,8 +10,6 @@ name: Publish package
 
 on:
   workflow_dispatch:
-  push:
-      branches: [ feature/publish-pypi ]
 
 jobs:
   test-package:
