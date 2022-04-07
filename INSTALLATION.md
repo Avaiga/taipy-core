@@ -1,11 +1,12 @@
 # Installation
 
-## With Pip
+The latest stable version of _taipy-core_ is available through _pip_:
+pip install taipy-core
+
+## Development version
 
 You can install the development version of _taipy-core_ with `pip`.
-```
 pip install git+https://git@github.com/Avaiga/taipy-core
-```
 
 ## By cloning
 ```
