@@ -10,6 +10,8 @@ name: Publish package
 
 on:
   workflow_dispatch:
+  push:
+      branches: [ feature/publish-pypi ]
 
 jobs:
   publish-test:
@@ -37,8 +39,8 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN}}
-          repository_url: ${{ secrets.PYPI_PUBLISH_URL }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
 
   test-publish-test:
     needs: [publish-test]
@@ -74,8 +76,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [3.8]
-        os: [ubuntu-18.04]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -94,17 +95,18 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN}}
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
 
   test-publish-prod:
+    needs: [publish-prod]
     name: Test package on PyPI
-    need: [publish-prod]
-    environment: prod
+    environment: production
     strategy:
       matrix:
         python-versions: ['3.8','3.9','3.10']
         os: [ubuntu-18.04,windows-latest,macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
