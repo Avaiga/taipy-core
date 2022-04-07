@@ -36,5 +36,4 @@ When available and relevant, screenshots better help show the problem.
 **Runtime environment**
 Please specify relevant indications.
  - OS: [e.g. Linux, Windows] and version
- - Taipy version:
 and any other relevant information.
