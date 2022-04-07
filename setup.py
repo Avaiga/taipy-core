@@ -50,6 +50,7 @@ setup(
     ],
     description="AI Platform for Business Applications.",
     install_requires=requirements,
+    long_description="",
     license="MIT license",
     keywords="taipy-core",
     name="taipy-core",
