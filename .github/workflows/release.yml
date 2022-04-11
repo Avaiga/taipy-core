@@ -42,8 +42,9 @@ jobs:
         run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/heads/release/})"
         id: extract_branch
 
-      - name: Ensure tag is equal to the package version
-        run: grep ${{ steps.extract_branch.outputs.tag }} setup.py
+      - name: Ensure tag is and package version are equals
+        run: |
+          echo ${{ steps.extract_branch.outputs.tag }} | sed s/v/version=\"/g | grep -f - setup.py
 
       - name: Extract commit hash
         shell: bash
