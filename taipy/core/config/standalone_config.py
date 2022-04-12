@@ -18,8 +18,9 @@ class StandaloneConfig(_JobModeConfig):
     """
     Holds configuration fields related to the job executions.
 
-    nb_of_workers (int): The maximum number of running workers to execute jobs. It must be a positive integer.
-    The default value is 1.
+    Properties:
+        nb_of_workers (int): The maximum number of running workers to execute jobs. It must be a positive integer.
+            The default value is 1.
     """
 
     _DEFAULT_CONFIG = {
