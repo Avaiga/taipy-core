@@ -1,3 +1,14 @@
+# Copyright 2022 Avaiga Private Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+# an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
 from __future__ import annotations
 
 import uuid
@@ -17,16 +28,15 @@ from taipy.core.task.task import Task
 
 
 class Pipeline(_Entity):
-    """
-    Holds a list of `Task^`s and additional attributes representing a set of data processing elements
-    connected as a direct acyclic graph.
+    """List of `Task^`s and additional attributes representing a set of data processing
+    elements connected as a direct acyclic graph.
 
     Attributes:
         config_id (str): The identifier of the `PipelineConfig^`.
         properties (dict[str, Any]): A dictionary of additional properties.
-        tasks (List[`Task^`]): The list of `Task^`s.
+        tasks (List[Task^]): The list of `Task`s.
         pipeline_id (str): The Unique identifier of the pipeline.
-        parent_id (str):  The identifier of the parent (scenario_id, cycle_id) or `None`.
+        parent_id (str):  The identifier of the parent (scenario_id, cycle_id) or None.
     """
 
     _ID_PREFIX = "PIPELINE"
@@ -150,15 +160,17 @@ class Pipeline(_Entity):
 
     def _get_sorted_tasks(self) -> List[List[Task]]:
         dag = self.__build_dag()
+        remove = [node for node, degree in dict(dag.in_degree).items() if degree == 0 and isinstance(node, DataNode)]
+        dag.remove_nodes_from(remove)
         return list(nodes for nodes in nx.topological_generations(dag) if (Task in (type(node) for node in nodes)))
 
     def subscribe(self, callback: Callable[[Pipeline, Job], None]):
-        """
-        Subscribes a function to be called on `Job^` status change. The subscription is applied to all jobs
-        created from the pipeline's execution.
+        """Subscribe a function to be called on `Job^` status change.
+        The subscription is applied to all jobs created from the pipeline's execution.
 
         Parameters:
-            callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to be called on status change.
+            callback (Callable[[Pipeline^, Job^], None]): The callable function to be called on
+                status change.
         Note:
             Notification will be available only for jobs created after this subscription.
         """
@@ -167,11 +179,10 @@ class Pipeline(_Entity):
         return _PipelineManager._subscribe(callback, self)
 
     def unsubscribe(self, callback: Callable[[Pipeline, Job], None]):
-        """
-        Unsubscribes a function that is called when the status of a `Job^` changes.
+        """Unsubscribe a function that is called when the status of a `Job^` changes.
 
         Parameters:
-            callback (Callable[[`Pipeline^`, `Job^`], None]): The callable function to unsubscribe.
+            callback (Callable[[Pipeline^, Job^], None]): The callable function to unsubscribe.
         Note:
             The function will continue to be called for ongoing jobs.
         """
@@ -180,13 +191,13 @@ class Pipeline(_Entity):
         return _PipelineManager._unsubscribe(callback, self)
 
     def submit(self, callbacks: Optional[List[Callable]] = None, force: bool = False):
-        """
-        Submits the pipeline for execution.
+        """Submit the pipeline for execution.
 
         All the `Task^`s of the pipeline will be submitted for execution.
 
         Parameters:
-            callbacks (List[Callable]): The list of callable functions to be called on status change.
+            callbacks (List[Callable]): The list of callable functions to be called on status
+                change.
             force (bool): Force execution even if the data nodes are in cache.
         """
         from taipy.core.pipeline._pipeline_manager import _PipelineManager

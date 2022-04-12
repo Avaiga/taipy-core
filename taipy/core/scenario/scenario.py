@@ -1,3 +1,14 @@
+# Copyright 2022 Avaiga Private Limited
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+# an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
 from __future__ import annotations
 
 import uuid
@@ -16,17 +27,16 @@ from taipy.core.pipeline.pipeline import Pipeline
 
 
 class Scenario(_Entity):
-    """
-    Represents an instance of the business case to solve.
+    """Instance of a Business case to solve.
 
-    It holds a list of pipelines (instances of `Pipeline^` class) to submit for execution in order to solve the
-    business case.
+    A scenario holds a list of pipelines (instances of `Pipeline^` class) to submit for execution
+    in order to solve the Business case.
 
     Attributes:
         config_id (str): The identifier of the `ScenarioConfig^`.
-        pipelines (List[`Pipeline^`]): The list of pipelines.
+        pipelines (List[Pipeline^]): The list of pipelines.
         properties (dict[str, Any]): A dictionary of additional properties.
-        scenario_id (str): The Unique identifier of the scenario.
+        scenario_id (str): The unique identifier of this scenario.
         creation_date (datetime): The date and time of the scenario's creation.
         is_primary (bool): True if the scenario is the primary of its cycle. False otherwise.
         cycle (Cycle^): The cycle of the scenario.
@@ -150,7 +160,7 @@ class Scenario(_Entity):
 
     @staticmethod
     def _new_id(config_id: str) -> ScenarioId:
-        """Generates a unique scenario identifier."""
+        """Generate a unique scenario identifier."""
         return ScenarioId(Scenario.__SEPARATOR.join([Scenario._ID_PREFIX, _validate_id(config_id), str(uuid.uuid4())]))
 
     def __getattr__(self, attribute_name):
@@ -177,8 +187,7 @@ class Scenario(_Entity):
         self._tags.add(tag)
 
     def has_tag(self, tag: str) -> bool:
-        """
-        Returns True if the scenario has the tag provided as parameter.
+        """Indicate if the scenario has a given tag.
 
         Parameters:
             tag (str): The tag to search among the set of scenario's tags.
@@ -196,12 +205,14 @@ class Scenario(_Entity):
             self._tags.remove(tag)
 
     def subscribe(self, callback: Callable[[Scenario, Job], None]):
-        """
-        Subscribes a function to be called on `Job^` status change. The subscription is applied to all jobs
-        created from the scenario's execution.
+        """Subscribe a function to be called on `Job^` status change.
+
+        The subscription is applied to all jobs created from the scenario's execution.
 
         Parameters:
-            callback (Callable[[`Scenario^`, `Job^`], None]): The callable function to be called on status change.
+            callback (Callable[[Scenario^, Job^], None]): The callable function to be called
+                on status change.
+
         Note:
             Notification will be available only for jobs created after this subscription.
         """
@@ -210,11 +221,11 @@ class Scenario(_Entity):
         return _ScenarioManager._subscribe(callback, self)
 
     def unsubscribe(self, callback: Callable[[Scenario, Job], None]):
-        """
-        Unsubscribes a function that is called when the status of a `Job^` changes.
+        """Unsubscribe a function that is called when the status of a `Job^` changes.
 
         Parameters:
-            callback (Callable[[`Scenario^`, `Job^`], None]): The callable function to unsubscribe.
+            callback (Callable[[Scenario^, Job^], None]): The callable function to unsubscribe.
+
         Note:
             The function will continue to be called for ongoing jobs.
         """
@@ -223,8 +234,7 @@ class Scenario(_Entity):
         return _ScenarioManager._unsubscribe(callback, self)
 
     def submit(self, force: bool = False):
-        """
-        Submits the scenario for execution.
+        """Submit this scenario for execution.
 
         All the `Task^`s of the scenario will be submitted for execution.
 
@@ -236,32 +246,33 @@ class Scenario(_Entity):
         return _ScenarioManager._submit(self, force)
 
     def set_primary(self):
-        """
-        Promotes the scenario as the primary scenario of its cycle. If the cycle already
-        had a primary scenario, it will be demoted, and it will no longer be primary for the cycle.
+        """Promote the scenario as the primary scenario of its cycle.
+        
+        If the cycle already has a primary scenario, it will be demoted, and it will no longer
+        be primary for the cycle.
         """
         from taipy.core.scenario._scenario_manager import _ScenarioManager
 
         return _ScenarioManager._set_primary(self)
 
     def add_tag(self, tag: str):
-        """
-        Adds the tag `tag` to the scenario. If the scenario's cycle already have another scenario tagged by
-        `tag` the other scenario will be untagged.
+        """Add a tag to this scenario.
+        
+        If the scenario's cycle already have another scenario tagged with _tag_ the other
+        scenario will be untagged.
 
         Parameters:
-            tag (str): The tag of the scenario to tag.
+            tag (str): The tag to add to this scenario.
         """
         from taipy.core.scenario._scenario_manager import _ScenarioManager
 
         return _ScenarioManager._tag(self, tag)
 
     def remove_tag(self, tag: str):
-        """
-        Removes tag `tag` given as parameter from the set of the scenario's tags.
+        """Remove a tag from this scenario.
 
         Parameters:
-            tag (str): The tag to remove.
+            tag (str): The tag to remove from the set of the scenario's tags.
         """
         from taipy.core.scenario._scenario_manager import _ScenarioManager
 
