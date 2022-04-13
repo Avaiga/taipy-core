@@ -1,9 +1,11 @@
 name: Create Github Release and Push on Pypi
 
 on:
-  push:
-    branches:
-      - 'release/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The release/package version to create (ex: 1.0.0)"
+        required: true
 
 jobs:
   test-package:
@@ -37,14 +39,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Extract branch tag
-        shell: bash
-        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/heads/release/})"
-        id: extract_branch
-
-      - name: Ensure tag is and package version are equals
+      - name: Ensure package version is well set
         run: |
-          echo ${{ steps.extract_branch.outputs.tag }} | sed s/v/version=\"/g | grep -f - setup.py
+          echo ${{ github.event.inputs.version }} | grep -f - setup.py
 
       - name: Extract commit hash
         shell: bash
@@ -53,11 +50,11 @@ jobs:
 
       - name: Create/update release and tag
         run: |
-            gh release view ${{ steps.extract_branch.outputs.tag }} &&
-            gh release delete ${{ steps.extract_branch.outputs.tag }} &&
-            git tag -f ${{ steps.extract_branch.outputs.tag }} &&
-            git push -f origin ${{ steps.extract_branch.outputs.tag }};
-            gh release create ${{ steps.extract_branch.outputs.tag }} --target ${{ steps.extract_hash.outputs.hash }} --notes "Release created using Github Workflows"
+            gh release view ${{ github.event.inputs.version }} &&
+            gh release delete ${{ github.event.inputs.version }} &&
+            git tag -f ${{ github.event.inputs.version }} &&
+            git push -f origin ${{ github.event.inputs.version }}
+            gh release create ${{ github.event.inputs.version }} --target ${{ steps.extract_hash.outputs.hash }} --notes "Release created using Github Workflows"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
