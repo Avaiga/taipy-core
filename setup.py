@@ -22,7 +22,7 @@ requirements = [
     "networkx>=2.6",
     "openpyxl>=3.0.3",
     "pandas>=1.3",
-    "sqlalchemy>=1.3",
+    "sqlalchemy>=1.4",
     "toml>=0.10",
 ]
 
