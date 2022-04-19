@@ -111,9 +111,9 @@ class TestFileSystemStorage:
         assert m == m2
 
     def test_config_override(self):
-        storage_folder = '/tmp/foo'
+        storage_folder = pathlib.Path("/tmp") / "fodo"
         repo = MockRepository(model=MockModel, dir_name="mock")
 
-        assert str(repo.dir_path) == '.data/mock'
-        Config.configure_global_app(storage_folder=storage_folder)
-        assert str(repo.dir_path) == f"{storage_folder}/mock"
+        assert repo.dir_path == pathlib.Path(".data") / "mock"
+        Config.configure_global_app(storage_folder=str(storage_folder))
+        assert repo.dir_path == storage_folder / "mock"
