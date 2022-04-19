@@ -6,6 +6,8 @@ on:
       version:
         description: "The release/package version to create (ex: 1.0.0)"
         required: true
+    branches:
+      - 'releases/**'
 
 jobs:
   test-package:
@@ -39,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Ensure package version is well set
+      - name: Ensure package version is properly set
         run: |
           echo 'version="'${{ github.event.inputs.version }}'"' | grep -f - setup.py
 
