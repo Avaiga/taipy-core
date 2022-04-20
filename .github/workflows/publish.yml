@@ -95,12 +95,14 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           rm -rf taipy
+          pip install --upgrade pip
           pip install pytest pytest-mock
 
       - name: Prepare tests on windows
         if: matrix.os == 'windows-latest'
         run: |
           rmdir -Recurse -Force taipy
+          pip install --upgrade pip
           pip install pytest pytest-mock
 
       - name: Install and test package
