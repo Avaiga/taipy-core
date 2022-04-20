@@ -101,5 +101,5 @@ jobs:
 
       - name: Install and test package
         run: |
-          pip install ${{ github.event.repository.name }}
+          pip install ${{ github.event.repository.name }}==${{ github.event.inputs.version }}
           pytest
