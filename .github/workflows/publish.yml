@@ -22,6 +22,10 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
+      - name: Ensure package version is properly set
+        run: |
+          echo 'version="'${{ github.event.inputs.version }}'"' | grep -f - setup.py
+
       - name: Validate branch name
         run: |
           echo """
@@ -91,15 +95,17 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           rm -rf taipy
+          pip install --upgrade pip
           pip install pytest pytest-mock
 
       - name: Prepare tests on windows
         if: matrix.os == 'windows-latest'
         run: |
           rmdir -Recurse -Force taipy
+          pip install --upgrade pip
           pip install pytest pytest-mock
 
       - name: Install and test package
         run: |
-          pip install ${{ github.event.repository.name }}
+          pip install --pre ${{ github.event.repository.name }}==${{ github.event.inputs.version }}
           pytest
