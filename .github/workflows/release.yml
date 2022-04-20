@@ -6,6 +6,8 @@ on:
       version:
         description: "The release/package version to create (ex: 1.0.0)"
         required: true
+    branches:
+      - 'releases/**'
 
 jobs:
   test-package:
