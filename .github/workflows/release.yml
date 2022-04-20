@@ -17,6 +17,24 @@ jobs:
         with:
           python-version: 3.8
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Validate branch name
+        run: |
+          echo """
+          import re, sys
+          setup = open('setup.py').read()
+          x = re.search(r'version=\"(\d+)\.(\d+)\.(\d+)(?:\.([a-zA-Z0-9_]+))\"', setup)
+          if not x:
+              raise ValueError('Invalid version expression')
+          if f'release/{x.group(1)}.{x.group(2)}' != sys.argv[1]:
+              raise ValueError('Branch name mismatch')
+          """ > /tmp/check.py
+          python /tmp/check.py "${{ steps.extract_branch.outputs.branch }}"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -39,10 +57,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Ensure package version is well set
-        run: |
-          echo ${{ github.event.inputs.version }} | grep -f - setup.py
-
       - name: Extract commit hash
         shell: bash
         run: echo "##[set-output name=hash;]$(echo $(git rev-parse HEAD))"
@@ -50,16 +64,12 @@ jobs:
 
       - name: Create/update release and tag
         run: |
-            gh release view ${{ github.event.inputs.version }} &&
-            gh release delete ${{ github.event.inputs.version }} &&
-            git tag -f ${{ github.event.inputs.version }} &&
-            git push -f origin ${{ github.event.inputs.version }}
             gh release create ${{ github.event.inputs.version }} --target ${{ steps.extract_hash.outputs.hash }} --notes "Release created using Github Workflows"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-to-pypi:
-    needs: [test-package]
+    needs: [release]
     timeout-minutes: 20
     environment: publish
     runs-on: ubuntu-18.04
