@@ -1,27 +1,61 @@
-name: release workflow
+name: Create Github Release
 
 on:
-  push:
-    branches:
-      - 'release/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The release/package version to create (ex: 1.0.0)"
+        required: true
 
 jobs:
+  test-package:
+    timeout-minutes: 20
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Validate branch name
+        run: |
+          echo """
+          import re, sys
+          setup = open('setup.py').read()
+          x = re.search(r'version=\"(\d+)\.(\d+)\.(\d+)(?:\.([a-zA-Z0-9_]+))?\"', setup)
+          if not x:
+              raise ValueError('Invalid version expression')
+          if f'release/{x.group(1)}.{x.group(2)}' != sys.argv[1]:
+              raise ValueError('Branch name mismatch')
+          """ > /tmp/check.py
+          python /tmp/check.py "${{ steps.extract_branch.outputs.branch }}"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build and test the package
+        run: |
+          python setup.py build_py && python -m build
+          rm -rf src taipy
+          pip install dist/*.tar.gz
+          pip install pytest pytest-mock
+          pytest
+
   release:
+    needs: [test-package]
+    timeout-minutes: 20
     name: Release taipy-core Package
-
-    strategy:
-      matrix:
-        os: [ubuntu-18.04]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Extract branch tag
-        shell: bash
-        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/heads/release/})"
-        id: extract_branch
 
       - name: Extract commit hash
         shell: bash
@@ -30,10 +64,6 @@ jobs:
 
       - name: Create/update release and tag
         run: |
-            gh release view ${{ steps.extract_branch.outputs.tag }} &&
-            gh release delete ${{ steps.extract_branch.outputs.tag }} &&
-            git tag -f ${{ steps.extract_branch.outputs.tag }} &&
-            git push -f origin ${{ steps.extract_branch.outputs.tag }};
-            gh release create ${{ steps.extract_branch.outputs.tag }} --target ${{ steps.extract_hash.outputs.hash }} --notes "Release created using Github Workflows"
+            gh release create ${{ github.event.inputs.version }} --target ${{ steps.extract_hash.outputs.hash }} --notes "Release created using Github Workflows"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

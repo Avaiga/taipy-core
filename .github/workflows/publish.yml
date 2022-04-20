@@ -1,15 +1,11 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Publish package
+name: Publish on Pypi
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "The release/package version to create (ex: 1.0.0)"
+        required: true
 
 jobs:
   test-package:
@@ -20,6 +16,24 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Validate branch name
+        run: |
+          echo """
+          import re, sys
+          setup = open('setup.py').read()
+          x = re.search(r'version=\"(\d+)\.(\d+)\.(\d+)(?:\.([a-zA-Z0-9_]+))?\"', setup)
+          if not x:
+              raise ValueError('Invalid version expression')
+          if f'release/{x.group(1)}.{x.group(2)}' != sys.argv[1]:
+              raise ValueError('Branch name mismatch')
+          """ > /tmp/check.py
+          python /tmp/check.py "${{ steps.extract_branch.outputs.branch }}"
 
       - name: Install dependencies
         run: |
@@ -34,11 +48,10 @@ jobs:
           pip install pytest pytest-mock
           pytest
 
-
   publish-to-pypi:
     needs: [test-package]
     timeout-minutes: 20
-    environment: production
+    environment: publish
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +72,6 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-
 
   test-published-package:
     needs: [publish-to-pypi]
