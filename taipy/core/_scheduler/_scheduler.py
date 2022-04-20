@@ -21,7 +21,6 @@ from taipy.core.config.job_config import JobConfig
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.job.job import Job
-from taipy.core.job.status import Status
 from taipy.core.pipeline.pipeline import Pipeline
 from taipy.core.task.task import Task
 
@@ -47,30 +46,7 @@ class _Scheduler(_AbstractScheduler):
         cls._dispatcher._set_executer_and_nb_available_workers(job_config.nb_of_workers)  # type: ignore
 
     @classmethod
-    def _recover_jobs(cls):
-        res = list()
-        blocked_or_submitted_jobs = list()
-        jobs = _JobManager._get_all()
-        jobs.sort(key=lambda x: x.creation_date)
-
-        for job in jobs:
-            if job.status == Status.RUNNING or job.status == Status.PENDING:
-                cls.__set_pending_job(job)
-                cls.__run()
-                res.append(job)
-            elif job.status == Status.BLOCKED or job.status == Status.SUBMITTED:
-                blocked_or_submitted_jobs.append(job)
-            else:
-                continue
-
-        for job in blocked_or_submitted_jobs:
-            cls.__check_block_and_run_job(job)
-            res.append(job)
-
-        return res
-
-    @classmethod
-    def __check_block_and_run_job(cls, job):
+    def _check_block_and_run_job(cls, job):
         if cls.is_blocked(job):
             cls.__set_block_job(job)
         else:
@@ -124,7 +100,7 @@ class _Scheduler(_AbstractScheduler):
         for dn in task.output.values():
             dn.lock_edition()
         job = _JobManager._create(task, itertools.chain([cls._on_status_change], callbacks or []))
-        cls.__check_block_and_run_job(job)
+        cls._check_block_and_run_job(job)
 
         return job
 
@@ -172,12 +148,15 @@ class _Scheduler(_AbstractScheduler):
                 cls.blocked_jobs.remove(job)
                 cls.jobs_to_run.put(job)
 
-    def is_running(self) -> bool:
+    @classmethod
+    def is_running(cls) -> bool:
         """Returns False since the default scheduler is not runnable."""
         return False
 
-    def start(self):
+    @classmethod
+    def start(cls):
         RuntimeError("The default scheduler cannot be started.")
 
-    def stop(self):
+    @classmethod
+    def stop(cls):
         RuntimeError("The default scheduler cannot be started nor stopped.")

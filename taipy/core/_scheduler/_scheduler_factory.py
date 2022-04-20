@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+from importlib import util
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
 from taipy.core._scheduler._scheduler import _Scheduler
@@ -17,10 +18,16 @@ from taipy.core.config.config import Config
 
 class _SchedulerFactory:
     @classmethod
-    def _build_scheduler(cls):
+    def _build_scheduler(cls) -> _AbstractScheduler:
         if Config.job_config._is_default_mode():
-            _Scheduler._recover_jobs()
-            return _Scheduler
-
-        package = f"taipy.{Config.job_config.mode}.scheduler"
-        return _load_fct(package, "Scheduler")
+            if util.find_spec("taipy.enterprise"):
+                # Mode standalone with enterprise version
+                package = "taipy.enterprise.core.scheduler"
+                return _load_fct(package, "Scheduler")()
+            else:
+                # Mode standalone with community version
+                return _Scheduler()
+        else:
+            # Mode airflow with enterprise version
+            package = f"taipy.{Config.job_config.mode}.scheduler"
+            return _load_fct(package, "Scheduler")()
