@@ -24,7 +24,7 @@ jobs:
 
       - name: Ensure package version is properly set
         run: |
-          echo 'version="'${{ github.event.inputs.version }}'"' | grep -f - setup.py
+          echo 'version="${{ github.event.inputs.version }}"' | grep -f - setup.py
 
       - name: Validate branch name
         run: |
@@ -107,5 +107,5 @@ jobs:
 
       - name: Install and test package
         run: |
-          pip install --pre ${{ github.event.repository.name }}==${{ github.event.inputs.version }}
+          pip install --no-cache-dir ${{ github.event.repository.name }}==${{ github.event.inputs.version }}
           pytest
