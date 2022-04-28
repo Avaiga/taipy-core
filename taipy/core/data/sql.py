@@ -102,8 +102,7 @@ class SQLDataNode(DataNode):
         if not self._last_edition_date:
             self.unlock_edition()
 
-    @property
-    def engine(self):
+    def __engine(self):
         return self.__create_engine(
             self.properties.get("db_engine"),
             self.properties.get("db_username"),
@@ -144,7 +143,7 @@ class SQLDataNode(DataNode):
         return self._read_as_pandas_dataframe()
 
     def _read_as(self, query, custom_class):
-        with self.engine.connect() as connection:
+        with self.__engine().connect() as connection:
             query_result = connection.execute(text(query))
         return list(map(lambda row: custom_class(**row), query_result))
 
@@ -153,12 +152,12 @@ class SQLDataNode(DataNode):
 
     def _read_as_pandas_dataframe(self, columns: Optional[List[str]] = None):
         if columns:
-            return pd.read_sql_query(self.read_query, con=self.engine)[columns]
-        return pd.read_sql_query(self.read_query, con=self.engine)
+            return pd.read_sql_query(self.read_query, con=self.__engine())[columns]
+        return pd.read_sql_query(self.read_query, con=self.__engine())
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
-        with self.engine.connect() as connection:
+        with self.__engine().connect() as connection:
             write_table = table(self.write_table)
             if isinstance(data, pd.DataFrame):
                 self.__insert_dicts(data.to_dict(orient="records"), write_table, connection)
