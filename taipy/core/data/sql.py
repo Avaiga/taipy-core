@@ -13,7 +13,7 @@ import os
 import re
 import urllib
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Iterable
+from typing import Any, Dict, Iterable, List, Optional
 
 import numpy as np
 import pandas as pd
