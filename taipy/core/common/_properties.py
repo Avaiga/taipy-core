@@ -19,7 +19,7 @@ class _Properties(UserDict):
 
     def __setitem__(self, key, value):
         super(_Properties, self).__setitem__(key, value)
-        import taipy.core.taipy as tp
+        import taipy.core as tp
 
         if hasattr(self, "parent"):
             tp.set(self.parent)

@@ -118,7 +118,7 @@ class DataNode(_Entity):
     @_self_setter(_MANAGER_NAME)
     def last_edition_date(self, val):
         self.__logger.warning("last_edition_date is deprecated. Use last_edit_date instead.")
-        self.last_edit_date = val
+        self._last_edit_date = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -181,7 +181,7 @@ class DataNode(_Entity):
     @_self_setter(_MANAGER_NAME)
     def edition_in_progress(self, val):
         self.__logger.warning("edition_in_progress is deprecated. Use edit_in_progress instead.")
-        self.edit_in_progress = val
+        self._edit_in_progress = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
