@@ -213,7 +213,7 @@ def test_submit_scenario_from_tasks_with_one_or_no_input_output():
     pipeline_2 = Pipeline("my_pipeline_2", {}, [task_one_input_no_output])
 
     _DataManager._set(data_node_input)
-    data_node_input.unlock_edition()
+    data_node_input.unlock_edit()
 
     _TaskManager._set(task_one_input_no_output)
     _PipelineManager._set(pipeline_2)

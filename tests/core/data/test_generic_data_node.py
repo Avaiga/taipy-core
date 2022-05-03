@@ -64,7 +64,7 @@ class TestGenericDataNode:
         assert dn.scope == Scope.PIPELINE
         assert dn.id is not None
         assert dn.parent_id is None
-        assert dn.last_edition_date is not None
+        assert dn.last_edit_date is not None
         assert dn.job_ids == []
         assert dn.is_ready_for_reading
         assert dn.properties["read_fct"] == read_fct
@@ -78,7 +78,7 @@ class TestGenericDataNode:
         assert dn_1.scope == Scope.PIPELINE
         assert dn_1.id is not None
         assert dn_1.parent_id is None
-        assert dn_1.last_edition_date is not None
+        assert dn_1.last_edit_date is not None
         assert dn_1.job_ids == []
         assert dn_1.is_ready_for_reading
         assert dn_1.properties["read_fct"] == read_fct
@@ -92,7 +92,7 @@ class TestGenericDataNode:
         assert dn_2.scope == Scope.PIPELINE
         assert dn_2.id is not None
         assert dn_2.parent_id is None
-        assert dn_2.last_edition_date is not None
+        assert dn_2.last_edit_date is not None
         assert dn_2.job_ids == []
         assert dn_2.is_ready_for_reading
         assert dn_2.properties["read_fct"] is None

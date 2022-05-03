@@ -78,7 +78,7 @@ class TestExcelDataNode:
         assert dn.scope == Scope.PIPELINE
         assert dn.id is not None
         assert dn.parent_id is None
-        assert dn.last_edition_date is None
+        assert dn.last_edit_date is None
         assert dn.job_ids == []
         assert not dn.is_ready_for_reading
         assert dn.path == path

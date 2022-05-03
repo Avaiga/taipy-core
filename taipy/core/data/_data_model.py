@@ -26,11 +26,11 @@ class _DataNodeModel:
     storage_type: str
     name: str
     parent_id: Optional[str]
-    last_edition_date: Optional[str]
+    last_edit_date: Optional[str]
     job_ids: List[JobId]
     validity_days: Optional[float]
     validity_seconds: Optional[float]
-    edition_in_progress: bool
+    edit_in_progress: bool
     data_node_properties: Dict[str, Any]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -45,10 +45,10 @@ class _DataNodeModel:
             storage_type=data["storage_type"],
             name=data["name"],
             parent_id=data["parent_id"],
-            last_edition_date=data["last_edition_date"],
+            last_edit_date=data["last_edit_date"],
             job_ids=data["job_ids"],
             validity_days=data["validity_days"],
             validity_seconds=data["validity_seconds"],
-            edition_in_progress=bool(data["edition_in_progress"]),
+            edit_in_progress=bool(data["edit_in_progress"]),
             data_node_properties=data["data_node_properties"],
         )

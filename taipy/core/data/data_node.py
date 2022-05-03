@@ -36,12 +36,12 @@ class DataNode(_Entity):
     """Reference to a dataset.
 
     A Data Node holds metadata related to the dataset it refers to. In particular, a data node
-    holds the name, the scope, the parent identifier, the last edition date, and some additional
+    holds the name, the scope, the parent identifier, the last edit date, and some additional
     properties of the data.<br/>
     A Data Node also contains information and methods needed to access the dataset. This
     information depends on the type of storage, and it is held by subclasses (such as
     SQL Data Node, CSV Data Node, ...).
-    
+
     !!! note
         It is recommended not to instantiate subclasses of DataNode directly.
 
@@ -53,12 +53,12 @@ class DataNode(_Entity):
         name (str): A user-readable name of this data node.
         parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or
             None.
-        last_edition_date (datetime): The date and time of the last edition.
+        last_edit_date (datetime): The date and time of the last edit.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
             always up-to-date.
-        edition_in_progress (bool): True if a task computing the data node has been submitted
+        edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         kwargs: A dictionary of additional properties.
     """
@@ -76,19 +76,19 @@ class DataNode(_Entity):
         id: Optional[DataNodeId] = None,
         name: Optional[str] = None,
         parent_id: Optional[str] = None,
-        last_edition_date: Optional[datetime] = None,
+        last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
         validity_period: Optional[timedelta] = None,
-        edition_in_progress: bool = False,
+        edit_in_progress: bool = False,
         **kwargs,
     ):
         self.config_id = _validate_id(config_id)
         self.id = id or DataNodeId(self.__ID_SEPARATOR.join([self._ID_PREFIX, self.config_id, str(uuid.uuid4())]))
         self.parent_id = parent_id
         self._scope = scope
-        self._last_edition_date = last_edition_date
+        self._last_edit_date = last_edit_date
         self._name = name or self.id
-        self._edition_in_progress = edition_in_progress
+        self._edit_in_progress = edit_in_progress
         self._job_ids = _ListAttributes(self, job_ids or list())
 
         self._validity_period = validity_period
@@ -97,13 +97,28 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     @_self_reload("data")
+    def last_edit_date(self):
+        return self._last_edit_date
+
+    @last_edit_date.setter  # type: ignore
+    @_self_setter(_MANAGER_NAME)
+    def last_edit_date(self, val):
+        self._last_edit_date = val
+
+    @property  # type: ignore
+    @_self_reload("data")
     def last_edition_date(self):
-        return self._last_edition_date
+        """
+        Deprecated. Use last_edit_date instead.
+        """
+        self.__logger.warning("last_edition_date is deprecated. Use last_edit_date instead.")
+        return self._last_edit_date
 
     @last_edition_date.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
     def last_edition_date(self, val):
-        self._last_edition_date = val
+        self.__logger.warning("last_edition_date is deprecated. Use last_edit_date instead.")
+        self.last_edit_date = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -128,10 +143,10 @@ class DataNode(_Entity):
     @property  # type: ignore
     @_self_reload("data")
     def expiration_date(self) -> datetime:
-        if not self._last_edition_date:
+        if not self._last_edit_date:
             raise NoData
 
-        return self._last_edition_date + self.validity_period if self.validity_period else self._last_edition_date
+        return self._last_edit_date + self.validity_period if self.validity_period else self._last_edit_date
 
     @property  # type: ignore
     @_self_reload("data")
@@ -145,13 +160,28 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
+    def edit_in_progress(self):
+        return self._edit_in_progress
+
+    @edit_in_progress.setter  # type: ignore
+    @_self_setter(_MANAGER_NAME)
+    def edit_in_progress(self, val):
+        self._edit_in_progress = val
+
+    @property  # type: ignore
+    @_self_reload(_MANAGER_NAME)
     def edition_in_progress(self):
-        return self._edition_in_progress
+        """
+        Deprecated. Use edit_in_progress instead.
+        """
+        self.__logger.warning("edition_in_progress is deprecated. Use edit_in_progress instead.")
+        return self._edit_in_progress
 
     @edition_in_progress.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
     def edition_in_progress(self, val):
-        self._edition_in_progress = val
+        self.__logger.warning("edition_in_progress is deprecated. Use edit_in_progress instead.")
+        self.edit_in_progress = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -203,7 +233,7 @@ class DataNode(_Entity):
         Raises:
             NoData^: If the data has not been written yet.
         """
-        if not self.last_edition_date:
+        if not self.last_edit_date:
             raise NoData
         return self._read()
 
@@ -229,37 +259,37 @@ class DataNode(_Entity):
         from taipy.core.data._data_manager import _DataManager
 
         self._write(data)
-        self.unlock_edition(job_id=job_id)
+        self.unlock_edit(job_id=job_id)
         _DataManager._set(self)
 
-    def lock_edition(self):
-        """Lock the edition of this data node.
+    def lock_edit(self):
+        """Lock the edit of this data node.
 
         Note:
-            The data node can be unlocked with the method `(DataNode.)unlock_edition()^`.
+            The data node can be unlocked with the method `(DataNode.)unlock_edit()^`.
         """
-        self.edition_in_progress = True
+        self.edit_in_progress = True
 
-    def unlock_edition(self, at: datetime = None, job_id: JobId = None):
-        """Unlocks the edition of the data node.
-        
-        The _last_edition_date_ is updated.
+    def unlock_edit(self, at: datetime = None, job_id: JobId = None):
+        """Unlocks the edit of the data node.
+
+        The _last_edit_date_ is updated.
 
         Parameters:
-            at (datetime): The optional datetime of the last edition.
+            at (datetime): The optional datetime of the last edit.
                 If no _at_ datetime is provided, the current datetime is used.
             job_id (JobId^): An optional identifier of the writer.
         Note:
-            The data node  can be locked with the method `(DataNode.)lock_edition()^`.
+            The data node  can be locked with the method `(DataNode.)lock_edit()^`.
         """
-        self.last_edition_date = at or datetime.now()  # type: ignore
-        self.edition_in_progress = False  # type: ignore
+        self.last_edit_date = at or datetime.now()  # type: ignore
+        self.edit_in_progress = False  # type: ignore
         if job_id:
             self._job_ids.append(job_id)
 
     def filter(self, operators: Union[List, Tuple], join_operator=JoinOperator.AND):
         """Read the data referenced by the data node, appying a filter.
-        
+
         The data is filtered by the provided list of 3-tuples (key, value, `Operator^`).
 
         If multiple filter operators are provided, filtered data will be joined based on the
@@ -371,14 +401,14 @@ class DataNode(_Entity):
     @_self_reload("data")
     def is_ready_for_reading(self):
         """Indicate if this data node is ready for reading.
-        
+
         Returns:
-            bool: False if the data is locked for edition or if the data has never been written.
+            bool: False if the data is locked for edit or if the data has never been written.
                 True otherwise.
         """
-        if self._edition_in_progress:
+        if self._edit_in_progress:
             return False
-        if not self._last_edition_date:
+        if not self._last_edit_date:
             # Never been written so it is not up-to-date
             return False
         return True
@@ -388,7 +418,7 @@ class DataNode(_Entity):
     def _is_in_cache(self):
         if not self._properties.get(DataNodeConfig._IS_CACHEABLE_KEY):
             return False
-        if not self._last_edition_date:
+        if not self._last_edit_date:
             # Never been written so it is not up-to-date
             return False
         if not self._validity_period:

@@ -62,8 +62,8 @@ class TestDataManager:
         assert _DataManager._get(csv_dn.id).scope == csv_dn.scope
         assert _DataManager._get(csv_dn.id).parent_id is None
         assert _DataManager._get(csv_dn.id).parent_id == csv_dn.parent_id
-        assert _DataManager._get(csv_dn.id).last_edition_date is None
-        assert _DataManager._get(csv_dn.id).last_edition_date == csv_dn.last_edition_date
+        assert _DataManager._get(csv_dn.id).last_edit_date is None
+        assert _DataManager._get(csv_dn.id).last_edit_date == csv_dn.last_edit_date
         assert _DataManager._get(csv_dn.id).job_ids == []
         assert _DataManager._get(csv_dn.id).job_ids == csv_dn.job_ids
         assert not _DataManager._get(csv_dn.id).is_ready_for_reading
@@ -82,8 +82,8 @@ class TestDataManager:
         assert _DataManager._get(csv_dn).scope == csv_dn.scope
         assert _DataManager._get(csv_dn).parent_id is None
         assert _DataManager._get(csv_dn).parent_id == csv_dn.parent_id
-        assert _DataManager._get(csv_dn).last_edition_date is None
-        assert _DataManager._get(csv_dn).last_edition_date == csv_dn.last_edition_date
+        assert _DataManager._get(csv_dn).last_edit_date is None
+        assert _DataManager._get(csv_dn).last_edit_date == csv_dn.last_edit_date
         assert _DataManager._get(csv_dn).job_ids == []
         assert _DataManager._get(csv_dn).job_ids == csv_dn.job_ids
         assert not _DataManager._get(csv_dn).is_ready_for_reading
@@ -121,8 +121,8 @@ class TestDataManager:
         assert _DataManager._get(in_mem_dn.id).scope == in_mem_dn.scope
         assert _DataManager._get(in_mem_dn.id).parent_id == "Scenario_id"
         assert _DataManager._get(in_mem_dn.id).parent_id == in_mem_dn.parent_id
-        assert _DataManager._get(in_mem_dn.id).last_edition_date is not None
-        assert _DataManager._get(in_mem_dn.id).last_edition_date == in_mem_dn.last_edition_date
+        assert _DataManager._get(in_mem_dn.id).last_edit_date is not None
+        assert _DataManager._get(in_mem_dn.id).last_edit_date == in_mem_dn.last_edit_date
         assert _DataManager._get(in_mem_dn.id).job_ids == []
         assert _DataManager._get(in_mem_dn.id).job_ids == in_mem_dn.job_ids
         assert _DataManager._get(in_mem_dn.id).is_ready_for_reading
@@ -140,8 +140,8 @@ class TestDataManager:
         assert _DataManager._get(in_mem_dn).scope == in_mem_dn.scope
         assert _DataManager._get(in_mem_dn).parent_id == "Scenario_id"
         assert _DataManager._get(in_mem_dn).parent_id == in_mem_dn.parent_id
-        assert _DataManager._get(in_mem_dn).last_edition_date is not None
-        assert _DataManager._get(in_mem_dn).last_edition_date == in_mem_dn.last_edition_date
+        assert _DataManager._get(in_mem_dn).last_edit_date is not None
+        assert _DataManager._get(in_mem_dn).last_edit_date == in_mem_dn.last_edit_date
         assert _DataManager._get(in_mem_dn).job_ids == []
         assert _DataManager._get(in_mem_dn).job_ids == in_mem_dn.job_ids
         assert _DataManager._get(in_mem_dn).is_ready_for_reading
@@ -171,8 +171,8 @@ class TestDataManager:
         assert _DataManager._get(pickle_dn.id).scope == pickle_dn.scope
         assert _DataManager._get(pickle_dn.id).parent_id is None
         assert _DataManager._get(pickle_dn.id).parent_id == pickle_dn.parent_id
-        assert _DataManager._get(pickle_dn.id).last_edition_date is None
-        assert _DataManager._get(pickle_dn.id).last_edition_date == pickle_dn.last_edition_date
+        assert _DataManager._get(pickle_dn.id).last_edit_date is None
+        assert _DataManager._get(pickle_dn.id).last_edit_date == pickle_dn.last_edit_date
         assert _DataManager._get(pickle_dn.id).job_ids == []
         assert _DataManager._get(pickle_dn.id).job_ids == pickle_dn.job_ids
         assert not _DataManager._get(pickle_dn.id).is_ready_for_reading
@@ -189,8 +189,8 @@ class TestDataManager:
         assert _DataManager._get(pickle_dn).scope == pickle_dn.scope
         assert _DataManager._get(pickle_dn).parent_id is None
         assert _DataManager._get(pickle_dn).parent_id == pickle_dn.parent_id
-        assert _DataManager._get(pickle_dn).last_edition_date is None
-        assert _DataManager._get(pickle_dn).last_edition_date == pickle_dn.last_edition_date
+        assert _DataManager._get(pickle_dn).last_edit_date is None
+        assert _DataManager._get(pickle_dn).last_edit_date == pickle_dn.last_edit_date
         assert _DataManager._get(pickle_dn).job_ids == []
         assert _DataManager._get(pickle_dn).job_ids == pickle_dn.job_ids
         assert not _DataManager._get(pickle_dn).is_ready_for_reading
@@ -249,9 +249,9 @@ class TestDataManager:
             Scope.PIPELINE,
             id=DataNodeId("id"),
             parent_id=None,
-            last_edition_date=None,
+            last_edit_date=None,
             job_ids=[],
-            edition_in_progress=False,
+            edit_in_progress=False,
             properties={"foo": "bar"},
         )
         assert len(_DataManager._get_all()) == 0
