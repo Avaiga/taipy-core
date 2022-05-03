@@ -90,7 +90,7 @@ class TestDataNode:
         assert dn.id is not None
         assert dn.name == dn.id
         assert dn.parent_id is None
-        assert dn.last_edit_date is None
+        assert dn.last_edition_date is None
         assert dn.job_ids == []
         assert not dn.is_ready_for_reading
         assert len(dn.properties) == 0
@@ -113,7 +113,7 @@ class TestDataNode:
         assert dn.id == "an_id"
         assert dn.name == "a name"
         assert dn.parent_id == "a_scenario_id"
-        assert dn.last_edit_date == a_date
+        assert dn.last_edition_date == a_date
         assert dn.job_ids == ["a_job_id"]
         assert dn.is_ready_for_reading
         assert len(dn.properties) == 1
@@ -130,14 +130,14 @@ class TestDataNode:
         assert dn.write_has_been_called == 0
         assert dn.read_has_been_called == 0
         assert not dn.is_ready_for_reading
-        assert dn.last_edit_date is None
+        assert dn.last_edition_date is None
         assert dn.job_ids == []
 
         dn.write("Any data")
         assert dn.write_has_been_called == 1
         assert dn.read_has_been_called == 0
-        assert dn.last_edit_date is not None
-        first_edit = dn.last_edit_date
+        assert dn.last_edition_date is not None
+        first_edition = dn.last_edition_date
         assert dn.is_ready_for_reading
         assert dn.job_ids == []
         sleep(0.1)
@@ -145,42 +145,42 @@ class TestDataNode:
         dn.write("Any other data", job_id := JobId("a_job_id"))
         assert dn.write_has_been_called == 2
         assert dn.read_has_been_called == 0
-        second_edit = dn.last_edit_date
-        assert first_edit < second_edit
+        second_edition = dn.last_edition_date
+        assert first_edition < second_edition
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
         dn.read()
         assert dn.write_has_been_called == 2
         assert dn.read_has_been_called == 1
-        second_edit = dn.last_edit_date
-        assert first_edit < second_edit
+        second_edition = dn.last_edition_date
+        assert first_edition < second_edition
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
     def test_ready_for_reading(self):
         dn = InMemoryDataNode("foo_bar", Scope.CYCLE)
-        assert dn.last_edit_date is None
+        assert dn.last_edition_date is None
         assert not dn.is_ready_for_reading
         assert dn.job_ids == []
 
-        dn.lock_edit()
-        assert dn.last_edit_date is None
+        dn.lock_edition()
+        assert dn.last_edition_date is None
         assert not dn.is_ready_for_reading
         assert dn.job_ids == []
 
-        dn.unlock_edit(a_date := datetime.now(), job_id := JobId("a_job_id"))
-        assert dn.last_edit_date == a_date
+        dn.unlock_edition(a_date := datetime.now(), job_id := JobId("a_job_id"))
+        assert dn.last_edition_date == a_date
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
-        dn.lock_edit()
-        assert dn.last_edit_date == a_date
+        dn.lock_edition()
+        assert dn.last_edition_date == a_date
         assert not dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
-        dn.unlock_edit(b_date := datetime.now())
-        assert dn.last_edit_date == b_date
+        dn.unlock_edition(b_date := datetime.now())
+        assert dn.last_edition_date == b_date
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
@@ -214,7 +214,7 @@ class TestDataNode:
         assert dn._is_in_cache is False
 
         # Has been writen more than 30 minutes ago
-        dn._last_edit_date = datetime.now() + timedelta(days=-1)
+        dn._last_edition_date = datetime.now() + timedelta(days=-1)
         _DataManager._set(dn)
         assert dn._is_in_cache is False
 
@@ -468,26 +468,26 @@ class TestDataNode:
 
         new_datetime = current_datetime + timedelta(1)
 
-        assert dn_1.last_edit_date == current_datetime
-        dn_1.last_edit_date = new_datetime
-        assert dn_1.last_edit_date == new_datetime
-        assert dn_2.last_edit_date == new_datetime
+        assert dn_1.last_edition_date == current_datetime
+        dn_1.last_edition_date = new_datetime
+        assert dn_1.last_edition_date == new_datetime
+        assert dn_2.last_edition_date == new_datetime
 
         assert dn_1.name == "foo"
         dn_1.name = "def"
         assert dn_1.name == "def"
         assert dn_2.name == "def"
 
-        assert not dn_1.edit_in_progress
-        dn_1.edit_in_progress = True
-        assert dn_1.edit_in_progress
-        assert dn_2.edit_in_progress
-        dn_1.unlock_edit()
-        assert not dn_1.edit_in_progress
-        assert not dn_2.edit_in_progress
-        dn_1.lock_edit()
-        assert dn_1.edit_in_progress
-        assert dn_2.edit_in_progress
+        assert not dn_1.edition_in_progress
+        dn_1.edition_in_progress = True
+        assert dn_1.edition_in_progress
+        assert dn_2.edition_in_progress
+        dn_1.unlock_edition()
+        assert not dn_1.edition_in_progress
+        assert not dn_2.edition_in_progress
+        dn_1.lock_edition()
+        assert dn_1.edition_in_progress
+        assert dn_2.edition_in_progress
 
         time_period = timedelta(1)
 
@@ -501,7 +501,7 @@ class TestDataNode:
         assert dn_1.properties["qux"] == 5
         assert dn_2.properties["qux"] == 5
 
-        dn_1.last_edit_date = new_datetime
+        dn_1.last_edition_date = new_datetime
 
         assert len(dn_1.job_ids) == 1
         dn_1.job_ids.append("a_job_id_2")
@@ -516,9 +516,9 @@ class TestDataNode:
             assert dn.config_id == "foo"
             assert dn.parent_id is None
             assert dn.scope == Scope.PIPELINE
-            assert dn.last_edit_date == new_datetime
+            assert dn.last_edition_date == new_datetime
             assert dn.name == "def"
-            assert dn.edit_in_progress
+            assert dn.edition_in_progress
             assert dn.validity_period == time_period
             assert len(dn.job_ids) == 0
             assert dn._is_in_context
@@ -526,27 +526,27 @@ class TestDataNode:
             new_datetime_2 = new_datetime + timedelta(1)
 
             dn.scope = Scope.CYCLE
-            dn.last_edit_date = new_datetime_2
+            dn.last_edition_date = new_datetime_2
             dn.name = "abc"
-            dn.edit_in_progress = False
+            dn.edition_in_progress = False
             dn.validity_period = None
             dn.job_ids = ["a_job_id"]
 
             assert dn.config_id == "foo"
             assert dn.parent_id is None
             assert dn.scope == Scope.PIPELINE
-            assert dn.last_edit_date == new_datetime
+            assert dn.last_edition_date == new_datetime
             assert dn.name == "def"
-            assert dn.edit_in_progress
+            assert dn.edition_in_progress
             assert dn.validity_period == time_period
             assert len(dn.job_ids) == 0
 
         assert dn_1.config_id == "foo"
         assert dn_1.parent_id is None
         assert dn_1.scope == Scope.CYCLE
-        assert dn_1.last_edit_date == new_datetime_2
+        assert dn_1.last_edition_date == new_datetime_2
         assert dn_1.name == "abc"
-        assert not dn_1.edit_in_progress
+        assert not dn_1.edition_in_progress
         assert dn_1.validity_period is None
         assert not dn_1._is_in_context
         assert len(dn_1.job_ids) == 1

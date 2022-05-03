@@ -97,7 +97,7 @@ class DataNode(_Entity):
         self._properties = _Properties(self, **kwargs)
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def last_edit_date(self):
         return self._last_edit_date
 
@@ -130,7 +130,7 @@ class DataNode(_Entity):
         self._scope = val
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def validity_period(self) -> Optional[timedelta]:
         return self._validity_period if self._validity_period else None
 
@@ -140,7 +140,7 @@ class DataNode(_Entity):
         self._validity_period = val
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def expiration_date(self) -> datetime:
         if not self._last_edit_date:
             raise NoData
@@ -148,7 +148,7 @@ class DataNode(_Entity):
         return self._last_edit_date + self.validity_period if self.validity_period else self._last_edit_date
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def name(self):
         return self._name
 
@@ -192,7 +192,7 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     def properties(self):
-        r = _reload("data", self)
+        r = _reload(self._MANAGER_NAME, self)
         self._properties = r._properties
         return self._properties
 
@@ -409,7 +409,7 @@ class DataNode(_Entity):
         return _FilterDataNode(self.id, self._read())[items]
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def is_ready_for_reading(self):
         """Indicate if this data node is ready for reading.
 
@@ -425,7 +425,7 @@ class DataNode(_Entity):
         return True
 
     @property  # type: ignore
-    @_self_reload("data")
+    @_self_reload(_MANAGER_NAME)
     def _is_in_cache(self):
         if not self._properties.get(DataNodeConfig._IS_CACHEABLE_KEY):
             return False

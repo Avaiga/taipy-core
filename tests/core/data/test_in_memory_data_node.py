@@ -34,13 +34,13 @@ class TestInMemoryDataNodeEntity:
         assert dn.id == "id_uio"
         assert dn.name == "my name"
         assert dn.parent_id == "parent_id"
-        assert dn.last_edit_date is not None
+        assert dn.last_edition_date is not None
         assert dn.job_ids == []
         assert dn.is_ready_for_reading
         assert dn.read() == "In memory Data Node"
 
         dn_2 = InMemoryDataNode("foo", Scope.PIPELINE)
-        assert dn_2.last_edit_date is None
+        assert dn_2.last_edition_date is None
         assert not dn_2.is_ready_for_reading
 
         with pytest.raises(InvalidConfigurationId):
