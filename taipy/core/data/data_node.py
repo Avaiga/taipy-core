@@ -270,6 +270,12 @@ class DataNode(_Entity):
         """
         self.edit_in_progress = True
 
+    def lock_edition(self):
+        """
+        Deprecated. Use lock_edit instead.
+        """
+        self.lock_edit()
+
     def unlock_edit(self, at: datetime = None, job_id: JobId = None):
         """Unlocks the edit of the data node.
 
@@ -286,6 +292,12 @@ class DataNode(_Entity):
         self.edit_in_progress = False  # type: ignore
         if job_id:
             self._job_ids.append(job_id)
+
+    def unlock_edition(self, at: datetime = None, job_id: JobId = None):
+        """
+        Deprecated. Use unlock_edit instead.
+        """
+        self.unlock_edit(at, job_id)
 
     def filter(self, operators: Union[List, Tuple], join_operator=JoinOperator.AND):
         """Read the data referenced by the data node, appying a filter.
