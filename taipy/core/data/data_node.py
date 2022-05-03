@@ -280,7 +280,7 @@ class DataNode(_Entity):
         The _last_edit_date_ is updated.
 
         Parameters:
-            at (datetime): The optional datetime of the last edit.
+            at (datetime): The optional datetime of the last modification.
                 If no _at_ datetime is provided, the current datetime is used.
             job_id (JobId^): An optional identifier of the writer.
         Note:
@@ -414,7 +414,7 @@ class DataNode(_Entity):
         """Indicate if this data node is ready for reading.
 
         Returns:
-            bool: False if the data is locked for edit or if the data has never been written.
+            bool: False if the data is locked for modification or if the data has never been written.
                 True otherwise.
         """
         if self._edit_in_progress:

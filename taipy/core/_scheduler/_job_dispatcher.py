@@ -59,8 +59,7 @@ class _JobDispatcher:
     @staticmethod
     def _needs_to_run(task: Task) -> bool:
         """
-        Returns True if the task outputs are in cache and if the output's last edit date is prior the input's last
-        edit date.
+        Returns True if the task has no output or if at least one input was modified since the latest run.
 
         Parameters:
              task (Task^): The task to run.
