@@ -24,6 +24,7 @@ from taipy.core.common._properties import _Properties
 from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common._validate_id import _validate_id
+from taipy.core.common._warnings import _warn_deprecated
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.common.scope import Scope
 from taipy.core.config.data_node_config import DataNodeConfig
@@ -106,19 +107,17 @@ class DataNode(_Entity):
         self._last_edit_date = val
 
     @property  # type: ignore
-    @_self_reload("data")
     def last_edition_date(self):
         """
         Deprecated. Use last_edit_date instead.
         """
-        self.__logger.warning("last_edition_date is deprecated. Use last_edit_date instead.")
-        return self._last_edit_date
+        _warn_deprecated("last_edition_date", suggest="last_edit_date")
+        return self.last_edit_date
 
     @last_edition_date.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
     def last_edition_date(self, val):
-        self.__logger.warning("last_edition_date is deprecated. Use last_edit_date instead.")
-        self._last_edit_date = val
+        _warn_deprecated("last_edition_date", suggest="last_edit_date")
+        self.last_edit_date = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -169,19 +168,17 @@ class DataNode(_Entity):
         self._edit_in_progress = val
 
     @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
     def edition_in_progress(self):
         """
         Deprecated. Use edit_in_progress instead.
         """
-        self.__logger.warning("edition_in_progress is deprecated. Use edit_in_progress instead.")
-        return self._edit_in_progress
+        _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
+        return self.edit_in_progress
 
     @edition_in_progress.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
     def edition_in_progress(self, val):
-        self.__logger.warning("edition_in_progress is deprecated. Use edit_in_progress instead.")
-        self._edit_in_progress = val
+        _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
+        self.edit_in_progress = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -274,7 +271,7 @@ class DataNode(_Entity):
         """
         Deprecated. Use lock_edit instead.
         """
-        self.__logger.warning("lock_edition is deprecated. Use lock_edit instead.")
+        _warn_deprecated("lock_edition", suggest="lock_edit")
         self.lock_edit()
 
     def unlock_edit(self, at: datetime = None, job_id: JobId = None):
@@ -298,7 +295,7 @@ class DataNode(_Entity):
         """
         Deprecated. Use unlock_edit instead.
         """
-        self.__logger.warning("unlock_edition is deprecated. Use unlock_edit instead.")
+        _warn_deprecated("unlock_edition", suggest="unlock_edit")
         self.unlock_edit(at, job_id)
 
     def filter(self, operators: Union[List, Tuple], join_operator=JoinOperator.AND):
