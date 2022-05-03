@@ -35,7 +35,7 @@ class InMemoryDataNode(DataNode):
         name (str): A user-readable name of this data node.
         parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or
             `None`.
-        last_edit_date (datetime): The date and time of the last edit.
+        last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
