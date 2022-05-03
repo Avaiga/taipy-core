@@ -274,6 +274,7 @@ class DataNode(_Entity):
         """
         Deprecated. Use lock_edit instead.
         """
+        self.__logger.warning("lock_edition is deprecated. Use lock_edit instead.")
         self.lock_edit()
 
     def unlock_edit(self, at: datetime = None, job_id: JobId = None):
@@ -297,6 +298,7 @@ class DataNode(_Entity):
         """
         Deprecated. Use unlock_edit instead.
         """
+        self.__logger.warning("unlock_edition is deprecated. Use unlock_edit instead.")
         self.unlock_edit(at, job_id)
 
     def filter(self, operators: Union[List, Tuple], join_operator=JoinOperator.AND):
