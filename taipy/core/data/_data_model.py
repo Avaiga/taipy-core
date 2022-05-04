@@ -45,10 +45,10 @@ class _DataNodeModel:
             storage_type=data["storage_type"],
             name=data["name"],
             parent_id=data["parent_id"],
-            last_edit_date=data["last_edit_date"],
+            last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
             job_ids=data["job_ids"],
             validity_days=data["validity_days"],
             validity_seconds=data["validity_seconds"],
-            edit_in_progress=bool(data["edit_in_progress"]),
+            edit_in_progress=bool(data.get("edit_in_progress", data.get("edition_in_progress", False))),
             data_node_properties=data["data_node_properties"],
         )
