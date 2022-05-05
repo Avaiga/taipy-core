@@ -17,6 +17,4 @@ def _warn_deprecated(deprecated: str, suggest: str = None, stacklevel: int = 3) 
     message = f"{deprecated} is deprecated."
     if suggest:
         message += f" Use {suggest} instead."
-    warnings.simplefilter("always", category)
     warnings.warn(message=message, category=category, stacklevel=stacklevel)
-    warnings.simplefilter("default", category)
