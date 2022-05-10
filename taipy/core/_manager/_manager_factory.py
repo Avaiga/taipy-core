@@ -29,50 +29,44 @@ class _ManagerFactory:
     def _scenario_manager(cls) -> Type[_ScenarioManager]:
         if cls._has_enterprise():
             return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".scenario._authorized_scenario_manager",
-                "_AuthorizedScenarioManager",
+                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".scenario._scenario_manager",
+                "_ScenarioManager",
             )  # type: ignore
         return _ScenarioManager
 
     @classmethod
     def _data_manager(cls) -> Type[_DataManager]:
         if cls._has_enterprise():
-            return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".data._authorized_data_manager", "_AuthorizedDataManager"
-            )  # type: ignore
+            return _load_fct(cls._TAIPY_ENTERPRISE_CORE_MODULE + ".data._data_manager", "_DataManager")  # type: ignore
         return _DataManager
 
     @classmethod
     def _cycle_manager(cls) -> Type[_CycleManager]:
         if cls._has_enterprise():
             return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".cycle._authorized_cycle_manager", "_AuthorizedCycleManager"
+                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".cycle._cycle_manager", "_CycleManager"
             )  # type: ignore
         return _CycleManager
 
     @classmethod
     def _job_manager(cls) -> Type[_JobManager]:
         if cls._has_enterprise():
-            return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".job._authorized_job_manager", "_AuthorizedJobManager"
-            )  # type: ignore
+            return _load_fct(cls._TAIPY_ENTERPRISE_CORE_MODULE + ".job._job_manager", "_JobManager")  # type: ignore
         return _JobManager
 
     @classmethod
     def _pipeline_manager(cls) -> Type[_PipelineManager]:
         if cls._has_enterprise():
             return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".pipeline._authorized_pipeline_manager",
-                "_AuthorizedPipelineManager",
+                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".pipeline._pipeline_manager",
+                "_PipelineManager",
             )  # type: ignore
         return _PipelineManager
 
     @classmethod
     def _task_manager(cls) -> Type[_TaskManager]:
         if cls._has_enterprise():
-            return _load_fct(
-                cls._TAIPY_ENTERPRISE_CORE_MODULE + ".task._authorized_task_manager", "_AuthorizedTaskManager"
-            )  # type: ignore
+            return _load_fct(cls._TAIPY_ENTERPRISE_CORE_MODULE + ".task._task_manager", "_TaskManager")  # type: ignore
         return _TaskManager
 
     @classmethod
