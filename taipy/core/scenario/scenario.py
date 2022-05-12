@@ -216,7 +216,7 @@ class Scenario(_Entity):
         Note:
             Notification will be available only for jobs created after this subscription.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.subscribe_scenario(callback, self)
 
@@ -229,7 +229,7 @@ class Scenario(_Entity):
         Note:
             The function will continue to be called for ongoing jobs.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.unsubscribe_scenario(callback, self)
 
@@ -241,7 +241,7 @@ class Scenario(_Entity):
         Parameters:
             force (bool): Force execution even if the data nodes are in cache.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.submit(self, force)
 
@@ -251,7 +251,7 @@ class Scenario(_Entity):
         If the cycle already has a primary scenario, it will be demoted, and it will no longer
         be primary for the cycle.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.set_primary(self)
 
@@ -264,7 +264,7 @@ class Scenario(_Entity):
         Parameters:
             tag (str): The tag to add to this scenario.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.tag(self, tag)
 
@@ -274,6 +274,6 @@ class Scenario(_Entity):
         Parameters:
             tag (str): The tag to remove from the set of the scenario's tags.
         """
-        import taipy as tp
+        import taipy.core as tp
 
         return tp.untag(self, tag)
