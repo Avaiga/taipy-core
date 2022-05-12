@@ -18,7 +18,7 @@ from taipy.core.scenario._scenario_manager import _ScenarioManager
 
 class _ScenarioManagerFactory(_ManagerFactory):
     @classmethod
-    def _build_manager(cls) -> Type[_ScenarioManager]:
+    def _build_manager(cls) -> Type[_ScenarioManager]:  # type: ignore
         if cls._using_enterprise():
-            return _load_fct(cls._TAIPY_ENTERPRISE_CORE_MODULE + ".scenario._scenario_manager")  # type: ignore
+            return _load_fct(cls._TAIPY_ENTERPRISE_CORE_MODULE + ".scenario._scenario_manager", "_ScenarioManager")  # type: ignore
         return _ScenarioManager

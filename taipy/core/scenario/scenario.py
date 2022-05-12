@@ -75,9 +75,9 @@ class Scenario(_Entity):
         return self.id
 
     def __setstate__(self, id):
-        from taipy.core.scenario._scenario_manager import _ScenarioManager
+        import taipy.core as tp
 
-        sc = _ScenarioManager._get(id)
+        sc = tp.get(id)
         self.__dict__ = sc.__dict__
 
     @property  # type: ignore
