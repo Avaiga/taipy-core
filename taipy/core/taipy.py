@@ -12,6 +12,7 @@
 from datetime import datetime
 from typing import Callable, Dict, List, Optional, Union
 
+from taipy.core._manager._manager_factory import _ManagerFactory
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
 from taipy.core.config.config import Config
@@ -190,7 +191,7 @@ def get_primary_scenarios() -> List[Scenario]:
 
 def set_primary(scenario: Scenario):
     """Promote a scenario as the primary scenario of its cycle.
-    
+
     If the cycle of _scenario_ already has a primary scenario, it is demoted and
     is no longer the primary scenario for its cycle.
 
@@ -202,7 +203,7 @@ def set_primary(scenario: Scenario):
 
 def tag(scenario: Scenario, tag: str):
     """Add a tag to a scenario.
-    
+
     If the _scenario_'s cycle already has another scenario tagged with _tag_, then this other
     scenario is untagged.
 
@@ -225,7 +226,7 @@ def untag(scenario: Scenario, tag: str):
 
 def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] = None):
     """Compare the data nodes of several scenarios.
-    
+
     You can specify which data node config identifier should the comparison be performed
     on.
 
@@ -250,7 +251,7 @@ def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] =
 
 def subscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):
     """Subscribe a function to be called on job status change.
-    
+
     The subscription is applied to all jobs created for the execution of _scenario_.
     If no scenario is provided, the subscription applies to all scenarios.
 
@@ -282,7 +283,7 @@ def unsubscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Op
 
 def subscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
     """Subscribe a function to be called on job status change.
-    
+
     The subscription is applied to all jobs created for the execution of _pipeline_.
 
     Parameters:
@@ -408,7 +409,7 @@ def create_pipeline(config: PipelineConfig) -> Pipeline:
 
 def clean_all_entities() -> bool:
     """Delete all entities from the Taipy data folder.
-    
+
     !!! important
         Invoking this function is only recommended for development purposes.
 

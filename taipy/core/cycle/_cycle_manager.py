@@ -13,8 +13,8 @@ import calendar
 from datetime import datetime, time, timedelta
 from typing import Optional
 
+from taipy.core._manager._manager import _Manager
 from taipy.core.common._entity_ids import _EntityIds
-from taipy.core.common._manager import _Manager
 from taipy.core.common.alias import CycleId
 from taipy.core.common.frequency import Frequency
 from taipy.core.cycle._cycle_repository import _CycleRepository
