@@ -13,7 +13,7 @@
 
 """The setup script."""
 
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, find_packages, setup
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
@@ -52,7 +52,9 @@ setup(
     license="Apache License 2.0",
     keywords="taipy-core",
     name="taipy-core",
-    packages=find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
+    # packages=find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
+    packages=find_namespace_packages(where="src") + find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
+    package_dir={"": "src"},
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/avaiga/taipy-core",

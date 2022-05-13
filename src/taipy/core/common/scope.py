@@ -36,9 +36,9 @@ class _OrderedEnum(_ReprEnum):
 
 class Scope(_OrderedEnum):
     """Scope of a `DataNode^`.
-    
+
     This enumeration can have the following values:
-    
+
     - `GLOBAL`
     - `CYCLE`
     - `SCENARIO`
