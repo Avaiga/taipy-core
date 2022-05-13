@@ -33,12 +33,12 @@ jobs:
       - name: Ensure that all managers are instantiated from factory.
         if: matrix.python-versions == '3.10' && matrix.os == 'ubuntu-18.04'
         run: |
-          grep -rP '_ScenarioManager(?!Factory)' taipy --exclude="_scenario_manager*.py" --exclude-dir="__pycache__"
-          grep -rP '_DataManager(?!Factory)' taipy --exclude="_data_manager*.py" --exclude-dir="__pycache__"
-          grep -rP '_TaskManager(?!Factory)' taipy --exclude="_task_manager*.py" --exclude-dir="__pycache__"
-          grep -rP '_PipelineManager(?!Factory)' taipy --exclude="_pipeline_manager*.py" --exclude-dir="__pycache__"
-          grep -rP '_JobManager(?!Factory)' taipy --exclude="_job_manager*.py" --exclude-dir="__pycache__"
-          grep -rP '_CycleManager(?!Factory)' taipy --exclude="_cycle_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_ScenarioManager(?!Factory)' taipy --exclude="_scenario_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_DataManager(?!Factory)' taipy --exclude="_data_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_TaskManager(?!Factory)' taipy --exclude="_task_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_PipelineManager(?!Factory)' taipy --exclude="_pipeline_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_JobManager(?!Factory)' taipy --exclude="_job_manager*.py" --exclude-dir="__pycache__"
+          ! grep -rP '_CycleManager(?!Factory)' taipy --exclude="_cycle_manager*.py" --exclude-dir="__pycache__"
 
 
       - name: Run all tests
