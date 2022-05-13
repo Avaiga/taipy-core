@@ -67,7 +67,7 @@ class Pipeline(_Entity):
     def __setstate__(self, id):
         import taipy.core as tp
 
-        p = tp._get(id)
+        p = tp.get(id)
         self.__dict__ = p.__dict__
 
     @property  # type: ignore
