@@ -69,8 +69,9 @@ class _TaskManager(_Manager[Task]):
 
     @classmethod
     def __save_data_nodes(cls, data_nodes):
+        data_manager = _DataManagerFactory._build_manager()
         for i in data_nodes:
-            _DataManagerFactory._build_manager()._set(i)
+            data_manager._set(i)
 
     @classmethod
     def _hard_delete(cls, task_id: TaskId):

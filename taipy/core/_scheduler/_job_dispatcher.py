@@ -108,7 +108,8 @@ class _JobDispatcher:
 
     @classmethod
     def __read_inputs(cls, inputs: List[DataNode]) -> List[Any]:
-        return [_DataManagerFactory._build_manager()._get(dn.id).read_or_raise() for dn in inputs]
+        data_manager = _DataManagerFactory._build_manager()
+        return [data_manager._get(dn.id).read_or_raise() for dn in inputs]
 
     @classmethod
     def __write_data(cls, outputs: List[DataNode], results, job_id: JobId):

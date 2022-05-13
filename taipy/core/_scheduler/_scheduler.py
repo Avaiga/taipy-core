@@ -117,7 +117,8 @@ class _Scheduler(_AbstractScheduler):
              True if one of its input data nodes is blocked.
         """
         data_nodes = obj.task.input.values() if isinstance(obj, Job) else obj.input.values()
-        return any(not _DataManagerFactory._build_manager()._get(dn.id).is_ready_for_reading for dn in data_nodes)
+        data_manager = _DataManagerFactory._build_manager()
+        return any(not data_manager._get(dn.id).is_ready_for_reading for dn in data_nodes)
 
     @classmethod
     def __run(cls):

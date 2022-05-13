@@ -70,8 +70,9 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
     @staticmethod
     def __to_pipelines(pipeline_ids) -> List[Pipeline]:
         pipelines = []
+        pipeline_manager = _PipelineManagerFactory._build_manager()
         for _id in pipeline_ids:
-            if pipeline := _PipelineManagerFactory._build_manager()._get(_id):
+            if pipeline := pipeline_manager._get(_id):
                 pipelines.append(pipeline)
             else:
                 raise NonExistingPipeline(_id)
