@@ -38,7 +38,7 @@ class PipelineConfig:
             self._tasks = []
 
     def __getattr__(self, item: str) -> Optional[Any]:
-        return self.properties.get(item)
+        return _tpl._replace_templates(self.properties.get(item))
 
     def __copy__(self):
         return PipelineConfig(self.id, copy(self._tasks), **copy(self.properties))
@@ -72,5 +72,3 @@ class PipelineConfig:
         if self._tasks is None and default_pipeline_cfg:
             self._tasks = default_pipeline_cfg._tasks
         self.properties.update(config_as_dict)
-        for k, v in self.properties.items():
-            self.properties[k] = _tpl._replace_templates(v)

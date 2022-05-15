@@ -59,7 +59,7 @@ class ScenarioConfig:
                     self.comparators[_validate_id(k)].append(v)
 
     def __getattr__(self, item: str) -> Optional[Any]:
-        return self.properties.get(item)
+        return _tpl._replace_templates(self.properties.get(item))
 
     def __copy__(self):
         comp = None if self.comparators is None else self.comparators
@@ -100,8 +100,6 @@ class ScenarioConfig:
         if self.comparators is None and default_scenario_cfg:
             self.comparators = default_scenario_cfg.comparators
         self.properties.update(config_as_dict)
-        for k, v in self.properties.items():
-            self.properties[k] = _tpl._replace_templates(v)
 
     def add_comparator(self, dn_config_id: str, comparator: Callable):
         self.comparators[dn_config_id].append(comparator)

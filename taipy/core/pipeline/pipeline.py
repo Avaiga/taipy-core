@@ -22,6 +22,7 @@ from taipy.core.common._properties import _Properties
 from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._validate_id import _validate_id
 from taipy.core.common.alias import PipelineId
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
 from taipy.core.data.data_node import DataNode
 from taipy.core.job.job import Job
 from taipy.core.task.task import Task
@@ -105,7 +106,7 @@ class Pipeline(_Entity):
     def __getattr__(self, attribute_name):
         protected_attribute_name = _validate_id(attribute_name)
         if protected_attribute_name in self.properties:
-            return self.properties[protected_attribute_name]
+            return _tpl._replace_templates(self.properties[protected_attribute_name])
         if protected_attribute_name in self._tasks:
             return self._tasks[protected_attribute_name]
         for task in self._tasks.values():
