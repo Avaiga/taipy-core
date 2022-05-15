@@ -27,6 +27,7 @@ from taipy.core.common._validate_id import _validate_id
 from taipy.core.common._warnings import _warn_deprecated
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.common.scope import Scope
+from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
 from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.data._filter import _FilterDataNode
 from taipy.core.data.operator import JoinOperator, Operator
@@ -214,7 +215,7 @@ class DataNode(_Entity):
     def __getattr__(self, attribute_name):
         protected_attribute_name = _validate_id(attribute_name)
         if protected_attribute_name in self.properties:
-            return self.properties[protected_attribute_name]
+            return _tpl._replace_templates(self.properties[protected_attribute_name])
         raise AttributeError(f"{attribute_name} is not an attribute of data node {self.id}")
 
     @classmethod
