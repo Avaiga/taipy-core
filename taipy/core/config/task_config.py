@@ -58,7 +58,7 @@ class TaskConfig:
         self.function = function
 
     def __getattr__(self, item: str) -> Optional[Any]:
-        return self.properties.get(item)
+        return _tpl._replace_templates(self.properties.get(item))
 
     def __copy__(self):
         return TaskConfig(self.id, copy(self._inputs), self.function, copy(self._outputs), **copy(self.properties))
@@ -111,5 +111,3 @@ class TaskConfig:
         self.properties.update(config_as_dict)
         if default_task_cfg:
             self.properties = {**default_task_cfg.properties, **self.properties}
-        for k, v in self.properties.items():
-            self.properties[k] = _tpl._replace_templates(v)
