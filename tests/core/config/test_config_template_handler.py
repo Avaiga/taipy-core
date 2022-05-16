@@ -189,11 +189,11 @@ def test_to_frequency():
     with pytest.raises(InconsistentEnvVariableError):
         _ConfigTemplateHandler._to_frequency("plop")
 
-    assert Frequency.DAILY == _ConfigTemplateHandler._to_frequency("DAILY")
-    assert Frequency.DAILY == _ConfigTemplateHandler._to_frequency("Daily")
-    assert Frequency.WEEKLY == _ConfigTemplateHandler._to_frequency("weekly")
-    assert Frequency.WEEKLY == _ConfigTemplateHandler._to_frequency("WEEKLY")
-    assert Frequency.MONTHLY == _ConfigTemplateHandler._to_frequency("Monthly")
-    assert Frequency.MONTHLY == _ConfigTemplateHandler._to_frequency("MONThLY")
-    assert Frequency.QUARTERLY == _ConfigTemplateHandler._to_frequency("QuaRtERlY")
-    assert Frequency.YEARLY == _ConfigTemplateHandler._to_frequency("Yearly")
+    assert Frequency.DAILY.value == _ConfigTemplateHandler._to_frequency("DAILY").value
+    assert Frequency.DAILY.value == _ConfigTemplateHandler._to_frequency("Daily").value
+    assert Frequency.WEEKLY.value == _ConfigTemplateHandler._to_frequency("weekly").value
+    assert Frequency.WEEKLY.value == _ConfigTemplateHandler._to_frequency("WEEKLY").value
+    assert Frequency.MONTHLY.value == _ConfigTemplateHandler._to_frequency("Monthly").value
+    assert Frequency.MONTHLY.value == _ConfigTemplateHandler._to_frequency("MONThLY").value
+    assert Frequency.QUARTERLY.value == _ConfigTemplateHandler._to_frequency("QuaRtERlY").value
+    assert Frequency.YEARLY.value == _ConfigTemplateHandler._to_frequency("Yearly").value

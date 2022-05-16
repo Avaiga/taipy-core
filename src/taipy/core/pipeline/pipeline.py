@@ -16,15 +16,15 @@ from typing import Any, Callable, Dict, List, Optional
 
 import networkx as nx
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._listattributes import _ListAttributes
-from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import _reload, _self_reload, _self_setter
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.common.alias import PipelineId
-from taipy.core.data.data_node import DataNode
-from taipy.core.job.job import Job
-from taipy.core.task.task import Task
+from ..common._entity import _Entity
+from ..common._listattributes import _ListAttributes
+from ..common._properties import _Properties
+from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._validate_id import _validate_id
+from ..common.alias import PipelineId
+from ..data.data_node import DataNode
+from ..job.job import Job
+from ..task.task import Task
 
 
 class Pipeline(_Entity):
@@ -65,7 +65,7 @@ class Pipeline(_Entity):
         return self.id
 
     def __setstate__(self, id):
-        from taipy.core.pipeline._pipeline_manager import _PipelineManager
+        from ._pipeline_manager import _PipelineManager
 
         p = _PipelineManager._get(id)
         self.__dict__ = p.__dict__
@@ -174,7 +174,7 @@ class Pipeline(_Entity):
         Note:
             Notification will be available only for jobs created after this subscription.
         """
-        from taipy.core.pipeline._pipeline_manager import _PipelineManager
+        from ._pipeline_manager import _PipelineManager
 
         return _PipelineManager._subscribe(callback, self)
 
@@ -186,7 +186,7 @@ class Pipeline(_Entity):
         Note:
             The function will continue to be called for ongoing jobs.
         """
-        from taipy.core.pipeline._pipeline_manager import _PipelineManager
+        from ._pipeline_manager import _PipelineManager
 
         return _PipelineManager._unsubscribe(callback, self)
 
@@ -200,6 +200,6 @@ class Pipeline(_Entity):
                 change.
             force (bool): Force execution even if the data nodes are in cache.
         """
-        from taipy.core.pipeline._pipeline_manager import _PipelineManager
+        from ._pipeline_manager import _PipelineManager
 
         return _PipelineManager._submit(self, callbacks, force)

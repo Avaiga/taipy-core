@@ -13,7 +13,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from taipy.core.common.alias import PipelineId, TaskId
+from ..common.alias import PipelineId, TaskId
 
 
 @dataclass

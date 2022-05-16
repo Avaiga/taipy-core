@@ -17,14 +17,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import pandas as pd
 from openpyxl import load_workbook
 
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import (
-    MissingRequiredProperty,
-    NonExistingExcelSheet,
-    NotMatchSheetNameAndCustomObject,
-)
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from ..exceptions.exceptions import MissingRequiredProperty, NonExistingExcelSheet, NotMatchSheetNameAndCustomObject
+from .data_node import DataNode
 
 
 class ExcelDataNode(DataNode):

@@ -9,12 +9,12 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.config._config import _Config
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as tpl
-from taipy.core.config.checker._checkers._config_checker import _ConfigChecker
-from taipy.core.config.checker.issue_collector import IssueCollector
-from taipy.core.config.global_app_config import GlobalAppConfig
-from taipy.core.exceptions.exceptions import InconsistentEnvVariableError
+from ....exceptions.exceptions import InconsistentEnvVariableError
+from ..._config import _Config
+from ..._config_template_handler import _ConfigTemplateHandler as tpl
+from ...global_app_config import GlobalAppConfig
+from ..issue_collector import IssueCollector
+from ._config_checker import _ConfigChecker
 
 
 class _GlobalConfigChecker(_ConfigChecker):

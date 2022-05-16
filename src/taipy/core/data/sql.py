@@ -19,10 +19,10 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, table, text
 
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from ..exceptions.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
+from .data_node import DataNode
 
 
 class SQLDataNode(DataNode):

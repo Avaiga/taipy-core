@@ -11,7 +11,7 @@
 
 from typing import Any, Dict, Union
 
-from taipy.core.config.job_mode_config import _JobModeConfig
+from .job_mode_config import _JobModeConfig
 
 
 class StandaloneConfig(_JobModeConfig):

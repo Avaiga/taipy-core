@@ -11,7 +11,7 @@
 
 from typing import Any, List
 
-from taipy.core.config.checker.issue import Issue
+from .issue import Issue
 
 
 class IssueCollector:

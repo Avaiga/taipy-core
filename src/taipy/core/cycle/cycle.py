@@ -13,12 +13,12 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._get_valid_filename import _get_valid_filename
-from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import _reload, _self_reload, _self_setter
-from taipy.core.common.alias import CycleId
-from taipy.core.common.frequency import Frequency
+from ..common._entity import _Entity
+from ..common._get_valid_filename import _get_valid_filename
+from ..common._properties import _Properties
+from ..common._reload import _reload, _self_reload, _self_setter
+from ..common.alias import CycleId
+from ..common.frequency import Frequency
 
 
 class Cycle(_Entity):

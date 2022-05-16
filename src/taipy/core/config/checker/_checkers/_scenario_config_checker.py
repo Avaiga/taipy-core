@@ -9,12 +9,12 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.common.frequency import Frequency
-from taipy.core.config._config import _Config
-from taipy.core.config.checker._checkers._config_checker import _ConfigChecker
-from taipy.core.config.checker.issue_collector import IssueCollector
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.config.scenario_config import ScenarioConfig
+from ....common.frequency import Frequency
+from ..._config import _Config
+from ...pipeline_config import PipelineConfig
+from ...scenario_config import ScenarioConfig
+from ..issue_collector import IssueCollector
+from ._config_checker import _ConfigChecker
 
 
 class _ScenarioConfigChecker(_ConfigChecker):

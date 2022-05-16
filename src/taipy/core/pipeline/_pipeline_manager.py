@@ -12,17 +12,17 @@
 from functools import partial
 from typing import Callable, List, Optional, Union
 
-from taipy.core._manager._manager import _Manager
-from taipy.core.common._entity_ids import _EntityIds
-from taipy.core.common.alias import PipelineId, ScenarioId
-from taipy.core.common.scope import Scope
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.exceptions.exceptions import NonExistingPipeline
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_repository import _PipelineRepository
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.task._task_manager import _TaskManager
+from .._manager._manager import _Manager
+from ..common._entity_ids import _EntityIds
+from ..common.alias import PipelineId, ScenarioId
+from ..common.scope import Scope
+from ..config.pipeline_config import PipelineConfig
+from ..exceptions.exceptions import NonExistingPipeline
+from ..job._job_manager import _JobManager
+from ..job.job import Job
+from ..task._task_manager import _TaskManager
+from ._pipeline_repository import _PipelineRepository
+from .pipeline import Pipeline
 
 
 class _PipelineManager(_Manager[Pipeline]):

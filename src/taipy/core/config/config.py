@@ -12,21 +12,21 @@
 import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from taipy.core.common._classproperty import _Classproperty
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common.frequency import Frequency
-from taipy.core.common.scope import Scope
-from taipy.core.config._config import _Config
-from taipy.core.config._toml_serializer import _TomlSerializer
-from taipy.core.config.checker._checker import _Checker
-from taipy.core.config.checker.issue_collector import IssueCollector
-from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.config.global_app_config import GlobalAppConfig
-from taipy.core.config.job_config import JobConfig
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.config.scenario_config import ScenarioConfig
-from taipy.core.config.task_config import TaskConfig
-from taipy.core.exceptions.exceptions import ConfigurationIssueError
+from ..common._classproperty import _Classproperty
+from ..common._taipy_logger import _TaipyLogger
+from ..common.frequency import Frequency
+from ..common.scope import Scope
+from ..exceptions.exceptions import ConfigurationIssueError
+from ._config import _Config
+from ._toml_serializer import _TomlSerializer
+from .checker._checker import _Checker
+from .checker.issue_collector import IssueCollector
+from .data_node_config import DataNodeConfig
+from .global_app_config import GlobalAppConfig
+from .job_config import JobConfig
+from .pipeline_config import PipelineConfig
+from .scenario_config import ScenarioConfig
+from .task_config import TaskConfig
 
 
 class Config:
@@ -502,7 +502,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new CSV data node configuration.
         """
-        from taipy.core.data import CSVDataNode
+        from ..data import CSVDataNode
 
         return cls.configure_data_node(
             id, CSVDataNode.storage_type(), scope=scope, path=path, has_header=has_header, **properties
@@ -533,7 +533,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new CSV data node configuration.
         """
-        from taipy.core.data import ExcelDataNode
+        from ..data import ExcelDataNode
 
         return cls.configure_data_node(
             id,
@@ -575,7 +575,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new Generic data node configuration.
         """
-        from taipy.core.data import GenericDataNode
+        from ..data import GenericDataNode
 
         return cls.configure_data_node(
             id,
@@ -605,7 +605,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new _in_memory_ data node configuration.
         """
-        from taipy.core.data import InMemoryDataNode
+        from ..data import InMemoryDataNode
 
         return cls.configure_data_node(
             id, InMemoryDataNode.storage_type(), scope=scope, default_data=default_data, **properties
@@ -628,7 +628,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new pickle data node configuration.
         """
-        from taipy.core.data import PickleDataNode
+        from ..data import PickleDataNode
 
         return cls.configure_data_node(
             id, PickleDataNode.storage_type(), scope=scope, default_data=default_data, **properties
@@ -671,7 +671,7 @@ class Config:
         Returns:
             DataNodeConfig^: The new SQL data node configuration.
         """
-        from taipy.core.data import SQLDataNode
+        from ..data import SQLDataNode
 
         return cls.configure_data_node(
             id,

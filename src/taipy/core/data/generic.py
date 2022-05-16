@@ -12,10 +12,10 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import MissingReadFunction, MissingRequiredProperty, MissingWriteFunction
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from ..exceptions.exceptions import MissingReadFunction, MissingRequiredProperty, MissingWriteFunction
+from .data_node import DataNode
 
 
 class GenericDataNode(DataNode):

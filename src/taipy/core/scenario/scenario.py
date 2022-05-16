@@ -15,15 +15,15 @@ import uuid
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Set
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._listattributes import _ListAttributes
-from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import _reload, _self_reload, _self_setter
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.common.alias import ScenarioId
-from taipy.core.cycle.cycle import Cycle
-from taipy.core.job.job import Job
-from taipy.core.pipeline.pipeline import Pipeline
+from ..common._entity import _Entity
+from ..common._listattributes import _ListAttributes
+from ..common._properties import _Properties
+from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._validate_id import _validate_id
+from ..common.alias import ScenarioId
+from ..cycle.cycle import Cycle
+from ..job.job import Job
+from ..pipeline.pipeline import Pipeline
 
 
 class Scenario(_Entity):
@@ -75,7 +75,7 @@ class Scenario(_Entity):
         return self.id
 
     def __setstate__(self, id):
-        import taipy.core as tp
+        from ... import core as tp
 
         sc = tp.get(id)
         self.__dict__ = sc.__dict__
@@ -216,7 +216,7 @@ class Scenario(_Entity):
         Note:
             Notification will be available only for jobs created after this subscription.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.subscribe_scenario(callback, self)
 
@@ -229,7 +229,7 @@ class Scenario(_Entity):
         Note:
             The function will continue to be called for ongoing jobs.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.unsubscribe_scenario(callback, self)
 
@@ -241,7 +241,7 @@ class Scenario(_Entity):
         Parameters:
             force (bool): Force execution even if the data nodes are in cache.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.submit(self, force)
 
@@ -251,7 +251,7 @@ class Scenario(_Entity):
         If the cycle already has a primary scenario, it will be demoted, and it will no longer
         be primary for the cycle.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.set_primary(self)
 
@@ -264,7 +264,7 @@ class Scenario(_Entity):
         Parameters:
             tag (str): The tag to add to this scenario.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.tag(self, tag)
 
@@ -274,6 +274,6 @@ class Scenario(_Entity):
         Parameters:
             tag (str): The tag to remove from the set of the scenario's tags.
         """
-        import taipy.core as tp
+        from ... import core as tp
 
         return tp.untag(self, tag)

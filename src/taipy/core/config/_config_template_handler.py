@@ -12,9 +12,9 @@
 import os
 import re
 
-from taipy.core.common.frequency import Frequency
-from taipy.core.common.scope import Scope
-from taipy.core.exceptions.exceptions import InconsistentEnvVariableError, MissingEnvVariableError
+from ..common.frequency import Frequency
+from ..common.scope import Scope
+from ..exceptions.exceptions import InconsistentEnvVariableError, MissingEnvVariableError
 
 
 class _ConfigTemplateHandler:

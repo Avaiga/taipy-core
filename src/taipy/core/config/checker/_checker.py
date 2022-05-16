@@ -9,13 +9,13 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.config.checker._checkers._data_node_config_checker import _DataNodeConfigChecker
-from taipy.core.config.checker._checkers._gLobal_config_checker import _GlobalConfigChecker
-from taipy.core.config.checker._checkers._job_config_checker import _JobConfigChecker
-from taipy.core.config.checker._checkers._pipeline_config_checker import _PipelineConfigChecker
-from taipy.core.config.checker._checkers._scenario_config_checker import _ScenarioConfigChecker
-from taipy.core.config.checker._checkers._task_config_checker import _TaskConfigChecker
-from taipy.core.config.checker.issue_collector import IssueCollector
+from ._checkers._data_node_config_checker import _DataNodeConfigChecker
+from ._checkers._gLobal_config_checker import _GlobalConfigChecker
+from ._checkers._job_config_checker import _JobConfigChecker
+from ._checkers._pipeline_config_checker import _PipelineConfigChecker
+from ._checkers._scenario_config_checker import _ScenarioConfigChecker
+from ._checkers._task_config_checker import _TaskConfigChecker
+from .issue_collector import IssueCollector
 
 
 class _Checker:

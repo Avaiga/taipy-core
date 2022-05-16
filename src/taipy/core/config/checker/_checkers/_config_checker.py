@@ -12,8 +12,8 @@
 import abc
 from typing import Any, List
 
-from taipy.core.config._config import _Config
-from taipy.core.config.checker.issue_collector import IssueCollector
+from ..._config import _Config
+from ..issue_collector import IssueCollector
 
 
 class _ConfigChecker:

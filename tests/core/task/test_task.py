@@ -169,6 +169,6 @@ def test_auto_set_and_reload(data_node):
 
 
 def test_submit_task(task: Task):
-    with mock.patch("taipy.core.task._task_manager._TaskManager._submit") as mock_submit:
+    with mock.patch("src.taipy.core.task._task_manager._TaskManager._submit") as mock_submit:
         task.submit([], True)
         mock_submit.assert_called_once_with(task, [], True)

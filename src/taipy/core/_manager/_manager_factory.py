@@ -13,7 +13,7 @@ from abc import abstractmethod
 from importlib import util
 from typing import Type
 
-from taipy.core._manager._manager import _Manager
+from ._manager import _Manager
 
 
 class _ManagerFactory:

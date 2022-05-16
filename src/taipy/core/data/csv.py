@@ -16,10 +16,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import MissingRequiredProperty
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from ..exceptions.exceptions import MissingRequiredProperty
+from .data_node import DataNode
 
 
 class CSVDataNode(DataNode):

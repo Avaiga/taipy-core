@@ -13,8 +13,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from taipy.core.common.alias import JobId
-from taipy.core.job.status import Status
+from ..common.alias import JobId
+from .status import Status
 
 
 @dataclass

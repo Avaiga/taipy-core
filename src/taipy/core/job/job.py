@@ -16,12 +16,12 @@ from concurrent.futures import Future
 from datetime import datetime
 from typing import Callable, List
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._reload import _self_reload, _self_setter
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common.alias import JobId
-from taipy.core.job.status import Status
-from taipy.core.task.task import Task
+from ..common._entity import _Entity
+from ..common._reload import _self_reload, _self_setter
+from ..common._taipy_logger import _TaipyLogger
+from ..common.alias import JobId
+from ..task.task import Task
+from .status import Status
 
 
 def _run_callbacks(fn):

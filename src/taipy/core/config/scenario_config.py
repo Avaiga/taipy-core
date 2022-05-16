@@ -13,11 +13,11 @@ from collections import defaultdict
 from copy import copy
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.common.frequency import Frequency
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.exceptions.exceptions import NonExistingComparator
+from ..common._validate_id import _validate_id
+from ..common.frequency import Frequency
+from ..exceptions.exceptions import NonExistingComparator
+from ._config_template_handler import _ConfigTemplateHandler as _tpl
+from .pipeline_config import PipelineConfig
 
 
 class ScenarioConfig:

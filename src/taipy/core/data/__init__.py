@@ -9,10 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.data.csv import CSVDataNode
-from taipy.core.data.data_node import DataNode
-from taipy.core.data.excel import ExcelDataNode
-from taipy.core.data.generic import GenericDataNode
-from taipy.core.data.in_memory import InMemoryDataNode
-from taipy.core.data.pickle import PickleDataNode
-from taipy.core.data.sql import SQLDataNode
+from .csv import CSVDataNode
+from .data_node import DataNode
+from .excel import ExcelDataNode
+from .generic import GenericDataNode
+from .in_memory import InMemoryDataNode
+from .pickle import PickleDataNode
+from .sql import SQLDataNode

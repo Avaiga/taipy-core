@@ -18,19 +18,19 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._listattributes import _ListAttributes
-from taipy.core.common._properties import _Properties
-from taipy.core.common._reload import _reload, _self_reload, _self_setter
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.common._warnings import _warn_deprecated
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.data._filter import _FilterDataNode
-from taipy.core.data.operator import JoinOperator, Operator
-from taipy.core.exceptions.exceptions import NoData
+from ..common._entity import _Entity
+from ..common._listattributes import _ListAttributes
+from ..common._properties import _Properties
+from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._taipy_logger import _TaipyLogger
+from ..common._validate_id import _validate_id
+from ..common._warnings import _warn_deprecated
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from ..config.data_node_config import DataNodeConfig
+from ..exceptions.exceptions import NoData
+from ._filter import _FilterDataNode
+from .operator import JoinOperator, Operator
 
 
 class DataNode(_Entity):
@@ -253,7 +253,7 @@ class DataNode(_Entity):
             data (Any): The data to write to this data node.
             job_id (JobId^): An optional identifier of the writer.
         """
-        from taipy.core.data._data_manager import _DataManager
+        from ._data_manager import _DataManager
 
         self._write(data)
         self.unlock_edit(job_id=job_id)

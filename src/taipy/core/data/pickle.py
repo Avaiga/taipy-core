@@ -15,9 +15,9 @@ import pickle
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from taipy.core.common.alias import DataNodeId, JobId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
+from ..common.alias import DataNodeId, JobId
+from ..common.scope import Scope
+from .data_node import DataNode
 
 
 class PickleDataNode(DataNode):
@@ -106,7 +106,7 @@ class PickleDataNode(DataNode):
     def __build_path(self):
         if file_name := self._properties.get(self.__PICKLE_FILE_NAME):
             return file_name
-        from taipy.core.config.config import Config
+        from ..config.config import Config
 
         dir_path = pathlib.Path(Config.global_config.storage_folder) / "pickles"
         if not dir_path.exists():

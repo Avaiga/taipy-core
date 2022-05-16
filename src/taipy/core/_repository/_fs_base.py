@@ -17,7 +17,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
-from taipy.core.exceptions.exceptions import ModelNotFound
+from ..exceptions.exceptions import ModelNotFound
 
 ModelType = TypeVar("ModelType")
 Entity = TypeVar("Entity")

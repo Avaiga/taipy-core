@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
+from ._config_template_handler import _ConfigTemplateHandler as _tpl
 
 
 class GlobalAppConfig:

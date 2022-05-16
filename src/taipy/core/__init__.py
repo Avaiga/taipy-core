@@ -9,18 +9,18 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
-from taipy.core.common.frequency import Frequency
-from taipy.core.common.scope import Scope
-from taipy.core.config import Config
-from taipy.core.cycle.cycle import Cycle
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions import exceptions
-from taipy.core.job.job import Job
-from taipy.core.job.status import Status
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.scenario.scenario import Scenario
-from taipy.core.taipy import (
+from .common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
+from .common.frequency import Frequency
+from .common.scope import Scope
+from .config import Config
+from .cycle.cycle import Cycle
+from .data.data_node import DataNode
+from .exceptions import exceptions
+from .job.job import Job
+from .job.status import Status
+from .pipeline.pipeline import Pipeline
+from .scenario.scenario import Scenario
+from .taipy import (
     clean_all_entities,
     compare_scenarios,
     create_pipeline,
@@ -48,4 +48,4 @@ from taipy.core.taipy import (
     unsubscribe_scenario,
     untag,
 )
-from taipy.core.task.task import Task
+from .task.task import Task

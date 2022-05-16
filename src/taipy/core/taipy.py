@@ -12,25 +12,25 @@
 from datetime import datetime
 from typing import Callable, Dict, List, Optional, Union
 
-from taipy.core._manager._manager_factory import _ManagerFactory
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
-from taipy.core.config.config import Config
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.config.scenario_config import ScenarioConfig
-from taipy.core.cycle._cycle_manager import _CycleManager
-from taipy.core.cycle.cycle import Cycle
-from taipy.core.data._data_manager import _DataManager
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import ModelNotFound
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_manager import _PipelineManager
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.scenario._scenario_manager_factory import _ScenarioManagerFactory
-from taipy.core.scenario.scenario import Scenario
-from taipy.core.task._task_manager import _TaskManager
-from taipy.core.task.task import Task
+from ._manager._manager_factory import _ManagerFactory
+from .common._taipy_logger import _TaipyLogger
+from .common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
+from .config.config import Config
+from .config.pipeline_config import PipelineConfig
+from .config.scenario_config import ScenarioConfig
+from .cycle._cycle_manager import _CycleManager
+from .cycle.cycle import Cycle
+from .data._data_manager import _DataManager
+from .data.data_node import DataNode
+from .exceptions.exceptions import ModelNotFound
+from .job._job_manager import _JobManager
+from .job.job import Job
+from .pipeline._pipeline_manager import _PipelineManager
+from .pipeline.pipeline import Pipeline
+from .scenario._scenario_manager_factory import _ScenarioManagerFactory
+from .scenario.scenario import Scenario
+from .task._task_manager import _TaskManager
+from .task.task import Task
 
 __logger = _TaipyLogger._get_logger()
 

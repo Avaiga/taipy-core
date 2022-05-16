@@ -12,12 +12,12 @@
 import uuid
 from typing import Callable, Dict, Iterable, List, Optional
 
-from taipy.core.common._entity import _Entity
-from taipy.core.common._reload import _self_reload, _self_setter
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.common.alias import TaskId
-from taipy.core.common.scope import Scope
-from taipy.core.data.data_node import DataNode
+from ..common._entity import _Entity
+from ..common._reload import _self_reload, _self_setter
+from ..common._validate_id import _validate_id
+from ..common.alias import TaskId
+from ..common.scope import Scope
+from ..data.data_node import DataNode
 
 
 class Task(_Entity):
@@ -115,6 +115,6 @@ class Task(_Entity):
                 change.
             force (bool): Force execution even if the data nodes are in cache.
         """
-        from taipy.core.task._task_manager import _TaskManager
+        from ._task_manager import _TaskManager
 
         _TaskManager._submit(self, callbacks, force)

@@ -11,11 +11,11 @@
 
 from typing import Dict
 
-from taipy.core.config._config import _Config
-from taipy.core.config.checker._checkers._config_checker import _ConfigChecker
-from taipy.core.config.checker.issue_collector import IssueCollector
-from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.config.job_config import JobConfig
+from ..._config import _Config
+from ...data_node_config import DataNodeConfig
+from ...job_config import JobConfig
+from ..issue_collector import IssueCollector
+from ._config_checker import _ConfigChecker
 
 
 class _JobConfigChecker(_ConfigChecker):

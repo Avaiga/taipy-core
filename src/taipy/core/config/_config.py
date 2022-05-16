@@ -12,10 +12,9 @@
 from copy import copy
 from typing import Dict
 
-from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.config.global_app_config import GlobalAppConfig
-from taipy.core.config.job_config import JobConfig
-
+from .data_node_config import DataNodeConfig
+from .global_app_config import GlobalAppConfig
+from .job_config import JobConfig
 from .pipeline_config import PipelineConfig
 from .scenario_config import ScenarioConfig
 from .task_config import TaskConfig

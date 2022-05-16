@@ -9,11 +9,11 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.config._config import _Config
-from taipy.core.config.checker._checkers._config_checker import _ConfigChecker
-from taipy.core.config.checker.issue_collector import IssueCollector
-from taipy.core.config.pipeline_config import PipelineConfig
-from taipy.core.config.task_config import TaskConfig
+from ..._config import _Config
+from ...pipeline_config import PipelineConfig
+from ...task_config import TaskConfig
+from ..issue_collector import IssueCollector
+from ._config_checker import _ConfigChecker
 
 
 class _PipelineConfigChecker(_ConfigChecker):

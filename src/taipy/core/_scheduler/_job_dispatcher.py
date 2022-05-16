@@ -13,15 +13,15 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Any, List
 
-from taipy.core._scheduler._executor._synchronous import _Synchronous
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common.alias import JobId
-from taipy.core.data._data_manager import _DataManager
-from taipy.core.data.data_node import DataNode
-from taipy.core.exceptions.exceptions import DataNodeWritingError
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.job.job import Job
-from taipy.core.task.task import Task
+from ..common._taipy_logger import _TaipyLogger
+from ..common.alias import JobId
+from ..data._data_manager import _DataManager
+from ..data.data_node import DataNode
+from ..exceptions.exceptions import DataNodeWritingError
+from ..job._job_manager import _JobManager
+from ..job.job import Job
+from ..task.task import Task
+from ._executor._synchronous import _Synchronous
 
 
 class _JobDispatcher:

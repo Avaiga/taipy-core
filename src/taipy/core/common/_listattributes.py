@@ -22,7 +22,7 @@ class _ListAttributes(UserList):
             super(_ListAttributes, self).append(i)
 
     def __set_self(self):
-        import taipy.core as tp
+        from src.taipy import core as tp
 
         if hasattr(self, "_parent"):
             tp.set(self._parent)

@@ -52,7 +52,6 @@ setup(
     license="Apache License 2.0",
     keywords="taipy-core",
     name="taipy-core",
-    # packages=find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
     packages=find_namespace_packages(where="src") + find_packages(include=["taipy", "taipy.core", "taipy.core.*"]),
     package_dir={"": "src"},
     test_suite="tests",

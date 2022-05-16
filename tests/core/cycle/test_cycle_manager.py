@@ -206,6 +206,7 @@ def test_hard_delete_shared_entities():
     scenario_1.submit()
     scenario_2.submit()
     scenario_3.submit()
+    print(_JobManager._get_all())
 
     assert len(_ScenarioManager._get_all()) == 3
     assert len(_PipelineManager._get_all()) == 5

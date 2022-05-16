@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.core.common._reload import _set_entity
+from ._reload import _set_entity
 
 
 class _Entity:

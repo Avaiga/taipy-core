@@ -11,10 +11,10 @@
 
 from typing import Any, Generic, Iterable, List, TypeVar, Union
 
-from taipy.core._repository import _FileSystemRepository
-from taipy.core.common._entity_ids import _EntityIds
-from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.exceptions.exceptions import ModelNotFound
+from .._repository import _FileSystemRepository
+from ..common._entity_ids import _EntityIds
+from ..common._taipy_logger import _TaipyLogger
+from ..exceptions.exceptions import ModelNotFound
 
 EntityType = TypeVar("EntityType")
 
@@ -76,12 +76,12 @@ class _Manager(Generic[EntityType]):
         """
         Deletes entities of multiple types.
         """
-        from taipy.core.cycle._cycle_manager import _CycleManager
-        from taipy.core.data._data_manager import _DataManager
-        from taipy.core.job._job_manager import _JobManager
-        from taipy.core.pipeline._pipeline_manager import _PipelineManager
-        from taipy.core.scenario._scenario_manager_factory import _ScenarioManagerFactory
-        from taipy.core.task._task_manager import _TaskManager
+        from ..cycle._cycle_manager import _CycleManager
+        from ..data._data_manager import _DataManager
+        from ..job._job_manager import _JobManager
+        from ..pipeline._pipeline_manager import _PipelineManager
+        from ..scenario._scenario_manager_factory import _ScenarioManagerFactory
+        from ..task._task_manager import _TaskManager
 
         _CycleManager._delete_many(_entity_ids.cycle_ids)
         _ScenarioManagerFactory._build_manager()._delete_many(_entity_ids.scenario_ids)

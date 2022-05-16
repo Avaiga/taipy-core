@@ -11,14 +11,14 @@
 
 import pathlib
 
-from taipy.core._repository import _FileSystemRepository
-from taipy.core.common._utils import _load_fct
-from taipy.core.common.alias import TaskId
-from taipy.core.config.config import Config
-from taipy.core.data._data_manager import _DataManager
-from taipy.core.exceptions.exceptions import NonExistingDataNode
-from taipy.core.task._task_model import _TaskModel
-from taipy.core.task.task import Task
+from .._repository import _FileSystemRepository
+from ..common._utils import _load_fct
+from ..common.alias import TaskId
+from ..config.config import Config
+from ..data._data_manager import _DataManager
+from ..exceptions.exceptions import NonExistingDataNode
+from ._task_model import _TaskModel
+from .task import Task
 
 
 class _TaskRepository(_FileSystemRepository[_TaskModel, Task]):

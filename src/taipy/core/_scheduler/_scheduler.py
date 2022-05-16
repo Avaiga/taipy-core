@@ -14,15 +14,15 @@ from multiprocessing import Lock
 from queue import Queue
 from typing import Callable, Iterable, List, Optional, Union
 
-from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
-from taipy.core.config.config import Config
-from taipy.core.config.job_config import JobConfig
-from taipy.core.data._data_manager import _DataManager
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.job.job import Job
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.task.task import Task
+from ..config.config import Config
+from ..config.job_config import JobConfig
+from ..data._data_manager import _DataManager
+from ..job._job_manager import _JobManager
+from ..job.job import Job
+from ..pipeline.pipeline import Pipeline
+from ..task.task import Task
+from ._abstract_scheduler import _AbstractScheduler
+from ._job_dispatcher import _JobDispatcher
 
 
 class _Scheduler(_AbstractScheduler):

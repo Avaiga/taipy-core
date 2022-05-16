@@ -12,13 +12,13 @@
 import pathlib
 from collections import defaultdict
 
-from taipy.core._repository import _FileSystemRepository
-from taipy.core.common import _utils
-from taipy.core.config.config import Config
-from taipy.core.exceptions.exceptions import NonExistingPipeline, NonExistingTask
-from taipy.core.pipeline._pipeline_model import _PipelineModel
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.task._task_manager import _TaskManager
+from .._repository import _FileSystemRepository
+from ..common import _utils
+from ..config.config import Config
+from ..exceptions.exceptions import NonExistingPipeline, NonExistingTask
+from ..task._task_manager import _TaskManager
+from ._pipeline_model import _PipelineModel
+from .pipeline import Pipeline
 
 
 class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):

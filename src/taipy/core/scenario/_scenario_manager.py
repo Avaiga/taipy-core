@@ -13,14 +13,14 @@ import datetime
 from functools import partial
 from typing import Callable, List, Optional, Union
 
-from taipy.core._manager._manager import _Manager
-from taipy.core.common._entity_ids import _EntityIds
-from taipy.core.common.alias import ScenarioId
-from taipy.core.config.config import Config
-from taipy.core.config.scenario_config import ScenarioConfig
-from taipy.core.cycle._cycle_manager import _CycleManager
-from taipy.core.cycle.cycle import Cycle
-from taipy.core.exceptions.exceptions import (
+from .._manager._manager import _Manager
+from ..common._entity_ids import _EntityIds
+from ..common.alias import ScenarioId
+from ..config.config import Config
+from ..config.scenario_config import ScenarioConfig
+from ..cycle._cycle_manager import _CycleManager
+from ..cycle.cycle import Cycle
+from ..exceptions.exceptions import (
     DeletingPrimaryScenario,
     DifferentScenarioConfigs,
     DoesNotBelongToACycle,
@@ -30,11 +30,11 @@ from taipy.core.exceptions.exceptions import (
     NonExistingScenarioConfig,
     UnauthorizedTagError,
 )
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_manager import _PipelineManager
-from taipy.core.scenario._scenario_repository import _ScenarioRepository
-from taipy.core.scenario.scenario import Scenario
+from ..job._job_manager import _JobManager
+from ..job.job import Job
+from ..pipeline._pipeline_manager import _PipelineManager
+from ._scenario_repository import _ScenarioRepository
+from .scenario import Scenario
 
 
 class _ScenarioManager(_Manager[Scenario]):

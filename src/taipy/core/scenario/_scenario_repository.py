@@ -13,17 +13,17 @@ import pathlib
 from datetime import datetime
 from typing import List, Optional
 
-from taipy.core._repository import _FileSystemRepository
-from taipy.core.common import _utils
-from taipy.core.common.alias import CycleId, PipelineId
-from taipy.core.config.config import Config
-from taipy.core.cycle._cycle_manager import _CycleManager
-from taipy.core.cycle.cycle import Cycle
-from taipy.core.exceptions.exceptions import NonExistingPipeline
-from taipy.core.pipeline._pipeline_manager import _PipelineManager
-from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.scenario._scenario_model import _ScenarioModel
-from taipy.core.scenario.scenario import Scenario
+from .._repository import _FileSystemRepository
+from ..common import _utils
+from ..common.alias import CycleId, PipelineId
+from ..config.config import Config
+from ..cycle._cycle_manager import _CycleManager
+from ..cycle.cycle import Cycle
+from ..exceptions.exceptions import NonExistingPipeline
+from ..pipeline._pipeline_manager import _PipelineManager
+from ..pipeline.pipeline import Pipeline
+from ._scenario_model import _ScenarioModel
+from .scenario import Scenario
 
 
 class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):

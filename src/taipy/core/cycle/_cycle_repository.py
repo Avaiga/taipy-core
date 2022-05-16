@@ -13,11 +13,11 @@ import pathlib
 from datetime import datetime
 from typing import Callable, List
 
-from taipy.core._repository import _FileSystemRepository
-from taipy.core.common.frequency import Frequency
-from taipy.core.config.config import Config
-from taipy.core.cycle._cycle_model import _CycleModel
-from taipy.core.cycle.cycle import Cycle
+from .._repository import _FileSystemRepository
+from ..common.frequency import Frequency
+from ..config.config import Config
+from ._cycle_model import _CycleModel
+from .cycle import Cycle
 
 
 class _CycleRepository(_FileSystemRepository[_CycleModel, Cycle]):

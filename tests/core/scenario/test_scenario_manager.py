@@ -790,6 +790,8 @@ def test_scenarios_comparison():
     with pytest.raises(NonExistingComparator):
         _ScenarioManager._compare(scenario_1, scenario_2, data_node_config_id="abc")
 
+def _scenario_manager_execution():
+    p = Process(target=_ScenarioManager._submit, args=(scenario,))
 
 def test_automatic_reload():
     scenario_config = Config.configure_scenario(
@@ -812,7 +814,6 @@ def test_automatic_reload():
     p = Process(target=_ScenarioManager._submit, args=(scenario,))
     p.start()
     p.join()
-
     assert 2 == scenario.bar.read()
 
 

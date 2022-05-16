@@ -11,15 +11,22 @@
 
 import os
 import pickle
-from queue import Queue
 import shutil
+import sys
 from datetime import datetime
+from queue import Queue
 
 import pandas as pd
 import pytest
 
-from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
+# if os.path.exists('src'):
+from src import taipy
+
+modules = sys.modules
+sys.modules["taipy"] = taipy
+
 from taipy.core._scheduler._scheduler import _Scheduler
+from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
 from taipy.core.common.alias import CycleId, PipelineId, ScenarioId
 from taipy.core.common.frequency import Frequency
 from taipy.core.common.scope import Scope

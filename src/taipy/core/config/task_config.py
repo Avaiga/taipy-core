@@ -12,9 +12,9 @@
 from copy import copy
 from typing import Any, Dict, List, Optional, Union
 
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
-from taipy.core.config.data_node_config import DataNodeConfig
+from ..common._validate_id import _validate_id
+from ._config_template_handler import _ConfigTemplateHandler as _tpl
+from .data_node_config import DataNodeConfig
 
 
 class TaskConfig:

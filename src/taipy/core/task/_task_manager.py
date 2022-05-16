@@ -12,18 +12,18 @@
 import itertools
 from typing import Callable, List, Optional, Type, Union
 
-from taipy.core._manager._manager import _Manager
-from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
-from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
-from taipy.core.common._entity_ids import _EntityIds
-from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
-from taipy.core.common.scope import Scope
-from taipy.core.config.task_config import TaskConfig
-from taipy.core.data._data_manager import _DataManager
-from taipy.core.exceptions.exceptions import NonExistingTask
-from taipy.core.job._job_manager import _JobManager
-from taipy.core.task._task_repository import _TaskRepository
-from taipy.core.task.task import Task
+from .._manager._manager import _Manager
+from .._scheduler._abstract_scheduler import _AbstractScheduler
+from .._scheduler._scheduler_factory import _SchedulerFactory
+from ..common._entity_ids import _EntityIds
+from ..common.alias import PipelineId, ScenarioId, TaskId
+from ..common.scope import Scope
+from ..config.task_config import TaskConfig
+from ..data._data_manager import _DataManager
+from ..exceptions.exceptions import NonExistingTask
+from ..job._job_manager import _JobManager
+from ._task_repository import _TaskRepository
+from .task import Task
 
 
 class _TaskManager(_Manager[Task]):

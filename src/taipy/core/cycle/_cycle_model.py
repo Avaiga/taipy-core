@@ -13,8 +13,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from taipy.core.common.alias import CycleId
-from taipy.core.common.frequency import Frequency
+from ..common.alias import CycleId
+from ..common.frequency import Frequency
 
 
 @dataclass

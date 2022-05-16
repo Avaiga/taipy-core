@@ -11,10 +11,10 @@
 
 from typing import Type
 
-from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
-from taipy.core._scheduler._scheduler import _Scheduler
-from taipy.core.common._utils import _load_fct
-from taipy.core.config.config import Config
+from ..common._utils import _load_fct
+from ..config.config import Config
+from ._abstract_scheduler import _AbstractScheduler
+from ._scheduler import _Scheduler
 
 
 class _SchedulerFactory:

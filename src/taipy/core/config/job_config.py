@@ -12,11 +12,11 @@
 from importlib import util
 from typing import Any, Dict, Optional, Type
 
-from taipy.core.common._utils import _load_fct
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
-from taipy.core.config.job_mode_config import _JobModeConfig
-from taipy.core.config.standalone_config import StandaloneConfig
-from taipy.core.exceptions.exceptions import DependencyNotInstalled
+from ..common._utils import _load_fct
+from ..exceptions.exceptions import DependencyNotInstalled
+from ._config_template_handler import _ConfigTemplateHandler as _tpl
+from .job_mode_config import _JobModeConfig
+from .standalone_config import StandaloneConfig
 
 
 class JobConfig:

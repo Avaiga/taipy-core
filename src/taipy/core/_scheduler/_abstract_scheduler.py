@@ -12,8 +12,8 @@
 from abc import abstractmethod
 from typing import Callable, Iterable, List, Optional
 
-from taipy.core.job.job import Job
-from taipy.core.task.task import Task
+from ..job.job import Job
+from ..task.task import Task
 
 
 class _AbstractScheduler:

@@ -12,9 +12,9 @@
 from copy import copy
 from typing import Any, Dict, List, Optional, Union
 
-from taipy.core.common._validate_id import _validate_id
-from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
-from taipy.core.config.task_config import TaskConfig
+from ..common._validate_id import _validate_id
+from ._config_template_handler import _ConfigTemplateHandler as _tpl
+from .task_config import TaskConfig
 
 
 class PipelineConfig:

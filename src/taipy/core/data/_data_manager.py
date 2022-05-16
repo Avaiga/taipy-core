@@ -12,14 +12,14 @@
 import os
 from typing import Iterable, Optional, Union
 
-from taipy.core._manager._manager import _Manager
-from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
-from taipy.core.common.scope import Scope
-from taipy.core.config.data_node_config import DataNodeConfig
-from taipy.core.data._data_repository import _DataRepository
-from taipy.core.data.data_node import DataNode
-from taipy.core.data.pickle import PickleDataNode
-from taipy.core.exceptions.exceptions import InvalidDataNodeType
+from .._manager._manager import _Manager
+from ..common.alias import DataNodeId, PipelineId, ScenarioId
+from ..common.scope import Scope
+from ..config.data_node_config import DataNodeConfig
+from ..exceptions.exceptions import InvalidDataNodeType
+from ._data_repository import _DataRepository
+from .data_node import DataNode
+from .pickle import PickleDataNode
 
 
 class _DataManager(_Manager[DataNode]):
