@@ -23,13 +23,13 @@
 # from importlib.util import find_spec
 
 # if find_spec('taipy.core'):
-#     from taipy.core import *
+#     from .core import *
 
 # if find_spec('taipy.gui'):
-#     from taipy.gui import Gui
+#     from .gui import Gui
 
 # if find_spec('taipy.rest'):
-#     from taipy.rest import Rest
+#     from .rest import Rest
 
 # if find_spec('taipy._run'):
-#     from taipy._run import _run as run
+#     from ._run import _run as run

@@ -9,11 +9,18 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import os
+import sys
 from multiprocessing import Process
 from queue import Queue
 from unittest import mock
 
 import pytest
+
+if os.path.exists('src'):
+    from src import taipy
+    modules = sys.modules
+    sys.modules["taipy"] = taipy
 
 from taipy.core._scheduler._scheduler import _Scheduler
 from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
@@ -693,6 +700,13 @@ def test_hard_delete_shared_entities():
     assert len(_DataManager._get_all()) == 3
     assert len(_JobManager._get_all()) == 3
 
+def pipeline_manager_execute(pipeline):
+    from src import taipy
+    modules = sys.modules
+    modules['taipy'] = taipy
+
+    from taipy.core.pipeline._pipeline_manager import _PipelineManager
+    _PipelineManager._submit(pipeline)
 
 def test_automatic_reload():
     dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
@@ -701,7 +715,7 @@ def test_automatic_reload():
     pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
     pipeline = _PipelineManager._get_or_create(pipeline_config)
 
-    p1 = Process(target=_PipelineManager._submit, args=(pipeline,))
+    p1 = Process(target=pipeline_manager_execute, args=(pipeline,))
     p1.start()
     p1.join()
 

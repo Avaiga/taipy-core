@@ -14,10 +14,16 @@ import multiprocessing
 import os
 import random
 import string
+import sys
 from queue import Queue
 from time import sleep
 
 import pytest
+
+if os.path.exists('src'):
+    from src import taipy
+    modules = sys.modules
+    sys.modules["taipy"] = taipy
 
 from taipy.core._scheduler._scheduler import _Scheduler
 from taipy.core.common.alias import JobId
@@ -115,14 +121,27 @@ lock = m.Lock()
 
 
 def inner_lock_multiply(nb1: float, nb2: float):
+    print('helooooooo')
     with lock:
+        print('hiiiiiii')
         return multiply(nb1, nb2)
+
+def submit_task(nb1, nb2):
+    print('called??????')
+    if os.path.exists('src'):
+        from src import taipy
+        modules = sys.modules
+        sys.modules["taipy"] = taipy
+
+    return inner_lock_multiply(nb1, nb2)
 
 
 def test_raise_when_trying_to_delete_unfinished_job():
     _Scheduler._set_nb_of_workers(Config.configure_job_executions(nb_of_workers=2))
-    task = _create_task(inner_lock_multiply, name="delete_unfinished_job")
+    task = _create_task(submit_task, name="delete_unfinished_job")
     with lock:
+        print(task)
+        # job = submit_task(task)
         job = _Scheduler.submit_task(task)
         with pytest.raises(JobNotDeletedException):
             _JobManager._delete(job)

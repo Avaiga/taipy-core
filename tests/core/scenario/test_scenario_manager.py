@@ -9,11 +9,17 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import os
+import sys
 from datetime import datetime, timedelta
 from multiprocessing import Process
-from queue import Queue
 
 import pytest
+
+if os.path.exists('src'):
+    from src import taipy
+    modules = sys.modules
+    sys.modules["taipy"] = taipy
 
 from taipy.core._scheduler._scheduler import _Scheduler
 from taipy.core._scheduler._scheduler_factory import _SchedulerFactory
@@ -790,8 +796,13 @@ def test_scenarios_comparison():
     with pytest.raises(NonExistingComparator):
         _ScenarioManager._compare(scenario_1, scenario_2, data_node_config_id="abc")
 
-def _scenario_manager_execution():
-    p = Process(target=_ScenarioManager._submit, args=(scenario,))
+def scenario_manager_execute(scenario):
+    from src import taipy
+    modules = sys.modules
+    modules['taipy'] = taipy
+
+    from taipy.core.scenario._scenario_manager import _ScenarioManager
+    _ScenarioManager._submit(scenario)
 
 def test_automatic_reload():
     scenario_config = Config.configure_scenario(
@@ -811,7 +822,7 @@ def test_automatic_reload():
         ],
     )
     scenario = _ScenarioManager._create(scenario_config)
-    p = Process(target=_ScenarioManager._submit, args=(scenario,))
+    p = Process(target=scenario_manager_execute, args=(scenario,))
     p.start()
     p.join()
     assert 2 == scenario.bar.read()
