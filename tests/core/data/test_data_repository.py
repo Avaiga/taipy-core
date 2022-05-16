@@ -66,8 +66,8 @@ class TestDataRepository:
         assert repository._from_model(self.data_node_model) == self.data_node
 
     def test_data_node_with_env_variable_value_not_serialized(self):
-
         with mock.patch.dict(os.environ, {"FOO": "bar"}):
             repository = _DataManager._repository
             assert repository._to_model(self.data_node).data_node_properties["prop"] == "ENV[FOO]"
+            assert self.data_node.properties["prop"] == "ENV[FOO]"
             assert self.data_node.prop == "bar"
