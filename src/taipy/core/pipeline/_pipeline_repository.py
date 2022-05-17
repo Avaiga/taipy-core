@@ -16,7 +16,7 @@ from .._repository import _FileSystemRepository
 from ..common import _utils
 from ..config.config import Config
 from ..exceptions.exceptions import NonExistingPipeline, NonExistingTask
-from ..task._task_manager import _TaskManager
+from ..task._task_manager_factory import _TaskManagerFactory
 from ._pipeline_model import _PipelineModel
 from .pipeline import Pipeline
 
@@ -68,8 +68,9 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
     @staticmethod
     def __to_tasks(task_ids):
         tasks = []
+        task_manager = _TaskManagerFactory._build_manager()
         for _id in task_ids:
-            if task := _TaskManager._get(_id):
+            if task := task_manager._get(_id):
                 tasks.append(task)
             else:
                 raise NonExistingTask(_id)

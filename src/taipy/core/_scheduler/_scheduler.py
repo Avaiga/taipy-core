@@ -16,8 +16,8 @@ from typing import Callable, Iterable, List, Optional, Union
 
 from ..config.config import Config
 from ..config.job_config import JobConfig
-from ..data._data_manager import _DataManager
-from ..job._job_manager import _JobManager
+from ..data._data_manager_factory import _DataManagerFactory
+from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
 from ..pipeline.pipeline import Pipeline
 from ..task.task import Task
@@ -99,7 +99,9 @@ class _Scheduler(_AbstractScheduler):
         """
         for dn in task.output.values():
             dn.lock_edit()
-        job = _JobManager._create(task, itertools.chain([cls._on_status_change], callbacks or []))
+        job = _JobManagerFactory._build_manager()._create(
+            task, itertools.chain([cls._on_status_change], callbacks or [])
+        )
         cls._check_block_and_run_job(job)
 
         return job
@@ -115,7 +117,8 @@ class _Scheduler(_AbstractScheduler):
              True if one of its input data nodes is blocked.
         """
         data_nodes = obj.task.input.values() if isinstance(obj, Job) else obj.input.values()
-        return any(not _DataManager._get(dn.id).is_ready_for_reading for dn in data_nodes)
+        data_manager = _DataManagerFactory._build_manager()
+        return any(not data_manager._get(dn.id).is_ready_for_reading for dn in data_nodes)
 
     @classmethod
     def __run(cls):

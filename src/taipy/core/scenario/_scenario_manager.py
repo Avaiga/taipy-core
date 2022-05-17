@@ -18,7 +18,7 @@ from ..common._entity_ids import _EntityIds
 from ..common.alias import ScenarioId
 from ..config.config import Config
 from ..config.scenario_config import ScenarioConfig
-from ..cycle._cycle_manager import _CycleManager
+from ..cycle._cycle_manager_factory import _CycleManagerFactory
 from ..cycle.cycle import Cycle
 from ..exceptions.exceptions import (
     DeletingPrimaryScenario,
@@ -30,9 +30,9 @@ from ..exceptions.exceptions import (
     NonExistingScenarioConfig,
     UnauthorizedTagError,
 )
-from ..job._job_manager import _JobManager
+from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
-from ..pipeline._pipeline_manager import _PipelineManager
+from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
 from ._scenario_repository import _ScenarioRepository
 from .scenario import Scenario
 
@@ -81,8 +81,15 @@ class _ScenarioManager(_Manager[Scenario]):
         name: str = None,
     ) -> Scenario:
         scenario_id = Scenario._new_id(config.id)
-        pipelines = [_PipelineManager._get_or_create(p_config, scenario_id) for p_config in config.pipeline_configs]
-        cycle = _CycleManager._get_or_create(config.frequency, creation_date) if config.frequency else None
+        pipelines = [
+            _PipelineManagerFactory._build_manager()._get_or_create(p_config, scenario_id)
+            for p_config in config.pipeline_configs
+        ]
+        cycle = (
+            _CycleManagerFactory._build_manager()._get_or_create(config.frequency, creation_date)
+            if config.frequency
+            else None
+        )
         is_primary_scenario = len(cls._get_all_by_cycle(cycle)) == 0 if cycle else False
         props = config.properties.copy()
         if name:
@@ -107,7 +114,7 @@ class _ScenarioManager(_Manager[Scenario]):
             raise NonExistingScenario(scenario_id)
         callbacks = cls.__get_status_notifier_callbacks(scenario)
         for pipeline in scenario.pipelines.values():
-            _PipelineManager._submit(pipeline, callbacks=callbacks, force=force)
+            _PipelineManagerFactory._build_manager()._submit(pipeline, callbacks=callbacks, force=force)
 
     @classmethod
     def __get_status_notifier_callbacks(cls, scenario: Scenario) -> List:
@@ -245,7 +252,7 @@ class _ScenarioManager(_Manager[Scenario]):
                     if data_node.parent_id in (pipeline.id, scenario.id):
                         entity_ids.data_node_ids.add(data_node.id)
 
-        jobs = _JobManager._get_all()
+        jobs = _JobManagerFactory._build_manager()._get_all()
         for job in jobs:
             if job.task.id in entity_ids.task_ids:
                 entity_ids.job_ids.add(job.id)

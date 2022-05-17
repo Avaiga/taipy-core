@@ -17,10 +17,10 @@ from .._repository import _FileSystemRepository
 from ..common import _utils
 from ..common.alias import CycleId, PipelineId
 from ..config.config import Config
-from ..cycle._cycle_manager import _CycleManager
+from ..cycle._cycle_manager_factory import _CycleManagerFactory
 from ..cycle.cycle import Cycle
 from ..exceptions.exceptions import NonExistingPipeline
-from ..pipeline._pipeline_manager import _PipelineManager
+from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
 from ..pipeline.pipeline import Pipeline
 from ._scenario_model import _ScenarioModel
 from .scenario import Scenario
@@ -70,8 +70,9 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
     @staticmethod
     def __to_pipelines(pipeline_ids) -> List[Pipeline]:
         pipelines = []
+        pipeline_manager = _PipelineManagerFactory._build_manager()
         for _id in pipeline_ids:
-            if pipeline := _PipelineManager._get(_id):
+            if pipeline := pipeline_manager._get(_id):
                 pipelines.append(pipeline)
             else:
                 raise NonExistingPipeline(_id)
@@ -79,7 +80,7 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
 
     @staticmethod
     def __to_cycle(cycle_id: CycleId = None) -> Optional[Cycle]:
-        return _CycleManager._get(cycle_id) if cycle_id else None
+        return _CycleManagerFactory._build_manager()._get(cycle_id) if cycle_id else None
 
     @staticmethod
     def __to_cycle_id(cycle: Cycle = None) -> Optional[CycleId]:

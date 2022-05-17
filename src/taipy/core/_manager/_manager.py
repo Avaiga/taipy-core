@@ -76,16 +76,16 @@ class _Manager(Generic[EntityType]):
         """
         Deletes entities of multiple types.
         """
-        from ..cycle._cycle_manager import _CycleManager
-        from ..data._data_manager import _DataManager
-        from ..job._job_manager import _JobManager
-        from ..pipeline._pipeline_manager import _PipelineManager
+        from ..cycle._cycle_manager_factory import _CycleManagerFactory
+        from ..data._data_manager_factory import _DataManagerFactory
+        from ..job._job_manager_factory import _JobManagerFactory
+        from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
         from ..scenario._scenario_manager_factory import _ScenarioManagerFactory
-        from ..task._task_manager import _TaskManager
+        from ..task._task_manager_factory import _TaskManagerFactory
 
-        _CycleManager._delete_many(_entity_ids.cycle_ids)
+        _CycleManagerFactory._build_manager()._delete_many(_entity_ids.cycle_ids)
         _ScenarioManagerFactory._build_manager()._delete_many(_entity_ids.scenario_ids)
-        _PipelineManager._delete_many(_entity_ids.pipeline_ids)
-        _TaskManager._delete_many(_entity_ids.task_ids)
-        _JobManager._delete_many(_entity_ids.job_ids)
-        _DataManager._delete_many(_entity_ids.data_node_ids)
+        _PipelineManagerFactory._build_manager()._delete_many(_entity_ids.pipeline_ids)
+        _TaskManagerFactory._build_manager()._delete_many(_entity_ids.task_ids)
+        _JobManagerFactory._build_manager()._delete_many(_entity_ids.job_ids)
+        _DataManagerFactory._build_manager()._delete_many(_entity_ids.data_node_ids)
