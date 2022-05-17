@@ -69,5 +69,6 @@ class TestDataRepository:
         with mock.patch.dict(os.environ, {"FOO": "bar"}):
             repository = _DataManager._repository
             assert repository._to_model(self.data_node).data_node_properties["prop"] == "ENV[FOO]"
-            assert self.data_node.properties["prop"] == "ENV[FOO]"
+            assert self.data_node._properties.data["prop"] == "ENV[FOO]"
+            assert self.data_node.properties["prop"] == "bar"
             assert self.data_node.prop == "bar"

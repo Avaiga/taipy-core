@@ -121,7 +121,8 @@ def test_data_node_with_env_variable_value():
     with mock.patch.dict(os.environ, {"FOO": "pickle", "BAR": "baz"}):
         Config.configure_data_node("data_node", storage_type="ENV[FOO]", prop="ENV[BAR]")
         assert Config.data_nodes["data_node"].prop == "baz"
-        assert Config.data_nodes["data_node"].properties["prop"] == "ENV[BAR]"
+        assert Config.data_nodes["data_node"].properties["prop"] == "baz"
+        assert Config.data_nodes["data_node"]._properties["prop"] == "ENV[BAR]"
         assert Config.data_nodes["data_node"].storage_type == "pickle"
         assert Config.data_nodes["data_node"]._storage_type == "ENV[FOO]"
 

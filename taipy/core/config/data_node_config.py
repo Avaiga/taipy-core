@@ -53,15 +53,15 @@ class DataNodeConfig:
         self.id = _validate_id(id)
         self._storage_type = storage_type
         self._scope = scope
-        self.properties = properties
-        if self.properties.get(self._IS_CACHEABLE_KEY) is None:
-            self.properties[self._IS_CACHEABLE_KEY] = self._DEFAULT_IS_CACHEABLE_VALUE
+        self._properties = properties
+        if self._properties.get(self._IS_CACHEABLE_KEY) is None:
+            self._properties[self._IS_CACHEABLE_KEY] = self._DEFAULT_IS_CACHEABLE_VALUE
 
     def __getattr__(self, item: str) -> Optional[Any]:
-        return _tpl._replace_templates(self.properties.get(item))
+        return _tpl._replace_templates(self._properties.get(item))
 
     def __copy__(self):
-        return DataNodeConfig(self.id, self._storage_type, self._scope, **copy(self.properties))
+        return DataNodeConfig(self.id, self._storage_type, self._scope, **copy(self._properties))
 
     @property
     def storage_type(self):
@@ -70,6 +70,17 @@ class DataNodeConfig:
     @storage_type.setter  # type: ignore
     def storage_type(self, val):
         self._storage_type = val
+
+    @property
+    def properties(self):
+        res = {}
+        for k, v in self._properties.items():
+            res[k] = _tpl._replace_templates(v)
+        return res
+
+    @properties.setter  # type: ignore
+    def properties(self, val):
+        self._properties = val
 
     @property
     def scope(self):
@@ -89,7 +100,7 @@ class DataNodeConfig:
             as_dict[self._STORAGE_TYPE_KEY] = self._storage_type
         if self._scope is not None:
             as_dict[self._SCOPE_KEY] = self._scope
-        as_dict.update(self.properties)
+        as_dict.update(self._properties)
         return as_dict
 
     @classmethod
@@ -98,7 +109,7 @@ class DataNodeConfig:
         config.id = _validate_id(id)
         config._storage_type = config_as_dict.pop(cls._STORAGE_TYPE_KEY, None)
         config._scope = config_as_dict.pop(cls._SCOPE_KEY, None)
-        config.properties = config_as_dict
+        config._properties = config_as_dict
         return config
 
     def _update(self, config_as_dict, default_dn_cfg=None):
@@ -106,6 +117,6 @@ class DataNodeConfig:
             config_as_dict.pop(self._STORAGE_TYPE_KEY, self._storage_type) or default_dn_cfg.storage_type
         )
         self._scope = config_as_dict.pop(self._SCOPE_KEY, self._scope) or default_dn_cfg.scope
-        self.properties.update(config_as_dict)
+        self._properties.update(config_as_dict)
         if default_dn_cfg:
-            self.properties = {**default_dn_cfg.properties, **self.properties}
+            self._properties = {**default_dn_cfg.properties, **self._properties}

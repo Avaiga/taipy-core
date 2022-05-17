@@ -166,8 +166,8 @@ class Scenario(_Entity):
 
     def __getattr__(self, attribute_name):
         protected_attribute_name = _validate_id(attribute_name)
-        if protected_attribute_name in self.properties:
-            return _tpl._replace_templates(self.properties[protected_attribute_name])
+        if protected_attribute_name in self._properties:
+            return _tpl._replace_templates(self._properties[protected_attribute_name])
         if protected_attribute_name in self.pipelines:
             return self.pipelines[protected_attribute_name]
         for pipeline in self.pipelines.values():

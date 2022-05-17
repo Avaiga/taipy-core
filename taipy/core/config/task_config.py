@@ -46,7 +46,7 @@ class TaskConfig:
         **properties,
     ):
         self.id = _validate_id(id)
-        self.properties = properties
+        self._properties = properties
         if inputs:
             self._inputs = [inputs] if isinstance(inputs, DataNodeConfig) else copy(inputs)
         else:
@@ -58,10 +58,21 @@ class TaskConfig:
         self.function = function
 
     def __getattr__(self, item: str) -> Optional[Any]:
-        return _tpl._replace_templates(self.properties.get(item))
+        return _tpl._replace_templates(self._properties.get(item))
 
     def __copy__(self):
-        return TaskConfig(self.id, copy(self._inputs), self.function, copy(self._outputs), **copy(self.properties))
+        return TaskConfig(self.id, copy(self._inputs), self.function, copy(self._outputs), **copy(self._properties))
+
+    @property
+    def properties(self):
+        res = {}
+        for k, v in self._properties.items():
+            res[k] = _tpl._replace_templates(v)
+        return res
+
+    @properties.setter  # type: ignore
+    def properties(self, val):
+        self._properties = val
 
     @classmethod
     def default_config(cls, id):
@@ -72,7 +83,7 @@ class TaskConfig:
             self._INPUT_KEY: self._inputs,
             self._FUNCTION: self.function,
             self._OUTPUT_KEY: self._outputs,
-            **self.properties,
+            **self._properties,
         }
 
     @classmethod
@@ -85,7 +96,7 @@ class TaskConfig:
         if outputs := config_as_dict.pop(cls._OUTPUT_KEY, None):
             config._outputs = [dn_configs[ds_id] for ds_id in outputs if ds_id in dn_configs]
 
-        config.properties = config_as_dict
+        config._properties = config_as_dict
         return config
 
     @property
@@ -108,6 +119,6 @@ class TaskConfig:
             else default_task_cfg._outputs
         )
         self.function = config_as_dict.pop(self._FUNCTION, self.function)
-        self.properties.update(config_as_dict)
+        self._properties.update(config_as_dict)
         if default_task_cfg:
-            self.properties = {**default_task_cfg.properties, **self.properties}
+            self._properties = {**default_task_cfg.properties, **self._properties}

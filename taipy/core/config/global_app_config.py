@@ -50,7 +50,7 @@ class GlobalAppConfig:
         self._root_folder = root_folder
         self._storage_folder = storage_folder
         self._clean_entities_enabled = clean_entities_enabled
-        self.properties = properties
+        self._properties = properties
 
     @property
     def storage_folder(self):
@@ -78,8 +78,19 @@ class GlobalAppConfig:
     def clean_entities_enabled(self, val):
         self._clean_entities_enabled = val
 
+    @property
+    def properties(self):
+        res = {}
+        for k, v in self._properties.items():
+            res[k] = _tpl._replace_templates(v)
+        return res
+
+    @properties.setter  # type: ignore
+    def properties(self, val):
+        self._properties = val
+
     def __getattr__(self, item: str) -> Optional[Any]:
-        return _tpl._replace_templates(self.properties.get(item))
+        return _tpl._replace_templates(self._properties.get(item))
 
     @classmethod
     def default_config(cls) -> GlobalAppConfig:
@@ -97,7 +108,7 @@ class GlobalAppConfig:
             as_dict[self._STORAGE_FOLDER_KEY] = self._storage_folder
         if self._clean_entities_enabled is not None:
             as_dict[self._CLEAN_ENTITIES_ENABLED_KEY] = self._clean_entities_enabled
-        as_dict.update(self.properties)
+        as_dict.update(self._properties)
         return as_dict
 
     @classmethod
@@ -106,7 +117,7 @@ class GlobalAppConfig:
         config._root_folder = config_as_dict.pop(cls._ROOT_FOLDER_KEY, None)
         config._storage_folder = config_as_dict.pop(cls._STORAGE_FOLDER_KEY, None)
         config._clean_entities_enabled = config_as_dict.pop(cls._CLEAN_ENTITIES_ENABLED_KEY, None)
-        config.properties = config_as_dict
+        config._properties = config_as_dict
         return config
 
     def _update(self, config_as_dict):
@@ -115,4 +126,4 @@ class GlobalAppConfig:
         self._clean_entities_enabled = config_as_dict.pop(
             self._CLEAN_ENTITIES_ENABLED_KEY, self._clean_entities_enabled
         )
-        self.properties.update(config_as_dict)
+        self._properties.update(config_as_dict)
