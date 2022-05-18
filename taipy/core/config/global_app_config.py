@@ -80,10 +80,7 @@ class GlobalAppConfig:
 
     @property
     def properties(self):
-        res = {}
-        for k, v in self._properties.items():
-            res[k] = _tpl._replace_templates(v)
-        return res
+return {k: _tpl._replace_templates(v) for k, v in self._properties.items()}
 
     @properties.setter  # type: ignore
     def properties(self, val):
