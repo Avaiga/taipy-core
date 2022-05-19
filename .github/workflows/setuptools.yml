@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [ '3.8', '3.9', '3.10' ]
-        os: [ubuntu-18.04, windows-latest, macos-latest]
+        os: [ ubuntu-18.04, windows-latest, macos-latest ]
 
     runs-on: ${{ matrix.os }}
 
@@ -27,19 +27,8 @@ jobs:
       - name: Install Taipy
         run: |
           pip install .
+          rm -r taipy
 
-      - name: Prepare tests on unix
-        if: matrix.os != 'windows-latest'
-        run: |
-          rm -rf taipy
-
-      - name: Prepare tests on windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          rmdir -Recurse -Force taipy
-
-      - name: Run tests
-        run: |
           pip install pytest pytest-mock
           pytest
 
@@ -48,7 +37,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [ '3.8', '3.9', '3.10' ]
-        os: [ ubuntu-18.04 ]
+        os: [ ubuntu-18.04, windows-latest, macos-latest ]
 
     runs-on: ${{ matrix.os }}
 
