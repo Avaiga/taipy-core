@@ -54,7 +54,7 @@ jobs:
           echo "[print(k) for k in extras_require.keys()]" >> setup_packages.py
           python setup_packages.py | xargs -I% bash -c "pip install .[%]"
 
-          rm -r taipy  # Removal of Taipy code to ensure the use of the installed package.
+          rm -r taipy
 
           # Run test with optionals packages installed
           pip install pytest pytest-mock
