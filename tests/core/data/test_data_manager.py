@@ -36,7 +36,6 @@ class TestDataManager:
         assert dn_config.properties.get("foo") == "bar"
         assert dn_config.properties.get("baz") is None
 
-        # dn._properties["baz"] = "qux"
         dn.properties["baz"] = "qux"
         _DataManager._set(dn)
         assert dn_config.properties.get("foo") == "bar"
