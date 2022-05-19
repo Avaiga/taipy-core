@@ -39,6 +39,7 @@ jobs:
           rmdir -Recurse -Force taipy
 
       - name: Run tests
+        run: |
           pip install pytest pytest-mock
           pytest
 
