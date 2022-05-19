@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [ '3.8', '3.9', '3.10' ]
-        os: [ubuntu-18.04]
+        os: [ubuntu-18.04, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -25,8 +25,19 @@ jobs:
       - name: Install Taipy without dependencies
         run: |
           pip install .
-          rm -r taipy  # Removal of Taipy code to ensure the use of the installed package
+          pip install pytest pytest-mock
 
+      - name: Prepare tests on unix
+        if: matrix.os != 'windows-latest'
+        run: |
+          rm -rf taipy
+
+      - name: Prepare tests on windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          rmdir -Recurse -Force taipy
+
+      - name: Run tests
           pip install pytest pytest-mock
           pytest
 
@@ -44,14 +55,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-versions }}
-
-      - name: Add an ssh key for cloning
-        run: |
-          mkdir -p ~/.ssh
-          ls ~/.ssh
-          echo "${{ secrets.SSH_KEY_TAIPY_AIRFLOW }}" > ~/.ssh/id_ed25519
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/id_ed25519
 
       - name: Add optionals dependencies
         run: |
