@@ -45,7 +45,7 @@ class PipelineConfig:
 
     @property
     def properties(self):
-return {k: _tpl._replace_templates(v) for k, v in self._properties.items()}
+        return {k: _tpl._replace_templates(v) for k, v in self._properties.items()}
 
     @properties.setter  # type: ignore
     def properties(self, val):
