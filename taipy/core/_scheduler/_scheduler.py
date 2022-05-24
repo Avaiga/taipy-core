@@ -39,13 +39,6 @@ class _Scheduler(_AbstractScheduler):
     lock = Lock()
 
     @classmethod
-    def _set_nb_of_workers(cls, job_config: JobConfig = None):
-        if not job_config:
-            job_config = Config.job_config
-
-        cls._dispatcher._set_executer_and_nb_available_workers(job_config.nb_of_workers)  # type: ignore
-
-    @classmethod
     def _check_block_and_run_job(cls, job):
         if cls.is_blocked(job):
             cls.__set_block_job(job)
@@ -167,3 +160,10 @@ class _Scheduler(_AbstractScheduler):
     @classmethod
     def stop(cls):
         RuntimeError("The default scheduler cannot be started nor stopped.")
+
+    @classmethod
+    def _set_nb_of_workers(cls, job_config: JobConfig = None):
+        if not job_config:
+            job_config = Config.job_config
+
+        cls._dispatcher._set_executer_and_nb_available_workers(job_config.nb_of_workers)  # type: ignore
