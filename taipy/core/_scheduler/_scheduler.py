@@ -157,6 +157,10 @@ class _Scheduler(_AbstractScheduler):
         return False
 
     @classmethod
+    def initialize(cls):
+        pass
+
+    @classmethod
     def start(cls):
         RuntimeError("The default scheduler cannot be started.")
 
