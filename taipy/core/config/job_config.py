@@ -14,6 +14,7 @@ from typing import Any, Dict, Optional, Type
 
 from taipy.core.common._utils import _load_fct
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
+from taipy.core.config.debug_config import DebugConfig
 from taipy.core.config.job_mode_config import _JobModeConfig
 from taipy.core.config.standalone_config import StandaloneConfig
 from taipy.core.exceptions.exceptions import DependencyNotInstalled
@@ -31,6 +32,7 @@ class JobConfig:
 
     _MODE_KEY = "mode"
     _DEFAULT_MODE = "standalone"
+    _DEBUG_MODE = "debug"
 
     _MODE_TO_MODULE: Dict[str, str] = {
         "enterprise": "taipy.enterprise",
@@ -82,6 +84,8 @@ class JobConfig:
     def _get_config_cls(cls, mode: str) -> Type[_JobModeConfig]:
         if mode == cls._DEFAULT_MODE:
             return StandaloneConfig
+        if mode == cls._DEBUG_MODE:
+            return DebugConfig
         module = cls._MODE_TO_MODULE.get(mode, None)
         if not module or not util.find_spec(module):
             raise DependencyNotInstalled(mode)
@@ -92,6 +96,11 @@ class JobConfig:
     def is_standalone(self) -> bool:
         """True if the config is set to standalone execution"""
         return self.mode == self._DEFAULT_MODE
+
+    @property
+    def is_debug(self) -> bool:
+        """True if the config is set to standalone execution"""
+        return self.mode == self._DEBUG_MODE
 
     @property
     def is_multiprocess(self) -> bool:

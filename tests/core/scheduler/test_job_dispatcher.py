@@ -46,6 +46,7 @@ def execute(lock):
 
 
 def test_can_execute_synchronous():
+    Config.configure_job_executions(nb_of_workers=2)
     m = multiprocessing.Manager()
     lock = m.Lock()
 
@@ -60,7 +61,7 @@ def test_can_execute_synchronous():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    executor = _JobDispatcher(2)
+    executor = _JobDispatcher()
 
     with lock:
         assert executor._can_execute()
@@ -73,6 +74,7 @@ def test_can_execute_synchronous():
 
 
 def test_can_execute_parallel_multiple_submit():
+    Config.configure_job_executions(nb_of_workers=2)
     m = multiprocessing.Manager()
     lock = m.Lock()
 
@@ -81,7 +83,7 @@ def test_can_execute_parallel_multiple_submit():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    executor = _JobDispatcher(2)
+    executor = _JobDispatcher()
 
     with lock:
         assert executor._can_execute()
@@ -95,7 +97,7 @@ def test_can_execute_synchronous_2():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    executor = _JobDispatcher(None)
+    executor = _JobDispatcher()
 
     assert executor._can_execute()
     executor._dispatch(job)
@@ -103,12 +105,13 @@ def test_can_execute_synchronous_2():
 
 
 def test_handle_exception_in_user_function():
+    Config.configure_job_executions(nb_of_workers=1)
     task_id = TaskId("task_id1")
     job_id = JobId("id1")
     task = Task(config_id="name", input=[], function=_error, output=[], id=task_id)
     job = Job(job_id, task)
 
-    executor = _JobDispatcher(None)
+    executor = _JobDispatcher()
     executor._dispatch(job)
     assert job.is_failed()
     assert 'RuntimeError("Something bad has happened")' in str(job.stacktrace[0])
@@ -125,7 +128,7 @@ def test_handle_exception_when_writing_datanode():
     task = Task(config_id="name", input=[], function=print, output=[output], id=task_id)
     job = Job(job_id, task)
 
-    dispatcher = _JobDispatcher(None)
+    dispatcher = _JobDispatcher()
 
     with mock.patch("taipy.core.data._data_manager._DataManager._get") as get:
         get.return_value = output
@@ -143,7 +146,7 @@ def test_need_to_run_no_output():
     task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[])
     task = _TaskManager()._get_or_create(task_cfg)
 
-    assert _JobDispatcher(None)._needs_to_run(task)
+    assert _JobDispatcher()._needs_to_run(task)
 
 
 def test_need_to_run_output_not_cacheable():
@@ -156,7 +159,7 @@ def test_need_to_run_output_not_cacheable():
     task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
     task = _TaskManager()._get_or_create(task_cfg)
 
-    assert _JobDispatcher(None)._needs_to_run(task)
+    assert _JobDispatcher()._needs_to_run(task)
 
 
 def nothing():

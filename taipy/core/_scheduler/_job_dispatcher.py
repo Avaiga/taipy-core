@@ -16,6 +16,7 @@ from typing import Any, List
 from taipy.core._scheduler._executor._synchronous import _Synchronous
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import JobId
+from taipy.core.config import Config
 from taipy.core.data._data_manager_factory import _DataManagerFactory
 from taipy.core.data.data_node import DataNode
 from taipy.core.exceptions.exceptions import DataNodeWritingError
@@ -27,8 +28,8 @@ from taipy.core.task.task import Task
 class _JobDispatcher:
     """Manages executors and dispatch jobs (instances of `Job^` class) on it."""
 
-    def __init__(self, max_number_of_parallel_execution):
-        self._set_executer_and_nb_available_workers(max_number_of_parallel_execution)
+    def __init__(self):
+        self._set_executer_and_nb_available_workers(Config.job_config.nb_of_workers)
         self.__logger = _TaipyLogger._get_logger()
 
     def _can_execute(self) -> bool:

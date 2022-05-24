@@ -19,7 +19,6 @@ from taipy.core._scheduler._job_dispatcher import _JobDispatcher
 from taipy.core.common.alias import JobId, TaskId
 from taipy.core.common.scope import Scope
 from taipy.core.data.in_memory import InMemoryDataNode
-from taipy.core.exceptions.exceptions import DataNodeWritingError, NoData
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.job.job import Job
 from taipy.core.job.status import Status
@@ -141,7 +140,7 @@ def test_handle_exception_in_input_data_node(task_id, job_id):
 
     job = _JobManager._get(job_id)
     assert job.is_failed()
-    assert 'taipy.core.exceptions.exceptions.NoData' in str(job.stacktrace[0])
+    assert "taipy.core.exceptions.exceptions.NoData" in str(job.stacktrace[0])
 
 
 def test_handle_exception_in_ouptut_data_node(replace_in_memory_write_fct, task_id, job_id):
@@ -221,7 +220,7 @@ def _error():
 def _dispatch(task: Task, job: Job):
     _TaskManager._set(task)
     _JobManager._set(job)
-    executor = _JobDispatcher(None)
+    executor = _JobDispatcher()
     executor._dispatch(job)
 
 

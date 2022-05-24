@@ -25,7 +25,7 @@ class _SchedulerFactory:
 
     @classmethod
     def _build_scheduler(cls) -> Type[_AbstractScheduler]:
-        if Config.job_config.is_standalone:
+        if Config.job_config.is_standalone or Config.job_config.is_debug:
             if util.find_spec(cls._TAIPY_ENTERPRISE_MODULE) is not None:
                 scheduler = _load_fct(
                     cls._TAIPY_ENTERPRISE_CORE_MODULE + ".scheduler",
