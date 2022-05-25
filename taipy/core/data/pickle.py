@@ -13,8 +13,10 @@ import os
 import pathlib
 import pickle
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Any, List, Optional
 
+from taipy.core.common._reload import _self_reload, _self_setter
+from taipy.core.common._warnings import _warn_deprecated
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.common.scope import Scope
 from taipy.core.data.data_node import DataNode
@@ -47,8 +49,10 @@ class PickleDataNode(DataNode):
     """
 
     __STORAGE_TYPE = "pickle"
-    __PICKLE_FILE_NAME = "path"
+    __PICKLE_PATH_KEY = "path"
+    __PICKLE_DEFAULT_PATH_KEY = "default_path"
     __DEFAULT_DATA_VALUE = "default_data"
+    _MANAGER_NAME: str = "data"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -79,32 +83,42 @@ class PickleDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self.__pickle_file_path = self.__build_path()
-        if not self._last_edit_date and os.path.exists(self.__pickle_file_path):
+        self._pickle_default_path = self.__build_path()
+        if not self._last_edit_date and os.path.exists(self._pickle_default_path):
             self.unlock_edit()
-        if default_value is not None and not os.path.exists(self.__pickle_file_path):
+        if default_value is not None and not os.path.exists(self._pickle_default_path):
             self.write(default_value)
 
     @classmethod
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
-    @property
-    def path(self) -> str:
-        return self.__pickle_file_path
+    @property  # type: ignore
+    @_self_reload(_MANAGER_NAME)
+    def path(self) -> Any:
+        return self._pickle_default_path
+
+    @path.setter  # type: ignore
+    @_self_setter(_MANAGER_NAME)
+    def path(self, value: Any):
+        print("called")
+        self._pickle_default_path = value
 
     @property
     def is_file_generated(self) -> bool:
-        return self.__PICKLE_FILE_NAME not in self.properties
+        return self.__PICKLE_DEFAULT_PATH_KEY not in self.properties and self.__PICKLE_PATH_KEY not in self.properties
 
     def _read(self):
-        return pickle.load(open(self.__pickle_file_path, "rb"))
+        return pickle.load(open(self._pickle_default_path, "rb"))
 
     def _write(self, data):
-        pickle.dump(data, open(self.__pickle_file_path, "wb"))
+        pickle.dump(data, open(self._pickle_default_path, "wb"))
 
     def __build_path(self):
-        if file_name := self._properties.get(self.__PICKLE_FILE_NAME):
+        if file_name := self._properties.get(self.__PICKLE_DEFAULT_PATH_KEY):
+            return file_name
+        if file_name := self._properties.get(self.__PICKLE_PATH_KEY):
+            _warn_deprecated("path", suggest="default_path")
             return file_name
         from taipy.core.config.config import Config
 
