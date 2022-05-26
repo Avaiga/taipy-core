@@ -30,7 +30,7 @@ class JobConfig:
 
     _MODE_KEY = "mode"
     _DEFAULT_MODE = "standalone"
-    _DEBUG_MODE = "debug"
+    _DEBUG_MODE = "development"
 
     _MODE_TO_MODULE: Dict[str, str] = {
         "enterprise": "taipy.enterprise",

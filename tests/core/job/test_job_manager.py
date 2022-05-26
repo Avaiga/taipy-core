@@ -21,6 +21,7 @@ import pytest
 from taipy.core._scheduler._scheduler import _Scheduler
 from taipy.core.common.alias import JobId
 from taipy.core.common.scope import Scope
+from taipy.core.config import JobConfig
 from taipy.core.config._config import _Config
 from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
@@ -98,7 +99,7 @@ def test_get_jobs():
 
 
 def test_delete_job():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
     task = _create_task(multiply, name="delete_job")
 
     job_1 = _Scheduler.submit_task(task)

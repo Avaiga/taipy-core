@@ -62,7 +62,7 @@ def mult_by_2(n):
 
 
 def test_submit_task():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
 
     before_creation = datetime.now()
     sleep(0.1)
@@ -87,7 +87,7 @@ def test_submit_task():
 
 
 def test_submit_task_that_return_multiple_outputs():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -114,7 +114,7 @@ def test_submit_task_that_return_multiple_outputs():
 
 
 def test_submit_task_returns_single_iterable_output():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -132,7 +132,7 @@ def test_submit_task_returns_single_iterable_output():
 
 
 def test_data_node_not_written_due_to_wrong_result_nb():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
 
     def return_2tuple():
         return lambda nb1, nb2: (multiply(nb1, nb2), multiply(nb1, nb2) / 2)
