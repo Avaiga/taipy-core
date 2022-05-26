@@ -9,10 +9,8 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from importlib import util
 from typing import Any, Dict, Optional, Type
 
-from taipy.core.common._utils import _load_fct
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
 from taipy.core.config.debug_config import DebugConfig
 from taipy.core.config.job_mode_config import _JobModeConfig
@@ -86,11 +84,7 @@ class JobConfig:
             return StandaloneConfig
         if mode == cls._DEBUG_MODE:
             return DebugConfig
-        module = cls._MODE_TO_MODULE.get(mode, None)
-        if not module or not util.find_spec(module):
-            raise DependencyNotInstalled(mode)
-        config_cls = _load_fct(module + ".config", "Config")
-        return config_cls  # type:ignore
+        raise DependencyNotInstalled(mode)
 
     @property
     def is_standalone(self) -> bool:

@@ -162,8 +162,8 @@ class _Scheduler(_AbstractScheduler):
         RuntimeError("The default scheduler cannot be started nor stopped.")
 
     @classmethod
-    def _set_nb_of_workers(cls, job_config: JobConfig = None):
+    def _set_job_config(cls, job_config: JobConfig = None):
         if not job_config:
             job_config = Config.job_config
 
-        cls._dispatcher._set_executer_and_nb_available_workers(job_config.nb_of_workers)  # type: ignore
+        cls._dispatcher._set_executer_and_nb_available_workers(job_config)  # type: ignore

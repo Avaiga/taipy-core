@@ -14,7 +14,6 @@ import multiprocessing
 import os
 import random
 import string
-from queue import Queue
 from time import sleep
 
 import pytest
@@ -99,6 +98,7 @@ def test_get_jobs():
 
 
 def test_delete_job():
+    _Scheduler._set_job_config(Config.configure_job_executions(mode="debug"))
     task = _create_task(multiply, name="delete_job")
 
     job_1 = _Scheduler.submit_task(task)
@@ -120,7 +120,7 @@ def inner_lock_multiply(nb1: float, nb2: float):
 
 
 def test_raise_when_trying_to_delete_unfinished_job():
-    _Scheduler._set_nb_of_workers(Config.configure_job_executions(nb_of_workers=2))
+    _Scheduler._set_job_config(Config.configure_job_executions(nb_of_workers=2))
     task = _create_task(inner_lock_multiply, name="delete_unfinished_job")
     with lock:
         job = _Scheduler.submit_task(task)

@@ -18,6 +18,8 @@ import pytest
 from taipy.core._scheduler._job_dispatcher import _JobDispatcher
 from taipy.core.common.alias import JobId, TaskId
 from taipy.core.common.scope import Scope
+from taipy.core.config import JobConfig
+from taipy.core.config.config import Config
 from taipy.core.data.in_memory import InMemoryDataNode
 from taipy.core.job._job_manager import _JobManager
 from taipy.core.job.job import Job
@@ -217,7 +219,8 @@ def _error():
     raise RuntimeError("Something bad has happened")
 
 
-def _dispatch(task: Task, job: Job):
+def _dispatch(task: Task, job: Job, mode=JobConfig._DEBUG_MODE):
+    Config.configure_job_executions(mode=mode)
     _TaskManager._set(task)
     _JobManager._set(job)
     executor = _JobDispatcher()
