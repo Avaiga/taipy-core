@@ -94,15 +94,12 @@ class PickleDataNode(DataNode):
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
     def path(self) -> Any:
         return self._pickle_default_path
 
     @path.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
     def path(self, value: Any):
-        print("called")
-        self._pickle_default_path = value
+        self.properties[self.__PICKLE_DEFAULT_PATH_KEY] = value
 
     @property
     def is_file_generated(self) -> bool:
