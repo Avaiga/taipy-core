@@ -15,6 +15,7 @@ from taipy.core.config._config_template_handler import _ConfigTemplateHandler as
 from taipy.core.config.development_config import DevelopmentConfig
 from taipy.core.config.job_mode_config import _JobModeConfig
 from taipy.core.config.standalone_config import StandaloneConfig
+
 from taipy.core.exceptions.exceptions import DependencyNotInstalled
 
 
@@ -84,12 +85,12 @@ class JobConfig:
 
     @property
     def is_standalone(self) -> bool:
-        """True if the config is set to standalone execution"""
+        """True if the config is set to standalone mode"""
         return self.mode == self._DEFAULT_MODE
 
     @property
     def is_development(self) -> bool:
-        """True if the config is set to standalone execution"""
+        """True if the config is set to development mode"""
         return self.mode == self._DEVELOPMENT_MODE
 
     @property
