@@ -219,7 +219,7 @@ def _error():
     raise RuntimeError("Something bad has happened")
 
 
-def _dispatch(task: Task, job: Job, mode=JobConfig._DEBUG_MODE):
+def _dispatch(task: Task, job: Job, mode=JobConfig._DEVELOPMENT_MODE):
     Config.configure_job_executions(mode=mode)
     _TaskManager._set(task)
     _JobManager._set(job)

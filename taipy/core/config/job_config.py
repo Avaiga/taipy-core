@@ -12,7 +12,7 @@
 from typing import Any, Dict, Optional, Type
 
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
-from taipy.core.config.debug_config import DebugConfig
+from taipy.core.config.development_config import DevelopmentConfig
 from taipy.core.config.job_mode_config import _JobModeConfig
 from taipy.core.config.standalone_config import StandaloneConfig
 from taipy.core.exceptions.exceptions import DependencyNotInstalled
@@ -23,18 +23,14 @@ class JobConfig:
     Configuration fields related to the jobs' executions.
 
     Parameters:
-        mode (str): The Taipy operating mode. By default, the "standalone" mode is set. On Taipy enterprise,
-            "enterprise" and "airflow" mode are available.
+        mode (str): The Taipy operating mode. By default, the "standalone" mode is set. A "development" mode is also
+            available for testing and debugging the executions of jobs.
         **properties: A dictionary of additional properties.
     """
 
     _MODE_KEY = "mode"
     _DEFAULT_MODE = "standalone"
-    _DEBUG_MODE = "development"
-
-    _MODE_TO_MODULE: Dict[str, str] = {
-        "enterprise": "taipy.enterprise",
-    }
+    _DEVELOPMENT_MODE = "development"
 
     def __init__(self, mode: str = None, **properties):
         self.mode = mode or self._DEFAULT_MODE
@@ -82,8 +78,8 @@ class JobConfig:
     def _get_config_cls(cls, mode: str) -> Type[_JobModeConfig]:
         if mode == cls._DEFAULT_MODE:
             return StandaloneConfig
-        if mode == cls._DEBUG_MODE:
-            return DebugConfig
+        if mode == cls._DEVELOPMENT_MODE:
+            return DevelopmentConfig
         raise DependencyNotInstalled(mode)
 
     @property
@@ -92,9 +88,9 @@ class JobConfig:
         return self.mode == self._DEFAULT_MODE
 
     @property
-    def is_debug(self) -> bool:
+    def is_development(self) -> bool:
         """True if the config is set to standalone execution"""
-        return self.mode == self._DEBUG_MODE
+        return self.mode == self._DEVELOPMENT_MODE
 
     @property
     def is_multiprocess(self) -> bool:

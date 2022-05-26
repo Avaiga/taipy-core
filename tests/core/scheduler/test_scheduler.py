@@ -62,7 +62,7 @@ def mult_by_2(n):
 
 
 def test_submit_task():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
 
     before_creation = datetime.now()
     sleep(0.1)
@@ -87,7 +87,7 @@ def test_submit_task():
 
 
 def test_submit_task_that_return_multiple_outputs():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -114,7 +114,7 @@ def test_submit_task_that_return_multiple_outputs():
 
 
 def test_submit_task_returns_single_iterable_output():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -132,7 +132,7 @@ def test_submit_task_returns_single_iterable_output():
 
 
 def test_data_node_not_written_due_to_wrong_result_nb():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
 
     def return_2tuple():
         return lambda nb1, nb2: (multiply(nb1, nb2), multiply(nb1, nb2) / 2)
@@ -273,7 +273,7 @@ class MyScheduler(_Scheduler):
 
 
 def test_task_scheduler_create_synchronous_dispatcher():
-    MyScheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    MyScheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
     assert isinstance(MyScheduler.getJobDispatcher()._executor, _Synchronous)
     assert MyScheduler.getJobDispatcher()._nb_available_workers == 1
 
@@ -324,11 +324,11 @@ def test_can_exec_task_with_modified_config():
     taipy.clean_all_entities()
 
 
-def test_can_execute_task_with_debug_mode():
+def test_can_execute_task_with_development_mode():
 
     assert Config.job_config.mode == "standalone"
-    Config.configure_job_executions(mode=JobConfig._DEBUG_MODE)
-    assert Config.job_config.mode == JobConfig._DEBUG_MODE
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    assert Config.job_config.mode == JobConfig._DEVELOPMENT_MODE
 
     dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
     dn_output_config = Config.configure_data_node("output", "pickle")

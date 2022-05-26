@@ -99,7 +99,7 @@ def test_get_jobs():
 
 
 def test_delete_job():
-    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEBUG_MODE))
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
     task = _create_task(multiply, name="delete_job")
 
     job_1 = _Scheduler.submit_task(task)

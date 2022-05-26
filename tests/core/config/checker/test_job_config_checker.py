@@ -36,6 +36,6 @@ class TestJobConfigChecker:
         _JobConfigChecker(config, collector)._check()
         assert len(collector.errors) == 2
 
-        Config.configure_job_executions(mode=JobConfig._DEBUG_MODE, nb_of_workers=2)
+        Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE, nb_of_workers=2)
         _JobConfigChecker(config, collector)._check()
         assert len(collector.errors) == 2
