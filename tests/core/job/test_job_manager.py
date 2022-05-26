@@ -55,6 +55,8 @@ def lock_multiply(lock, nb1: float, nb2: float):
 
 
 def test_get_job():
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+
     task = _create_task(multiply, name="get_job")
 
     job_1 = _Scheduler.submit_task(task)
@@ -67,6 +69,8 @@ def test_get_job():
 
 
 def test_get_latest_job():
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+
     task = _create_task(multiply, name="get_latest_job")
     task_2 = _create_task(multiply, name="get_latest_job_2")
 
@@ -90,6 +94,8 @@ def test_get_job_unknown():
 
 
 def test_get_jobs():
+    _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+
     task = _create_task(multiply, name="get_all_jobs")
 
     job_1 = _Scheduler.submit_task(task)
@@ -100,6 +106,7 @@ def test_get_jobs():
 
 def test_delete_job():
     _Scheduler._set_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+
     task = _create_task(multiply, name="delete_job")
 
     job_1 = _Scheduler.submit_task(task)
