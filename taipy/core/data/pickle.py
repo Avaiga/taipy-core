@@ -94,6 +94,7 @@ class PickleDataNode(DataNode):
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore
+    @_self_reload(_MANAGER_NAME)
     def path(self) -> Any:
         return self._pickle_default_path
 
