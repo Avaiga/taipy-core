@@ -52,7 +52,6 @@ class PickleDataNode(DataNode):
     __PICKLE_PATH_KEY = "path"
     __PICKLE_DEFAULT_PATH_KEY = "default_path"
     __DEFAULT_DATA_VALUE = "default_data"
-    _MANAGER_NAME: str = "data"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -84,10 +83,10 @@ class PickleDataNode(DataNode):
             **properties,
         )
         self.__is_file_generated = False
-        self._pickle_default_path = self.__build_path()
-        if not self._last_edit_date and os.path.exists(self._pickle_default_path):
+        self._pickle_path = self.__build_path()
+        if not self._last_edit_date and os.path.exists(self._pickle_path):
             self.unlock_edit()
-        if default_value is not None and not os.path.exists(self._pickle_default_path):
+        if default_value is not None and not os.path.exists(self._pickle_path):
             self.write(default_value)
 
     @classmethod
@@ -95,10 +94,10 @@ class PickleDataNode(DataNode):
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
+    @_self_reload(DataNode._MANAGER_NAME)
     def path(self) -> Any:
         self.__is_file_generated = False
-        return self._pickle_default_path
+        return self._pickle_path
 
     @path.setter  # type: ignore
     def path(self, value: Any):
@@ -109,10 +108,10 @@ class PickleDataNode(DataNode):
         return self.__is_file_generated
 
     def _read(self):
-        return pickle.load(open(self._pickle_default_path, "rb"))
+        return pickle.load(open(self._pickle_path, "rb"))
 
     def _write(self, data):
-        pickle.dump(data, open(self._pickle_default_path, "wb"))
+        pickle.dump(data, open(self._pickle_path, "wb"))
 
     def __build_path(self):
         if file_name := self._properties.get(self.__PICKLE_DEFAULT_PATH_KEY):
