@@ -15,7 +15,7 @@ import pickle
 from datetime import datetime, timedelta
 from typing import Any, List, Optional
 
-from taipy.core.common._reload import _self_reload, _self_setter
+from taipy.core.common._reload import _self_reload
 from taipy.core.common._warnings import _warn_deprecated
 from taipy.core.common.alias import DataNodeId, JobId
 from taipy.core.common.scope import Scope
@@ -83,6 +83,7 @@ class PickleDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
+        self.__is_file_generated = False
         self._pickle_default_path = self.__build_path()
         if not self._last_edit_date and os.path.exists(self._pickle_default_path):
             self.unlock_edit()
@@ -96,6 +97,7 @@ class PickleDataNode(DataNode):
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def path(self) -> Any:
+        self.__is_file_generated = False
         return self._pickle_default_path
 
     @path.setter  # type: ignore
@@ -104,7 +106,7 @@ class PickleDataNode(DataNode):
 
     @property
     def is_file_generated(self) -> bool:
-        return self.__PICKLE_DEFAULT_PATH_KEY not in self.properties and self.__PICKLE_PATH_KEY not in self.properties
+        return self.__is_file_generated
 
     def _read(self):
         return pickle.load(open(self._pickle_default_path, "rb"))
@@ -123,4 +125,5 @@ class PickleDataNode(DataNode):
         dir_path = pathlib.Path(Config.global_config.storage_folder) / "pickles"
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
+        self.__is_file_generated = True
         return dir_path / f"{self.id}.p"
