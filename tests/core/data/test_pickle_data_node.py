@@ -13,11 +13,11 @@ import os
 import pathlib
 
 import pytest
-
 from taipy.core.common.scope import Scope
-from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.pickle import PickleDataNode
+
+from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import InvalidConfigurationId, NoData
 
 
@@ -107,7 +107,7 @@ class TestPickleDataNodeEntity:
         assert dn.path == "foo.FILE.p"
 
     def test_set_path(self):
-        dn_config = Config.configure_data_node("foo", "pickle", path="foo.p")
+        dn_config = Config.configure_data_node("foo", "pickle", default_path="foo.p")
         dn: PickleDataNode = _DataManager._get_or_create(dn_config)
         assert dn.path == "foo.p"
         dn.path = "bar.p"
