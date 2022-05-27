@@ -16,15 +16,9 @@ from typing import Callable, List, Optional, Union
 from taipy.core._manager._manager import _Manager
 from taipy.core.common._entity_ids import _EntityIds
 from taipy.core.common.alias import ScenarioId
+from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle._cycle_manager_factory import _CycleManagerFactory
-from taipy.core.job._job_manager_factory import _JobManagerFactory
-from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
-from taipy.core.scenario._scenario_repository import _ScenarioRepository
-from taipy.core.scenario.scenario import Scenario
-
-from taipy.core.config.config import Config
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.exceptions.exceptions import (
     DeletingPrimaryScenario,
@@ -36,6 +30,11 @@ from taipy.core.exceptions.exceptions import (
     NonExistingScenarioConfig,
     UnauthorizedTagError,
 )
+from taipy.core.job._job_manager_factory import _JobManagerFactory
+from taipy.core.job.job import Job
+from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from taipy.core.scenario._scenario_repository import _ScenarioRepository
+from taipy.core.scenario.scenario import Scenario
 
 
 class _ScenarioManager(_Manager[Scenario]):
@@ -66,7 +65,7 @@ class _ScenarioManager(_Manager[Scenario]):
                 cls.__remove_subscriber(callback, scn, *args, **kwargs)
             return
 
-        cls.__remove_subscriber(callback, scenario)
+        cls.__remove_subscriber(callback, scenario, *args, **kwargs)
 
     @classmethod
     def __add_subscriber(cls, callback, scenario: Scenario, *args, **kwargs):
@@ -185,7 +184,7 @@ class _ScenarioManager(_Manager[Scenario]):
                 old_tagged_scenario.remove_tag(tag)
                 cls._set(old_tagged_scenario, *args, **kwargs)
         scenario._add_tag(tag)
-        cls._set(scenario)
+        cls._set(scenario, *args, **kwargs)
 
     @classmethod
     def _untag(cls, scenario: Scenario, tag: str, *args, **kwargs):
@@ -194,7 +193,7 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def _delete(cls, scenario_id: ScenarioId, *args, **kwargs):  # type: ignore
-        if cls._get(scenario_id).is_primary:
+        if cls._get(scenario_id, *args, **kwargs).is_primary:
             raise DeletingPrimaryScenario
         super()._delete(scenario_id, *args, **kwargs)
 
@@ -233,7 +232,7 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def _hard_delete(cls, scenario_id: ScenarioId, *args, **kwargs):
-        scenario = cls._get(scenario_id)
+        scenario = cls._get(scenario_id, *args, **kwargs)
         if scenario.is_primary:
             raise DeletingPrimaryScenario
         entity_ids_to_delete = cls._get_owned_entity_ids(scenario, *args, **kwargs)

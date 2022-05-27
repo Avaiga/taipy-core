@@ -19,7 +19,6 @@ from taipy.core.config.data_node_config import DataNodeConfig
 from taipy.core.data._data_repository import _DataRepository
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.pickle import PickleDataNode
-
 from taipy.core.exceptions.exceptions import InvalidDataNodeType
 
 
@@ -49,7 +48,7 @@ class _DataManager(_Manager[DataNode]):
     @classmethod
     def _create_and_set(cls, data_node_config: DataNodeConfig, parent_id: Optional[str], *args, **kwargs) -> DataNode:
         data_node = cls.__create(data_node_config, parent_id, *args, **kwargs)
-        cls._set(data_node, parent_id, *args, **kwargs)
+        cls._set(data_node, *args, **kwargs)
         return data_node
 
     @classmethod
@@ -87,7 +86,7 @@ class _DataManager(_Manager[DataNode]):
 
     @classmethod
     def _delete_many(cls, data_node_ids: Iterable[DataNodeId], *args, **kwargs):  # type:ignore
-        cls._clean_pickle_files(data_node_ids)
+        cls._clean_pickle_files(data_node_ids, *args, **kwargs)
         super()._delete_many(data_node_ids, *args, **kwargs)
 
     @classmethod

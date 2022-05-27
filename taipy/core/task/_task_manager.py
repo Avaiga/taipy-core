@@ -20,11 +20,10 @@ from taipy.core.common.alias import PipelineId, ScenarioId, TaskId
 from taipy.core.common.scope import Scope
 from taipy.core.config.task_config import TaskConfig
 from taipy.core.data._data_manager_factory import _DataManagerFactory
+from taipy.core.exceptions.exceptions import NonExistingTask
 from taipy.core.job._job_manager_factory import _JobManagerFactory
 from taipy.core.task._task_repository import _TaskRepository
 from taipy.core.task.task import Task
-
-from taipy.core.exceptions.exceptions import NonExistingTask
 
 
 class _TaskManager(_Manager[Task]):
@@ -69,7 +68,7 @@ class _TaskManager(_Manager[Task]):
         inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
         outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
         task = Task(task_config.id, task_config.function, inputs, outputs, parent_id=parent_id)
-        cls._set(task)
+        cls._set(task, *args, **kwargs)
         return task
 
     @classmethod
@@ -80,7 +79,7 @@ class _TaskManager(_Manager[Task]):
 
     @classmethod
     def _hard_delete(cls, task_id: TaskId, *args, **kwargs):
-        task = cls._get(task_id)
+        task = cls._get(task_id, *args, **kwargs)
         entity_ids_to_delete = cls._get_owned_entity_ids(task, *args, **kwargs)
         entity_ids_to_delete.task_ids.add(task.id)
         cls._delete_entities_of_multiple_types(entity_ids_to_delete, *args, **kwargs)
