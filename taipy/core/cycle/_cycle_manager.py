@@ -30,7 +30,13 @@ class _CycleManager(_Manager[Cycle]):
 
     @classmethod
     def _create(
-        cls, frequency: Frequency, name: str = None, creation_date: datetime = None, display_name=None, **properties
+        cls,
+        frequency: Frequency,
+        name: str = None,
+        creation_date: datetime = None,
+        display_name=None,
+        *args,
+        **properties
     ):
         creation_date = creation_date if creation_date else datetime.now()
         start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date)
@@ -39,7 +45,7 @@ class _CycleManager(_Manager[Cycle]):
         cycle = Cycle(
             frequency, properties, creation_date=creation_date, start_date=start_date, end_date=end_date, name=name
         )
-        cls._set(cycle)
+        cls._set(cycle, *args, **properties)
         return cycle
 
     @classmethod
@@ -49,19 +55,17 @@ class _CycleManager(_Manager[Cycle]):
         creation_date: Optional[datetime] = None,
         display_name: Optional[str] = None,
         *args,
-        **kwargs
+        **properties
     ) -> Cycle:
         creation_date = creation_date if creation_date else datetime.now()
-        start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date, *args, **kwargs)
+        start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date, *args, **properties)
         cycles = cls._repository.get_cycles_by_frequency_and_start_date(frequency=frequency, start_date=start_date)
         if len(cycles) > 0:
             return cycles[0]
         else:
             return cls._create(
-                frequency=frequency,
-                creation_date=creation_date,
-                display_name=display_name,
-            )
+                frequency=frequency, creation_date=creation_date, display_name=display_name, *args, **properties
+            )  # type: ignore
 
     @staticmethod
     def _get_start_date_of_cycle(frequency: Frequency, creation_date: datetime, *args, **kwargs):
