@@ -81,7 +81,7 @@ class _DataManager(_Manager[DataNode]):
 
     @classmethod
     def _delete(cls, data_node_id: DataNodeId, *args, **kwargs):  # type:ignore
-        cls._clean_pickle_file(data_node_id)
+        cls._clean_pickle_file(data_node_id, *args, **kwargs)
         super()._delete(data_node_id, *args, **kwargs)
 
     @classmethod
