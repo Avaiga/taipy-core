@@ -85,11 +85,11 @@ def test_can_execute_synchronous():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    executor = _JobDispatcher()
+    dispatcher = _Scheduler._dispatcher
 
-    assert executor._can_execute()
-    executor._dispatch(job)
-    assert executor._can_execute()
+    assert dispatcher._can_execute()
+    dispatcher._dispatch(job)
+    assert dispatcher._can_execute()
 
 
 def test_exception_in_user_function():
@@ -99,8 +99,8 @@ def test_exception_in_user_function():
     task = Task(config_id="name", input=[], function=_error, output=[], id=task_id)
     job = Job(job_id, task)
 
-    executor = _JobDispatcher()
-    executor._dispatch(job)
+    dispatcher = _Scheduler._dispatcher
+    dispatcher._dispatch(job)
     assert job.is_failed()
     assert 'RuntimeError("Something bad has happened")' in str(job.stacktrace[0])
 
@@ -117,7 +117,7 @@ def test_exception_in_writing_data():
     task = Task(config_id="name", input=[], function=print, output=[output], id=task_id)
     job = Job(job_id, task)
 
-    dispatcher = _JobDispatcher()
+    dispatcher = _Scheduler._dispatcher
 
     with mock.patch("taipy.core.data._data_manager._DataManager._get") as get:
         get.return_value = output

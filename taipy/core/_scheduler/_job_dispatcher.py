@@ -13,9 +13,8 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from typing import Any, List
 
-from taipy.core._scheduler._executor._synchronous import _Synchronous
 from taipy.core.common.alias import JobId
-from taipy.core.config import Config, JobConfig
+from taipy.core.config import Config
 from taipy.core.data._data_manager_factory import _DataManagerFactory
 from taipy.core.data.data_node import DataNode
 from taipy.core.exceptions.exceptions import DataNodeWritingError
@@ -28,7 +27,8 @@ class _JobDispatcher:
     """Manages executors and dispatch jobs (instances of `Job^` class) on them."""
 
     def __init__(self):
-        self._update_job_config(Config.job_config)
+        self._executor = ProcessPoolExecutor(Config.job_config.nb_of_workers or 1)
+        self._nb_available_workers = self._executor._max_workers  # type: ignore
 
     def _can_execute(self) -> bool:
         """Returns True if a worker is available for a new run."""
@@ -111,14 +111,3 @@ class _JobDispatcher:
     def __unlock_edit_on_outputs(job):
         for dn in job.task.output.values():
             dn.unlock_edit(job_id=job.id)
-
-    def _update_job_config(self, job_config: JobConfig):
-        self._executor, self._nb_available_workers = self.__create(job_config)
-
-    @staticmethod
-    def __create(job_config: JobConfig):
-        if job_config.is_standalone:
-            executor = ProcessPoolExecutor(job_config.nb_of_workers or 1)
-            return executor, (executor._max_workers)  # type: ignore
-        else:
-            return _Synchronous(), 1
