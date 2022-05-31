@@ -56,6 +56,14 @@ def replace_in_memory_write_fct():
     InMemoryDataNode.write = default_write
 
 
+def _foo():
+    return 42
+
+
+def _error():
+    raise RuntimeError("Something bad has happened")
+
+
 def test_create_job(task, job):
     assert job.id == "id1"
     assert task in job
@@ -215,17 +223,9 @@ def test_auto_set_and_reload(current_datetime, job_id):
     assert not job_1._is_in_context
 
 
-def _error():
-    raise RuntimeError("Something bad has happened")
-
-
 def _dispatch(task: Task, job: Job, mode=JobConfig._DEVELOPMENT_MODE):
     Config.configure_job_executions(mode=mode)
     _TaskManager._set(task)
     _JobManager._set(job)
-    executor = _JobDispatcher()
-    executor._dispatch(job)
-
-
-def _foo():
-    return 42
+    dispatcher = _JobDispatcher()
+    dispatcher._dispatch(job)

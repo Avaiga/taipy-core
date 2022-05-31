@@ -16,6 +16,7 @@ from typing import Callable, Iterable, List, Optional, Union
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
 from taipy.core._scheduler._job_dispatcher import _JobDispatcher
+from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.config.config import Config
 from taipy.core.config.job_config import JobConfig
 from taipy.core.data._data_manager_factory import _DataManagerFactory
@@ -37,6 +38,7 @@ class _Scheduler(_AbstractScheduler):
     blocked_jobs: List = []
     _dispatcher = _JobDispatcher()  # type: ignore
     lock = Lock()
+    __logger = _TaipyLogger._get_logger()
 
     @classmethod
     def initialize(cls):
@@ -95,12 +97,11 @@ class _Scheduler(_AbstractScheduler):
             task, itertools.chain([cls._on_status_change], callbacks or [])
         )
         cls._check_block_and_run_job(job)
-
         return job
 
     @classmethod
-    def _check_block_and_run_job(cls, job):
-        if cls.is_blocked(job):
+    def _check_block_and_run_job(cls, job: Job):
+        if cls._is_blocked(job):
             job.blocked()
             cls.blocked_jobs.append(job)
         else:
@@ -110,7 +111,7 @@ class _Scheduler(_AbstractScheduler):
                 cls.__execute_jobs()
 
     @staticmethod
-    def is_blocked(obj: Union[Task, Job]) -> bool:
+    def _is_blocked(obj: Union[Task, Job]) -> bool:
         """Returns True if the execution of the `Job^` or the `Task^` is blocked by the execution of another `Job^`.
 
         Parameters:
@@ -126,9 +127,45 @@ class _Scheduler(_AbstractScheduler):
     @classmethod
     def __execute_jobs(cls):
         while not cls.jobs_to_run.empty() and cls._dispatcher._can_execute():
-            job_to_run = cls.jobs_to_run.get()
+            job = cls.jobs_to_run.get()
+            if job.force or cls._needs_to_run(job.task):
+                if job.force:
+                    cls.__logger.info(f"job {job.id} is forced to be executed.")
+                job.running()
+                _JobManagerFactory._build_manager()._set(job)
+                cls._dispatcher._dispatch(job)
+            else:
+                job.skipped()
+                _JobManagerFactory._build_manager()._set(job)
+                cls.__unlock_edit_on_outputs(job)
+                cls.__logger.info(f"job {job.id} is skipped.")
 
-            cls._dispatcher._dispatch(job_to_run)
+    @staticmethod
+    def _needs_to_run(task: Task) -> bool:
+        """
+        Returns True if the task has no output or if at least one input was modified since the latest run.
+
+        Parameters:
+             task (Task^): The task to run.
+        Returns:
+             True if the task needs to run. False otherwise.
+        """
+        data_manager = _DataManagerFactory._build_manager()
+        if len(task.output) == 0:
+            return True
+        are_outputs_in_cache = all(data_manager._get(dn.id)._is_in_cache for dn in task.output.values())
+        if not are_outputs_in_cache:
+            return True
+        if len(task.input) == 0:
+            return False
+        input_last_edit = max(data_manager._get(dn.id).last_edit_date for dn in task.input.values())
+        output_last_edit = min(data_manager._get(dn.id).last_edit_date for dn in task.output.values())
+        return input_last_edit > output_last_edit
+
+    @staticmethod
+    def __unlock_edit_on_outputs(job):
+        for dn in job.task.output.values():
+            dn.unlock_edit(job_id=job.id)
 
     @classmethod
     def _on_status_change(cls, job: Job):
@@ -145,7 +182,7 @@ class _Scheduler(_AbstractScheduler):
     @classmethod
     def __unblock_jobs(cls):
         for job in cls.blocked_jobs:
-            if not cls.is_blocked(job):
+            if not cls._is_blocked(job):
                 job.pending()
                 cls.blocked_jobs.remove(job)
                 cls.jobs_to_run.put(job)
@@ -155,4 +192,4 @@ class _Scheduler(_AbstractScheduler):
         if not job_config:
             job_config = Config.job_config
 
-        cls._dispatcher._set_executer_and_nb_available_workers(job_config)  # type: ignore
+        cls._dispatcher._update_job_config(job_config)  # type: ignore

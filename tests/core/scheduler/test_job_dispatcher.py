@@ -12,7 +12,7 @@
 import glob
 import multiprocessing
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from time import sleep
 from unittest import mock
@@ -27,7 +27,6 @@ from taipy.core.config import JobConfig
 from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.job.job import Job
-from taipy.core.task._task_manager import _TaskManager
 from taipy.core.task.task import Task
 
 
@@ -46,7 +45,11 @@ def execute(lock):
     return None
 
 
-def test_can_execute_synchronous():
+def _error():
+    raise RuntimeError("Something bad has happened")
+
+
+def test_can_execute_2_workers():
     Config.configure_job_executions(nb_of_workers=2)
     m = multiprocessing.Manager()
     lock = m.Lock()
@@ -62,37 +65,19 @@ def test_can_execute_synchronous():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    executor = _JobDispatcher()
+    dispatcher = _JobDispatcher()
 
     with lock:
-        assert executor._can_execute()
-        executor._dispatch(job)
-        assert executor._can_execute()
-        executor._dispatch(job)
-        assert not executor._can_execute()
+        assert dispatcher._can_execute()
+        dispatcher._dispatch(job)
+        assert dispatcher._can_execute()
+        dispatcher._dispatch(job)
+        assert not dispatcher._can_execute()
 
-    assert_true_after_120_second_max(lambda: executor._can_execute())
-
-
-def test_can_execute_parallel_multiple_submit():
-    Config.configure_job_executions(nb_of_workers=2)
-    m = multiprocessing.Manager()
-    lock = m.Lock()
-
-    task_id = TaskId("task_id1")
-    task = Task(config_id="name", input=[], function=partial(execute, lock), output=[], id=task_id)
-    job_id = JobId("id1")
-    job = Job(job_id, task)
-
-    executor = _JobDispatcher()
-
-    with lock:
-        assert executor._can_execute()
-        executor._dispatch(job)
-        assert executor._can_execute()
+    assert_true_after_120_second_max(lambda: dispatcher._can_execute())
 
 
-def test_can_execute_synchronous_2():
+def test_can_execute_synchronous():
     _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
 
     task_id = TaskId("task_id1")
@@ -107,7 +92,7 @@ def test_can_execute_synchronous_2():
     assert executor._can_execute()
 
 
-def test_handle_exception_in_user_function():
+def test_exception_in_user_function():
     _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
     task_id = TaskId("task_id1")
     job_id = JobId("id1")
@@ -120,7 +105,7 @@ def test_handle_exception_in_user_function():
     assert 'RuntimeError("Something bad has happened")' in str(job.stacktrace[0])
 
 
-def test_handle_exception_when_writing_datanode():
+def test_exception_in_writing_data():
     _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
     task_id = TaskId("task_id1")
     job_id = JobId("id1")
@@ -139,111 +124,6 @@ def test_handle_exception_when_writing_datanode():
         dispatcher._dispatch(job)
         assert job.is_failed()
         assert "node" in job.stacktrace[0]
-
-
-def test_need_to_run_no_output():
-    def concat(a, b):
-        return a + b
-
-    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
-    world_cfg = Config.configure_data_node("world", default_data="world !")
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _JobDispatcher()._needs_to_run(task)
-
-
-def test_need_to_run_output_not_cacheable():
-    def concat(a, b):
-        return a + b
-
-    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
-    world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=False)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _JobDispatcher()._needs_to_run(task)
-
-
-def nothing():
-    return True
-
-
-def test_need_to_run_output_cacheable_no_input():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
-
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _Scheduler._dispatcher._needs_to_run(task)
-    _Scheduler.submit_task(task)
-
-    assert not _Scheduler._dispatcher._needs_to_run(task)
-
-
-def test_need_to_run_output_cacheable_no_validity_period():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
-
-    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
-    world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _Scheduler._dispatcher._needs_to_run(task)
-    _Scheduler.submit_task(task)
-
-    assert not _Scheduler._dispatcher._needs_to_run(task)
-
-
-def concat(a, b):
-    return a + b
-
-
-def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
-
-    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
-    world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _Scheduler._dispatcher._needs_to_run(task)
-    job = _Scheduler.submit_task(task)
-
-    assert not _Scheduler._dispatcher._needs_to_run(task)
-    job_skipped = _Scheduler.submit_task(task)
-
-    assert job.is_completed()
-    assert job.is_finished()
-    assert job_skipped.is_skipped()
-    assert job_skipped.is_finished()
-
-
-def test_need_to_run_output_cacheable_with_validity_period_obsolete():
-    def concat(a, b):
-        return a + b
-
-    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
-    world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
-    task = _TaskManager()._get_or_create(task_cfg)
-
-    assert _Scheduler._dispatcher._needs_to_run(task)
-    _Scheduler.submit_task(task)
-
-    output = task.hello_world
-    output._last_edit_date = datetime.now() - timedelta(days=1, minutes=30)
-    _DataManager()._set(output)
-    assert _Scheduler._dispatcher._needs_to_run(task)
-
-
-def _error():
-    raise RuntimeError("Something bad has happened")
 
 
 def assert_true_after_120_second_max(assertion):
