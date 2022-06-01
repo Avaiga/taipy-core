@@ -29,7 +29,7 @@ from taipy.core.task.task import Task
 
 class _Scheduler(_AbstractScheduler):
     """
-    Handles the functional scheduling executors and dispatch jobs on it.
+    Handles the functional scheduling.
 
     Attributes:
 
