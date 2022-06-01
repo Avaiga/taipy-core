@@ -20,8 +20,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from taipy.core._scheduler._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core._scheduler._scheduler import _Scheduler
-from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common.alias import DataNodeId, JobId, TaskId
 from taipy.core.config import JobConfig
 from taipy.core.config.config import Config

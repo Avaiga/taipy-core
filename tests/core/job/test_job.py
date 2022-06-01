@@ -15,8 +15,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from taipy.core._scheduler._development_job_dispatcher import _DevelopmentJobDispatcher
-from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
+from taipy.core._scheduler._dispatcher._development_job_dispatcher import _DevelopmentJobDispatcher
+from taipy.core._scheduler._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common.alias import JobId, TaskId
 from taipy.core.common.scope import Scope
 from taipy.core.config import JobConfig

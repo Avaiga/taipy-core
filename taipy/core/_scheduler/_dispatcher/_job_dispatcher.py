@@ -11,12 +11,12 @@
 from abc import abstractmethod
 from typing import Any, List
 
-from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.common.alias import JobId
 from taipy.core.config import Config
 from taipy.core.data._data_manager_factory import _DataManagerFactory
 from taipy.core.data.data_node import DataNode
 from taipy.core.exceptions.exceptions import DataNodeWritingError
+from taipy.core.job._job_manager_factory import _JobManagerFactory
 from taipy.core.job.job import Job
 from taipy.core.task.task import Task
 
@@ -25,7 +25,7 @@ class _JobDispatcher:
     """Manages job dispatching (instances of `Job^` class) on executors."""
 
     def __init__(self):
-        self.__logger = _TaipyLogger._get_logger()
+        pass
 
     @abstractmethod
     def _can_execute(self) -> bool:
@@ -91,5 +91,9 @@ class _JobDispatcher:
         _results: List[Any] = [results] if len(outputs) == 1 else results
         if len(_results) != len(outputs):
             raise DataNodeWritingError("Error: wrong number of result or task output")
-
         return _results
+
+    @staticmethod
+    def _update_status(job, exceptions):
+        job.update_status(exceptions)
+        _JobManagerFactory._build_manager()._set(job)

@@ -15,8 +15,8 @@ from queue import Queue
 from typing import Callable, Iterable, List, Optional, Union
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
-from taipy.core._scheduler._development_job_dispatcher import _DevelopmentJobDispatcher
-from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
+from taipy.core._scheduler._dispatcher._development_job_dispatcher import _DevelopmentJobDispatcher
+from taipy.core._scheduler._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.config.config import Config
 from taipy.core.config.job_config import JobConfig

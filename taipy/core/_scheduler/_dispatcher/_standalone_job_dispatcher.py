@@ -12,9 +12,8 @@
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
+from taipy.core._scheduler._dispatcher._job_dispatcher import _JobDispatcher
 from taipy.core.config import Config
-from taipy.core.job._job_manager_factory import _JobManagerFactory
 from taipy.core.job.job import Job
 
 
@@ -41,12 +40,10 @@ class _StandaloneJobDispatcher(_JobDispatcher):
             self._run_wrapped_function, Config.global_config.storage_folder, job.id, job.task
         )
         future.add_done_callback(self.__release_worker)
-        future.add_done_callback(partial(self.__update_status, job))
+        future.add_done_callback(partial(self._update_status_from_future, job))
 
     def __release_worker(self, _):
         self._nb_available_workers += 1
 
-    @staticmethod
-    def __update_status(job: Job, ft):
-        job.update_status(ft)
-        _JobManagerFactory._build_manager()._set(job)
+    def _update_status_from_future(self, job: Job, ft):
+        self._update_status(job, ft.result())
