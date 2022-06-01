@@ -16,7 +16,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from taipy.core._scheduler._development_job_dispatcher import _DevelopmentJobDispatcher
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
+from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common.alias import JobId, TaskId
 from taipy.core.common.scope import Scope
 from taipy.core.config import JobConfig
@@ -228,7 +228,7 @@ def _dispatch(task: Task, job: Job, mode=JobConfig._DEVELOPMENT_MODE):
     Config.configure_job_executions(mode=mode)
     _TaskManager._set(task)
     _JobManager._set(job)
-    dispatcher = _JobDispatcher()
+    dispatcher = _StandaloneJobDispatcher()
     if mode == JobConfig._DEVELOPMENT_MODE:
         dispatcher = _DevelopmentJobDispatcher()
     dispatcher._dispatch(job)

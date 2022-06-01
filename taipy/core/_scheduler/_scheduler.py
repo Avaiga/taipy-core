@@ -16,7 +16,7 @@ from typing import Callable, Iterable, List, Optional, Union
 
 from taipy.core._scheduler._abstract_scheduler import _AbstractScheduler
 from taipy.core._scheduler._development_job_dispatcher import _DevelopmentJobDispatcher
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
+from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.config.config import Config
 from taipy.core.config.job_config import JobConfig
@@ -37,7 +37,7 @@ class _Scheduler(_AbstractScheduler):
 
     jobs_to_run: Queue = Queue()
     blocked_jobs: List = []
-    _dispatcher = _JobDispatcher() if Config.job_config.is_standalone else _DevelopmentJobDispatcher()  # type: ignore
+    _dispatcher = _StandaloneJobDispatcher() if Config.job_config.is_standalone else _DevelopmentJobDispatcher()  # type: ignore
     lock = Lock()
     __logger = _TaipyLogger._get_logger()
 
@@ -193,6 +193,6 @@ class _Scheduler(_AbstractScheduler):
         if not job_config:
             job_config = Config.job_config
         if job_config.is_standalone:  # type: ignore
-            cls._dispatcher = _JobDispatcher()
+            cls._dispatcher = _StandaloneJobDispatcher()
         else:
             cls._dispatcher = _DevelopmentJobDispatcher()

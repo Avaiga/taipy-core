@@ -20,8 +20,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
 from taipy.core._scheduler._scheduler import _Scheduler
+from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common.alias import DataNodeId, JobId, TaskId
 from taipy.core.config import JobConfig
 from taipy.core.config.config import Config
@@ -65,7 +65,7 @@ def test_can_execute_2_workers():
     job_id = JobId("id1")
     job = Job(job_id, task)
 
-    dispatcher = _JobDispatcher()
+    dispatcher = _StandaloneJobDispatcher()
 
     with lock:
         assert dispatcher._can_execute()

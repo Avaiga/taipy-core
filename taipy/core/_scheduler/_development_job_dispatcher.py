@@ -10,11 +10,11 @@
 # specific language governing permissions and limitations under the License.
 
 from taipy.core._scheduler._executor._synchronous import _Synchronous
-from taipy.core._scheduler._job_dispatcher import _JobDispatcher
+from taipy.core._scheduler._standalone_job_dispatcher import _StandaloneJobDispatcher
 
 
-class _DevelopmentJobDispatcher(_JobDispatcher):
-    """Manages executors and dispatch jobs (instances of `Job^` class) on them."""
+class _DevelopmentJobDispatcher(_StandaloneJobDispatcher):
+    """Manages job dispatching (instances of `Job^` class) in a synchronous way."""
 
     def __init__(self):
         super().__init__()
