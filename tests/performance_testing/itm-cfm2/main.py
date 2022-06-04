@@ -17,7 +17,8 @@ from config import *
 import taipy as tp
 
 if __name__ == "__main__":
-    nb_scenario_to_create = 1
+    nb_scenario_to_create = 30
+    print(f'init: {len(tp.get_scenarios())}')
     for i in range(0, nb_scenario_to_create):
         name = f"sc_{i}"
         start = time.perf_counter()

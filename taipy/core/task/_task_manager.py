@@ -62,7 +62,7 @@ class _TaskManager(_Manager[Task]):
         scope = min(dn.scope for dn in data_nodes.values()) if len(data_nodes) != 0 else Scope.GLOBAL
         parent_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
 
-        if tasks_from_parent := cls._repository._get_by_config_and_parent_ids(task_config.id, parent_id):
+        if tasks_from_parent := cls._repository._get_by_config_and_parent_id(task_config.id, parent_id):
             return tasks_from_parent
 
         inputs = [data_nodes[input_config] for input_config in task_config.input_configs]

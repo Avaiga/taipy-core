@@ -168,12 +168,14 @@ class Scenario(_Entity):
         protected_attribute_name = _validate_id(attribute_name)
         if protected_attribute_name in self._properties:
             return _tpl._replace_templates(self._properties[protected_attribute_name])
-        if protected_attribute_name in self.pipelines:
-            return self.pipelines[protected_attribute_name]
-        for pipeline in self.pipelines.values():
-            if protected_attribute_name in pipeline.tasks:
-                return pipeline.tasks[protected_attribute_name]
-            for task in pipeline.tasks.values():
+        pipelines = self.pipelines
+        if protected_attribute_name in pipelines:
+            return pipelines[protected_attribute_name]
+        for pipeline in pipelines.values():
+            tasks = pipeline.tasks
+            if protected_attribute_name in tasks:
+                return tasks[protected_attribute_name]
+            for task in tasks.values():
                 if protected_attribute_name in task.input:
                     return task.input[protected_attribute_name]
                 if protected_attribute_name in task.output:

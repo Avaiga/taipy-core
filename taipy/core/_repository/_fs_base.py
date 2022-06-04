@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import json
+import os
 import pathlib
 import shutil
 from abc import abstractmethod
@@ -26,7 +27,6 @@ Json = Union[dict, list, str, int, float, bool, None]
 
 class _CustomEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Json:
-        result: Json
         if isinstance(o, Enum):
             result = o.value
         elif isinstance(o, datetime):
@@ -85,6 +85,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
         self._dir_name = dir_name
+        self.__create_directory_if_not_exists()
 
     @property
     def dir_path(self):
@@ -100,12 +101,15 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _load_all(self) -> List[Entity]:
         return [self.__to_entity(f) for f in self._directory.glob("*.json")]
 
+    def _load_all_by(self, by):
+        return [self.__to_entity(f, by=by) for f in self._directory.glob("*.json")]
+
     def _save(self, entity):
         self.__create_directory_if_not_exists()
 
         model = self._to_model(entity)
         self.__get_model_filepath(model.id, False).write_text(
-            json.dumps(model.to_dict(), ensure_ascii=False, indent=4, cls=_CustomEncoder)
+            json.dumps(model.to_dict(), ensure_ascii=False, indent=0, cls=_CustomEncoder, check_circular=False)
         )
 
     def _delete_all(self):
@@ -121,11 +125,13 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _search(self, attribute: str, value: str) -> Optional[Entity]:
         return next(self.__search(attribute, value), None)
 
-    def _get_by_config_and_parent_ids(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
-        for f in self._directory.glob(f"*_{config_id}_*.json"):
-            entity = self.__to_entity(f)
-            if entity.config_id == config_id and entity.parent_id == parent_id:
-                return entity
+    def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
+        for f in self._directory.iterdir():
+            if config_id not in f.name:
+                continue
+            if entity := self.__to_entity(f, by=parent_id):
+                if entity.config_id == config_id and entity.parent_id == parent_id:
+                    return entity
         return None
 
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
@@ -139,9 +145,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
         return filepath
 
-    def __to_entity(self, filepath):
+    def __to_entity(self, filepath, by=None):
         with open(filepath, "r") as f:
-            data = json.load(f, cls=_CustomDecoder)
+            d = f.read()
+        if by and by not in d:
+            return None
+        data = json.loads(d, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
 

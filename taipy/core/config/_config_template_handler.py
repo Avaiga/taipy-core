@@ -25,6 +25,8 @@ class _ConfigTemplateHandler:
 
     @classmethod
     def _replace_templates(cls, template, type=str, required=True, default=None):
+        if type == str:
+            return cls._replace_template(template, type, required, default)
         if isinstance(template, tuple):
             return tuple(cls._replace_template(item, type, required, default) for item in template)
         if isinstance(template, list):
@@ -37,6 +39,8 @@ class _ConfigTemplateHandler:
 
     @classmethod
     def _replace_template(cls, template, type, required, default):
+        if "ENV" not in str(template):
+            return template
         match = re.fullmatch(cls._PATTERN, str(template))
         if match:
             var = match.group(1)

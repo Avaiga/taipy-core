@@ -40,7 +40,7 @@ class _DataManager(_Manager[DataNode]):
         scope = data_node_config.scope
         parent_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
 
-        if dn_from_parent := cls._repository._get_by_config_and_parent_ids(data_node_config.id, parent_id):
+        if dn_from_parent := cls._repository._get_by_config_and_parent_id(data_node_config.id, parent_id):
             return dn_from_parent
 
         return cls._create_and_set(data_node_config, parent_id, *args, **kwargs)
