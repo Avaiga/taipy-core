@@ -90,23 +90,22 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def dir_path(self):
         return self._storage_folder / self._dir_name
 
-    @property
-    def _directory(self) -> pathlib.Path:
-        return self.dir_path
-
     def load(self, model_id: str) -> Entity:
-        return self.__to_entity(self.__get_model_filepath(model_id))
+        try:
+            return self.__to_entity(self.__get_model_filepath(model_id))
+        except FileNotFoundError:
+            raise ModelNotFound(str(self.dir_path), model_id)
 
     def _load_all(self) -> List[Entity]:
         try:
-            return [self.__to_entity(f) for f in self._directory.iterdir()]
+            return [self.__to_entity(f) for f in self.dir_path.iterdir()]
         except FileNotFoundError:
             return []
 
     def _load_all_by(self, by):
         r = []
         try:
-            for f in self._directory.iterdir():
+            for f in self.dir_path.iterdir():
                 if entity := self.__to_entity(f, by=by):
                     r.append(entity)
         except FileNotFoundError:
@@ -117,15 +116,18 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         self.__create_directory_if_not_exists()
 
         model = self._to_model(entity)
-        self.__get_model_filepath(model.id, False).write_text(
+        self.__get_model_filepath(model.id).write_text(
             json.dumps(model.to_dict(), ensure_ascii=False, indent=0, cls=_CustomEncoder, check_circular=False)
         )
 
     def _delete_all(self):
-        shutil.rmtree(self._directory, ignore_errors=True)
+        shutil.rmtree(self.dir_path, ignore_errors=True)
 
     def _delete(self, model_id: str):
-        self.__get_model_filepath(model_id).unlink()
+        try:
+            self.__get_model_filepath(model_id).unlink()
+        except FileNotFoundError:
+            raise ModelNotFound(str(self.dir_path), model_id)
 
     def _delete_many(self, model_ids: Iterable[str]):
         for model_id in model_ids:
@@ -136,7 +138,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
         try:
-            for f in self._directory.iterdir():
+            for f in self.dir_path.iterdir():
                 if config_id not in f.name:
                     continue
                 if entity := self.__to_entity(f, by=parent_id):
@@ -150,7 +152,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         res = {}
         counter = len(config_ids_and_parent_ids)
         try:
-            for f in self._directory.iterdir():
+            for f in self.dir_path.iterdir():
                 filename = f.name
                 match = [(c, p) for c, p in config_ids_and_parent_ids if c.id in filename]
                 if not match:
@@ -170,13 +172,8 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
         return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
 
-    def __get_model_filepath(self, model_id, raise_if_not_exist=True) -> pathlib.Path:
-        filepath = self._directory / f"{model_id}.json"
-
-        if raise_if_not_exist and not filepath.exists():
-            raise ModelNotFound(str(self._directory), model_id)
-
-        return filepath
+    def __get_model_filepath(self, model_id) -> pathlib.Path:
+        return self.dir_path / f"{model_id}.json"
 
     def __to_entity(self, filepath, by=None):
         with open(filepath, "r") as f:
@@ -197,5 +194,4 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return self._from_model(model)
 
     def __create_directory_if_not_exists(self):
-        if not self.dir_path.exists():
-            self.dir_path.mkdir(parents=True, exist_ok=True)
+        self.dir_path.mkdir(parents=True, exist_ok=True)
