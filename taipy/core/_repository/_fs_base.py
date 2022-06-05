@@ -155,13 +155,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
                 match = [(c, p) for c, p in config_ids_and_parent_ids if c.id in filename]
                 if not match:
                     continue
-                if entity := self.__to_entity(f, by=[p for c, p in match]):
+                if entity := self.__to_entity_by(f, by=[p for c, p in match]):
                     for c, p in match:
                         if entity.config_id == c.id and entity.parent_id == p:
                             res[(c, p)] = entity
                             counter -= 1
                             if counter == 0:
-                                print("counter 0")
                                 return res
                             break
         except FileNotFoundError:
@@ -182,12 +181,17 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __to_entity(self, filepath, by=None):
         with open(filepath, "r") as f:
             d = f.read()
-        if by:
-            if isinstance(by, list):
-                if all(b and b not in d for b in by):
-                    return None
-            elif by not in d:
-                return None
+        if by and by not in d:
+            return None
+        data = json.loads(d, cls=_CustomDecoder)
+        model = self.model.from_dict(data)  # type: ignore
+        return self._from_model(model)
+
+    def __to_entity_by(self, filepath, by):
+        with open(filepath, "r") as f:
+            d = f.read()
+        if all(b and b not in d for b in by):
+            return None
         data = json.loads(d, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
