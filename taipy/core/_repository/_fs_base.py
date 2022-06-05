@@ -85,7 +85,6 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
         self._dir_name = dir_name
-        self.__create_directory_if_not_exists()
 
     @property
     def dir_path(self):
@@ -99,10 +98,20 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return self.__to_entity(self.__get_model_filepath(model_id))
 
     def _load_all(self) -> List[Entity]:
-        return [self.__to_entity(f) for f in self._directory.glob("*.json")]
+        try:
+            return [self.__to_entity(f) for f in self._directory.iterdir()]
+        except FileNotFoundError:
+            return []
 
     def _load_all_by(self, by):
-        return [self.__to_entity(f, by=by) for f in self._directory.glob("*.json")]
+        r = []
+        try:
+            for f in self._directory.iterdir():
+                if entity := self.__to_entity(f, by=by):
+                    r.append(entity)
+        except FileNotFoundError:
+            pass
+        return r
 
     def _save(self, entity):
         self.__create_directory_if_not_exists()
@@ -126,13 +135,38 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return next(self.__search(attribute, value), None)
 
     def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
-        for f in self._directory.iterdir():
-            if config_id not in f.name:
-                continue
-            if entity := self.__to_entity(f, by=parent_id):
-                if entity.config_id == config_id and entity.parent_id == parent_id:
-                    return entity
+        try:
+            for f in self._directory.iterdir():
+                if config_id not in f.name:
+                    continue
+                if entity := self.__to_entity(f, by=parent_id):
+                    if entity.config_id == config_id and entity.parent_id == parent_id:
+                        return entity
+        except FileNotFoundError:
+            pass
         return None
+
+    def _get_by_configs_and_parent_ids(self, config_ids_and_parent_ids):
+        res = {}
+        counter = len(config_ids_and_parent_ids)
+        try:
+            for f in self._directory.iterdir():
+                filename = f.name
+                match = [(c, p) for c, p in config_ids_and_parent_ids if c.id in filename]
+                if not match:
+                    continue
+                if entity := self.__to_entity(f, by=[p for c, p in match]):
+                    for c, p in match:
+                        if entity.config_id == c.id and entity.parent_id == p:
+                            res[(c, p)] = entity
+                            counter -= 1
+                            if counter == 0:
+                                print("counter 0")
+                                return res
+                            break
+        except FileNotFoundError:
+            pass
+        return res
 
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
         return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
@@ -148,8 +182,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __to_entity(self, filepath, by=None):
         with open(filepath, "r") as f:
             d = f.read()
-        if by and by not in d:
-            return None
+        if by:
+            if isinstance(by, list):
+                if all(b and b not in d for b in by):
+                    return None
+            elif by not in d:
+                return None
         data = json.loads(d, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)

@@ -69,11 +69,11 @@ class _PipelineManager(_Manager[Pipeline]):
         cls, pipeline_config: PipelineConfig, scenario_id: Optional[ScenarioId] = None, *args, **kwargs
     ) -> Pipeline:
         pipeline_id = Pipeline._new_id(pipeline_config.id)
-        task_manager = _TaskManagerFactory._build_manager()
-        tasks = [
-            task_manager._get_or_create(t_config, scenario_id, pipeline_id, *args, **kwargs)
-            for t_config in pipeline_config.task_configs
-        ]
+
+        tasks = _TaskManagerFactory._build_manager()._get_or_creates(pipeline_config.task_configs,
+                                                                     scenario_id, pipeline_id, *args,
+                                                                     **kwargs)
+
         scope = min(task.scope for task in tasks) if len(tasks) != 0 else Scope.GLOBAL
         parent_id = scenario_id if scope == Scope.SCENARIO else pipeline_id if scope == Scope.PIPELINE else None
 
