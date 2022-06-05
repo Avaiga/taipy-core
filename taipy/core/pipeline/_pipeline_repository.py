@@ -53,6 +53,7 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
                 model.id,
                 model.parent_id,
                 {_utils._load_fct(it["fct_module"], it["fct_name"]) for it in model.subscribers},  # type: ignore
+                is_consistent=True
             )
             return pipeline
         except NonExistingTask as err:
