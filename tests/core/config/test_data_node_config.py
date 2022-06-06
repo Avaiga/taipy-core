@@ -14,10 +14,10 @@ from datetime import datetime
 from unittest import mock
 
 import pytest
-
 from taipy.core.config._config import _Config
-from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
+
+from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import ConfigurationIssueError
 
 
@@ -54,15 +54,7 @@ def test_data_node_config_check():
         Config.check()
 
     with pytest.raises(ConfigurationIssueError):
-        Config.configure_data_node("data_nodes", storage_type="csv")
-        Config.check()
-
-    with pytest.raises(ConfigurationIssueError):
         Config.configure_data_node("data_nodes", storage_type="sql")
-        Config.check()
-
-    with pytest.raises(ConfigurationIssueError):
-        Config.configure_data_node("data_nodes", storage_type="excel")
         Config.check()
 
     with pytest.raises(ConfigurationIssueError):

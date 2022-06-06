@@ -176,3 +176,7 @@ class TestCSVDataNode:
     def test_path_deprecated(self):
         with pytest.warns(DeprecationWarning):
             CSVDataNode("foo", Scope.PIPELINE, properties={"path": "foo.csv"})
+
+    def test_raise_error_when_path_not_exist(self):
+        with pytest.raises(MissingRequiredProperty):
+            CSVDataNode("foo", Scope.PIPELINE)
