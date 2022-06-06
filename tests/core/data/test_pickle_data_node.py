@@ -107,11 +107,16 @@ class TestPickleDataNodeEntity:
         assert dn.path == "foo.FILE.p"
 
     def test_set_path(self):
-        dn_config = Config.configure_data_node("foo", "pickle", default_path="foo.p")
-        dn: PickleDataNode = _DataManager._get_or_create(dn_config)
+        dn = PickleDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.p"})
         assert dn.path == "foo.p"
         dn.path = "bar.p"
         assert dn.path == "bar.p"
+
+    def test_is_file_generated(self):
+        dn = PickleDataNode("foo", Scope.PIPELINE, properties={})
+        assert dn.is_file_generated
+        dn.path = "bar.p"
+        assert not dn.is_file_generated
 
     def test_path_deprecated(self):
         with pytest.warns(DeprecationWarning):

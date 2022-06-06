@@ -15,12 +15,12 @@ import pathlib
 import numpy as np
 import pandas as pd
 import pytest
-
 from taipy.core.common.alias import DataNodeId
 from taipy.core.common.scope import Scope
-from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.csv import CSVDataNode
+
+from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import InvalidConfigurationId, MissingRequiredProperty, NoData
 
 
@@ -45,7 +45,7 @@ class TestCSVDataNode:
         assert dn.last_edition_date is None
         assert dn.job_ids == []
         assert not dn.is_ready_for_reading
-        assert dn.path == path
+        assert dn._path == path
         assert dn.has_header is False
 
         with pytest.raises(InvalidConfigurationId):
@@ -166,3 +166,13 @@ class TestCSVDataNode:
 
         csv_dn.write(None)
         assert len(csv_dn.read()) == 0
+
+    def test_set_path(self):
+        dn = CSVDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.csv"})
+        assert dn.path == "foo.csv"
+        dn.path = "bar.csv"
+        assert dn.path == "bar.csv"
+
+    def test_path_deprecated(self):
+        with pytest.warns(DeprecationWarning):
+            CSVDataNode("foo", Scope.PIPELINE, properties={"path": "foo.csv"})
