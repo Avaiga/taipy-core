@@ -35,33 +35,25 @@ class _Scheduler(_AbstractScheduler):
 
     jobs_to_run: Queue = Queue()
     blocked_jobs: List = []
-    _dispatcher = _JobDispatcher(Config.job_config.nb_of_workers)  # type: ignore
+    _dispatcher = _JobDispatcher()  # type: ignore
     lock = Lock()
 
     @classmethod
-    def _set_nb_of_workers(cls, job_config: JobConfig = None):
-        if not job_config:
-            job_config = Config.job_config
-
-        cls._dispatcher._set_executer_and_nb_available_workers(job_config.nb_of_workers)  # type: ignore
+    def initialize(cls):
+        pass
 
     @classmethod
-    def _check_block_and_run_job(cls, job):
-        if cls.is_blocked(job):
-            cls.__set_block_job(job)
-        else:
-            cls.__set_pending_job(job)
-            cls.__run()
+    def is_running(cls) -> bool:
+        """Returns False since the default scheduler is not runnable."""
+        return False
 
     @classmethod
-    def __set_block_job(cls, job):
-        job.blocked()
-        cls.blocked_jobs.append(job)
+    def start(cls):
+        RuntimeError("The default scheduler cannot be started.")
 
     @classmethod
-    def __set_pending_job(cls, job):
-        job.pending()
-        cls.jobs_to_run.put(job)
+    def stop(cls):
+        RuntimeError("The default scheduler cannot be started nor stopped.")
 
     @classmethod
     def submit(
@@ -106,6 +98,17 @@ class _Scheduler(_AbstractScheduler):
 
         return job
 
+    @classmethod
+    def _check_block_and_run_job(cls, job):
+        if cls.is_blocked(job):
+            job.blocked()
+            cls.blocked_jobs.append(job)
+        else:
+            job.pending()
+            cls.jobs_to_run.put(job)
+            with cls.lock:
+                cls.__execute_jobs()
+
     @staticmethod
     def is_blocked(obj: Union[Task, Job]) -> bool:
         """Returns True if the execution of the `Job^` or the `Task^` is blocked by the execution of another `Job^`.
@@ -121,14 +124,10 @@ class _Scheduler(_AbstractScheduler):
         return any(not data_manager._get(dn.id).is_ready_for_reading for dn in data_nodes)
 
     @classmethod
-    def __run(cls):
-        with cls.lock:
-            cls.__execute_jobs()
-
-    @classmethod
     def __execute_jobs(cls):
         while not cls.jobs_to_run.empty() and cls._dispatcher._can_execute():
             job_to_run = cls.jobs_to_run.get()
+
             cls._dispatcher._dispatch(job_to_run)
 
     @classmethod
@@ -152,14 +151,8 @@ class _Scheduler(_AbstractScheduler):
                 cls.jobs_to_run.put(job)
 
     @classmethod
-    def is_running(cls) -> bool:
-        """Returns False since the default scheduler is not runnable."""
-        return False
+    def _update_job_config(cls, job_config: JobConfig = None):
+        if not job_config:
+            job_config = Config.job_config
 
-    @classmethod
-    def start(cls):
-        RuntimeError("The default scheduler cannot be started.")
-
-    @classmethod
-    def stop(cls):
-        RuntimeError("The default scheduler cannot be started nor stopped.")
+        cls._dispatcher._set_executer_and_nb_available_workers(job_config)  # type: ignore
