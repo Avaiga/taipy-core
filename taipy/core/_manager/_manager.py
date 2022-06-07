@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from typing import Any, Generic, Iterable, List, TypeVar, Union
+from typing import Generic, Iterable, List, TypeVar, Union
 
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._entity_ids import _EntityIds
@@ -33,14 +33,14 @@ class _Manager(Generic[EntityType]):
         cls._repository._delete_all()
 
     @classmethod
-    def _delete_many(cls, ids: Iterable[Any], *args, **kwargs):
+    def _delete_many(cls, ids: Iterable, *args, **kwargs):
         """
         Deletes entities by a list of ids.
         """
         cls._repository._delete_many(ids)
 
     @classmethod
-    def _delete(cls, id: Any, *args: Any, **kwargs: Any):
+    def _delete(cls, id, *args, **kwargs):
         """
         Deletes an entity by id.
         """
@@ -61,7 +61,7 @@ class _Manager(Generic[EntityType]):
         return cls._repository._load_all()
 
     @classmethod
-    def _get(cls, entity: Union[str, EntityType], default=None, *args: Any, **kwargs: Any) -> EntityType:
+    def _get(cls, entity: Union[str, EntityType], default=None, *args, **kwargs) -> EntityType:
         """
         Returns an entity by id or reference.
         """
