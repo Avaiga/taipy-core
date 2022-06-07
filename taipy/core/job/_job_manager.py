@@ -28,24 +28,24 @@ class _JobManager(_Manager[Job]):
     _ID_PREFIX = "JOB_"
 
     @classmethod
-    def _create(cls, task: Task, callbacks: Iterable[Callable], force=False, *args, **kwargs) -> Job:
+    def _create(cls, task: Task, callbacks: Iterable[Callable], force=False) -> Job:
         job = Job(id=JobId(f"{cls._ID_PREFIX}{task.config_id}_{uuid.uuid4()}"), task=task, force=force)
-        cls._set(job, *args, **kwargs)
+        cls._set(job)
         job._on_status_change(*callbacks)
         return job
 
     @classmethod
-    def _delete(cls, job: Job, force=False, *args, **kwargs):  # type:ignore
+    def _delete(cls, job: Job, force=False, **kwargs):  # type:ignore
         if job.is_finished() or force:
-            super()._delete(job.id, *args, **kwargs)
+            super()._delete(job.id)
         else:
             err = JobNotDeletedException(job.id)
             cls._logger.warning(err)
             raise err
 
     @classmethod
-    def _get_latest(cls, task: Task, *args, **kwargs) -> Optional[Job]:
-        jobs_of_task = list(filter(lambda job: task in job, cls._get_all(*args, **kwargs)))
+    def _get_latest(cls, task: Task) -> Optional[Job]:
+        jobs_of_task = list(filter(lambda job: task in job, cls._get_all()))
         if len(jobs_of_task) == 0:
             return None
         if len(jobs_of_task) == 1:
