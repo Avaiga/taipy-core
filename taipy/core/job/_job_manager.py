@@ -14,11 +14,10 @@ from typing import Callable, Iterable, Optional
 
 from taipy.core._manager._manager import _Manager
 from taipy.core.common.alias import JobId
+from taipy.core.exceptions.exceptions import JobNotDeletedException
 from taipy.core.job._job_repository import _JobRepository
 from taipy.core.job.job import Job
 from taipy.core.task.task import Task
-
-from taipy.core.exceptions.exceptions import JobNotDeletedException
 
 
 class _JobManager(_Manager[Job]):
@@ -35,7 +34,7 @@ class _JobManager(_Manager[Job]):
         return job
 
     @classmethod
-    def _delete(cls, job: Job, force=False, **kwargs):  # type:ignore
+    def _delete(cls, job: Job, force=False):  # type:ignore
         if job.is_finished() or force:
             super()._delete(job.id)
         else:

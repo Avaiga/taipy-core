@@ -14,7 +14,6 @@ from typing import Generic, Iterable, List, TypeVar, Union
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._entity_ids import _EntityIds
 from taipy.core.common._taipy_logger import _TaipyLogger
-
 from taipy.core.exceptions.exceptions import ModelNotFound
 
 EntityType = TypeVar("EntityType")
@@ -33,14 +32,14 @@ class _Manager(Generic[EntityType]):
         cls._repository._delete_all()
 
     @classmethod
-    def _delete_many(cls, ids: Iterable, *args, **kwargs):
+    def _delete_many(cls, ids: Iterable):
         """
         Deletes entities by a list of ids.
         """
         cls._repository._delete_many(ids)
 
     @classmethod
-    def _delete(cls, id, *args, **kwargs):
+    def _delete(cls, id):
         """
         Deletes an entity by id.
         """
@@ -61,7 +60,7 @@ class _Manager(Generic[EntityType]):
         return cls._repository._load_all()
 
     @classmethod
-    def _get(cls, entity: Union[str, EntityType], default=None, *args, **kwargs) -> EntityType:
+    def _get(cls, entity: Union[str, EntityType], default=None) -> EntityType:
         """
         Returns an entity by id or reference.
         """
