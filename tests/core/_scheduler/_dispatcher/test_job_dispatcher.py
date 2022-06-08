@@ -78,7 +78,8 @@ def test_can_execute_2_workers():
 
 
 def test_can_execute_synchronous():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
 
     task_id = TaskId("task_id1")
     task = Task(config_id="name", input=[], function=print, output=[], id=task_id)
@@ -93,7 +94,9 @@ def test_can_execute_synchronous():
 
 
 def test_exception_in_user_function():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
     task_id = TaskId("task_id1")
     job_id = JobId("id1")
     task = Task(config_id="name", input=[], function=_error, output=[], id=task_id)
@@ -106,7 +109,9 @@ def test_exception_in_user_function():
 
 
 def test_exception_in_writing_data():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
     task_id = TaskId("task_id1")
     job_id = JobId("id1")
     output = MagicMock()

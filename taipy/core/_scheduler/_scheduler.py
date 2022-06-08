@@ -19,7 +19,6 @@ from taipy.core._scheduler._dispatcher._development_job_dispatcher import _Devel
 from taipy.core._scheduler._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 from taipy.core.common._taipy_logger import _TaipyLogger
 from taipy.core.config.config import Config
-from taipy.core.config.job_config import JobConfig
 from taipy.core.data._data_manager_factory import _DataManagerFactory
 from taipy.core.job._job_manager_factory import _JobManagerFactory
 from taipy.core.job.job import Job
@@ -37,7 +36,7 @@ class _Scheduler(_AbstractScheduler):
 
     jobs_to_run: Queue = Queue()
     blocked_jobs: List = []
-    _dispatcher = _StandaloneJobDispatcher() if Config.job_config.is_standalone else _DevelopmentJobDispatcher()  # type: ignore
+    _dispatcher = None  # type: ignore
     lock = Lock()
     __logger = _TaipyLogger._get_logger()
 
@@ -127,6 +126,8 @@ class _Scheduler(_AbstractScheduler):
 
     @classmethod
     def __execute_jobs(cls):
+        if not cls._dispatcher:
+            cls._update_job_config()
         while not cls.jobs_to_run.empty() and cls._dispatcher._can_execute():
             job = cls.jobs_to_run.get()
             if job.force or cls._needs_to_run(job.task):
@@ -189,10 +190,8 @@ class _Scheduler(_AbstractScheduler):
                 cls.jobs_to_run.put(job)
 
     @classmethod
-    def _update_job_config(cls, job_config: JobConfig = None):
-        if not job_config:
-            job_config = Config.job_config
-        if job_config.is_standalone:  # type: ignore
+    def _update_job_config(cls):
+        if Config.job_config.is_standalone:  # type: ignore
             cls._dispatcher = _StandaloneJobDispatcher()
         else:
             cls._dispatcher = _DevelopmentJobDispatcher()
