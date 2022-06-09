@@ -14,12 +14,13 @@ from datetime import datetime, timedelta
 from pydoc import locate
 from typing import Dict
 
-from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._utils import _load_fct
-from taipy.core.config.config import Config
 from taipy.core.data._data_model import _DataNodeModel
 from taipy.core.data.data_node import DataNode
 from taipy.core.data.generic import GenericDataNode
+
+from taipy.core._repository import _FileSystemRepository
+from taipy.core.config.config import Config
 
 
 class _DataRepository(_FileSystemRepository[_DataNodeModel, DataNode]):
@@ -75,7 +76,7 @@ class _DataRepository(_FileSystemRepository[_DataNodeModel, DataNode]):
             properties,
         )
 
-    def _from_model(self, model: _DataNodeModel):
+    def _from_model(self, model: _DataNodeModel, org_entity: DataNode = None, eager_loading: bool = False):
         if model.storage_type == GenericDataNode.storage_type():
             if model.data_node_properties[self._READ_FCT_MODULE_KEY]:
                 model.data_node_properties[GenericDataNode._REQUIRED_READ_FUNCTION_PROPERTY] = _load_fct(

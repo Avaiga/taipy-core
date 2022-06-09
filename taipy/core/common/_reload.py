@@ -32,7 +32,7 @@ def _get_manager(manager: str):
 
 
 def _reload(manager: str, obj):
-    return _get_manager(manager)._get(obj, obj)
+    return _get_manager(manager)._get(obj, obj, eager_loading=False)
 
 
 def _set_entity(manager: str, obj):

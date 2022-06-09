@@ -41,7 +41,7 @@ class MockRepository(_FileSystemRepository):
     def _to_model(self, obj: MockObj):
         return MockModel(obj.id, obj.name)
 
-    def _from_model(self, model: MockModel):
+    def _from_model(self, model: MockModel, entity: MockObj = None, eager_loading: bool = False):
         return MockObj(model.id, model.name)
 
     @property

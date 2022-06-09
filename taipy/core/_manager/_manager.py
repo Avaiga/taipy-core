@@ -11,10 +11,10 @@
 
 from typing import Generic, Iterable, List, TypeVar, Union
 
-from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._entity_ids import _EntityIds
 from taipy.core.common._taipy_logger import _TaipyLogger
 
+from taipy.core._repository import _FileSystemRepository
 from taipy.core.exceptions.exceptions import ModelNotFound
 
 EntityType = TypeVar("EntityType")
@@ -61,13 +61,16 @@ class _Manager(Generic[EntityType]):
         return cls._repository._load_all()
 
     @classmethod
-    def _get(cls, entity: Union[str, EntityType], default=None, *args, **kwargs) -> EntityType:
+    def _get(
+        cls, entity: Union[str, EntityType], default=None, eager_loading: bool = False, *args, **kwargs
+    ) -> EntityType:
         """
         Returns an entity by id or reference.
         """
         entity_id = entity if isinstance(entity, str) else entity.id  # type: ignore
+        entity = entity if not isinstance(entity, str) else None  # type: ignore
         try:
-            return cls._repository.load(entity_id)
+            return cls._repository.load(entity_id, entity=entity, eager_loading=eager_loading)
         except ModelNotFound:
             cls._logger.error(f"{cls._ENTITY_NAME} not found: {entity_id}")
             return default

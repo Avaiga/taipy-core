@@ -11,13 +11,14 @@
 
 import pathlib
 
-from taipy.core._repository import _FileSystemRepository
 from taipy.core.common._utils import _load_fct
 from taipy.core.common.alias import TaskId
-from taipy.core.config.config import Config
 from taipy.core.data._data_manager_factory import _DataManagerFactory
-from taipy.core.exceptions.exceptions import NonExistingDataNode
 from taipy.core.task._task_model import _TaskModel
+
+from taipy.core._repository import _FileSystemRepository
+from taipy.core.config.config import Config
+from taipy.core.exceptions.exceptions import NonExistingDataNode
 from taipy.core.task.task import Task
 
 
@@ -36,7 +37,7 @@ class _TaskRepository(_FileSystemRepository[_TaskModel, Task]):
             output_ids=self.__to_ids(task.output.values()),
         )
 
-    def _from_model(self, model: _TaskModel) -> Task:
+    def _from_model(self, model: _TaskModel, org_entity: Task = None, eager_loading: bool = False) -> Task:
         return Task(
             id=TaskId(model.id),
             parent_id=model.parent_id,

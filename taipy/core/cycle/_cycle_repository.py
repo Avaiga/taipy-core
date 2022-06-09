@@ -13,10 +13,11 @@ import pathlib
 from datetime import datetime
 from typing import Callable, List
 
-from taipy.core._repository import _FileSystemRepository
 from taipy.core.common.frequency import Frequency
-from taipy.core.config.config import Config
 from taipy.core.cycle._cycle_model import _CycleModel
+
+from taipy.core._repository import _FileSystemRepository
+from taipy.core.config.config import Config
 from taipy.core.cycle.cycle import Cycle
 
 
@@ -35,7 +36,7 @@ class _CycleRepository(_FileSystemRepository[_CycleModel, Cycle]):
             properties=cycle._properties.data,
         )
 
-    def _from_model(self, model: _CycleModel) -> Cycle:
+    def _from_model(self, model: _CycleModel, org_entity: Cycle = None, eager_loading: bool = False) -> Cycle:
         return Cycle(
             id=model.id,
             name=model.name,

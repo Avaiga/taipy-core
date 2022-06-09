@@ -13,16 +13,17 @@ import pathlib
 from datetime import datetime
 from typing import List, Optional
 
+from taipy.core.common.alias import CycleId, PipelineId
+from taipy.core.cycle._cycle_manager_factory import _CycleManagerFactory
+from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from taipy.core.scenario._scenario_model import _ScenarioModel
+
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.common import _utils
-from taipy.core.common.alias import CycleId, PipelineId
 from taipy.core.config.config import Config
-from taipy.core.cycle._cycle_manager_factory import _CycleManagerFactory
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.exceptions.exceptions import NonExistingPipeline
-from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
 from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.scenario._scenario_model import _ScenarioModel
 from taipy.core.scenario.scenario import Scenario
 
 
@@ -43,16 +44,20 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
             cycle=self.__to_cycle_id(scenario._cycle),
         )
 
-    def _from_model(self, model: _ScenarioModel) -> Scenario:
+    def _from_model(self, model: _ScenarioModel, org_entity: Scenario = None, eager_loading: bool = False) -> Scenario:
         scenario = Scenario(
             scenario_id=model.id,
             config_id=model.config_id,
-            pipelines=self.__to_pipelines(model.pipelines),
+            pipelines=self.__to_pipelines(
+                model.pipelines, list(org_entity._pipelines.values()) if org_entity else None, eager_loading
+            ),
             properties=model.properties,
             creation_date=datetime.fromisoformat(model.creation_date),
             is_primary=model.primary_scenario,
             tags=set(model.tags),
-            cycle=self.__to_cycle(model.cycle),
+            cycle=self.__to_cycle(
+                model.cycle, org_entity._cycle if org_entity and org_entity._cycle else None, eager_loading
+            ),  # TODO: better implementation
             subscribers={
                 _utils._load_fct(it["fct_module"], it["fct_name"]) for it in model.subscribers
             },  # type: ignore
@@ -68,19 +73,39 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
         return [pipeline.id for pipeline in pipelines]
 
     @staticmethod
-    def __to_pipelines(pipeline_ids) -> List[Pipeline]:
+    def __to_pipelines(
+        pipeline_ids: List[PipelineId], org_pipelines: List[Pipeline] = None, eager_loading: bool = False
+    ) -> List[Pipeline]:
         pipelines = []
         pipeline_manager = _PipelineManagerFactory._build_manager()
-        for _id in pipeline_ids:
-            if pipeline := pipeline_manager._get(_id):
-                pipelines.append(pipeline)
-            else:
-                raise NonExistingPipeline(_id)
+
+        if eager_loading or org_pipelines is None:
+            for _id in pipeline_ids:
+                if pipeline := pipeline_manager._get(_id):
+                    pipelines.append(pipeline)
+                else:
+                    raise NonExistingPipeline(_id)
+        else:
+            org_pipelines_dict = {p.id: p for p in org_pipelines}
+
+            for _id in pipeline_ids:
+                if _id in org_pipelines_dict.keys():
+                    pipeline = org_pipelines_dict[_id]
+                else:
+                    pipeline = pipeline_manager._get(_id)
+
+                if pipeline:
+                    pipelines.append(pipeline)
+                else:
+                    raise NonExistingPipeline(_id)
         return pipelines
 
     @staticmethod
-    def __to_cycle(cycle_id: CycleId = None) -> Optional[Cycle]:
-        return _CycleManagerFactory._build_manager()._get(cycle_id) if cycle_id else None
+    def __to_cycle(cycle_id: CycleId = None, org_cycle: Cycle = None, eager_loading: bool = False) -> Optional[Cycle]:
+        if eager_loading or org_cycle is None or cycle_id != org_cycle.id:
+            return _CycleManagerFactory._build_manager()._get(cycle_id) if cycle_id else None
+        else:
+            return org_cycle
 
     @staticmethod
     def __to_cycle_id(cycle: Cycle = None) -> Optional[CycleId]:

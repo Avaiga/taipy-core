@@ -11,14 +11,18 @@
 
 import pathlib
 from collections import defaultdict
+from typing import List, Optional
+
+from taipy.core.common.alias import TaskId
+from taipy.core.pipeline._pipeline_model import _PipelineModel
+from taipy.core.task._task_manager_factory import _TaskManagerFactory
 
 from taipy.core._repository import _FileSystemRepository
 from taipy.core.common import _utils
 from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import NonExistingPipeline, NonExistingTask
-from taipy.core.pipeline._pipeline_model import _PipelineModel
 from taipy.core.pipeline.pipeline import Pipeline
-from taipy.core.task._task_manager_factory import _TaskManagerFactory
+from taipy.core.task.task import Task
 
 
 class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
@@ -43,9 +47,11 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
             _utils._fcts_to_dict(pipeline._subscribers),
         )
 
-    def _from_model(self, model: _PipelineModel) -> Pipeline:
+    def _from_model(self, model: _PipelineModel, org_entity: Pipeline = None, eager_loading: bool = False) -> Pipeline:
         try:
-            tasks = self.__to_tasks(model.tasks)
+            tasks = self.__to_tasks(
+                model.tasks, list(org_entity._tasks.values()) if org_entity else None, eager_loading
+            )
             pipeline = Pipeline(
                 model.config_id,
                 model.properties,
@@ -66,12 +72,28 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
         return pathlib.Path(Config.global_config.storage_folder)  # type: ignore
 
     @staticmethod
-    def __to_tasks(task_ids):
+    def __to_tasks(task_ids: List[TaskId], org_tasks: Optional[List[Task]] = None, eager_loading: bool = False):
         tasks = []
         task_manager = _TaskManagerFactory._build_manager()
-        for _id in task_ids:
-            if task := task_manager._get(_id):
-                tasks.append(task)
-            else:
-                raise NonExistingTask(_id)
+
+        if eager_loading or org_tasks is None:
+            for _id in task_ids:
+                if task := task_manager._get(_id):
+                    tasks.append(task)
+                else:
+                    raise NonExistingTask(_id)
+        else:
+            org_tasks_dict = {t.id: t for t in org_tasks}
+
+            for _id in task_ids:
+                if _id in org_tasks_dict.keys():
+                    print("lazy org")
+                    task = org_tasks_dict[_id]
+                else:
+                    task = task_manager._get(_id)
+                    print("lazy manager")
+                if task:
+                    tasks.append(task)
+                else:
+                    raise NonExistingTask(_id)
         return tasks
