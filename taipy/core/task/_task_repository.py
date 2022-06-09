@@ -37,7 +37,7 @@ class _TaskRepository(_FileSystemRepository[_TaskModel, Task]):
             output_ids=self.__to_ids(task.output.values()),
         )
 
-    def _from_model(self, model: _TaskModel, org_entity: Task = None, eager_loading: bool = False) -> Task:
+    def _from_model(self, model: _TaskModel, org_entity: Task = None, lazy_loading: bool = True) -> Task:
         return Task(
             id=TaskId(model.id),
             parent_id=model.parent_id,

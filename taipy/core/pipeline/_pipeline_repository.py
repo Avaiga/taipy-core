@@ -47,11 +47,9 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
             _utils._fcts_to_dict(pipeline._subscribers),
         )
 
-    def _from_model(self, model: _PipelineModel, org_entity: Pipeline = None, eager_loading: bool = False) -> Pipeline:
+    def _from_model(self, model: _PipelineModel, org_entity: Pipeline = None, lazy_loading: bool = True) -> Pipeline:
         try:
-            tasks = self.__to_tasks(
-                model.tasks, list(org_entity._tasks.values()) if org_entity else None, eager_loading
-            )
+            tasks = self.__to_tasks(model.tasks, list(org_entity._tasks.values()) if org_entity else None, lazy_loading)
             pipeline = Pipeline(
                 model.config_id,
                 model.properties,
@@ -72,11 +70,11 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
         return pathlib.Path(Config.global_config.storage_folder)  # type: ignore
 
     @staticmethod
-    def __to_tasks(task_ids: List[TaskId], org_tasks: Optional[List[Task]] = None, eager_loading: bool = False):
+    def __to_tasks(task_ids: List[TaskId], org_tasks: Optional[List[Task]] = None, lazy_loading: bool = True):
         tasks = []
         task_manager = _TaskManagerFactory._build_manager()
 
-        if eager_loading or org_tasks is None:
+        if not lazy_loading or org_tasks is None:
             for _id in task_ids:
                 if task := task_manager._get(_id):
                     tasks.append(task)

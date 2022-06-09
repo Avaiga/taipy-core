@@ -44,19 +44,19 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
             cycle=self.__to_cycle_id(scenario._cycle),
         )
 
-    def _from_model(self, model: _ScenarioModel, org_entity: Scenario = None, eager_loading: bool = False) -> Scenario:
+    def _from_model(self, model: _ScenarioModel, org_entity: Scenario = None, lazy_loading: bool = True) -> Scenario:
         scenario = Scenario(
             scenario_id=model.id,
             config_id=model.config_id,
             pipelines=self.__to_pipelines(
-                model.pipelines, list(org_entity._pipelines.values()) if org_entity else None, eager_loading
+                model.pipelines, list(org_entity._pipelines.values()) if org_entity else None, lazy_loading
             ),
             properties=model.properties,
             creation_date=datetime.fromisoformat(model.creation_date),
             is_primary=model.primary_scenario,
             tags=set(model.tags),
             cycle=self.__to_cycle(
-                model.cycle, org_entity._cycle if org_entity and org_entity._cycle else None, eager_loading
+                model.cycle, org_entity._cycle if org_entity and org_entity._cycle else None, lazy_loading
             ),  # TODO: better implementation
             subscribers={
                 _utils._load_fct(it["fct_module"], it["fct_name"]) for it in model.subscribers
@@ -74,12 +74,12 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
 
     @staticmethod
     def __to_pipelines(
-        pipeline_ids: List[PipelineId], org_pipelines: List[Pipeline] = None, eager_loading: bool = False
+        pipeline_ids: List[PipelineId], org_pipelines: List[Pipeline] = None, lazy_loading: bool = True
     ) -> List[Pipeline]:
         pipelines = []
         pipeline_manager = _PipelineManagerFactory._build_manager()
 
-        if eager_loading or org_pipelines is None:
+        if not lazy_loading or org_pipelines is None:
             for _id in pipeline_ids:
                 if pipeline := pipeline_manager._get(_id):
                     pipelines.append(pipeline)
@@ -101,8 +101,8 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
         return pipelines
 
     @staticmethod
-    def __to_cycle(cycle_id: CycleId = None, org_cycle: Cycle = None, eager_loading: bool = False) -> Optional[Cycle]:
-        if eager_loading or org_cycle is None or cycle_id != org_cycle.id:
+    def __to_cycle(cycle_id: CycleId = None, org_cycle: Cycle = None, lazy_loading: bool = True) -> Optional[Cycle]:
+        if not lazy_loading or org_cycle is None or cycle_id != org_cycle.id:
             return _CycleManagerFactory._build_manager()._get(cycle_id) if cycle_id else None
         else:
             return org_cycle

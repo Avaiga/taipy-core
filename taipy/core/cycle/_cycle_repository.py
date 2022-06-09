@@ -36,7 +36,7 @@ class _CycleRepository(_FileSystemRepository[_CycleModel, Cycle]):
             properties=cycle._properties.data,
         )
 
-    def _from_model(self, model: _CycleModel, org_entity: Cycle = None, eager_loading: bool = False) -> Cycle:
+    def _from_model(self, model: _CycleModel, org_entity: Cycle = None, lazy_loading: bool = True) -> Cycle:
         return Cycle(
             id=model.id,
             name=model.name,

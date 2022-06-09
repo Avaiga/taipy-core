@@ -62,7 +62,7 @@ class _Manager(Generic[EntityType]):
 
     @classmethod
     def _get(
-        cls, entity: Union[str, EntityType], default=None, eager_loading: bool = False, *args, **kwargs
+        cls, entity: Union[str, EntityType], default=None, lazy_loading: bool = True, *args, **kwargs
     ) -> EntityType:
         """
         Returns an entity by id or reference.
@@ -70,7 +70,7 @@ class _Manager(Generic[EntityType]):
         entity_id = entity if isinstance(entity, str) else entity.id  # type: ignore
         entity = entity if not isinstance(entity, str) else None  # type: ignore
         try:
-            return cls._repository.load(entity_id, entity=entity, eager_loading=eager_loading)
+            return cls._repository.load(entity_id, entity=entity, lazy_loading=lazy_loading)
         except ModelNotFound:
             cls._logger.error(f"{cls._ENTITY_NAME} not found: {entity_id}")
             return default

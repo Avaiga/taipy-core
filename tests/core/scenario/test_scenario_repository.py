@@ -23,7 +23,7 @@ def test_save_and_load(tmpdir, scenario):
     repository = _ScenarioRepository()
     repository.base_path = tmpdir
     repository._save(scenario)
-    sc = repository.load(scenario.id, eager_loading=True)
+    sc = repository.load(scenario.id)
 
     assert isinstance(sc, Scenario)
     assert scenario.id == sc.id
@@ -48,29 +48,29 @@ def test_eager_loading(scenario, pipeline, cycle):
     scenario.pipelines = [pipeline]
 
     with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._get") as mck:
-        sc_rp.load(scenario.id, eager_loading=True)
+        sc_rp.load(scenario.id, lazy_loading=False)
         mck.assert_called_once()
 
     scenario.pipelines = [pipeline, pipeline_1]
     with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._get") as mck:
-        sc_rp.load(scenario.id, eager_loading=True)
+        sc_rp.load(scenario.id, lazy_loading=False)
         assert mck.call_count == 2
 
-    scenario_1 = sc_rp.load(scenario.id, eager_loading=True)
+    scenario_1 = sc_rp.load(scenario.id, lazy_loading=False)
     assert len(scenario_1._pipelines) == 2
 
     scenario.pipelines = [pipeline]
     with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._get") as mck:
-        sc_rp.load(scenario.id, scenario_1, eager_loading=True)
+        sc_rp.load(scenario.id, scenario_1, lazy_loading=False)
         mck.assert_called_once()
 
     scenario.cycle = cycle
     with mock.patch("taipy.core.cycle._cycle_manager._CycleManager._get") as mck:
-        sc_rp.load(scenario.id, scenario, eager_loading=True)
+        sc_rp.load(scenario.id, scenario, lazy_loading=False)
         mck.assert_called_once()
 
     with mock.patch("taipy.core.cycle._cycle_manager._CycleManager._get") as mck:
-        sc_rp.load(scenario.id, scenario_1, eager_loading=True)
+        sc_rp.load(scenario.id, scenario_1, lazy_loading=False)
         mck.assert_called_once()
 
 
@@ -93,7 +93,7 @@ def test_lazy_loading(scenario, pipeline, cycle):
         sc_rp.load(scenario.id)
         mck.assert_called_once()
 
-    scenario_1 = sc_rp.load(scenario.id, scenario, eager_loading=False)
+    scenario_1 = sc_rp.load(scenario.id, scenario)
     assert len(scenario_1._pipelines) == 1
 
     scenario.pipelines = [pipeline, pipeline_1]

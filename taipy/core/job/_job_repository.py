@@ -41,7 +41,7 @@ class _JobRepository(_FileSystemRepository[_JobModel, Job]):
             job._stacktrace,
         )
 
-    def _from_model(self, model: _JobModel, org_entity: Job = None, eager_loading: bool = False):
+    def _from_model(self, model: _JobModel, org_entity: Job = None, lazy_loading: bool = True):
         job = Job(id=model.id, task=_TaskRepository().load(model.task_id))
 
         job.status = model.status  # type: ignore

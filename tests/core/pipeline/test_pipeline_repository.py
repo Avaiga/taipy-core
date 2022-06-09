@@ -50,20 +50,20 @@ def test_eager_loading(pipeline):
     pipeline.tasks = [task]
 
     with mock.patch("taipy.core.task._task_manager._TaskManager._get") as mck:
-        pl_rp.load(pipeline.id, eager_loading=True)
+        pl_rp.load(pipeline.id, lazy_loading=False)
         mck.assert_called_once()
 
     pipeline.tasks = [task, task_1]
     with mock.patch("taipy.core.task._task_manager._TaskManager._get") as mck:
-        pl_rp.load(pipeline.id, eager_loading=True)
+        pl_rp.load(pipeline.id, lazy_loading=False)
         assert mck.call_count == 2
 
-    pipeline_1 = pl_rp.load(pipeline.id, eager_loading=True)
+    pipeline_1 = pl_rp.load(pipeline.id, lazy_loading=False)
     assert len(pipeline_1._tasks) == 2
 
     pipeline.tasks = [task]
     with mock.patch("taipy.core.task._task_manager._TaskManager._get") as mck:
-        pl_rp.load(pipeline.id, pipeline_1, eager_loading=True)
+        pl_rp.load(pipeline.id, pipeline_1, lazy_loading=False)
         mck.assert_called_once()
 
 

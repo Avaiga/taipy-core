@@ -76,7 +76,7 @@ class _DataRepository(_FileSystemRepository[_DataNodeModel, DataNode]):
             properties,
         )
 
-    def _from_model(self, model: _DataNodeModel, org_entity: DataNode = None, eager_loading: bool = False):
+    def _from_model(self, model: _DataNodeModel, org_entity: DataNode = None, lazy_loading: bool = True):
         if model.storage_type == GenericDataNode.storage_type():
             if model.data_node_properties[self._READ_FCT_MODULE_KEY]:
                 model.data_node_properties[GenericDataNode._REQUIRED_READ_FUNCTION_PROPERTY] = _load_fct(
