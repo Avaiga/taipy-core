@@ -47,7 +47,7 @@ class _ScenarioRepository(_FileSystemRepository[_ScenarioModel, Scenario]):
         scenario = Scenario(
             scenario_id=model.id,
             config_id=model.config_id,
-            pipelines=model.pipelines,
+            pipelines=model.pipelines,  # type: ignore
             properties=model.properties,
             creation_date=datetime.fromisoformat(model.creation_date),
             is_primary=model.primary_scenario,

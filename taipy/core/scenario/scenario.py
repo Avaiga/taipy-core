@@ -20,13 +20,13 @@ from taipy.core.common._listattributes import _ListAttributes
 from taipy.core.common._properties import _Properties
 from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._validate_id import _validate_id
-from taipy.core.common.alias import ScenarioId, PipelineId
+from taipy.core.common.alias import PipelineId, ScenarioId
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.exceptions.exceptions import NonExistingPipeline
 from taipy.core.job.job import Job
-from taipy.core.pipeline.pipeline import Pipeline
 from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from taipy.core.pipeline.pipeline import Pipeline
 
 
 class Scenario(_Entity):
@@ -90,7 +90,7 @@ class Scenario(_Entity):
 
     @pipelines.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
-    def pipelines(self, pipelines: List[Pipeline]):
+    def pipelines(self, pipelines: List[Union[PipelineId, Pipeline]]):
         self._pipelines = pipelines
 
     @property  # type: ignore

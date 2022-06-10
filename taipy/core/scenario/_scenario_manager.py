@@ -96,7 +96,7 @@ class _ScenarioManager(_Manager[Scenario]):
             props["name"] = name
         scenario = Scenario(
             config.id,
-            pipelines,
+            pipelines,  # type: ignore
             props,
             scenario_id,
             creation_date,
