@@ -10,7 +10,6 @@
 # specific language governing permissions and limitations under the License.
 
 import itertools
-from collections import defaultdict
 from typing import Callable, List, Optional, Type, Union
 
 from taipy.core._manager._manager import _Manager
@@ -75,11 +74,11 @@ class _TaskManager(_Manager[Task]):
         scenario_id: Optional[ScenarioId] = None,
         pipeline_id: Optional[PipelineId] = None,
     ) -> List[Task]:
-        data_node_configs = []
+        data_node_configs = set()
         for task_config in task_configs:
-            data_node_configs.extend(task_config.input_configs)
-            data_node_configs.extend(task_config.output_configs)
-        data_node_configs = set(data_node_configs)
+            data_node_configs.update(task_config.input_configs)
+            data_node_configs.update(task_config.output_configs)
+
         _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(data_node_configs, scenario_id, pipeline_id)
         data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
@@ -103,7 +102,7 @@ class _TaskManager(_Manager[Task]):
                 inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
                 outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
                 task = Task(task_config.id, task_config.function, inputs, outputs, parent_id=parent_id)
-                cls._set(task, *args, **kwargs)
+                cls._set(task)
                 tasks.append(task)
 
         return tasks

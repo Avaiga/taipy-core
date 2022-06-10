@@ -66,7 +66,7 @@ class _Manager(Generic[EntityType]):
         """
         return cls._repository._load_all_by(by)
 
-
+    @classmethod
     def _get(cls, entity: Union[str, EntityType], default=None) -> EntityType:
         """
         Returns an entity by id or reference.

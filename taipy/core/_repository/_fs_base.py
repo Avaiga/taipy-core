@@ -16,7 +16,7 @@ import shutil
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Generic, Iterable, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Any, Generic, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 from taipy.core.exceptions.exceptions import ModelNotFound
 
@@ -142,7 +142,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
                 if config_id not in f.name:
                     continue
                 if entity := self.__to_entity(f, by=parent_id):
-                    if entity.config_id == config_id and entity.parent_id == parent_id:
+                    if entity.config_id == config_id and entity.parent_id == parent_id:  # type: ignore
                         return entity
         except FileNotFoundError:
             pass
