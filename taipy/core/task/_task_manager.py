@@ -40,10 +40,10 @@ class _TaskManager(_Manager[Task]):
         return cls.__scheduler
 
     @classmethod
-    def _set(cls, task: Task, *args, **kwargs):  # type: ignore
+    def _set(cls, task: Task):
         cls.__save_data_nodes(task.input.values())
         cls.__save_data_nodes(task.output.values())
-        super()._set(task, *args, **kwargs)
+        super()._set(task)
 
     @classmethod
     def _get_or_create(
@@ -51,12 +51,9 @@ class _TaskManager(_Manager[Task]):
         task_config: TaskConfig,
         scenario_id: Optional[ScenarioId] = None,
         pipeline_id: Optional[PipelineId] = None,
-        *args,
-        **kwargs,
     ) -> Task:
         dn_configs = set(itertools.chain(task_config.input_configs, task_config.output_configs))
-        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(dn_configs, scenario_id, pipeline_id, *args,
-                                                                           **kwargs)
+        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(dn_configs, scenario_id, pipeline_id)
         data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
         scope = min(dn.scope for dn in data_nodes.values()) if len(data_nodes) != 0 else Scope.GLOBAL
@@ -68,7 +65,7 @@ class _TaskManager(_Manager[Task]):
         inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
         outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
         task = Task(task_config.id, task_config.function, inputs, outputs, parent_id=parent_id)
-        cls._set(task, *args, **kwargs)
+        cls._set(task)
         return task
 
     @classmethod
@@ -77,16 +74,13 @@ class _TaskManager(_Manager[Task]):
         task_configs: List[TaskConfig],
         scenario_id: Optional[ScenarioId] = None,
         pipeline_id: Optional[PipelineId] = None,
-        *args,
-        **kwargs,
     ) -> List[Task]:
         data_node_configs = []
         for task_config in task_configs:
             data_node_configs.extend(task_config.input_configs)
             data_node_configs.extend(task_config.output_configs)
         data_node_configs = set(data_node_configs)
-        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(data_node_configs, scenario_id, pipeline_id,
-                                                                           *args, **kwargs)
+        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(data_node_configs, scenario_id, pipeline_id)
         data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
         tasks_configs_and_parent_id = []
@@ -115,33 +109,31 @@ class _TaskManager(_Manager[Task]):
         return tasks
 
     @classmethod
-    def __save_data_nodes(cls, data_nodes, *args, **kwargs):
+    def __save_data_nodes(cls, data_nodes):
         data_manager = _DataManagerFactory._build_manager()
         for i in data_nodes:
-            data_manager._set(i, *args, **kwargs)
+            data_manager._set(i)
 
     @classmethod
-    def _hard_delete(cls, task_id: TaskId, *args, **kwargs):
-        task = cls._get(task_id, *args, **kwargs)
-        entity_ids_to_delete = cls._get_owned_entity_ids(task, *args, **kwargs)
+    def _hard_delete(cls, task_id: TaskId):
+        task = cls._get(task_id)
+        entity_ids_to_delete = cls._get_owned_entity_ids(task)
         entity_ids_to_delete.task_ids.add(task.id)
-        cls._delete_entities_of_multiple_types(entity_ids_to_delete, *args, **kwargs)
+        cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
-    def _get_owned_entity_ids(cls, task: Task, *args, **kwargs):
+    def _get_owned_entity_ids(cls, task: Task):
         entity_ids = _EntityIds()
-        jobs = _JobManagerFactory._build_manager()._get_all(*args, **kwargs)
+        jobs = _JobManagerFactory._build_manager()._get_all()
         for job in jobs:
             if job.task.id == task.id:
                 entity_ids.job_ids.add(job.id)
         return entity_ids
 
     @classmethod
-    def _submit(
-        cls, task: Union[TaskId, Task], callbacks: Optional[List[Callable]] = None, force: bool = False, *args, **kwargs
-    ):
+    def _submit(cls, task: Union[TaskId, Task], callbacks: Optional[List[Callable]] = None, force: bool = False):
         task_id = task.id if isinstance(task, Task) else task
-        task = cls._get(task_id, *args, **kwargs)
+        task = cls._get(task_id)
         if task is None:
             raise NonExistingTask(task_id)
         cls._scheduler().submit_task(task, callbacks, force)

@@ -15,7 +15,7 @@ import os
 import random
 import string
 from concurrent.futures import ProcessPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 from time import sleep
 
@@ -30,6 +30,7 @@ from taipy.core.config._config import _Config
 from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.pipeline._pipeline_manager import _PipelineManager
+from taipy.core.task._task_manager import _TaskManager
 from taipy.core.task.task import Task
 from tests.core.utils import assert_true_after_1_minute_max
 
@@ -47,6 +48,9 @@ def reset_configuration_singleton():
         os.remove(f)
 
 
+# ################################  USER FUNCTIONS  ##################################
+
+
 def multiply(nb1: float, nb2: float):
     sleep(0.1)
     return nb1 * nb2
@@ -61,8 +65,20 @@ def mult_by_2(n):
     return n * 2
 
 
+def nothing():
+    return True
+
+
+def concat(a, b):
+    return a + b
+
+
+# ################################  TEST METHODS    ##################################
+
+
 def test_submit_task():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
 
     before_creation = datetime.now()
     sleep(0.1)
@@ -87,7 +103,8 @@ def test_submit_task():
 
 
 def test_submit_task_that_return_multiple_outputs():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -114,7 +131,8 @@ def test_submit_task_that_return_multiple_outputs():
 
 
 def test_submit_task_returns_single_iterable_output():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
 
     def return_2tuple(nb1, nb2):
         return multiply(nb1, nb2), multiply(nb1, nb2) / 2
@@ -132,7 +150,8 @@ def test_submit_task_returns_single_iterable_output():
 
 
 def test_data_node_not_written_due_to_wrong_result_nb():
-    _Scheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
 
     def return_2tuple():
         return lambda nb1, nb2: (multiply(nb1, nb2), multiply(nb1, nb2) / 2)
@@ -148,7 +167,8 @@ def test_submit_task_in_parallel():
     m = multiprocessing.Manager()
     lock = m.Lock()
 
-    _Scheduler._update_job_config(Config.configure_job_executions(nb_of_workers=2))
+    Config.configure_job_executions(nb_of_workers=2)
+    _Scheduler._update_job_config()
     task = _create_task(partial(lock_multiply, lock))
 
     with lock:
@@ -160,7 +180,8 @@ def test_submit_task_in_parallel():
 
 
 def test_submit_task_multithreading_multiple_task():
-    _Scheduler._update_job_config(Config.configure_job_executions(nb_of_workers=2))
+    Config.configure_job_executions(nb_of_workers=2)
+    _Scheduler._update_job_config()
 
     m = multiprocessing.Manager()
     lock_1 = m.Lock()
@@ -192,7 +213,8 @@ def test_submit_task_multithreading_multiple_task():
 
 
 def test_submit_task_multithreading_multiple_task_in_sync_way_to_check_job_status():
-    _Scheduler._update_job_config(Config.configure_job_executions(nb_of_workers=2))
+    Config.configure_job_executions(nb_of_workers=2)
+    _Scheduler._update_job_config()
 
     m = multiprocessing.Manager()
     lock_0 = m.Lock()
@@ -204,7 +226,8 @@ def test_submit_task_multithreading_multiple_task_in_sync_way_to_check_job_statu
     task_2 = _create_task(partial(lock_multiply, lock_2))
 
     with lock_0:
-        _Scheduler.submit_task(task_0)
+        job_0 = _Scheduler.submit_task(task_0)
+        assert job_0.is_running()
         with lock_1:
             with lock_2:
                 job_1 = _Scheduler.submit_task(task_2)
@@ -227,7 +250,8 @@ def test_submit_task_multithreading_multiple_task_in_sync_way_to_check_job_statu
 
 
 def test_blocked_task():
-    _Scheduler._update_job_config(Config.configure_job_executions(nb_of_workers=2))
+    Config.configure_job_executions(nb_of_workers=2)
+    _Scheduler._update_job_config()
 
     m = multiprocessing.Manager()
     lock_1 = m.Lock()
@@ -266,22 +290,145 @@ def test_blocked_task():
     assert _DataManager._get(task_2.baz.id).read() == 6  # the data is computed and written
 
 
-class MyScheduler(_Scheduler):
-    @classmethod
-    def getJobDispatcher(cls):
-        return cls._dispatcher
-
-
 def test_task_scheduler_create_synchronous_dispatcher():
-    MyScheduler._update_job_config(Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE))
-    assert isinstance(MyScheduler.getJobDispatcher()._executor, _Synchronous)
-    assert MyScheduler.getJobDispatcher()._nb_available_workers == 1
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
+    assert isinstance(_Scheduler._dispatcher._executor, _Synchronous)
+    assert _Scheduler._dispatcher._nb_available_workers == 1
 
 
-def test_task_scheduler_create_parallel_dispatcher():
-    MyScheduler._update_job_config(Config.configure_job_executions(nb_of_workers=42))
-    assert isinstance(MyScheduler.getJobDispatcher()._executor, ProcessPoolExecutor)
-    assert MyScheduler.getJobDispatcher()._nb_available_workers == 42
+def test_task_scheduler_create_standalone_dispatcher():
+    Config.configure_job_executions(nb_of_workers=42)
+    _Scheduler._update_job_config()
+    assert isinstance(_Scheduler._dispatcher._executor, ProcessPoolExecutor)
+    assert _Scheduler._dispatcher._nb_available_workers == 42
+
+
+def test_can_exec_task_with_modified_config():
+    assert Config.global_config.storage_folder == ".data/"
+    Config.configure_global_app(storage_folder=".my_data/", clean_entities_enabled=True)
+    assert Config.global_config.storage_folder == ".my_data/"
+
+    dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
+    dn_output_config = Config.configure_data_node("output", "pickle")
+    task_config = Config.configure_task("task_config", mult_by_2, dn_input_config, dn_output_config)
+    pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
+    pipeline = _PipelineManager._get_or_create(pipeline_config)
+
+    pipeline.submit()
+    while pipeline.output.edit_in_progress:
+        sleep(1)
+    assert 2 == pipeline.output.read()
+    taipy.clean_all_entities()
+
+
+def test_can_execute_task_with_development_mode():
+    assert Config.job_config.mode == "standalone"
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+    assert Config.job_config.mode == JobConfig._DEVELOPMENT_MODE
+
+    dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
+    dn_output_config = Config.configure_data_node("output", "pickle")
+    task_config = Config.configure_task("task_config", mult_by_2, dn_input_config, dn_output_config)
+    pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
+    pipeline = _PipelineManager._get_or_create(pipeline_config)
+
+    pipeline.submit()
+    while pipeline.output.edit_in_progress:
+        sleep(1)
+    assert 2 == pipeline.output.read()
+
+
+def test_need_to_run_no_output():
+    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
+    world_cfg = Config.configure_data_node("world", default_data="world !")
+    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler()._needs_to_run(task)
+
+
+def test_need_to_run_output_not_cacheable():
+    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
+    world_cfg = Config.configure_data_node("world", default_data="world !")
+    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=False)
+    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler()._needs_to_run(task)
+
+
+def test_need_to_run_output_cacheable_no_input():
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
+    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
+    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler._needs_to_run(task)
+    _Scheduler.submit_task(task)
+
+    assert not _Scheduler._needs_to_run(task)
+
+
+def test_need_to_run_output_cacheable_no_validity_period():
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
+    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
+    world_cfg = Config.configure_data_node("world", default_data="world !")
+    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
+    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler._needs_to_run(task)
+    _Scheduler.submit_task(task)
+
+    assert not _Scheduler._needs_to_run(task)
+
+
+def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _Scheduler._update_job_config()
+
+    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
+    world_cfg = Config.configure_data_node("world", default_data="world !")
+    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
+    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler._needs_to_run(task)
+    job = _Scheduler.submit_task(task)
+
+    assert not _Scheduler._needs_to_run(task)
+    job_skipped = _Scheduler.submit_task(task)
+
+    assert job.is_completed()
+    assert job.is_finished()
+    assert job_skipped.is_skipped()
+    assert job_skipped.is_finished()
+
+
+def test_need_to_run_output_cacheable_with_validity_period_obsolete():
+    hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
+    world_cfg = Config.configure_data_node("world", default_data="world !")
+    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
+    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    task = _TaskManager()._get_or_create(task_cfg)
+
+    assert _Scheduler._needs_to_run(task)
+    _Scheduler.submit_task(task)
+
+    output = task.hello_world
+    output._last_edit_date = datetime.now() - timedelta(days=1, minutes=30)
+    _DataManager()._set(output)
+    assert _Scheduler._needs_to_run(task)
+
+
+# ################################  UTIL METHODS    ##################################
 
 
 def _create_task(function, nb_outputs=1):
@@ -303,40 +450,3 @@ def _create_task(function, nb_outputs=1):
         input=input_dn,
         output=output_dn,
     )
-
-
-def test_can_exec_task_with_modified_config():
-
-    assert Config.global_config.storage_folder == ".data/"
-    Config.configure_global_app(storage_folder=".my_data/", clean_entities_enabled=True)
-    assert Config.global_config.storage_folder == ".my_data/"
-
-    dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
-    dn_output_config = Config.configure_data_node("output", "pickle")
-    task_config = Config.configure_task("task_config", mult_by_2, dn_input_config, dn_output_config)
-    pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
-    pipeline = _PipelineManager._get_or_create(pipeline_config)
-
-    pipeline.submit()
-    while pipeline.output.edit_in_progress:
-        sleep(1)
-    assert 2 == pipeline.output.read()
-    taipy.clean_all_entities()
-
-
-def test_can_execute_task_with_development_mode():
-
-    assert Config.job_config.mode == "standalone"
-    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
-    assert Config.job_config.mode == JobConfig._DEVELOPMENT_MODE
-
-    dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
-    dn_output_config = Config.configure_data_node("output", "pickle")
-    task_config = Config.configure_task("task_config", mult_by_2, dn_input_config, dn_output_config)
-    pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
-    pipeline = _PipelineManager._get_or_create(pipeline_config)
-
-    pipeline.submit()
-    while pipeline.output.edit_in_progress:
-        sleep(1)
-    assert 2 == pipeline.output.read()
