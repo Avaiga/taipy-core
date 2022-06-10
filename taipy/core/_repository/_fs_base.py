@@ -157,7 +157,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
                 match = [(c, p) for c, p in config_ids_and_parent_ids if c.id in filename]
                 if not match:
                     continue
-                if entity := self.__to_entity_by(f, by=[p for c, p in match]):
+                if entity := self.__to_entity(f, bys=[p for c, p in match if p is not None]):
                     for c, p in match:
                         if entity.config_id == c.id and entity.parent_id == p:
                             res[(c, p)] = entity
@@ -175,21 +175,19 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __get_model_filepath(self, model_id) -> pathlib.Path:
         return self.dir_path / f"{model_id}.json"
 
-    def __to_entity(self, filepath, by=None):
+    def __to_entity(self, filepath, by: Optional[str] = None, bys: Optional[List[str]] = None) -> Entity:
         with open(filepath, "r") as f:
-            d = f.read()
-        if by and by not in d:
-            return None
-        data = json.loads(d, cls=_CustomDecoder)
-        model = self.model.from_dict(data)  # type: ignore
-        return self._from_model(model)
+            file_content = f.read()
 
-    def __to_entity_by(self, filepath, by):
-        with open(filepath, "r") as f:
-            d = f.read()
-        if all(b and b not in d for b in by):
-            return None
-        data = json.loads(d, cls=_CustomDecoder)
+        if by:
+            return self.__model_to_entity(file_content) if by in file_content else None
+        elif bys:
+            return self.__model_to_entity(file_content) if any(b in file_content for b in bys) else None
+
+        return self.__model_to_entity(file_content)
+
+    def __model_to_entity(self, file_content):
+        data = json.loads(file_content, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
 
