@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union, Tuple
 
 from taipy.core.common._entity import _Entity
 from taipy.core.common._listattributes import _ListAttributes
@@ -21,6 +21,7 @@ from taipy.core.common._properties import _Properties
 from taipy.core.common._reload import _reload, _self_reload, _self_setter
 from taipy.core.common._validate_id import _validate_id
 from taipy.core.common.alias import PipelineId, ScenarioId
+from taipy.core.common._utils import Subscriber
 from taipy.core.config._config_template_handler import _ConfigTemplateHandler as _tpl
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.exceptions.exceptions import NonExistingPipeline
@@ -60,7 +61,7 @@ class Scenario(_Entity):
         creation_date=None,
         is_primary: bool = False,
         cycle: Cycle = None,
-        subscribers: List[Callable] = None,
+        subscribers: List[Subscriber] = None,
         tags: Set[str] = None,
     ):
         self.config_id = _validate_id(config_id)
@@ -183,8 +184,9 @@ class Scenario(_Entity):
                     return task.output[protected_attribute_name]
         raise AttributeError(f"{attribute_name} is not an attribute of scenario {self.id}")
 
-    def _add_subscriber(self, callback: Callable):
-        self._subscribers.append(callback)
+    def _add_subscriber(self, callback: Callable, params: Optional[List[str]] = None):
+        params = [] if params is None else params
+        self._subscribers.append(Subscriber(callable=callback, params=params))
 
     def _add_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
@@ -201,14 +203,18 @@ class Scenario(_Entity):
         return tag in self.tags
 
     def _remove_subscriber(self, callback: Callable):
-        self._subscribers.remove(callback)
+        self._subscribers = [x for x in self._subscribers if x.callable != callback]
 
     def _remove_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
         if self.has_tag(tag):
             self._tags.remove(tag)
 
-    def subscribe(self, callback: Callable[[Scenario, Job], None]):
+    def subscribe(
+        self,
+        callback: Callable[[Scenario, Job], None],
+        params: Optional[List[str]] = None,
+    ):
         """Subscribe a function to be called on `Job^` status change.
 
         The subscription is applied to all jobs created from the scenario's execution.
@@ -216,13 +222,14 @@ class Scenario(_Entity):
         Parameters:
             callback (Callable[[Scenario^, Job^], None]): The callable function to be called
                 on status change.
+            params (Optional[List[str]]): The parameters to be passed to the _callback_.
 
         Note:
             Notification will be available only for jobs created after this subscription.
         """
         import taipy.core as tp
 
-        return tp.subscribe_scenario(callback, self)
+        return tp.subscribe_scenario(callback, params, self)
 
     def unsubscribe(self, callback: Callable[[Scenario, Job], None]):
         """Unsubscribe a function that is called when the status of a `Job^` changes.
