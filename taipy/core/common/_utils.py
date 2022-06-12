@@ -34,7 +34,11 @@ def _fct_to_dict(obj):
     fct_name = _get_fct_name(obj.callable)
     if not fct_name:
         return None
-    return {"fct_name": fct_name, "fct_module": obj.__module__}
+    return {
+        "fct_name": fct_name,
+        "fct_params": obj.params,
+        "fct_module": obj.__module__,
+    }
 
 
 def _fcts_to_dict(objs):
