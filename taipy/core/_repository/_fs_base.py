@@ -138,12 +138,10 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
         try:
-            for f in self.dir_path.iterdir():
-                if config_id not in f.name:
-                    continue
-                if entity := self.__to_entity(f, by=parent_id):
-                    if entity.config_id == config_id and entity.parent_id == parent_id:  # type: ignore
-                        return entity
+            files = filter(lambda f: config_id in f.name, self.dir_path.iterdir())
+            entities = filter(None, (self.__to_entity(f, by=parent_id) for f in files))
+            corresponding_entities = filter(lambda e: e.config_id == config_id and e.parent_id == parent_id, entities)  # type: ignore
+            return next(corresponding_entities, None)
         except FileNotFoundError:
             pass
         return None
@@ -175,7 +173,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __get_model_filepath(self, model_id) -> pathlib.Path:
         return self.dir_path / f"{model_id}.json"
 
-    def __to_entity(self, filepath, by: Optional[str] = None, bys: Optional[List[str]] = None) -> Entity:
+    def __to_entity(self, filepath, by: Optional[str] = None, bys: Optional[Iterable[str]] = None) -> Entity:
         with open(filepath, "r") as f:
             file_content = f.read()
 
