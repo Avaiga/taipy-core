@@ -45,7 +45,7 @@ class _DataManager(_Manager[DataNode]):
         return cls._create_and_set(data_node_config, parent_id)
 
     @classmethod
-    def _get_or_creates(
+    def _bulk_get_or_create(
         cls,
         data_node_configs: Iterable[DataNodeConfig],
         scenario_id: Optional[ScenarioId] = None,

@@ -52,7 +52,7 @@ class _TaskManager(_Manager[Task]):
         pipeline_id: Optional[PipelineId] = None,
     ) -> Task:
         dn_configs = set(itertools.chain(task_config.input_configs, task_config.output_configs))
-        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(dn_configs, scenario_id, pipeline_id)
+        _data_nodes = _DataManagerFactory._build_manager()._bulk_get_or_create(dn_configs, scenario_id, pipeline_id)
         data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
         scope = min(dn.scope for dn in data_nodes.values()) if len(data_nodes) != 0 else Scope.GLOBAL
@@ -79,7 +79,9 @@ class _TaskManager(_Manager[Task]):
             data_node_configs.update(task_config.input_configs)
             data_node_configs.update(task_config.output_configs)
 
-        _data_nodes = _DataManagerFactory._build_manager()._get_or_creates(data_node_configs, scenario_id, pipeline_id)
+        _data_nodes = _DataManagerFactory._build_manager()._bulk_get_or_create(
+            data_node_configs, scenario_id, pipeline_id
+        )
         data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
         tasks_configs_and_parent_id = []
