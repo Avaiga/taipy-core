@@ -90,7 +90,7 @@ class Scenario(_Entity):
 
     @pipelines.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
-    def pipelines(self, pipelines: List[Union[PipelineId, Pipeline]]):
+    def pipelines(self, pipelines: Union[List[PipelineId], List[Pipeline]]):
         self._pipelines = pipelines
 
     @property  # type: ignore
