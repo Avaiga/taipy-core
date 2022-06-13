@@ -258,11 +258,12 @@ def test_blocked_task():
     lock_2 = m.Lock()
 
     foo_cfg = Config.configure_data_node("foo", default_data=1)
-    foo = _DataManager._get_or_create(foo_cfg)
     bar_cfg = Config.configure_data_node("bar")
-    bar = _DataManager._get_or_create(bar_cfg)
     baz_cfg = Config.configure_data_node("baz")
-    baz = _DataManager._get_or_create(baz_cfg)
+    _foo, _bar, _baz = _DataManager._bulk_get_or_create([foo_cfg, bar_cfg, baz_cfg])
+    foo = _foo[1]
+    bar = _bar[1]
+    baz = _baz[1]
     task_1 = Task("by_2", partial(lock_multiply, lock_1, 2), [foo], [bar])
     task_2 = Task("by_3", partial(lock_multiply, lock_2, 3), [bar], [baz])
 
@@ -431,18 +432,22 @@ def test_need_to_run_output_cacheable_with_validity_period_obsolete():
 # ################################  UTIL METHODS    ##################################
 
 
+def _create_dn(configs):
+    return [dn[1] for dn in _DataManager._bulk_get_or_create(configs)]
+
+
 def _create_task(function, nb_outputs=1):
     output_dn_config_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
-    input_dn = [
-        _DataManager._get_or_create(Config.configure_data_node("input1", "pickle", Scope.PIPELINE, default_data=21)),
-        _DataManager._get_or_create(Config.configure_data_node("input2", "pickle", Scope.PIPELINE, default_data=2)),
+    dn_input_configs = [
+        Config.configure_data_node("input1", "pickle", Scope.PIPELINE, default_data=21),
+        Config.configure_data_node("input2", "pickle", Scope.PIPELINE, default_data=2),
     ]
-    output_dn = [
-        _DataManager._get_or_create(
-            Config.configure_data_node(f"{output_dn_config_id}_output{i}", "pickle", Scope.PIPELINE, default_data=0)
-        )
+    dn_output_configs = [
+        Config.configure_data_node(f"{output_dn_config_id}_output{i}", "pickle", Scope.PIPELINE, default_data=0)
         for i in range(nb_outputs)
     ]
+    input_dn = _create_dn(dn_input_configs)
+    output_dn = _create_dn(dn_output_configs)
 
     return Task(
         output_dn_config_id,
