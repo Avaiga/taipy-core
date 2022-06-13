@@ -54,7 +54,7 @@ class Scenario(_Entity):
     def __init__(
         self,
         config_id: str,
-        pipelines: Union[List[PipelineId], List[Pipeline]]
+        pipelines: Union[List[PipelineId], List[Pipeline]],
         properties: Dict[str, Any],
         scenario_id: ScenarioId = None,
         creation_date=None,
