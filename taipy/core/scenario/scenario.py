@@ -186,7 +186,7 @@ class Scenario(_Entity):
 
     def _add_subscriber(self, callback: Callable, params: Optional[List[str]] = None):
         params = [] if params is None else params
-        self._subscribers.append(Subscriber(callable=callback, params=params))
+        self._subscribers.append(Subscriber(callback=callback, params=params))
 
     def _add_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
@@ -203,7 +203,9 @@ class Scenario(_Entity):
         return tag in self.tags
 
     def _remove_subscriber(self, callback: Callable):
-        self._subscribers = [x for x in self._subscribers if x.callable != callback]
+        elem = [x for x in self._subscribers if x.callback == callback]
+        if elem:
+            self._subscribers.remove(elem[0])
 
     def _remove_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
