@@ -169,4 +169,4 @@ def _create_task(function, nb_outputs=1, name=None):
         [input1_dn_config, input2_dn_config],
         output_dn_configs,
     )
-    return _TaskManager._get_or_create(task_config)
+    return _TaskManager._bulk_get_or_create([task_config])[0]

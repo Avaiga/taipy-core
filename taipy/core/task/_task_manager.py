@@ -45,29 +45,6 @@ class _TaskManager(_Manager[Task]):
         super()._set(task)
 
     @classmethod
-    def _get_or_create(
-        cls,
-        task_config: TaskConfig,
-        scenario_id: Optional[ScenarioId] = None,
-        pipeline_id: Optional[PipelineId] = None,
-    ) -> Task:
-        dn_configs = set(itertools.chain(task_config.input_configs, task_config.output_configs))
-        _data_nodes = _DataManagerFactory._build_manager()._bulk_get_or_create(dn_configs, scenario_id, pipeline_id)
-        data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
-
-        scope = min(dn.scope for dn in data_nodes.values()) if len(data_nodes) != 0 else Scope.GLOBAL
-        parent_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
-
-        if tasks_from_parent := cls._repository._get_by_config_and_parent_id(task_config.id, parent_id):
-            return tasks_from_parent
-
-        inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
-        outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
-        task = Task(task_config.id, task_config.function, inputs, outputs, parent_id=parent_id)
-        cls._set(task)
-        return task
-
-    @classmethod
     def _bulk_get_or_create(
         cls,
         task_configs: List[TaskConfig],
