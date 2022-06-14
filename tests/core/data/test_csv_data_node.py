@@ -15,12 +15,12 @@ import pathlib
 import numpy as np
 import pandas as pd
 import pytest
+
 from taipy.core.common.alias import DataNodeId
 from taipy.core.common.scope import Scope
+from taipy.core.config.config import Config
 from taipy.core.data._data_manager import _DataManager
 from taipy.core.data.csv import CSVDataNode
-
-from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import InvalidConfigurationId, MissingRequiredProperty, NoData
 
 
@@ -45,7 +45,7 @@ class TestCSVDataNode:
         assert dn.last_edition_date is None
         assert dn.job_ids == []
         assert not dn.is_ready_for_reading
-        assert dn._path == path
+        assert dn.path == path
         assert dn.has_header is False
 
         with pytest.raises(InvalidConfigurationId):
