@@ -68,7 +68,7 @@ class _TaskManager(_Manager[Task]):
         return task
 
     @classmethod
-    def _get_or_creates(
+    def _bulk_get_or_create(
         cls,
         task_configs: List[TaskConfig],
         scenario_id: Optional[ScenarioId] = None,

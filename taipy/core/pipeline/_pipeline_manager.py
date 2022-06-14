@@ -65,7 +65,7 @@ class _PipelineManager(_Manager[Pipeline]):
         pipeline_id = Pipeline._new_id(pipeline_config.id)
 
         task_manager = _TaskManagerFactory._build_manager()
-        tasks = task_manager._get_or_creates(pipeline_config.task_configs, scenario_id, pipeline_id)
+        tasks = task_manager._bulk_get_or_create(pipeline_config.task_configs, scenario_id, pipeline_id)
 
         scope = min(task.scope for task in tasks) if len(tasks) != 0 else Scope.GLOBAL
         parent_id = scenario_id if scope == Scope.SCENARIO else pipeline_id if scope == Scope.PIPELINE else None
