@@ -31,13 +31,13 @@ def _get_fct_name(f) -> Optional[str]:
 
 
 def _fct_to_dict(obj):
-    fct_name = _get_fct_name(obj.callable)
+    fct_name = _get_fct_name(obj.callback)
     if not fct_name:
         return None
     return {
         "fct_name": fct_name,
         "fct_params": obj.params,
-        "fct_module": obj.__module__,
+        "fct_module": obj.callback.__module__,
     }
 
 
@@ -45,4 +45,4 @@ def _fcts_to_dict(objs):
     return [d for obj in objs if (d := _fct_to_dict(obj)) is not None]
 
 
-Subscriber = namedtuple("Subscriber", "callable params")
+Subscriber = namedtuple("Subscriber", "callback params")
