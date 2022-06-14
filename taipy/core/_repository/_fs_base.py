@@ -146,25 +146,24 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
             pass
         return None
 
-    def _get_by_configs_and_parent_ids(self, config_ids_and_parent_ids):
+    def _get_by_configs_and_parent_ids(self, configs_and_parent_ids):
         res = {}
-        counter = len(config_ids_and_parent_ids)
+        configs_and_parent_ids = set(configs_and_parent_ids)
+
         try:
             for f in self.dir_path.iterdir():
-                filename = f.name
-                match = [(c, p) for c, p in config_ids_and_parent_ids if c.id in filename]
-                if not match:
-                    continue
-                if entity := self.__to_entity(f, bys=[p for c, p in match if p is not None]):
-                    for c, p in match:
-                        if entity.config_id == c.id and entity.parent_id == p:
-                            res[(c, p)] = entity
-                            counter -= 1
-                            if counter == 0:
-                                return res
-                            break
+                config_id, parent_id, entity = self.__get_entity_from(configs_and_parent_ids, f)
+
+                if entity:
+                    key = config_id, parent_id
+                    res[key] = entity
+                    configs_and_parent_ids.remove(key)
+
+                    if len(configs_and_parent_ids) == 0:
+                        return res
         except FileNotFoundError:
             pass
+
         return res
 
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
@@ -173,14 +172,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __get_model_filepath(self, model_id) -> pathlib.Path:
         return self.dir_path / f"{model_id}.json"
 
-    def __to_entity(self, filepath, by: Optional[str] = None, bys: Optional[Iterable[str]] = None) -> Entity:
+    def __to_entity(self, filepath, by: Optional[str] = None) -> Entity:
         with open(filepath, "r") as f:
             file_content = f.read()
 
         if by:
             return self.__model_to_entity(file_content) if by in file_content else None
-        elif bys:
-            return self.__model_to_entity(file_content) if any(b in file_content for b in bys) else None
 
         return self.__model_to_entity(file_content)
 
@@ -191,3 +188,28 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def __create_directory_if_not_exists(self):
         self.dir_path.mkdir(parents=True, exist_ok=True)
+
+    def __get_entity_from(self, config_and_parent_ids, filepath):
+        filename = filepath.name
+
+        if match := [(c, p) for c, p in config_and_parent_ids if c.id in filename]:
+            config_id, parent_id, entity = self.__to_entity_from(filepath, match)
+
+            if entity:
+                return config_id, parent_id, entity
+
+        return None, None, None
+
+    def __to_entity_from(self, filepath, config_and_parent_ids):
+        with open(filepath, "r") as f:
+            file_content = f.read()
+
+        for config_id, parent_id in config_and_parent_ids:
+            if parent_id and parent_id not in file_content:
+                continue
+
+            entity = self.__model_to_entity(file_content)
+            if entity.parent_id == parent_id and entity.config_id == config_id.id:
+                return config_id, parent_id, entity
+
+        return None, None, None
