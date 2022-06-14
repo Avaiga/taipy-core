@@ -14,10 +14,10 @@ from datetime import datetime
 from unittest import mock
 
 import pytest
-from taipy.core.config._config import _Config
-from taipy.core.data._data_manager import _DataManager
 
+from taipy.core.config._config import _Config
 from taipy.core.config.config import Config
+from taipy.core.data._data_manager import _DataManager
 from taipy.core.exceptions.exceptions import ConfigurationIssueError
 
 
@@ -133,3 +133,12 @@ def test_data_node_with_env_variable_in_read_fct_params():
             "data_node", storage_type="generic", read_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"]
         )
         assert Config.data_nodes["data_node"].read_fct_params == ["bar", "my_param", "qux"]
+
+
+def test_config_data_node_default_path():
+    dn_config = Config.configure_data_node("data_node", "pickle", default_path="foo.p")
+    assert dn_config.default_path == "foo.p"
+    dn = _DataManager._get_or_create(dn_config)
+    assert dn.path == "foo.p"
+    dn.path = "baz.p"
+    assert dn.path == "baz.p"
