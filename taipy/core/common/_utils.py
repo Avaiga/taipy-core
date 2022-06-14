@@ -31,13 +31,20 @@ def _get_fct_name(f) -> Optional[str]:
 
 
 def _fct_to_dict(obj):
-    fct_name = _get_fct_name(obj.callback)
+    params = []
+    callback = obj
+
+    if isinstance(obj, Subscriber):
+        callback = obj.callback
+        params = obj.params
+
+    fct_name = _get_fct_name(callback)
     if not fct_name:
         return None
     return {
         "fct_name": fct_name,
-        "fct_params": obj.params,
-        "fct_module": obj.callback.__module__,
+        "fct_params": params,
+        "fct_module": callback.__module__,
     }
 
 

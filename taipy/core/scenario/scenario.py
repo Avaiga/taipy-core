@@ -204,8 +204,9 @@ class Scenario(_Entity):
 
     def _remove_subscriber(self, callback: Callable):
         elem = [x for x in self._subscribers if x.callback == callback]
-        if elem:
-            self._subscribers.remove(elem[0])
+        if not elem:
+            raise ValueError
+        self._subscribers.remove(elem[0])
 
     def _remove_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
