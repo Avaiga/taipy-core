@@ -13,14 +13,7 @@ from datetime import datetime
 from typing import Callable, Dict, List, Optional, Union
 
 from taipy.core.common._taipy_logger import _TaipyLogger
-from taipy.core.common.alias import (
-    CycleId,
-    DataNodeId,
-    JobId,
-    PipelineId,
-    ScenarioId,
-    TaskId,
-)
+from taipy.core.common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
 from taipy.core.config.config import Config
 from taipy.core.config.pipeline_config import PipelineConfig
 from taipy.core.config.scenario_config import ScenarioConfig
@@ -118,9 +111,7 @@ def get_tasks() -> List[Task]:
     return _TaskManagerFactory._build_manager()._get_all()
 
 
-def delete(
-    entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]
-):
+def delete(entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]):
     """Delete an entity and its nested entities.
 
     The given entity is deleted. The deletion is propagated to all nested entities that are
@@ -143,13 +134,9 @@ def delete(
     if entity_id.startswith(Cycle._ID_PREFIX):
         return _CycleManagerFactory._build_manager()._hard_delete(CycleId(entity_id))
     if entity_id.startswith(Scenario._ID_PREFIX):
-        return _ScenarioManagerFactory._build_manager()._hard_delete(
-            ScenarioId(entity_id)
-        )
+        return _ScenarioManagerFactory._build_manager()._hard_delete(ScenarioId(entity_id))
     if entity_id.startswith(Pipeline._ID_PREFIX):
-        return _PipelineManagerFactory._build_manager()._hard_delete(
-            PipelineId(entity_id)
-        )
+        return _PipelineManagerFactory._build_manager()._hard_delete(PipelineId(entity_id))
     if entity_id.startswith(Task._ID_PREFIX):
         return _TaskManagerFactory._build_manager()._hard_delete(TaskId(entity_id))
     if entity_id.startswith(DataNode._ID_PREFIX):
@@ -157,9 +144,7 @@ def delete(
     raise ModelNotFound("NOT_DETERMINED", entity_id)
 
 
-def get_scenarios(
-    cycle: Optional[Cycle] = None, tag: Optional[str] = None
-) -> List[Scenario]:
+def get_scenarios(cycle: Optional[Cycle] = None, tag: Optional[str] = None) -> List[Scenario]:
     """Return the list of all existing scenarios filtered by a cycle or a tag.
 
     If both _cycle_ and _tag_ are provided, the returned list contains scenarios
@@ -178,9 +163,7 @@ def get_scenarios(
     if not cycle and tag:
         return _ScenarioManagerFactory._build_manager()._get_all_by_tag(tag)
     if cycle and tag:
-        cycles_scenarios = _ScenarioManagerFactory._build_manager()()._get_all_by_cycle(
-            cycle
-        )
+        cycles_scenarios = _ScenarioManagerFactory._build_manager()()._get_all_by_cycle(cycle)
         return [scenario for scenario in cycles_scenarios if scenario.has_tag(tag)]
     return []
 
@@ -263,9 +246,7 @@ def compare_scenarios(*scenarios: Scenario, data_node_config_id: Optional[str] =
         NonExistingScenarioConfig^: The scenario config of the provided scenarios could not
             be found.
     """
-    return _ScenarioManagerFactory._build_manager()._compare(
-        *scenarios, data_node_config_id=data_node_config_id
-    )
+    return _ScenarioManagerFactory._build_manager()._compare(*scenarios, data_node_config_id=data_node_config_id)
 
 
 def subscribe_scenario(
@@ -288,14 +269,10 @@ def subscribe_scenario(
         Notifications are applied only for jobs created **after** this subscription.
     """
     params = [] if params is None else params
-    return _ScenarioManagerFactory._build_manager()._subscribe(
-        callback, params, scenario
-    )
+    return _ScenarioManagerFactory._build_manager()._subscribe(callback, params, scenario)
 
 
-def unsubscribe_scenario(
-    callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None
-):
+def unsubscribe_scenario(callback: Callable[[Scenario, Job], None], scenario: Optional[Scenario] = None):
     """Unsubscribe a function that is called when the status of a `Job^` changes.
 
     If _scenario_ is not provided, the subscription is removed for all scenarios.
@@ -311,7 +288,7 @@ def unsubscribe_scenario(
 
 
 def subscribe_pipeline(
-    callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None
+    callback: Callable[[Pipeline, Job], None], params: Optional[List[str]] = None, pipeline: Optional[Pipeline] = None
 ):
     """Subscribe a function to be called on job status change.
 
@@ -320,17 +297,16 @@ def subscribe_pipeline(
     Parameters:
         callback (Callable[[Pipeline^, Job^], None]): The callable function to be called on
             status change.
+        params (Optional[List[str]]): The parameters to be passed to the _callback_.
         pipeline (Optional[Pipeline^]): The pipeline to subscribe on. If None, the subscription
             is actived for all pipelines.
     Note:
         Notifications are applied only for jobs created **after** this subscription.
     """
-    return _PipelineManagerFactory._build_manager()._subscribe(callback, pipeline)
+    return _PipelineManagerFactory._build_manager()._subscribe(callback, params, pipeline)
 
 
-def unsubscribe_pipeline(
-    callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None
-):
+def unsubscribe_pipeline(callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
     """Unsubscribe a function that is called when the status of a Job changes.
 
     Parameters:
@@ -452,9 +428,7 @@ def clean_all_entities() -> bool:
         bool: True if the operation succeeded, False otherwise.
     """
     if not Config.global_config.clean_entities_enabled:
-        __logger.warning(
-            "Please set 'clean_entities_enabled' to True to clean all entities."
-        )
+        __logger.warning("Please set 'clean_entities_enabled' to True to clean all entities.")
         return False
 
     _DataManagerFactory._build_manager()._delete_all()

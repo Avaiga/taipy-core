@@ -161,10 +161,10 @@ class TestTaipy:
     def test_subscribe_pipeline(self, pipeline):
         with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._subscribe") as mck:
             tp.subscribe_pipeline(print)
-            mck.assert_called_once_with(print, None)
+            mck.assert_called_once_with(print, None, None)
         with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._subscribe") as mck:
             tp.subscribe_pipeline(print, pipeline=pipeline)
-            mck.assert_called_once_with(print, pipeline)
+            mck.assert_called_once_with(print, None, pipeline)
 
     def test_unsubscribe_pipeline(self, pipeline):
         with mock.patch("taipy.core.pipeline._pipeline_manager._PipelineManager._unsubscribe") as mck:
