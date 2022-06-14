@@ -285,7 +285,7 @@ class TestDataManager:
 
     def test_get_or_create(self):
         def _get_or_create_dn(config, *args):
-            return _DataManager._bulk_get_or_create([config], *args)[0][1]
+            return _DataManager._bulk_get_or_create([config], *args)[config]
 
         _DataManager._delete_all()
 
@@ -368,17 +368,19 @@ class TestDataManager:
         dm._delete_all()
 
     def test_clean_generated_pickle_files(self, pickle_file_path):
+        user_pickle_dn_config = Config.configure_data_node(
+            id="d1", storage_type="pickle", path=pickle_file_path, default_data="d"
+        )
+        generated_pickle_dn_1_config = Config.configure_data_node(id="d2", storage_type="pickle", default_data="d")
+        generated_pickle_dn_2_config = Config.configure_data_node(id="d3", storage_type="pickle", default_data="d")
+
         dns = _DataManager._bulk_get_or_create(
-            [
-                Config.configure_data_node(id="d1", storage_type="pickle", path=pickle_file_path, default_data="d"),
-                Config.configure_data_node(id="d2", storage_type="pickle", default_data="d"),
-                Config.configure_data_node(id="d3", storage_type="pickle", default_data="d"),
-            ]
+            [user_pickle_dn_config, generated_pickle_dn_1_config, generated_pickle_dn_2_config]
         )
 
-        user_pickle_dn = dns[0][1]
-        generated_pickle_dn_1 = dns[1][1]
-        generated_pickle_dn_2 = dns[2][1]
+        user_pickle_dn = dns[user_pickle_dn_config]
+        generated_pickle_dn_1 = dns[generated_pickle_dn_1_config]
+        generated_pickle_dn_2 = dns[generated_pickle_dn_2_config]
 
         _DataManager._clean_pickle_file(user_pickle_dn.id)
         assert file_exists(user_pickle_dn.path)
@@ -404,10 +406,10 @@ class TestDataManager:
             ]
         )
 
-        user_pickle_dn = dns[0][1]
-        generated_pickle_dn_1 = dns[1][1]
-        generated_pickle_dn_2 = dns[2][1]
-        generated_pickle_dn_3 = dns[3][1]
+        user_pickle_dn = dns[user_pickle_dn_config]
+        generated_pickle_dn_1 = dns[generated_pickle_dn_config_1]
+        generated_pickle_dn_2 = dns[generated_pickle_dn_config_2]
+        generated_pickle_dn_3 = dns[generated_pickle_dn_config_3]
 
         _DataManager._delete(user_pickle_dn.id)
         assert file_exists(user_pickle_dn.path)

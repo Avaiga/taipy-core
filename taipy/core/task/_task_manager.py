@@ -56,10 +56,9 @@ class _TaskManager(_Manager[Task]):
             data_node_configs.update(task_config.input_configs)
             data_node_configs.update(task_config.output_configs)
 
-        _data_nodes = _DataManagerFactory._build_manager()._bulk_get_or_create(
+        data_nodes = _DataManagerFactory._build_manager()._bulk_get_or_create(
             data_node_configs, scenario_id, pipeline_id
         )
-        data_nodes = {dn_config: dn for dn_config, dn in _data_nodes}
 
         tasks_configs_and_parent_id = []
         for task_config in task_configs:

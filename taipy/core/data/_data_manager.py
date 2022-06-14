@@ -11,7 +11,7 @@
 
 import os
 from collections import defaultdict
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 from taipy.core._manager._manager import _Manager
 from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
@@ -35,7 +35,7 @@ class _DataManager(_Manager[DataNode]):
         data_node_configs: Iterable[DataNodeConfig],
         scenario_id: Optional[ScenarioId] = None,
         pipeline_id: Optional[PipelineId] = None,
-    ) -> List[Tuple[DataNodeConfig, DataNode]]:
+    ) -> Dict[DataNodeConfig, DataNode]:
         dn_configs_and_parent_id = []
 
         for dn in data_node_configs:
@@ -45,11 +45,10 @@ class _DataManager(_Manager[DataNode]):
 
         data_nodes = cls._repository._get_by_configs_and_parent_ids(dn_configs_and_parent_id)
 
-        res = []
-        for dn_config, parent_id in dn_configs_and_parent_id:
-            dn = data_nodes.get((dn_config, parent_id))
-            res.append((dn_config, dn) if dn else (dn_config, cls._create_and_set(dn_config, parent_id)))
-        return res  # type: ignore
+        return {
+            dn_config: data_nodes.get((dn_config, parent_id)) or cls._create_and_set(dn_config, parent_id)
+            for dn_config, parent_id in dn_configs_and_parent_id
+        }
 
     @classmethod
     def _create_and_set(cls, data_node_config: DataNodeConfig, parent_id: Optional[str]) -> DataNode:

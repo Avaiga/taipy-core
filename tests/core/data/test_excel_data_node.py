@@ -57,10 +57,10 @@ class TestExcelDataNode:
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
         ready_dn_cfg = Config.configure_data_node("ready_data_node_config_id", "excel", path=path)
 
-        not_ready_dn, ready_dn = _DataManager._bulk_get_or_create([not_ready_dn_cfg, ready_dn_cfg])
+        dns = _DataManager._bulk_get_or_create([not_ready_dn_cfg, ready_dn_cfg])
 
-        assert not not_ready_dn[1].is_ready_for_reading
-        assert ready_dn[1].is_ready_for_reading
+        assert not dns[not_ready_dn_cfg].is_ready_for_reading
+        assert dns[ready_dn_cfg].is_ready_for_reading
 
     def test_create(self):
         path = "data/node/path"

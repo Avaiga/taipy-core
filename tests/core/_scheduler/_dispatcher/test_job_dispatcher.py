@@ -55,7 +55,7 @@ def test_can_execute_2_workers():
     lock = m.Lock()
 
     task_id = TaskId("task_id1")
-    output = [_DataManager._bulk_get_or_create([Config.configure_data_node("input1", default_data=21)])[0][1]]
+    output = list(_DataManager._bulk_get_or_create([Config.configure_data_node("input1", default_data=21)]).values())
     task = Task(
         config_id="name",
         input=[],
