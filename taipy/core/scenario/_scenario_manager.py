@@ -13,12 +13,16 @@ import datetime
 from functools import partial
 from typing import Callable, List, Optional, Union
 
-from taipy.core._manager._manager import _Manager
 from taipy.core.common._entity_ids import _EntityIds
 from taipy.core.common.alias import ScenarioId
-from taipy.core.config.config import Config
 from taipy.core.config.scenario_config import ScenarioConfig
 from taipy.core.cycle._cycle_manager_factory import _CycleManagerFactory
+from taipy.core.job._job_manager_factory import _JobManagerFactory
+from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from taipy.core.scenario._scenario_repository import _ScenarioRepository
+
+from taipy.core._manager._manager import _Manager
+from taipy.core.config.config import Config
 from taipy.core.cycle.cycle import Cycle
 from taipy.core.exceptions.exceptions import (
     DeletingPrimaryScenario,
@@ -30,10 +34,7 @@ from taipy.core.exceptions.exceptions import (
     NonExistingScenarioConfig,
     UnauthorizedTagError,
 )
-from taipy.core.job._job_manager_factory import _JobManagerFactory
 from taipy.core.job.job import Job
-from taipy.core.pipeline._pipeline_manager_factory import _PipelineManagerFactory
-from taipy.core.scenario._scenario_repository import _ScenarioRepository
 from taipy.core.scenario.scenario import Scenario
 
 
@@ -96,7 +97,7 @@ class _ScenarioManager(_Manager[Scenario]):
             props["name"] = name
         scenario = Scenario(
             config.id,
-            pipelines,
+            pipelines,  # type: ignore
             props,
             scenario_id,
             creation_date,
@@ -238,10 +239,10 @@ class _ScenarioManager(_Manager[Scenario]):
     def _get_owned_entity_ids(cls, scenario: Scenario) -> _EntityIds:
         entity_ids = _EntityIds()
 
-        for pipeline in scenario._pipelines.values():
+        for pipeline in scenario.pipelines.values():
             if pipeline.parent_id in (pipeline.id, scenario.id):
                 entity_ids.pipeline_ids.add(pipeline.id)
-            for task in pipeline._tasks.values():
+            for task in pipeline.tasks.values():
                 if task.parent_id in (pipeline.id, scenario.id):
                     entity_ids.task_ids.add(task.id)
                 for data_node in task.data_nodes.values():

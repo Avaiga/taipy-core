@@ -13,11 +13,13 @@ import json
 import os
 import pathlib
 import shutil
+import time
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
+from taipy.core.config.config import Config
 from taipy.core.exceptions.exceptions import ModelNotFound
 
 ModelType = TypeVar("ModelType")
@@ -92,13 +94,13 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
     def load(self, model_id: str) -> Entity:
         try:
-            return self.__to_entity(self.__get_model_filepath(model_id))
+            return self.__to_entity(self.__get_model_filepath(model_id), Config.global_config.read_entity_retry or 0)  # type: ignore
         except FileNotFoundError:
             raise ModelNotFound(str(self.dir_path), model_id)
 
     def _load_all(self) -> List[Entity]:
         try:
-            return [self.__to_entity(f) for f in self.dir_path.iterdir()]
+            return [self.__to_entity(f, Config.global_config.read_entity_retry or 0) for f in self.dir_path.iterdir()]  # type: ignore
         except FileNotFoundError:
             return []
 
@@ -139,7 +141,10 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
         try:
             files = filter(lambda f: config_id in f.name, self.dir_path.iterdir())
-            entities = filter(None, (self.__to_entity(f, by=parent_id) for f in files))
+            entities = filter(
+                None,
+                (self.__to_entity(f, by=parent_id, retry=Config.global_config.read_entity_retry or 0) for f in files),
+            )
             corresponding_entities = filter(lambda e: e.config_id == config_id and e.parent_id == parent_id, entities)  # type: ignore
             return next(corresponding_entities, None)
         except FileNotFoundError:
@@ -175,14 +180,20 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __get_model_filepath(self, model_id) -> pathlib.Path:
         return self.dir_path / f"{model_id}.json"
 
-    def __to_entity(self, filepath, by: Optional[str] = None) -> Entity:
-        with open(filepath, "r") as f:
-            file_content = f.read()
+    def __to_entity(self, filepath, by: Optional[str] = None, retry: Optional[int] = 0) -> Entity:
+        try:
+            with open(filepath, "r") as f:
+                file_content = f.read()
 
-        if by:
-            return self.__model_to_entity(file_content) if by in file_content else None
+            if by:
+                return self.__model_to_entity(file_content) if by in file_content else None
 
-        return self.__model_to_entity(file_content)
+            return self.__model_to_entity(file_content)
+        except Exception as e:
+            if retry and retry > 0:
+                time.sleep(0.5)
+                return self.__to_entity(filepath, retry=retry - 1)
+            raise e
 
     def __model_to_entity(self, file_content):
         data = json.loads(file_content, cls=_CustomDecoder)
