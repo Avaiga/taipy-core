@@ -173,7 +173,7 @@ def test_auto_set_and_reload(cycle, current_datetime, pipeline):
     assert len(scenario_1.subscribers) == 1
     assert len(scenario_2.subscribers) == 1
 
-    scenario_1.subscribers + [Subscriber(print, [])] + [Subscriber(len, [])]
+    scenario_1.subscribers + print + len
     assert len(scenario_1.subscribers) == 3
     assert len(scenario_2.subscribers) == 3
 
