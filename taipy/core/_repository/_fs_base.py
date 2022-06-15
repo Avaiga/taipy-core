@@ -160,7 +160,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
 
         try:
             for f in self.dir_path.iterdir():
-                config_id, parent_id, entity = self.__match_file_and_get_entity(f, configs_and_parent_ids)
+                config_id, parent_id, entity = self.__match_file_and_get_entity(f, configs_and_parent_ids, retry=Config.global_config.read_entity_retry or 0)
 
                 if entity:
                     key = config_id, parent_id
@@ -204,7 +204,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __create_directory_if_not_exists(self):
         self.dir_path.mkdir(parents=True, exist_ok=True)
 
-    def __match_file_and_get_entity(self, filepath, config_and_parent_ids, read_entity_retry=None):
+    def __match_file_and_get_entity(self, filepath, config_and_parent_ids, retry: Optional[int] = 0):
         filename = filepath.name
 
         if match := [(c, p) for c, p in config_and_parent_ids if c.id in filename]:
@@ -220,10 +220,9 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
                     if entity.parent_id == parent_id and entity.config_id == config_id.id:
                         return config_id, parent_id, entity
             except Exception as e:
-                read_entity_retry = (
-                    Config.global_config.read_entity_retry or 0 if read_entity_retry is None else read_entity_retry
-                )
-                if read_entity_retry == 0:
-                    raise e
-                return self.__match_file_and_get_entity(filepath, config_and_parent_ids, read_entity_retry - 1)
+                 if retry and retry > 0:
+                     return self.__match_file_and_get_entity(filepath, config_and_parent_ids, 
+                                                             retry=retry - 1)
+                 raise e
+                
         return None, None, None
