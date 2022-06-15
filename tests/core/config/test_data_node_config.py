@@ -138,7 +138,7 @@ def test_data_node_with_env_variable_in_read_fct_params():
 def test_config_data_node_default_path():
     dn_config = Config.configure_data_node("data_node", "pickle", default_path="foo.p")
     assert dn_config.default_path == "foo.p"
-    dn = _DataManager._get_or_create(dn_config)
+    dn = _DataManager._bulk_get_or_create([dn_config])[dn_config]
     assert dn.path == "foo.p"
     dn.path = "baz.p"
     assert dn.path == "baz.p"
@@ -148,5 +148,5 @@ def test_config_data_node_path_deprecated():
     with pytest.warns(DeprecationWarning):
         dn_config = Config.configure_data_node("data_node", "pickle", path="foo.p")
         assert dn_config.path == "foo.p"
-        dn = _DataManager._get_or_create(dn_config)
+        dn = _DataManager._bulk_get_or_create([dn_config])[dn_config]
         assert dn.path == "foo.p"
