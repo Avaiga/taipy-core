@@ -141,11 +141,12 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
         try:
             files = filter(lambda f: config_id in f.name, self.dir_path.iterdir())
-            entities = filter(
-                None,
-                (self.__to_entity(f, by=parent_id, retry=Config.global_config.read_entity_retry or 0) for f in files),
+            entities = map(
+                lambda f: self.__to_entity(f, by=parent_id, retry=Config.global_config.read_entity_retry or 0), files
             )
-            corresponding_entities = filter(lambda e: e.config_id == config_id and e.parent_id == parent_id, entities)  # type: ignore
+            corresponding_entities = filter(
+                lambda e: e is not None and e.config_id == config_id and e.parent_id == parent_id, entities  # type: ignore
+            )
             return next(corresponding_entities, None)
         except FileNotFoundError:
             pass
