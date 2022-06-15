@@ -52,13 +52,11 @@ class Pipeline(_Entity):
         pipeline_id: PipelineId = None,
         parent_id: Optional[str] = None,
         subscribers: List[Callable] = None,
-        is_consistent=None
     ):
         self.config_id = _validate_id(config_id)
         self.id: PipelineId = pipeline_id or self._new_id(self.config_id)
         self.parent_id = parent_id
         self._tasks = {task.config_id: task for task in tasks}
-        self.is_consistent = is_consistent or self.__is_consistent()
 
         self._subscribers = _ListAttributes(self, subscribers or list())
         self._properties = _Properties(self, **properties)
@@ -117,7 +115,7 @@ class Pipeline(_Entity):
                 return task.output[protected_attribute_name]
         raise AttributeError(f"{attribute_name} is not an attribute of pipeline {self.id}")
 
-    def __is_consistent(self) -> bool:
+    def _is_consistent(self) -> bool:
         dag = self.__build_dag()
         if not nx.is_directed_acyclic_graph(dag):
             return False
