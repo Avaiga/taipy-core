@@ -193,7 +193,7 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         except Exception as e:
             if retry and retry > 0:
                 time.sleep(0.5)
-                return self.__to_entity(filepath, retry=retry - 1)
+                return self.__to_entity(filepath, by=by, retry=retry - 1)
             raise e
 
     def __model_to_entity(self, file_content):
@@ -204,19 +204,26 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __create_directory_if_not_exists(self):
         self.dir_path.mkdir(parents=True, exist_ok=True)
 
-    def __match_file_and_get_entity(self, filepath, config_and_parent_ids):
+    def __match_file_and_get_entity(self, filepath, config_and_parent_ids, read_entity_retry=None):
         filename = filepath.name
 
         if match := [(c, p) for c, p in config_and_parent_ids if c.id in filename]:
-            with open(filepath, "r") as f:
-                file_content = f.read()
+            try:
+                with open(filepath, "r") as f:
+                    file_content = f.read()
 
-            for config_id, parent_id in match:
-                if parent_id and parent_id not in file_content:
-                    continue
+                for config_id, parent_id in match:
+                    if parent_id and parent_id not in file_content:
+                        continue
 
-                entity = self.__model_to_entity(file_content)
-                if entity.parent_id == parent_id and entity.config_id == config_id.id:
-                    return config_id, parent_id, entity
-
+                    entity = self.__model_to_entity(file_content)
+                    if entity.parent_id == parent_id and entity.config_id == config_id.id:
+                        return config_id, parent_id, entity
+            except Exception as e:
+                read_entity_retry = (
+                    Config.global_config.read_entity_retry or 0 if read_entity_retry is None else read_entity_retry
+                )
+                if read_entity_retry == 0:
+                    raise e
+                return self.__match_file_and_get_entity(filepath, config_and_parent_ids, read_entity_retry - 1)
         return None, None, None
