@@ -12,16 +12,16 @@
 import time
 from datetime import datetime
 
-from config import *
-
 import taipy as tp
+from config import *
 
 if __name__ == "__main__":
     nb_scenario_to_create = 30
-    print(f'init: {len(tp.get_scenarios())}')
-    for i in range(0, nb_scenario_to_create):
+    init = len(tp.get_scenarios())
+    print(f"init: {init}")
+    for i in range(1, nb_scenario_to_create + 1):
         name = f"sc_{i}"
         start = time.perf_counter()
-        scenario = tp.create_scenario(config=scenario_cfg, name=name, creation_date=datetime.now())
+        scenario = tp.create_scenario(config=scenario_cfg, name=name, creation_date=datetime.now())  # type: ignore
         stop = time.perf_counter()
-        print(f"scenario {i}/{nb_scenario_to_create} created in {stop - start}.")
+        print(f"scenario {i+init}/{nb_scenario_to_create+init} created in {stop - start}.")
