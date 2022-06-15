@@ -11,7 +11,7 @@
 
 import os
 from collections import defaultdict
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
 
 from taipy.core._manager._manager import _Manager
 from taipy.core.common.alias import DataNodeId, PipelineId, ScenarioId
@@ -32,16 +32,16 @@ class _DataManager(_Manager[DataNode]):
     @classmethod
     def _bulk_get_or_create(
         cls,
-        data_node_configs: Iterable[DataNodeConfig],
+        data_node_configs: Set[DataNodeConfig],
         scenario_id: Optional[ScenarioId] = None,
         pipeline_id: Optional[PipelineId] = None,
     ) -> Dict[DataNodeConfig, DataNode]:
         dn_configs_and_parent_id = []
 
-        for dn in data_node_configs:
-            scope = dn.scope
+        for dn_config in data_node_configs:
+            scope = dn_config.scope
             parent_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
-            dn_configs_and_parent_id.append((dn, parent_id))
+            dn_configs_and_parent_id.append((dn_config, parent_id))
 
         data_nodes = cls._repository._get_by_configs_and_parent_ids(dn_configs_and_parent_id)
 

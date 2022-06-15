@@ -70,11 +70,11 @@ class _TaskManager(_Manager[Task]):
 
             tasks_configs_and_parent_id.append((task_config, parent_id))
 
-        task_config_and_tasks = cls._repository._get_by_configs_and_parent_ids(tasks_configs_and_parent_id)
+        tasks_by_config = cls._repository._get_by_configs_and_parent_ids(tasks_configs_and_parent_id)
 
         tasks = []
         for task_config, parent_id in tasks_configs_and_parent_id:
-            if task := task_config_and_tasks.get((task_config, parent_id)):
+            if task := tasks_by_config.get((task_config, parent_id)):
                 tasks.append(task)
             else:
                 inputs = [data_nodes[input_config] for input_config in task_config.input_configs]

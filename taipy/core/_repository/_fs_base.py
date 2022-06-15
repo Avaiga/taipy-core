@@ -147,12 +147,14 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
         return None
 
     def _get_by_configs_and_parent_ids(self, configs_and_parent_ids):
+        # Design in order to optimize performance on Entity creation.
+        # Maintainability and readability were impacted.
         res = {}
         configs_and_parent_ids = set(configs_and_parent_ids)
 
         try:
             for f in self.dir_path.iterdir():
-                config_id, parent_id, entity = self.__get_entity_from(configs_and_parent_ids, f)
+                config_id, parent_id, entity = self.__match_file_and_get_entity(f, configs_and_parent_ids)
 
                 if entity:
                     key = config_id, parent_id
@@ -162,7 +164,8 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
                     if len(configs_and_parent_ids) == 0:
                         return res
         except FileNotFoundError:
-            pass
+            # Folder with data was not created yet.
+            return {}
 
         return res
 
@@ -189,27 +192,19 @@ class _FileSystemRepository(Generic[ModelType, Entity]):
     def __create_directory_if_not_exists(self):
         self.dir_path.mkdir(parents=True, exist_ok=True)
 
-    def __get_entity_from(self, config_and_parent_ids, filepath):
+    def __match_file_and_get_entity(self, filepath, config_and_parent_ids):
         filename = filepath.name
 
         if match := [(c, p) for c, p in config_and_parent_ids if c.id in filename]:
-            config_id, parent_id, entity = self.__to_entity_from(filepath, match)
+            with open(filepath, "r") as f:
+                file_content = f.read()
 
-            if entity:
-                return config_id, parent_id, entity
+            for config_id, parent_id in match:
+                if parent_id and parent_id not in file_content:
+                    continue
 
-        return None, None, None
-
-    def __to_entity_from(self, filepath, config_and_parent_ids):
-        with open(filepath, "r") as f:
-            file_content = f.read()
-
-        for config_id, parent_id in config_and_parent_ids:
-            if parent_id and parent_id not in file_content:
-                continue
-
-            entity = self.__model_to_entity(file_content)
-            if entity.parent_id == parent_id and entity.config_id == config_id.id:
-                return config_id, parent_id, entity
+                entity = self.__model_to_entity(file_content)
+                if entity.parent_id == parent_id and entity.config_id == config_id.id:
+                    return config_id, parent_id, entity
 
         return None, None, None
