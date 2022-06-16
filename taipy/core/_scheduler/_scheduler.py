@@ -139,9 +139,9 @@ class _Scheduler(_AbstractScheduler):
                 _JobManagerFactory._build_manager()._set(job)
                 cls._dispatcher._dispatch(job)
             else:
+                cls.__unlock_edit_on_outputs(job)
                 job.skipped()
                 _JobManagerFactory._build_manager()._set(job)
-                cls.__unlock_edit_on_outputs(job)
                 cls.__logger.info(f"job {job.id} is skipped.")
 
     @staticmethod
