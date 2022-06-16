@@ -181,8 +181,8 @@ class _Scheduler(_AbstractScheduler):
     def __unblock_jobs(cls):
         for job in cls.blocked_jobs:
             if not cls._is_blocked(job):
-                job.pending()
                 with cls.lock:
+                    job.pending()
                     cls.blocked_jobs.remove(job)
                     cls.jobs_to_run.put(job)
 
