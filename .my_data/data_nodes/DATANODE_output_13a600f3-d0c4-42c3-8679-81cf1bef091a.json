@@ -1,0 +1,16 @@
+{
+    "id": "DATANODE_output_13a600f3-d0c4-42c3-8679-81cf1bef091a",
+    "config_id": "output",
+    "scope": "<Scope.SCENARIO: 2>",
+    "storage_type": "pickle",
+    "name": "DATANODE_output_13a600f3-d0c4-42c3-8679-81cf1bef091a",
+    "parent_id": null,
+    "last_edit_date": null,
+    "job_ids": [],
+    "validity_days": null,
+    "validity_seconds": null,
+    "edit_in_progress": false,
+    "data_node_properties": {
+        "cacheable": false
+    }
+}
