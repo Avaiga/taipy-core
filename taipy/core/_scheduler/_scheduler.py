@@ -187,8 +187,7 @@ class _Scheduler(_AbstractScheduler):
                         cls.blocked_jobs.remove(job)
                         cls.jobs_to_run.put(job)
                     except:
-                        cls.__logger.warning("{job.id} is not in the blocked list anymore.")
-                        pass
+                        cls.__logger.warning(f"{job.id} is not in the blocked list anymore.")
 
     @classmethod
     def _update_job_config(cls):
