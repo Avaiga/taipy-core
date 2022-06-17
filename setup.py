@@ -45,7 +45,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    description="A 360° open-source platform from Python pilots to production-ready web apps.",
+    description="A Python library made to build powerful and customized data-driven back-end applications.",
     install_requires=requirements,
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -56,7 +56,7 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/avaiga/taipy-core",
-    version="1.1.0.dev",
+    version="1.1.0",
     zip_safe=False,
     extras_require=extras_require,
 )
