@@ -13,7 +13,6 @@ from datetime import timedelta
 from unittest import mock
 
 import pytest
-from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 from src.taipy.core.common._utils import Subscriber
 from src.taipy.core.common.alias import ScenarioId
@@ -22,6 +21,7 @@ from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.pipeline.pipeline import Pipeline
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from src.taipy.core.scenario.scenario import Scenario
+from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 
 def test_create_scenario(cycle, current_datetime):
@@ -253,7 +253,7 @@ def test_unsubscribe_scenario():
     with mock.patch("src.taipy.core.unsubscribe_scenario") as mock_unsubscribe:
         scenario = Scenario("foo", [], {})
         scenario.unsubscribe(None)
-        mock_unsubscribe.assert_called_once_with(None, scenario)
+        mock_unsubscribe.assert_called_once_with(None, None, scenario)
 
 
 def test_add_tag_scenario():

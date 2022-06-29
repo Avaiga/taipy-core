@@ -186,7 +186,7 @@ class Scenario(_Entity):
                     return task.output[protected_attribute_name]
         raise AttributeError(f"{attribute_name} is not an attribute of scenario {self.id}")
 
-    def _add_subscriber(self, callback: Callable, params: Optional[List[str]] = None):
+    def _add_subscriber(self, callback: Callable, params: Optional[List[Any]] = None):
         params = [] if params is None else params
         self._subscribers.append(Subscriber(callback=callback, params=params))
 
@@ -204,11 +204,14 @@ class Scenario(_Entity):
         """
         return tag in self.tags
 
-    def _remove_subscriber(self, callback: Callable):
-        elem = [x for x in self._subscribers if x.callback == callback]
-        if not elem:
-            raise ValueError
-        self._subscribers.remove(elem[0])
+    def _remove_subscriber(self, callback: Callable, params: Optional[List[Any]] = None):
+        if params is not None:
+            self._subscribers.remove(Subscriber(callback, params))
+        else:
+            elem = [x for x in self._subscribers if x.callback == callback]
+            if not elem:
+                raise ValueError
+            self._subscribers.remove(elem[0])
 
     def _remove_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
@@ -218,7 +221,7 @@ class Scenario(_Entity):
     def subscribe(
         self,
         callback: Callable[[Scenario, Job], None],
-        params: Optional[List[str]] = None,
+        params: Optional[List[Any]] = None,
     ):
         """Subscribe a function to be called on `Job^` status change.
 
@@ -227,7 +230,7 @@ class Scenario(_Entity):
         Parameters:
             callback (Callable[[Scenario^, Job^], None]): The callable function to be called
                 on status change.
-            params (Optional[List[str]]): The parameters to be passed to the _callback_.
+            params (Optional[List[Any]]): The parameters to be passed to the _callback_.
 
         Note:
             Notification will be available only for jobs created after this subscription.
@@ -236,7 +239,7 @@ class Scenario(_Entity):
 
         return tp.subscribe_scenario(callback, params, self)
 
-    def unsubscribe(self, callback: Callable[[Scenario, Job], None]):
+    def unsubscribe(self, callback: Callable[[Scenario, Job], None], params: Optional[List[Any]] = None):
         """Unsubscribe a function that is called when the status of a `Job^` changes.
 
         Parameters:
@@ -247,7 +250,7 @@ class Scenario(_Entity):
         """
         from ... import core as tp
 
-        return tp.unsubscribe_scenario(callback, self)
+        return tp.unsubscribe_scenario(callback, params, self)
 
     def submit(self, force: bool = False):
         """Submit this scenario for execution.

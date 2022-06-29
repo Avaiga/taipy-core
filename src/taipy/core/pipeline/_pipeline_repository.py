@@ -14,12 +14,13 @@ from collections import defaultdict
 
 from taipy.config.config import Config
 
-from ._pipeline_model import _PipelineModel
-from .pipeline import Pipeline
 from .._repository import _FileSystemRepository
 from ..common import _utils
+from ..common._utils import Subscriber
 from ..exceptions.exceptions import NonExistingPipeline, NonExistingTask
 from ..task.task import Task
+from ._pipeline_model import _PipelineModel
+from .pipeline import Pipeline
 
 
 class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
@@ -53,7 +54,10 @@ class _PipelineRepository(_FileSystemRepository[_PipelineModel, Pipeline]):
                 model.tasks,
                 model.id,
                 model.parent_id,
-                {_utils._load_fct(it["fct_module"], it["fct_name"]) for it in model.subscribers},  # type: ignore
+                [
+                    Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
+                    for it in model.subscribers
+                ],  # type: ignore
             )
             return pipeline
         except NonExistingTask as err:

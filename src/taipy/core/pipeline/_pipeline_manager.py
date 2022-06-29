@@ -10,13 +10,11 @@
 # specific language governing permissions and limitations under the License.
 
 from functools import partial
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from taipy.config.data_node.scope import Scope
 from taipy.config.pipeline.pipeline_config import PipelineConfig
 
-from ._pipeline_repository import _PipelineRepository
-from .pipeline import Pipeline
 from .._manager._manager import _Manager
 from ..common._entity_ids import _EntityIds
 from ..common.alias import PipelineId, ScenarioId
@@ -24,6 +22,8 @@ from ..exceptions.exceptions import NonExistingPipeline
 from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
 from ..task._task_manager_factory import _TaskManagerFactory
+from ._pipeline_repository import _PipelineRepository
+from .pipeline import Pipeline
 
 
 class _PipelineManager(_Manager[Pipeline]):
@@ -34,7 +34,7 @@ class _PipelineManager(_Manager[Pipeline]):
     def _subscribe(
         cls,
         callback: Callable[[Pipeline, Job], None],
-        params: Optional[List[str]] = None,
+        params: Optional[List[Any]] = None,
         pipeline: Optional[Pipeline] = None,
     ):
         if pipeline is None:
@@ -46,15 +46,20 @@ class _PipelineManager(_Manager[Pipeline]):
         cls.__add_subscriber(callback, params, pipeline)
 
     @classmethod
-    def _unsubscribe(cls, callback: Callable[[Pipeline, Job], None], pipeline: Optional[Pipeline] = None):
+    def _unsubscribe(
+        cls,
+        callback: Callable[[Pipeline, Job], None],
+        params: Optional[List[Any]] = None,
+        pipeline: Optional[Pipeline] = None,
+    ):
 
         if pipeline is None:
             pipelines = cls._get_all()
             for pln in pipelines:
-                cls.__remove_subscriber(callback, pln)
+                cls.__remove_subscriber(callback, params, pln)
             return
 
-        cls.__remove_subscriber(callback, pipeline)
+        cls.__remove_subscriber(callback, params, pipeline)
 
     @classmethod
     def __add_subscriber(cls, callback, params, pipeline):
@@ -62,8 +67,8 @@ class _PipelineManager(_Manager[Pipeline]):
         cls._set(pipeline)
 
     @classmethod
-    def __remove_subscriber(cls, callback, pipeline):
-        pipeline._remove_subscriber(callback)
+    def __remove_subscriber(cls, callback, params, pipeline):
+        pipeline._remove_subscriber(callback, params)
         cls._set(pipeline)
 
     @classmethod
@@ -99,7 +104,7 @@ class _PipelineManager(_Manager[Pipeline]):
 
     @staticmethod
     def __get_status_notifier_callbacks(pipeline: Pipeline) -> List:
-        return [partial(c, pipeline) for c in pipeline.subscribers]
+        return [partial(c.callback, *c.params, pipeline) for c in pipeline.subscribers]
 
     @classmethod
     def _hard_delete(cls, pipeline_id: PipelineId):

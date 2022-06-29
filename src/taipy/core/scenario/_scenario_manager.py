@@ -11,13 +11,11 @@
 
 import datetime
 from functools import partial
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from taipy.config.config import Config
 from taipy.config.scenario.scenario_config import ScenarioConfig
 
-from ._scenario_repository import _ScenarioRepository
-from .scenario import Scenario
 from .._manager._manager import _Manager
 from ..common._entity_ids import _EntityIds
 from ..common.alias import ScenarioId
@@ -36,6 +34,8 @@ from ..exceptions.exceptions import (
 from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
 from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from ._scenario_repository import _ScenarioRepository
+from .scenario import Scenario
 
 
 class _ScenarioManager(_Manager[Scenario]):
@@ -48,7 +48,7 @@ class _ScenarioManager(_Manager[Scenario]):
     def _subscribe(
         cls,
         callback: Callable[[Scenario, Job], None],
-        params: Optional[List[str]] = None,
+        params: Optional[List[Any]] = None,
         scenario: Optional[Scenario] = None,
     ):
         if scenario is None:
@@ -63,15 +63,16 @@ class _ScenarioManager(_Manager[Scenario]):
     def _unsubscribe(
         cls,
         callback: Callable[[Scenario, Job], None],
+        params: Optional[List[Any]] = None,
         scenario: Optional[Scenario] = None,
     ):
         if scenario is None:
             scenarios = cls._get_all()
             for scn in scenarios:
-                cls.__remove_subscriber(callback, scn)
+                cls.__remove_subscriber(callback, params, scn)
             return
 
-        cls.__remove_subscriber(callback, scenario)
+        cls.__remove_subscriber(callback, params, scenario)
 
     @classmethod
     def __add_subscriber(cls, callback, params, scenario):
@@ -79,8 +80,8 @@ class _ScenarioManager(_Manager[Scenario]):
         cls._set(scenario)
 
     @classmethod
-    def __remove_subscriber(cls, callback, scenario):
-        scenario._remove_subscriber(callback)
+    def __remove_subscriber(cls, callback, params, scenario):
+        scenario._remove_subscriber(callback, params)
         cls._set(scenario)
 
     @classmethod
@@ -128,7 +129,7 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def __get_status_notifier_callbacks(cls, scenario: Scenario) -> List:
-        return [partial(c.callback, scenario) for c in scenario.subscribers]
+        return [partial(c.callback, *c.params, scenario) for c in scenario.subscribers]
 
     @classmethod
     def _get_primary(cls, cycle: Cycle) -> Optional[Scenario]:
