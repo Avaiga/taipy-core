@@ -49,8 +49,8 @@ from .task.task import Task
 
 """# Taipy Core.
 
-The Taipy Core package is a python library made to build powerful and customized data-driven back-end applications.
-It provides the necessary tools to help Python developer transform their algorithms into a complete
+The Taipy Core package is a Python library made to build powerful and customized data-driven back-end applications.
+It provides the necessary tools to help Python developers transform their algorithms into a complete
 back-end application.
 
 !!! Note "Optional packages"
