@@ -19,7 +19,6 @@ import pandas as pd
 from taipy.config.data_node.scope import Scope
 
 from ..common._reload import _self_reload
-from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty
 from .data_node import DataNode
@@ -48,9 +47,8 @@ class JSONDataNode(DataNode):
     """
 
     __STORAGE_TYPE = "json"
-    __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
-    _REQUIRED_PROPERTIES: List[str] = []
+    _REQUIRED_PROPERTIES: List[str] = [__DEFAULT_PATH_KEY]
 
     def __init__(
         self,
@@ -83,8 +81,8 @@ class JSONDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._path = self.__build_path()
-        if not self._last_edit_date and isfile(self._path):
+        self._path = self._properties.get(self.__DEFAULT_PATH_KEY)
+        if not self._last_edit_date and isfile(self._path):  # type: ignore
             self.unlock_edit()
 
     @classmethod
@@ -100,18 +98,10 @@ class JSONDataNode(DataNode):
     def path(self, value):
         self.properties[self.__DEFAULT_PATH_KEY] = value
 
-    def __build_path(self):
-        if path := self._properties.get(self.__DEFAULT_PATH_KEY):
-            return path
-        if path := self._properties.get(self.__PATH_KEY):
-            _warn_deprecated("path", suggest="default_path")
-            return path
-        raise MissingRequiredProperty("default_path is required")
-
     def _read(self):
         with open(self._path, "r") as f:
             return json.load(f)
 
     def _write(self, data: Any):
-        with open(self._path, "w") as f:
+        with open(self._path, "w") as f:  # type: ignore
             json.dump(data, f)

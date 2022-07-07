@@ -13,9 +13,7 @@ import os
 import pathlib
 
 import numpy as np
-import pandas as pd
 import pytest
-from sqlalchemy import JSON
 
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data._data_manager import _DataManager
@@ -24,13 +22,6 @@ from src.taipy.core.exceptions.exceptions import MissingRequiredProperty, NoData
 from taipy.config.config import Config
 from taipy.config.data_node.scope import Scope
 from taipy.config.exceptions.exceptions import InvalidConfigurationId
-
-
-class MyCustomObject:
-    def __init__(self, id, integer, text):
-        self.id = id
-        self.integer = integer
-        self.text = text
 
 
 class TestJSONDataNode:
@@ -51,16 +42,18 @@ class TestJSONDataNode:
 
         with pytest.raises(InvalidConfigurationId):
             dn = JSONDataNode(
-                "foo bar", Scope.PIPELINE, name="super name", properties={"path": path, "has_header": False}
+                "foo bar", Scope.PIPELINE, name="super name", properties={"default_path": path, "has_header": False}
             )
 
     def test_new_csv_data_node_with_existing_file_is_ready_for_reading(self):
-        not_ready_dn_cfg = Config.configure_data_node("not_ready_data_node_config_id", "json", path="NOT_EXISTING.json")
+        not_ready_dn_cfg = Config.configure_data_node(
+            "not_ready_data_node_config_id", "json", default_path="NOT_EXISTING.json"
+        )
         not_ready_dn = _DataManager._bulk_get_or_create([not_ready_dn_cfg])[not_ready_dn_cfg]
         assert not not_ready_dn.is_ready_for_reading
 
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.json")
-        ready_dn_cfg = Config.configure_data_node("ready_data_node_config_id", "json", path=path)
+        ready_dn_cfg = Config.configure_data_node("ready_data_node_config_id", "json", default_path=path)
         ready_dn = _DataManager._bulk_get_or_create([ready_dn_cfg])[ready_dn_cfg]
         assert ready_dn.is_ready_for_reading
 
@@ -71,30 +64,30 @@ class TestJSONDataNode:
             JSONDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties={})
 
     def test_read(self):
-        not_existing_csv = JSONDataNode("foo", Scope.PIPELINE, properties={"path": "WRONG.json"})
+        not_existing_csv = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "WRONG.json"})
         with pytest.raises(NoData):
             assert not_existing_csv.read() is None
             not_existing_csv.read_or_raise()
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.json")
-        data_node = JSONDataNode("bar", Scope.PIPELINE, properties={"path": path})
+        data_node = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path})
         data = data_node.read()
         assert isinstance(data, list)
         assert len(data) == 3
 
     def test_read_invalid_json(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/invalid.json.txt")
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"path": path})
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path})
         with pytest.raises(ValueError):
             dn.read()
 
     def test_write(self, json_file):
-        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"path": json_file})
+        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
         data = {"a": 1, "b": 2, "c": 3}
         json_dn.write(data)
         assert np.array_equal(json_dn.read(), data)
 
     def test_write_non_serializable(self, json_file):
-        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"path": json_file})
+        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
         data = {"a": 1, "b": json_dn}
         with pytest.raises(TypeError):
             json_dn.write(data)
@@ -104,10 +97,6 @@ class TestJSONDataNode:
         assert dn.path == "foo.csv"
         dn.path = "bar.csv"
         assert dn.path == "bar.csv"
-
-    def test_path_deprecated(self):
-        with pytest.warns(DeprecationWarning):
-            JSONDataNode("foo", Scope.PIPELINE, properties={"path": "foo.csv"})
 
     def test_raise_error_when_path_not_exist(self):
         with pytest.raises(MissingRequiredProperty):
