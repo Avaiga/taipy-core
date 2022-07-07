@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import csv
+import json
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional
@@ -25,8 +25,8 @@ from ..exceptions.exceptions import MissingRequiredProperty
 from .data_node import DataNode
 
 
-class CSVDataNode(DataNode):
-    """Data Node stored as a CSV file.
+class JSONDataNode(DataNode):
+    """Data Node stored as a JSON file.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. This string must be a valid
@@ -43,16 +43,13 @@ class CSVDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
-            of the CSV file.
+            _properties_ parameter must at least contain a _"path"_ entry representing the path
+            of the JSON file.
     """
 
-    __STORAGE_TYPE = "csv"
-    __EXPOSED_TYPE_PROPERTY = "exposed_type"
-    __EXPOSED_TYPE_NUMPY = "numpy"
+    __STORAGE_TYPE = "json"
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
-    __HAS_HEADER_PROPERTY = "has_header"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -74,8 +71,6 @@ class CSVDataNode(DataNode):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
-        if self.__HAS_HEADER_PROPERTY not in properties.keys():
-            properties[self.__HAS_HEADER_PROPERTY] = True
         super().__init__(
             config_id,
             scope,
@@ -114,59 +109,9 @@ class CSVDataNode(DataNode):
         raise MissingRequiredProperty("default_path is required")
 
     def _read(self):
-        if self.__EXPOSED_TYPE_PROPERTY in self.properties:
-            if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-                return self._read_as_numpy()
-            return self._read_as(self.properties[self.__EXPOSED_TYPE_PROPERTY])
-        return self._read_as_pandas_dataframe()
-
-    def _read_as(self, custom_class):
-        with open(self._path) as csvFile:
-            res = list()
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                reader = csv.DictReader(csvFile)
-                for line in reader:
-                    res.append(custom_class(**line))
-            else:
-                reader = csv.reader(
-                    csvFile,
-                )
-                for line in reader:
-                    res.append(custom_class(*line))
-            return res
-
-    def _read_as_numpy(self):
-        return self._read_as_pandas_dataframe().to_numpy()
-
-    def _read_as_pandas_dataframe(self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None):
-        try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return pd.read_csv(self._path)[column_names]
-                return pd.read_csv(self._path)
-            else:
-                if usecols:
-                    return pd.read_csv(self._path, header=None, usecols=usecols)
-                return pd.read_csv(self._path, header=None)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame()
+        with open(self._path, "r") as f:
+            return json.load(f)
 
     def _write(self, data: Any):
-        pd.DataFrame(data).to_csv(self._path, index=False)
-
-    def write_with_column_names(self, data: Any, columns: List[str] = None, job_id: Optional[JobId] = None):
-        """Write a selection of columns.
-
-        Parameters:
-            data (Any): The data to write.
-            columns (List[str]): The list of column names to write.
-            job_id (JobId^): An optional identifier of the writer.
-        """
-        if not columns:
-            df = pd.DataFrame(data)
-        else:
-            df = pd.DataFrame(data, columns=columns)
-        df.to_csv(self._path, index=False)
-        self._last_edit_date = datetime.now()
-        if job_id:
-            self.job_ids.append(job_id)
+        with open(self._path, "w") as f:
+            json.dump(data, f)

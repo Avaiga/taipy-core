@@ -17,10 +17,10 @@ from typing import Any, List, Optional
 
 from taipy.config.data_node.scope import Scope
 
-from .data_node import DataNode
 from ..common._reload import _self_reload
 from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, JobId
+from .data_node import DataNode
 
 
 class PickleDataNode(DataNode):
@@ -45,7 +45,7 @@ class PickleDataNode(DataNode):
             When creating a pickle data node, if the _properties_ dictionary contains a
             _"default_data"_ entry, the data node is automatically written with the corresponding
             _"default_data"_ value.
-            If the _properties_ dictionary contains a _"path"_ entry, the data will be stored
+            If the _properties_ dictionary contains a _"default_path"_ entry, the data will be stored
             using the corresponding value as the name of the pickle file.
     """
 

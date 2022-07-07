@@ -16,13 +16,14 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 from openpyxl import load_workbook
+
 from taipy.config.data_node.scope import Scope
 
-from .data_node import DataNode
 from ..common._reload import _self_reload
 from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty, NonExistingExcelSheet, NotMatchSheetNameAndCustomObject
+from .data_node import DataNode
 
 
 class ExcelDataNode(DataNode):
@@ -46,7 +47,7 @@ class ExcelDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"path"_ entry representing the path
+            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
             of the Excel file (xlsx format).
     """
 

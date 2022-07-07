@@ -1,0 +1,17 @@
+[
+    {
+        "id": "abcxyz1",
+        "integer": 1,
+        "text": "abc"
+    },
+    {
+        "id": "abcxyz2",
+        "integer": 2,
+        "text": "def"
+    },
+    {
+        "id": "abcxyz3",
+        "integer": 3,
+        "text": "ghi"
+    }
+]
