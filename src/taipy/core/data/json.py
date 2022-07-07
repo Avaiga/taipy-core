@@ -43,7 +43,7 @@ class JSONDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"path"_ entry representing the path
+            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
             of the JSON file.
     """
 
