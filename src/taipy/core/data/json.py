@@ -14,8 +14,6 @@ from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional
 
-import pandas as pd
-
 from taipy.config.data_node.scope import Scope
 
 from ..common._reload import _self_reload
@@ -48,6 +46,7 @@ class JSONDataNode(DataNode):
 
     __STORAGE_TYPE = "json"
     __DEFAULT_PATH_KEY = "default_path"
+    __EXPOSED_TYPE_KEY = "exposed_type"
     _REQUIRED_PROPERTIES: List[str] = [__DEFAULT_PATH_KEY]
 
     def __init__(
@@ -69,6 +68,7 @@ class JSONDataNode(DataNode):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
+
         super().__init__(
             config_id,
             scope,
@@ -100,7 +100,18 @@ class JSONDataNode(DataNode):
 
     def _read(self):
         with open(self._path, "r") as f:
-            return json.load(f)
+            data = json.load(f)
+        return self._cast(data)
+
+    def _cast(self, data: Any):
+        if self.__EXPOSED_TYPE_KEY not in self._properties:
+            return data
+        exposed_type = self._properties[self.__EXPOSED_TYPE_KEY]
+        if isinstance(data, Dict):
+            return exposed_type(**data)
+        if isinstance(data, list):
+            return [exposed_type(**x) if x is not None else None for x in data]
+        return exposed_type(data)
 
     def _write(self, data: Any):
         with open(self._path, "w") as f:  # type: ignore

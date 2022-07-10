@@ -24,6 +24,20 @@ from taipy.config.data_node.scope import Scope
 from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 
+class MyCustomObject:
+    def __init__(self, id, integer, text):
+        self.id = id
+        self.integer = integer
+        self.text = text
+
+
+class MyCustomObject2:
+    def __init__(self, id, boolean, text):
+        self.id = id
+        self.boolean = boolean
+        self.text = text
+
+
 class TestJSONDataNode:
     def test_create(self):
         path = "data/node/path"
@@ -52,7 +66,7 @@ class TestJSONDataNode:
         not_ready_dn = _DataManager._bulk_get_or_create([not_ready_dn_cfg])[not_ready_dn_cfg]
         assert not not_ready_dn.is_ready_for_reading
 
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.json")
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
         ready_dn_cfg = Config.configure_data_node("ready_data_node_config_id", "json", default_path=path)
         ready_dn = _DataManager._bulk_get_or_create([ready_dn_cfg])[ready_dn_cfg]
         assert ready_dn.is_ready_for_reading
@@ -63,16 +77,77 @@ class TestJSONDataNode:
         with pytest.raises(MissingRequiredProperty):
             JSONDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties={})
 
-    def test_read(self):
-        not_existing_csv = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "WRONG.json"})
+    def test_read_non_existing_json(self):
+        not_existing_json = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "WRONG.json"})
         with pytest.raises(NoData):
-            assert not_existing_csv.read() is None
-            not_existing_csv.read_or_raise()
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.json")
-        data_node = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path})
-        data = data_node.read()
+            assert not_existing_json.read() is None
+            not_existing_json.read_or_raise()
+
+    def test_read(self):
+        path_1 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
+        dn_1 = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path_1})
+        data_1 = dn_1.read()
+        assert isinstance(data_1, list)
+        assert len(data_1) == 4
+
+        path_2 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_dict.json")
+        dn_2 = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path_2})
+        data_2 = dn_2.read()
+        assert isinstance(data_2, dict)
+        assert data_2["id"] == "1"
+
+        path_3 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
+        dn_3 = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path_3})
+        data_3 = dn_3.read()
+        assert isinstance(data_3, int)
+        assert data_3 == 1
+
+        path_4 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_null.json")
+        dn_4 = JSONDataNode("bar", Scope.PIPELINE, properties={"default_path": path_4})
+        data_4 = dn_4.read()
+        assert data_4 is None
+
+    def test_read_exposed_type_list_of_objects(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": MyCustomObject})
+        data = dn.read()
         assert isinstance(data, list)
-        assert len(data) == 3
+        assert len(data) == 4
+        assert isinstance(data[0], MyCustomObject)
+        assert data[0].id == "1"
+        assert data[3] is None
+
+    def test_read_exposed_type_single_object(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_dict.json")
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": MyCustomObject})
+        data = dn.read()
+        assert isinstance(data, MyCustomObject)
+        assert data.id == "1"
+
+    def test_read_same_exposed_type(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": int})
+        data = dn.read()
+        assert isinstance(data, int)
+        assert data == 1
+
+    def test_read_castable_exposed_type(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": str})
+        data = dn.read()
+        assert isinstance(data, str)
+        assert data == "1"
+
+    def test_read_uncastable_exposed_type(self):
+        path_1 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
+        dn_1 = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path_1, "exposed_type": MyCustomObject2})
+        with pytest.raises(TypeError):
+            dn_1.read()
+
+        path_2 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
+        dn_2 = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path_2, "exposed_type": MyCustomObject})
+        with pytest.raises(TypeError):
+            dn_2.read()
 
     def test_read_invalid_json(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/invalid.json.txt")
