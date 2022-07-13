@@ -9,8 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import datetime
 import os
 import pathlib
+from dataclasses import dataclass
 
 import numpy as np
 import pytest
@@ -167,6 +169,35 @@ class TestJSONDataNode:
         data = {"a": 1, "b": json_dn}
         with pytest.raises(TypeError):
             json_dn.write(data)
+
+    def test_write_date(self, json_file):
+        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
+        now = datetime.datetime.now()
+        now_str = now.isoformat()
+        data = {"date": now}
+        json_dn.write(data)
+        read_data = json_dn.read()
+        assert read_data["date"] == now_str
+
+    def test_write_dataclass(self, json_file):
+        @dataclass
+        class CustomDataclass:
+            integer: int
+            string: str
+
+        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
+        json_dn.write(CustomDataclass(integer=1, string="foo"))
+        read_data = json_dn.read()
+        assert read_data["integer"] == 1
+        assert read_data["string"] == "foo"
+
+        json_dn = JSONDataNode(
+            "foo", Scope.PIPELINE, properties={"default_path": json_file, "exposed_type": CustomDataclass}
+        )
+        json_dn.write(CustomDataclass(integer=1, string="foo"))
+        read_data = json_dn.read()
+        assert read_data.integer == 1
+        assert read_data.string == "foo"
 
     def test_set_path(self):
         dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.json"})

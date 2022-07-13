@@ -9,8 +9,9 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import dataclasses
 import json
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional
 
@@ -115,4 +116,13 @@ class JSONDataNode(DataNode):
 
     def _write(self, data: Any):
         with open(self._path, "w") as f:  # type: ignore
-            json.dump(data, f)
+            json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
+
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, (datetime, date)):
+            return o.isoformat()
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)
