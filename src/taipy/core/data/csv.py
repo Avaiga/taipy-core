@@ -15,14 +15,12 @@ from os.path import isfile
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
-
 from taipy.config.data_node.scope import Scope
 
+from .data_node import DataNode
 from ..common._reload import _self_reload
-from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty
-from .data_node import DataNode
 
 
 class CSVDataNode(DataNode):
@@ -42,10 +40,10 @@ class CSVDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
-        path (str): The path to the CSV file.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
-            of the CSV file.
+            _properties_ parameter should contain a _"path"_ entry representing the path of the CSV file. If the path
+            is not set, the _"default_path"_ entry is accepted and a new _"path"_ entry is automatically set and
+            populated with the value of the _"default_path"_ entry.
     """
 
     __STORAGE_TYPE = "csv"
@@ -77,6 +75,13 @@ class CSVDataNode(DataNode):
             )
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
+        if path := properties.get(self.__PATH_KEY):
+            self._path = path
+        elif path := properties.get(self.__DEFAULT_PATH_KEY):
+            self._path = path
+            properties[self.__PATH_KEY] = path
+        else:
+            raise MissingRequiredProperty("default_path is required in a CSV datanode config")
         super().__init__(
             config_id,
             scope,
@@ -89,7 +94,6 @@ class CSVDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._path = self.__build_path()
         if not self._last_edit_date and isfile(self._path):
             self.unlock_edit()
 
@@ -104,15 +108,7 @@ class CSVDataNode(DataNode):
 
     @path.setter
     def path(self, value):
-        self.properties[self.__DEFAULT_PATH_KEY] = value
-
-    def __build_path(self):
-        if path := self._properties.get(self.__DEFAULT_PATH_KEY):
-            return path
-        if path := self._properties.get(self.__PATH_KEY):
-            _warn_deprecated("path", suggest="default_path")
-            return path
-        raise MissingRequiredProperty("default_path is required")
+        self.properties[self.__PATH_KEY] = value
 
     def _read(self):
         if self.__EXPOSED_TYPE_PROPERTY in self.properties:
