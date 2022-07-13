@@ -15,12 +15,13 @@ from os.path import isfile
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
+
 from taipy.config.data_node.scope import Scope
 
-from .data_node import DataNode
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty
+from .data_node import DataNode
 
 
 class CSVDataNode(DataNode):
@@ -40,10 +41,9 @@ class CSVDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
-        properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter should contain a _"path"_ entry representing the path of the CSV file. If the path
-            is not set, the _"default_path"_ entry is accepted and a new _"path"_ entry is automatically set and
-            populated with the value of the _"default_path"_ entry.
+        path (str): The path to the CSV file.
+        properties (dict[str, Any]): A dictionary of additional properties. The _properties_
+            must have a _"default_path"_ or _"path"_ entry with the path of the CSV file.
     """
 
     __STORAGE_TYPE = "csv"
@@ -73,15 +73,18 @@ class CSVDataNode(DataNode):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
+
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
+
         if path := properties.get(self.__PATH_KEY):
             self._path = path
         elif path := properties.get(self.__DEFAULT_PATH_KEY):
             self._path = path
             properties[self.__PATH_KEY] = path
         else:
-            raise MissingRequiredProperty("default_path is required in a CSV datanode config")
+            raise MissingRequiredProperty("default_path is required in a CSV data node config")
+
         super().__init__(
             config_id,
             scope,

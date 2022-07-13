@@ -50,9 +50,9 @@ class PickleDataNode(DataNode):
     """
 
     __STORAGE_TYPE = "pickle"
-    __PICKLE_PATH_KEY = "path"
-    __PICKLE_DEFAULT_PATH_KEY = "default_path"
-    __DEFAULT_DATA_VALUE = "default_data"
+    __PATH_KEY = "path"
+    __DEFAULT_PATH_KEY = "default_path"
+    __DEFAULT_DATA_KEY = "default_data"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -70,7 +70,7 @@ class PickleDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
-        default_value = properties.pop(self.__DEFAULT_DATA_VALUE, None)
+        default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
         super().__init__(
             config_id,
             scope,
@@ -84,10 +84,10 @@ class PickleDataNode(DataNode):
             **properties,
         )
         self.__is_file_generated = False
-        self._pickle_path = self.__build_path()
-        if not self._last_edit_date and os.path.exists(self._pickle_path):
+        self._path = self.__build_path()
+        if not self._last_edit_date and os.path.exists(self._path):
             self.unlock_edit()
-        if default_value is not None and not os.path.exists(self._pickle_path):
+        if default_value is not None and not os.path.exists(self._path):
             self.write(default_value)
 
     @classmethod
@@ -97,11 +97,11 @@ class PickleDataNode(DataNode):
     @property  # type: ignore
     @_self_reload(DataNode._MANAGER_NAME)
     def path(self) -> Any:
-        return self._pickle_path
+        return self._path
 
     @path.setter  # type: ignore
     def path(self, value):
-        self.properties[self.__PICKLE_DEFAULT_PATH_KEY] = value
+        self.properties[self.__DEFAULT_PATH_KEY] = value
         self.__is_file_generated = False
 
     @property
@@ -109,16 +109,15 @@ class PickleDataNode(DataNode):
         return self.__is_file_generated
 
     def _read(self):
-        return pickle.load(open(self._pickle_path, "rb"))
+        return pickle.load(open(self._path, "rb"))
 
     def _write(self, data):
-        pickle.dump(data, open(self._pickle_path, "wb"))
+        pickle.dump(data, open(self._path, "wb"))
 
     def __build_path(self):
-        if file_name := self._properties.get(self.__PICKLE_DEFAULT_PATH_KEY):
+        if file_name := self._properties.get(self.__DEFAULT_PATH_KEY):
             return file_name
-        if file_name := self._properties.get(self.__PICKLE_PATH_KEY):
-            _warn_deprecated("path", suggest="default_path")
+        if file_name := self._properties.get(self.__PATH_KEY):
             return file_name
         from taipy.config.config import Config
 

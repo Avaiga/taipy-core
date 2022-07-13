@@ -13,13 +13,13 @@ import os
 import pathlib
 
 import pytest
-from taipy.config.config import Config
-from taipy.config.data_node.scope import Scope
-from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data.pickle import PickleDataNode
 from src.taipy.core.exceptions.exceptions import NoData
+from taipy.config.config import Config
+from taipy.config.data_node.scope import Scope
+from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 
 class TestPickleDataNodeEntity:
@@ -118,7 +118,3 @@ class TestPickleDataNodeEntity:
         assert dn.is_file_generated
         dn.path = "bar.p"
         assert not dn.is_file_generated
-
-    def test_path_deprecated(self):
-        with pytest.warns(DeprecationWarning):
-            PickleDataNode("foo", Scope.PIPELINE, properties={"path": "foo.p"})

@@ -44,13 +44,13 @@ class JSONDataNode(DataNode):
         path (str): The path to the JSON file.
         encoder (json.JSONEncoder): The JSON encoder that is used to write into the JSON file.
         decoder (json.JSONDecoder): The JSON decoder that is used to read from the JSON file.
-        properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
-            of the JSON file.
+        properties (dict[str, Any]): A dictionary of additional properties. The _properties_
+            must have a _"default_path"_ entry with the path of the JSON file.
     """
 
     __STORAGE_TYPE = "json"
     __DEFAULT_PATH_KEY = "default_path"
+    __PATH_KEY = "path"
     _ENCODER_KEY = "encoder"
     _DECODER_KEY = "decoder"
     _REQUIRED_PROPERTIES: List[str] = [__DEFAULT_PATH_KEY]
@@ -75,6 +75,9 @@ class JSONDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
+        self._path = properties.get(self.__DEFAULT_PATH_KEY)
+        properties[self.__PATH_KEY] = self._path
+
         super().__init__(
             config_id,
             scope,
@@ -87,7 +90,6 @@ class JSONDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._path = self._properties.get(self.__DEFAULT_PATH_KEY)
         self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
         self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
 

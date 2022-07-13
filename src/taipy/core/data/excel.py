@@ -47,9 +47,8 @@ class ExcelDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         path (str): The path to the Excel file.
-        properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain a _"default_path"_ entry representing the path
-            of the Excel file (xlsx format).
+        properties (dict[str, Any]): A dictionary of additional properties. The _properties_
+            must have a _"default_path"_ or _"path"_ entry with the path of the JSON file.
     """
 
     __STORAGE_TYPE = "excel"
@@ -87,6 +86,14 @@ class ExcelDataNode(DataNode):
         if self.__EXPOSED_TYPE_PROPERTY in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__exposed_types_to_dict(properties)
 
+        if path := properties.get(self.__PATH_KEY):
+            self._path = path
+        elif path := properties.get(self.__DEFAULT_PATH_KEY):
+            self._path = path
+            properties[self.__PATH_KEY] = path
+        else:
+            raise MissingRequiredProperty("default_path is required in a Excel data node config")
+
         super().__init__(
             config_id,
             scope,
@@ -99,7 +106,7 @@ class ExcelDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._path = self.__build_path()
+
         if not self._last_edit_date and isfile(self._path):
             self.unlock_edit()
 
