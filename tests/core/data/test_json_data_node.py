@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import datetime
+import json
 import os
 import pathlib
 from dataclasses import dataclass
@@ -38,6 +39,24 @@ class MyCustomObject2:
         self.id = id
         self.boolean = boolean
         self.text = text
+
+
+class MyCustomEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, MyCustomObject):
+            return {"__type__": "MyCustomObject", "id": o.id, "integer": o.integer, "text": o.text}
+        return super().default(self, o)
+
+
+class MyCustomDecoder(json.JSONDecoder):
+    def __init__(self):
+        super().__init__(object_hook=self.object_hook)
+
+    def object_hook(self, o):
+        if o.get("__type__") == "MyCustomObject":
+            return MyCustomObject(o["id"], o["integer"], o["text"])
+        else:
+            return o
 
 
 class TestJSONDataNode:
@@ -110,48 +129,6 @@ class TestJSONDataNode:
         data_4 = dn_4.read()
         assert data_4 is None
 
-    def test_read_exposed_type_list_of_objects(self):
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": MyCustomObject})
-        data = dn.read()
-        assert isinstance(data, list)
-        assert len(data) == 4
-        assert isinstance(data[0], MyCustomObject)
-        assert data[0].id == "1"
-        assert data[3] is None
-
-    def test_read_exposed_type_single_object(self):
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_dict.json")
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": MyCustomObject})
-        data = dn.read()
-        assert isinstance(data, MyCustomObject)
-        assert data.id == "1"
-
-    def test_read_same_exposed_type(self):
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": int})
-        data = dn.read()
-        assert isinstance(data, int)
-        assert data == 1
-
-    def test_read_castable_exposed_type(self):
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": str})
-        data = dn.read()
-        assert isinstance(data, str)
-        assert data == "1"
-
-    def test_read_uncastable_exposed_type(self):
-        path_1 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
-        dn_1 = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path_1, "exposed_type": MyCustomObject2})
-        with pytest.raises(TypeError):
-            dn_1.read()
-
-        path_2 = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_int.json")
-        dn_2 = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path_2, "exposed_type": MyCustomObject})
-        with pytest.raises(TypeError):
-            dn_2.read()
-
     def test_read_invalid_json(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/invalid.json.txt")
         dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": path})
@@ -191,13 +168,33 @@ class TestJSONDataNode:
         assert read_data["integer"] == 1
         assert read_data["string"] == "foo"
 
+    def test_write_custom_encoder(self, json_file):
         json_dn = JSONDataNode(
-            "foo", Scope.PIPELINE, properties={"default_path": json_file, "exposed_type": CustomDataclass}
+            "foo", Scope.PIPELINE, properties={"default_path": json_file, "encoder": MyCustomEncoder}
         )
-        json_dn.write(CustomDataclass(integer=1, string="foo"))
+        data = [MyCustomObject("1", 1, "abc"), 100]
+        json_dn.write(data)
         read_data = json_dn.read()
-        assert read_data.integer == 1
-        assert read_data.string == "foo"
+        assert read_data[0]["__type__"] == "MyCustomObject"
+        assert read_data[0]["id"] == "1"
+        assert read_data[0]["integer"] == 1
+        assert read_data[0]["text"] == "abc"
+        assert read_data[1] == 100
+
+    def test_read_write_custom_encoder_decoder(self, json_file):
+        json_dn = JSONDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={"default_path": json_file, "encoder": MyCustomEncoder, "decoder": MyCustomDecoder},
+        )
+        data = [MyCustomObject("1", 1, "abc"), 100]
+        json_dn.write(data)
+        read_data = json_dn.read()
+        assert isinstance(read_data[0], MyCustomObject)
+        assert read_data[0].id == "1"
+        assert read_data[0].integer == 1
+        assert read_data[0].text == "abc"
+        assert read_data[1] == 100
 
     def test_set_path(self):
         dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.json"})

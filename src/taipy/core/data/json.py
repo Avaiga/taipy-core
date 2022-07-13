@@ -12,6 +12,7 @@
 import dataclasses
 import json
 from datetime import date, datetime, timedelta
+from enum import Enum
 from os.path import isfile
 from typing import Any, Dict, List, Optional
 
@@ -41,6 +42,8 @@ class JSONDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         path (str): The path to the JSON file.
+        encoder (json.JSONEncoder): The JSON encoder that is used to write into the JSON file.
+        decoder (json.JSONDecoder): The JSON decoder that is used to read from the JSON file.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
             _properties_ parameter must at least contain a _"default_path"_ entry representing the path
             of the JSON file.
@@ -48,7 +51,8 @@ class JSONDataNode(DataNode):
 
     __STORAGE_TYPE = "json"
     __DEFAULT_PATH_KEY = "default_path"
-    __EXPOSED_TYPE_KEY = "exposed_type"
+    _ENCODER_KEY = "encoder"
+    _DECODER_KEY = "decoder"
     _REQUIRED_PROPERTIES: List[str] = [__DEFAULT_PATH_KEY]
 
     def __init__(
@@ -84,6 +88,9 @@ class JSONDataNode(DataNode):
             **properties,
         )
         self._path = self._properties.get(self.__DEFAULT_PATH_KEY)
+        self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
+        self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
+
         if not self._last_edit_date and isfile(self._path):  # type: ignore
             self.unlock_edit()
 
@@ -100,30 +107,43 @@ class JSONDataNode(DataNode):
     def path(self, value):
         self.properties[self.__DEFAULT_PATH_KEY] = value
 
+    @property  # type: ignore
+    @_self_reload(DataNode._MANAGER_NAME)
+    def encoder(self):
+        return self._encoder
+
+    @encoder.setter
+    def encoder(self, encoder: json.JSONEncoder):
+        self.properties[self._ENCODER_KEY] = encoder
+
+    @property  # type: ignore
+    @_self_reload(DataNode._MANAGER_NAME)
+    def decoder(self):
+        return self._decoder
+
+    @decoder.setter
+    def decoder(self, decoder: json.JSONDecoder):
+        self.properties[self._DECODER_KEY] = decoder
+
     def _read(self):
         with open(self._path, "r") as f:
-            data = json.load(f)
-        return self._cast(data)
-
-    def _cast(self, data: Any):
-        if self.__EXPOSED_TYPE_KEY not in self._properties:
-            return data
-        exposed_type = self._properties[self.__EXPOSED_TYPE_KEY]
-        if isinstance(data, Dict):
-            return exposed_type(**data)
-        if isinstance(data, list):
-            return [exposed_type(**x) if x is not None else None for x in data]
-        return exposed_type(data)
+            return json.load(f, cls=self._decoder)
 
     def _write(self, data: Any):
         with open(self._path, "w") as f:  # type: ignore
-            json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
+            json.dump(data, f, indent=4, cls=self._encoder)
 
 
-class EnhancedJSONEncoder(json.JSONEncoder):
+class DefaultJSONEncoder(json.JSONEncoder):
     def default(self, o):
+        if isinstance(o, Enum):
+            return o.value
         if isinstance(o, (datetime, date)):
             return o.isoformat()
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)
         return super().default(o)
+
+
+class DefaultJSONDecoder(json.JSONDecoder):
+    pass
