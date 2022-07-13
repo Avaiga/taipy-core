@@ -46,6 +46,7 @@ class ExcelDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
+        path (str): The path to the Excel file.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
             _properties_ parameter must at least contain a _"default_path"_ entry representing the path
             of the Excel file (xlsx format).
