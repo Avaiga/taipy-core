@@ -59,12 +59,13 @@ class TestJSONDataNode:
                 "foo bar", Scope.PIPELINE, name="super name", properties={"default_path": path, "has_header": False}
             )
 
-    def test_new_csv_data_node_with_existing_file_is_ready_for_reading(self):
+    def test_new_json_data_node_with_existing_file_is_ready_for_reading(self):
         not_ready_dn_cfg = Config.configure_data_node(
             "not_ready_data_node_config_id", "json", default_path="NOT_EXISTING.json"
         )
         not_ready_dn = _DataManager._bulk_get_or_create([not_ready_dn_cfg])[not_ready_dn_cfg]
         assert not not_ready_dn.is_ready_for_reading
+        assert not_ready_dn.path == "NOT_EXISTING.json"
 
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/json/example_list.json")
         ready_dn_cfg = Config.configure_data_node("ready_data_node_config_id", "json", default_path=path)
@@ -168,10 +169,10 @@ class TestJSONDataNode:
             json_dn.write(data)
 
     def test_set_path(self):
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.csv"})
-        assert dn.path == "foo.csv"
-        dn.path = "bar.csv"
-        assert dn.path == "bar.csv"
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"path": "foo.json"})
+        assert dn.path == "foo.json"
+        dn.path = "bar.json"
+        assert dn.path == "bar.json"
 
     def test_raise_error_when_path_not_exist(self):
         with pytest.raises(MissingRequiredProperty):
