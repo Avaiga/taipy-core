@@ -86,13 +86,11 @@ class ExcelDataNode(DataNode):
         if self.__EXPOSED_TYPE_PROPERTY in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__exposed_types_to_dict(properties)
 
-        if path := properties.get(self.__PATH_KEY):
-            self._path = path
-        elif path := properties.get(self.__DEFAULT_PATH_KEY):
-            self._path = path
-            properties[self.__PATH_KEY] = path
-        else:
+        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
+        if self._path is None:
             raise MissingRequiredProperty("default_path is required in a Excel data node config")
+        else:
+            properties[self.__PATH_KEY] = self._path
 
         super().__init__(
             config_id,
@@ -117,15 +115,7 @@ class ExcelDataNode(DataNode):
 
     @path.setter
     def path(self, value):
-        self.properties[self.__DEFAULT_PATH_KEY] = value
-
-    def __build_path(self):
-        if path := self._properties.get(self.__DEFAULT_PATH_KEY):
-            return path
-        if path := self._properties.get(self.__PATH_KEY):
-            _warn_deprecated("path", suggest="default_path")
-            return path
-        raise MissingRequiredProperty("default_path is required")
+        self.properties[self.__PATH_KEY] = value
 
     def __exposed_types_to_dict(self, properties):
         if properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:

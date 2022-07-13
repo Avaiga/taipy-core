@@ -77,13 +77,11 @@ class CSVDataNode(DataNode):
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
 
-        if path := properties.get(self.__PATH_KEY):
-            self._path = path
-        elif path := properties.get(self.__DEFAULT_PATH_KEY):
-            self._path = path
-            properties[self.__PATH_KEY] = path
-        else:
+        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
+        if self._path is None:
             raise MissingRequiredProperty("default_path is required in a CSV data node config")
+        else:
+            properties[self.__PATH_KEY] = self._path
 
         super().__init__(
             config_id,

@@ -95,7 +95,7 @@ class TestPickleDataNodeEntity:
         assert isinstance(pickle_dict.read(), dict)
         assert pickle_dict.read() == {"bar": 12, "baz": "qux", "quux": [13]}
 
-    def test_default_path_overrides_path(self):
+    def test_path_overrides_default_path(self):
         dn = PickleDataNode(
             "foo",
             Scope.PIPELINE,
@@ -105,7 +105,7 @@ class TestPickleDataNodeEntity:
                 "path": "bar.FILE.p",
             },
         )
-        assert dn.path == "foo.FILE.p"
+        assert dn.path == "bar.FILE.p"
 
     def test_set_path(self):
         dn = PickleDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.p"})

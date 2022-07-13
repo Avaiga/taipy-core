@@ -45,7 +45,7 @@ class PickleDataNode(DataNode):
             When creating a pickle data node, if the _properties_ dictionary contains a
             _"default_data"_ entry, the data node is automatically written with the corresponding
             _"default_data"_ value.
-            If the _properties_ dictionary contains a _"default_path"_ entry, the data will be stored
+            If the _properties_ dictionary contains a _"default_path"_ or _"path"_ entry, the data will be stored
             using the corresponding value as the name of the pickle file.
     """
 
@@ -71,6 +71,9 @@ class PickleDataNode(DataNode):
         if properties is None:
             properties = {}
         default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
+        self.__is_file_generated = False
+        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
+        properties[self.__PATH_KEY] = self._path
         super().__init__(
             config_id,
             scope,
@@ -83,8 +86,8 @@ class PickleDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self.__is_file_generated = False
-        self._path = self.__build_path()
+        if self._path is None:
+            self._path = self.__build_path()
         if not self._last_edit_date and os.path.exists(self._path):
             self.unlock_edit()
         if default_value is not None and not os.path.exists(self._path):
@@ -101,7 +104,7 @@ class PickleDataNode(DataNode):
 
     @path.setter  # type: ignore
     def path(self, value):
-        self.properties[self.__DEFAULT_PATH_KEY] = value
+        self.properties[self.__PATH_KEY] = value
         self.__is_file_generated = False
 
     @property
@@ -115,10 +118,7 @@ class PickleDataNode(DataNode):
         pickle.dump(data, open(self._path, "wb"))
 
     def __build_path(self):
-        if file_name := self._properties.get(self.__DEFAULT_PATH_KEY):
-            return file_name
-        if file_name := self._properties.get(self.__PATH_KEY):
-            return file_name
+
         from taipy.config.config import Config
 
         dir_path = pathlib.Path(Config.global_config.storage_folder) / "pickles"
