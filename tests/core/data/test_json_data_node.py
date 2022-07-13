@@ -169,7 +169,7 @@ class TestJSONDataNode:
             json_dn.write(data)
 
     def test_set_path(self):
-        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"path": "foo.json"})
+        dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.json"})
         assert dn.path == "foo.json"
         dn.path = "bar.json"
         assert dn.path == "bar.json"
