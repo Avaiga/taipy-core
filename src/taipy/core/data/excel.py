@@ -48,7 +48,7 @@ class ExcelDataNode(DataNode):
             and not completed yet. False otherwise.
         path (str): The path to the Excel file.
         properties (dict[str, Any]): A dictionary of additional properties. The _properties_
-            must have a _"default_path"_ or _"path"_ entry with the path of the JSON file.
+            must have a _"default_path"_ or _"path"_ entry with the path of the Excel file.
     """
 
     __STORAGE_TYPE = "excel"
