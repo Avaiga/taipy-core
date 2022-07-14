@@ -14,6 +14,7 @@ import json
 import os
 import pathlib
 from dataclasses import dataclass
+from enum import Enum
 
 import numpy as np
 import pytest
@@ -155,6 +156,18 @@ class TestJSONDataNode:
         json_dn.write(data)
         read_data = json_dn.read()
         assert read_data["date"] == now_str
+
+    def test_write_enum(self, json_file):
+        class MyEnum(Enum):
+            A = 1
+            B = 2
+            C = 3
+
+        json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
+        data = [MyEnum.A, MyEnum.B, MyEnum.C]
+        json_dn.write(data)
+        read_data = json_dn.read()
+        assert read_data == [1, 2, 3]
 
     def test_write_dataclass(self, json_file):
         @dataclass
