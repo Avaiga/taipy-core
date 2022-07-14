@@ -73,7 +73,8 @@ class PickleDataNode(DataNode):
         default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
         self.__is_file_generated = False
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
-        properties[self.__PATH_KEY] = self._path
+        if self._path is not None:
+            properties[self.__PATH_KEY] = self._path
         super().__init__(
             config_id,
             scope,
