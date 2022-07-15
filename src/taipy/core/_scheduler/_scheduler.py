@@ -17,14 +17,14 @@ from typing import Callable, Iterable, List, Optional, Union
 from taipy.config.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
 
-from ._abstract_scheduler import _AbstractScheduler
-from ._dispatcher._development_job_dispatcher import _DevelopmentJobDispatcher
-from ._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 from ..data._data_manager_factory import _DataManagerFactory
 from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
 from ..pipeline.pipeline import Pipeline
 from ..task.task import Task
+from ._abstract_scheduler import _AbstractScheduler
+from ._dispatcher._development_job_dispatcher import _DevelopmentJobDispatcher
+from ._dispatcher._standalone_job_dispatcher import _StandaloneJobDispatcher
 
 
 class _Scheduler(_AbstractScheduler):
@@ -170,7 +170,7 @@ class _Scheduler(_AbstractScheduler):
     @staticmethod
     def __unlock_edit_on_outputs(job):
         for dn in job.task.output.values():
-            dn.unlock_edit(job_id=job.id)
+            dn.unlock_edit(job_id=job.id, at=dn.last_edit_date)
 
     @classmethod
     def _on_status_change(cls, job: Job):
