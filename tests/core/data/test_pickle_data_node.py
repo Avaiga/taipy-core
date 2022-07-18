@@ -113,8 +113,8 @@ class TestPickleDataNodeEntity:
         dn.path = "bar.p"
         assert dn.path == "bar.p"
 
-    def test_is_file_generated(self):
+    def test_is_generated(self):
         dn = PickleDataNode("foo", Scope.PIPELINE, properties={})
-        assert dn.is_file_generated
+        assert dn.is_generated
         dn.path = "bar.p"
-        assert not dn.is_file_generated
+        assert not dn.is_generated

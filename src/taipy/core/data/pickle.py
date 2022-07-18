@@ -53,6 +53,7 @@ class PickleDataNode(DataNode):
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
     __DEFAULT_DATA_KEY = "default_data"
+    __IS_GENERATED_KEY = "is_generated"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -71,10 +72,11 @@ class PickleDataNode(DataNode):
         if properties is None:
             properties = {}
         default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
-        self.__is_file_generated = False
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if self._path is not None:
             properties[self.__PATH_KEY] = self._path
+        self._is_generated = properties.get(self.__IS_GENERATED_KEY, self._path is None)
+        properties[self.__IS_GENERATED_KEY] = self._is_generated
         super().__init__(
             config_id,
             scope,
@@ -106,11 +108,12 @@ class PickleDataNode(DataNode):
     @path.setter  # type: ignore
     def path(self, value):
         self.properties[self.__PATH_KEY] = value
-        self.__is_file_generated = False
+        self.properties[self.__IS_GENERATED_KEY] = False
 
-    @property
-    def is_file_generated(self) -> bool:
-        return self.__is_file_generated
+    @property  # type: ignore
+    @_self_reload(DataNode._MANAGER_NAME)
+    def is_generated(self) -> bool:
+        return self._is_generated
 
     def _read(self):
         return pickle.load(open(self._path, "rb"))
@@ -125,5 +128,4 @@ class PickleDataNode(DataNode):
         dir_path = pathlib.Path(Config.global_config.storage_folder) / "pickles"
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-        self.__is_file_generated = True
         return dir_path / f"{self.id}.p"
