@@ -12,7 +12,7 @@ import json
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, Iterable, List, Optional, TypeVar, Union
+from typing import Any, Generic, Iterable, Iterator, List, Optional, TypeVar, Union
 
 Json = Union[dict, list, str, int, float, bool, None]
 

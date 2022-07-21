@@ -11,9 +11,8 @@
 
 from typing import Any, Optional, Union
 
+from src.taipy.core._repository import _FileSystemRepository, _SQLRepository
 from taipy.config import Config
-
-from .._repository import _FileSystemRepository, _SQLRepository
 
 
 class _RepositoryFactory:

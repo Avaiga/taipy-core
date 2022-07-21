@@ -15,7 +15,7 @@ from typing import List, Optional
 
 from taipy.config.config import Config
 
-from .._repository import _RepositoryFactory
+from .._repository._repository_factory import _RepositoryFactory
 from ..common import _utils
 from ..common._utils import Subscriber
 from ..common.alias import CycleId, PipelineId

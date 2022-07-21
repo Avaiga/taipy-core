@@ -16,7 +16,7 @@ from typing import Dict
 
 from taipy.config.config import Config
 
-from .._repository import _RepositoryFactory
+from .._repository._repository_factory import _RepositoryFactory
 from ..common._utils import _load_fct
 from ._data_model import _DataNodeModel
 from .data_node import DataNode

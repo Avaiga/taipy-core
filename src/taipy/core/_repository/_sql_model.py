@@ -25,10 +25,10 @@ class _TaipyModel(Base):  # type: ignore
 
     id = Column(Integer, primary_key=True)
     model_id = Column(Text)
-    entity_type = Column(Text)
+    model_type = Column(Text)
     document = Column(Text)
 
-    def __int__(self, model_id: str, entity_type: str, document: Json):
+    def __int__(self, model_id: str, model_type: str, document: Json):
         self.model_id = model_id
-        self.entity_type = entity_type
+        self.model_type = model_type
         self.document = document

@@ -16,7 +16,7 @@ from typing import Callable, List
 from taipy.config.config import Config
 from taipy.config.scenario.frequency import Frequency
 
-from .._repository import _RepositoryFactory
+from .._repository._repository_factory import _RepositoryFactory
 from ..cycle._cycle_model import _CycleModel
 from ..cycle.cycle import Cycle
 

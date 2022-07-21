@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 
 from src.taipy.core._manager._manager import _Manager
-from src.taipy.core._repository import _RepositoryFactory
+from src.taipy.core._repository._repository_factory import _RepositoryFactory
 from taipy.config.config import Config
 
 

@@ -11,16 +11,16 @@
 
 import json
 import sqlite3
-from typing import Any, Iterable, List, Optional, Type, TypeVar, Union
+from typing import Any, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 
 from taipy.config import Config
 from taipy.core.exceptions.exceptions import MissingRequiredProperty, ModelNotFound
 
-from ._repository import _AbstractRepository, _CustomDecoder
+from ._repository import _AbstractRepository, _CustomDecoder, _CustomEncoder
 from ._sql_model import Base, _TaipyModel
 
 ModelType = TypeVar("ModelType")
@@ -45,7 +45,7 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         except KeyError:
             raise MissingRequiredProperty("Missing property db_location")
 
-    def __to_entity(self, entry: _TaipyModel):
+    def __to_entity(self, entry: _TaipyModel) -> Entity:
         return self.__model_to_entity(entry.document)
 
     def __model_to_entity(self, file_content):
@@ -69,19 +69,45 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
             return []
 
     def _load_all_by(self, by) -> List[Entity]:
-        pass
+        try:
+            entries = (
+                self.session.query(_TaipyModel)
+                .filter_by(entiy_type=self.model)
+                .filter(_TaipyModel.document.contains(by))
+            )
+            return [self.__to_entity(e) for e in entries]
+        except NoResultFound:
+            return []
 
     def _save(self, entity: Entity):
-        pass
+        model = self._to_model(entity)
+        entry = _TaipyModel(
+            model_id=model.id,
+            model_type=self.model,
+            document=json.dumps(
+                model.to_dict(), ensure_ascii=False, indent=0, cls=_CustomEncoder, check_circular=False
+            ),
+        )
+        self.session.add(entry)
+        self.session.commit()
 
-    def _delete(self, entity_id: str):
-        pass
+    def _delete(self, model_id: str):
+        self.session.query(_TaipyModel).filter_by(model_id=model_id).delete()
+        self.session.commit()
 
     def _delete_all(self):
-        pass
+        self.session.query(_TaipyModel).filter_by(model_type=self.model).delete()
+        self.session.commit()
 
     def _delete_many(self, ids: Iterable[str]):
-        pass
+        self.session.execute(delete(_TaipyModel).where(_TaipyModel.model_id.in_(ids)))
+        self.session.commit()
 
     def _search(self, attribute: str, value: Any) -> Optional[Entity]:
-        pass
+        return next(self.__search(attribute, value), None)
+
+    def __search(self, attribute: str, value: str) -> Iterator[Entity]:
+        # This is really slow, because we are loading all entries and then searching inside
+        # Some engines support json fields and others don't(sqlite uses text instead of json)
+        # In the future we should look into finding a better query for this
+        return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
