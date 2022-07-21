@@ -13,11 +13,11 @@ from typing import Any, Optional, Union
 
 from taipy.config import Config
 
-from .._repository import _FileSystemRepository
+from .._repository import _FileSystemRepository, _SQLRepository
 
 
 class _RepositoryFactory:
-    _REPOSITORY_MAP = {"default": _FileSystemRepository}
+    _REPOSITORY_MAP = {"default": _FileSystemRepository, "sql": _SQLRepository}
 
     @classmethod
     def build_repository(cls) -> Optional[Union[_FileSystemRepository, Any]]:
