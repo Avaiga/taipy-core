@@ -8,18 +8,26 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+import pytest
 
-from src.taipy.core._repository import _FileSystemRepository, _RepositoryFactory
+from src.taipy.core._repository import _FileSystemRepository, _SQLRepository
+from src.taipy.core._repository._repository_factory import _RepositoryFactory
 from taipy.config import Config
 
 
-def test_build_repository():
+def test_build_repository(mocker):
     # Config not set, returns default repository
     repo = _RepositoryFactory.build_repository()
-    assert isinstance(repo, _FileSystemRepository.__class__)
+    assert repo is _FileSystemRepository
 
-    # Non existing repository, returns default repository
-    Config.global_config.repository_type = "foo"
+    Config.global_config.repository_type = "sql"
 
+    # Not using enterprise, returns default repository
     repo = _RepositoryFactory.build_repository()
-    assert isinstance(repo, _FileSystemRepository.__class__)
+    assert repo is _FileSystemRepository
+
+    mocker.patch.object(_RepositoryFactory, "_using_enterprise", return_value=True)
+
+    # Using enterprise, returns SQL repository
+    repo = _RepositoryFactory.build_repository()
+    assert repo is _SQLRepository

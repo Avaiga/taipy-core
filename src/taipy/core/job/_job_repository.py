@@ -16,7 +16,7 @@ from typing import List
 from taipy.config.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
 
-from .._repository import _RepositoryFactory
+from .._repository._repository_factory import _RepositoryFactory
 from ..common._utils import _fcts_to_dict, _load_fct
 from ..exceptions.exceptions import InvalidSubscriber
 from ..task._task_repository import _TaskRepository

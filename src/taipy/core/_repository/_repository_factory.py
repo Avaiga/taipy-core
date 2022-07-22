@@ -8,22 +8,28 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-
+from importlib import util
 from typing import Any, Optional, Union
 
+from src.taipy.core._repository import _FileSystemRepository, _SQLRepository
 from taipy.config import Config
-
-from .._repository import _FileSystemRepository
 
 
 class _RepositoryFactory:
-    _REPOSITORY_MAP = {"default": _FileSystemRepository}
+    _TAIPY_ENTERPRISE_MODULE = "taipy.enterprise"
+    _TAIPY_ENTERPRISE_CORE_MODULE = _TAIPY_ENTERPRISE_MODULE + ".core"
+
+    _REPOSITORY_MAP = {"default": _FileSystemRepository, "sql": _SQLRepository}
 
     @classmethod
     def build_repository(cls) -> Optional[Union[_FileSystemRepository, Any]]:
         repo = cls._REPOSITORY_MAP.get(Config.global_config.repository_type)
 
-        if not repo:
+        if not repo or not cls._using_enterprise():
             return cls._REPOSITORY_MAP.get("default")
 
         return repo
+
+    @classmethod
+    def _using_enterprise(cls) -> bool:
+        return util.find_spec(cls._TAIPY_ENTERPRISE_MODULE) is not None

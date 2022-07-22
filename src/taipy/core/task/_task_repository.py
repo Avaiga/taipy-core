@@ -13,7 +13,7 @@ import pathlib
 
 from taipy.config.config import Config
 
-from .._repository import _RepositoryFactory
+from .._repository._repository_factory import _RepositoryFactory
 from ..common._utils import _load_fct
 from ..common.alias import TaskId
 from ..data._data_manager_factory import _DataManagerFactory
