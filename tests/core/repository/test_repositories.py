@@ -18,7 +18,7 @@ from taipy.config.config import Config
 from .mocks import MockFSRepository, MockModel, MockObj, MockSQLRepository
 
 
-class TestFileSystemStorage:
+class TestRepositoriesStorage:
     @pytest.mark.parametrize(
         "mock_repo,params",
         [(MockFSRepository, {"model": MockModel, "dir_name": "foo"}), (MockSQLRepository, {"model": MockModel})],
