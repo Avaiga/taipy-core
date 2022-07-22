@@ -11,6 +11,7 @@
 
 import json
 import sqlite3
+from abc import abstractmethod
 from typing import Any, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 from sqlalchemy import create_engine, delete
@@ -25,16 +26,31 @@ from ._sql_model import Base, _TaipyModel
 
 ModelType = TypeVar("ModelType")
 Entity = TypeVar("Entity")
-# Json = Union[dict, list, str, int, float, bool, None]
 
 
 class _SQLRepository(_AbstractRepository[ModelType, Entity]):
+    @abstractmethod
+    def _to_model(self, obj):
+        """
+        Converts the object to be saved to its model.
+        """
+        ...
+
+    @abstractmethod
+    def _from_model(self, model):
+        """
+        Converts a model to its functional object.
+        """
+        ...
+
     def __init__(self, model: Type[ModelType]):
         properties = Config.global_config.repository_properties
         self.model = model
+        self.model_type = self.model.__name__.lower()
+
         try:
             # More sql databases can be easily added in the future
-            self.engine = create_engine(f"sqlite3://{properties['db_location']}")
+            self.engine = create_engine(f"sqlite:///{properties['db_location']}")
 
             # Maybe this should be in the taipy package? So it's not executed every time
             # the class is instantiated
@@ -63,7 +79,7 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
 
     def _load_all(self) -> List[Entity]:
         try:
-            entries = self.session.query(_TaipyModel).filter_by(entiy_type=self.model)
+            entries = self.session.query(_TaipyModel).filter_by(model_type=self.model_type)
             return [self.__to_entity(e) for e in entries]
         except NoResultFound:
             return []
@@ -72,7 +88,7 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         try:
             entries = (
                 self.session.query(_TaipyModel)
-                .filter_by(entiy_type=self.model)
+                .filter_by(model_type=self.model_type)
                 .filter(_TaipyModel.document.contains(by))
             )
             return [self.__to_entity(e) for e in entries]
@@ -83,7 +99,7 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         model = self._to_model(entity)
         entry = _TaipyModel(
             model_id=model.id,
-            model_type=self.model,
+            model_type=self.model_type,
             document=json.dumps(
                 model.to_dict(), ensure_ascii=False, indent=0, cls=_CustomEncoder, check_circular=False
             ),
@@ -96,7 +112,7 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         self.session.commit()
 
     def _delete_all(self):
-        self.session.query(_TaipyModel).filter_by(model_type=self.model).delete()
+        self.session.query(_TaipyModel).filter_by(model_type=self.model_type).delete()
         self.session.commit()
 
     def _delete_many(self, ids: Iterable[str]):
