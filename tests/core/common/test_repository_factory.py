@@ -8,19 +8,24 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+import pytest
 
-from src.taipy.core._repository import _FileSystemRepository
+from src.taipy.core._repository import _FileSystemRepository, _SQLRepository
 from src.taipy.core._repository._repository_factory import _RepositoryFactory
 from taipy.config import Config
 
 
-def test_build_repository():
-    # Config not set, returns default repository
-    repo = _RepositoryFactory.build_repository()
-    assert isinstance(repo, _FileSystemRepository.__class__)
+@pytest.mark.parametrize(
+    "type,repository_class", [("foo", _FileSystemRepository.__class__), ("sql", _SQLRepository.__class__)]
+)
+def test_build_repository(type, repository_class):
+    if not Config.global_config.repository_type:
+        # Config not set, returns default repository
+        repo = _RepositoryFactory.build_repository()
+        assert isinstance(repo, repository_class)
 
     # Non existing repository, returns default repository
-    Config.global_config.repository_type = "foo"
+    Config.global_config.repository_type = type
 
     repo = _RepositoryFactory.build_repository()
-    assert isinstance(repo, _FileSystemRepository.__class__)
+    assert isinstance(repo, repository_class)
