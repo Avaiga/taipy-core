@@ -18,8 +18,8 @@ from sqlalchemy import create_engine, delete
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 
+from src.taipy.core.exceptions.exceptions import MissingRequiredProperty, ModelNotFound
 from taipy.config import Config
-from taipy.core.exceptions.exceptions import MissingRequiredProperty, ModelNotFound
 
 from ._repository import _AbstractRepository, _CustomDecoder, _CustomEncoder
 from ._sql_model import Base, _TaipyModel
