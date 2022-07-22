@@ -13,6 +13,7 @@ import json
 import pathlib
 import shutil
 import time
+from abc import abstractmethod
 from typing import Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 from taipy.config.config import Config
@@ -37,6 +38,20 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         model (ModelType): Generic dataclass.
         dir_name (str): Folder that will hold the files for this dataclass model.
     """
+
+    @abstractmethod
+    def _to_model(self, obj):
+        """
+        Converts the object to be saved to its model.
+        """
+        ...
+
+    @abstractmethod
+    def _from_model(self, model):
+        """
+        Converts a model to its functional object.
+        """
+        ...
 
     def __init__(self, model: Type[ModelType], dir_name: str):
         self.model = model
