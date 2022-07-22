@@ -15,17 +15,19 @@ from src.taipy.core._repository._repository_factory import _RepositoryFactory
 from taipy.config import Config
 
 
-@pytest.mark.parametrize(
-    "type,repository_class", [("foo", _FileSystemRepository.__class__), ("sql", _SQLRepository.__class__)]
-)
-def test_build_repository(type, repository_class):
-    if not Config.global_config.repository_type:
-        # Config not set, returns default repository
-        repo = _RepositoryFactory.build_repository()
-        assert isinstance(repo, repository_class)
-
-    # Non existing repository, returns default repository
-    Config.global_config.repository_type = type
-
+def test_build_repository(mocker):
+    # Config not set, returns default repository
     repo = _RepositoryFactory.build_repository()
-    assert isinstance(repo, repository_class)
+    assert repo is _FileSystemRepository
+
+    Config.global_config.repository_type = "sql"
+
+    # Not using enterprise, returns default repository
+    repo = _RepositoryFactory.build_repository()
+    assert repo is _FileSystemRepository
+
+    mocker.patch.object(_RepositoryFactory, "_using_enterprise", return_value=True)
+
+    # Using enterprise, returns SQL repository
+    repo = _RepositoryFactory.build_repository()
+    assert repo is _SQLRepository
