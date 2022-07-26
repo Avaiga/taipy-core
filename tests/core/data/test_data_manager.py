@@ -195,7 +195,7 @@ class TestDataManager:
         assert _DataManager._get(pickle_dn).job_ids == pickle_dn.job_ids
         assert not _DataManager._get(pickle_dn).is_ready_for_reading
         assert _DataManager._get(pickle_dn).is_ready_for_reading == pickle_dn.is_ready_for_reading
-        assert len(_DataManager._get(pickle_dn).properties) == 1
+        assert len(_DataManager._get(pickle_dn).properties) == 2
         assert not _DataManager._get(pickle_dn.id).properties["cacheable"]
         assert _DataManager._get(pickle_dn).properties == pickle_dn.properties
 
