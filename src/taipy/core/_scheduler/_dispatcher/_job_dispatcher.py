@@ -9,9 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 from abc import abstractmethod
-from typing import Any, List
+from typing import Any, Dict, List
 
 from taipy.config import Config
+from taipy.config._config import _Config
 
 from ...common.alias import JobId
 from ...data._data_manager_factory import _DataManagerFactory
@@ -44,7 +45,7 @@ class _JobDispatcher:
         raise NotImplementedError
 
     @classmethod
-    def _run_wrapped_function(cls, storage_folder: str, job_id: JobId, task: Task):
+    def _run_wrapped_function(cls, configs: Dict[str, _Config], job_id: JobId, task: Task):
         """
         Reads inputs, execute function, and write outputs.
 
@@ -55,7 +56,11 @@ class _JobDispatcher:
              True if the task needs to run. False otherwise.
         """
         try:
-            Config.global_config.storage_folder = storage_folder
+            Config._python_config = configs["python"]
+            Config._file_config = configs["file"]
+            Config._env_file_config = configs["env"]
+            Config.configure_global_app()  # Trigger compile
+
             inputs: List[DataNode] = list(task.input.values())
             outputs: List[DataNode] = list(task.output.values())
             fct = task.function

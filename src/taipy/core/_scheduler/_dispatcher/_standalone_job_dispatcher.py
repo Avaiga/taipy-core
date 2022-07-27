@@ -37,9 +37,12 @@ class _StandaloneJobDispatcher(_JobDispatcher):
             job (Job^): The job to submit on an executor with an available worker.
         """
         self._nb_available_workers -= 1
-        future = self._executor.submit(
-            self._run_wrapped_function, Config.global_config.storage_folder, job.id, job.task
-        )
+        configs = {
+            "python": Config._python_config,
+            "file": Config._file_config,
+            "env": Config._env_file_config,
+        }
+        future = self._executor.submit(self._run_wrapped_function, configs, job.id, job.task)
 
         from .._scheduler_factory import _SchedulerFactory
 
