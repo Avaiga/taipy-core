@@ -56,6 +56,7 @@ class _JobDispatcher:
              True if the task needs to run. False otherwise.
         """
         try:
+            Config._default_config = configs["default"]
             Config._python_config = configs["python"]
             Config._file_config = configs["file"]
             Config._env_file_config = configs["env"]

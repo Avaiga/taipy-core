@@ -38,6 +38,7 @@ class _StandaloneJobDispatcher(_JobDispatcher):
         """
         self._nb_available_workers -= 1
         configs = {
+            "default": Config._default_config,
             "python": Config._python_config,
             "file": Config._file_config,
             "env": Config._env_file_config,
