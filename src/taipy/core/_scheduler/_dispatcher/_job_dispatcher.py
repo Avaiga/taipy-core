@@ -9,10 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 from abc import abstractmethod
-from typing import Any, Dict, List
+from typing import Any, List
 
+from taipy import JobConfig
 from taipy.config import Config
-from taipy.config._config import _Config
 from taipy.config._toml_serializer import _TomlSerializer
 
 from ...common.alias import JobId
@@ -46,25 +46,21 @@ class _JobDispatcher:
         raise NotImplementedError
 
     @classmethod
-    def _run_wrapped_function(cls, configs: Dict[str, str], job_id: JobId, task: Task):
+    def _run_wrapped_function(cls, mode, config_as_string, job_id: JobId, task: Task):
         """
         Reads inputs, execute function, and write outputs.
 
         Parameters:
-             job_id (JobId^): The id of the job.
-             task (Task^): The task to be executed.
+            mode: The job execution mode.
+            config_as_string: The applied config passed as string to be reloaded iff the mode is `standalone`.
+            job_id (JobId^): The id of the job.
+            task (Task^): The task to be executed.
         Returns:
              True if the task needs to run. False otherwise.
         """
         try:
-            Config._default_config = _TomlSerializer._deserialize(configs["default"])
-            Config._python_config = _TomlSerializer._deserialize(configs["python"])
-            if configs.get("file"):
-                Config._file_config = _TomlSerializer._deserialize(configs["file"])
-            if configs.get("env"):
-                Config._env_file_config = _TomlSerializer._deserialize(configs["env"])
-            Config._Config__compile_configs()
-
+            if mode != JobConfig._DEVELOPMENT_MODE:
+                Config._applied_config = _TomlSerializer()._deserialize(config_as_string)
             inputs: List[DataNode] = list(task.input.values())
             outputs: List[DataNode] = list(task.output.values())
             fct = task.function
