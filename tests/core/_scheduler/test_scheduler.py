@@ -47,6 +47,9 @@ def reset_configuration_singleton():
         print(f"deleting file {f}")
         os.remove(f)
 
+    for f in glob.glob("./my_data/*"):
+        os.remove(f)
+
 
 # ################################  USER FUNCTIONS  ##################################
 
