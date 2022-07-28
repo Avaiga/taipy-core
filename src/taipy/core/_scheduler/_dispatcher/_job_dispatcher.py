@@ -57,12 +57,12 @@ class _JobDispatcher:
              True if the task needs to run. False otherwise.
         """
         try:
-            Config._default_config = (
-                _TomlSerializer._deserialize(configs["default"]) if configs.get("default") else None
-            )
-            Config._python_config = _TomlSerializer._deserialize(configs["python"]) if configs.get("python") else None
-            Config._env_file_config = _TomlSerializer._deserialize(configs["env"]) if configs.get("env") else None
-            Config._file_config = _TomlSerializer._deserialize(configs["file"]) if configs["file"] else None
+            Config._default_config = _TomlSerializer._deserialize(configs["default"])
+            Config._python_config = _TomlSerializer._deserialize(configs["python"])
+            if configs.get("file"):
+                Config._file_config = _TomlSerializer._deserialize(configs["file"])
+            if configs.get("env"):
+                Config._env_file_config = _TomlSerializer._deserialize(configs["env"])
             Config._Config__compile_configs()
 
             inputs: List[DataNode] = list(task.input.values())

@@ -39,11 +39,13 @@ class _StandaloneJobDispatcher(_JobDispatcher):
         """
         self._nb_available_workers -= 1
         configs = {
-            "default": _TomlSerializer._serialize(Config._default_config) if Config._default_config else None,
-            "python": _TomlSerializer._serialize(Config._python_config) if Config._python_config else None,
-            "env": _TomlSerializer._serialize(Config._env_file_config) if Config._env_file_config else None,
-            "file": _TomlSerializer._serialize(Config._file_config) if Config._file_config else None,
+            "default": _TomlSerializer._serialize(Config._default_config),
+            "python": _TomlSerializer._serialize(Config._python_config),
         }
+        if Config._file_config:
+            configs["file"] = _TomlSerializer._serialize(Config._file_config)
+        if Config._env_file_config:
+            configs["env"] = _TomlSerializer._serialize(Config._env_file_config)
         future = self._executor.submit(self._run_wrapped_function, configs, job.id, job.task)
 
         from .._scheduler_factory import _SchedulerFactory
