@@ -13,6 +13,7 @@ from typing import Any, Dict, List
 
 from taipy.config import Config
 from taipy.config._config import _Config
+from taipy.config._toml_serializer import _TomlSerializer
 
 from ...common.alias import JobId
 from ...data._data_manager_factory import _DataManagerFactory
@@ -45,7 +46,7 @@ class _JobDispatcher:
         raise NotImplementedError
 
     @classmethod
-    def _run_wrapped_function(cls, configs: Dict[str, _Config], job_id: JobId, task: Task):
+    def _run_wrapped_function(cls, configs: Dict[str, str], job_id: JobId, task: Task):
         """
         Reads inputs, execute function, and write outputs.
 
@@ -56,11 +57,13 @@ class _JobDispatcher:
              True if the task needs to run. False otherwise.
         """
         try:
-            Config._default_config = configs["default"]
-            Config._python_config = configs["python"]
-            Config._file_config = configs["file"]
-            Config._env_file_config = configs["env"]
-            Config.configure_global_app()  # Trigger compile
+            Config._default_config = (
+                _TomlSerializer._deserialize(configs["default"]) if configs.get("default") else None
+            )
+            Config._python_config = _TomlSerializer._deserialize(configs["python"]) if configs.get("python") else None
+            Config._env_file_config = _TomlSerializer._deserialize(configs["env"]) if configs.get("env") else None
+            Config._file_config = _TomlSerializer._deserialize(configs["file"]) if configs["file"] else None
+            Config._Config__compile_configs()
 
             inputs: List[DataNode] = list(task.input.values())
             outputs: List[DataNode] = list(task.output.values())
