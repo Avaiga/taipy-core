@@ -208,8 +208,6 @@ class _ScenarioManager(_Manager[Scenario]):
             if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
                 raise DeletingPrimaryScenario
             _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
-            super()._delete(scenario_id)
-            return
         super()._delete(scenario_id)
 
     @classmethod
