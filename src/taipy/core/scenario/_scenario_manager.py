@@ -203,8 +203,13 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def _delete(cls, scenario_id: ScenarioId):  # type: ignore
-        if cls._get(scenario_id).is_primary:
-            raise DeletingPrimaryScenario
+        scenario = cls._get(scenario_id)
+        if scenario.is_primary:
+            scenarios = cls._get_all_by_cycle(scenario.cycle)
+            if len(scenarios) > 1:
+                raise DeletingPrimaryScenario
+            _CycleManagerFactory._build_manager()._hard_delete(scenario.cycle.id)
+            return
         super()._delete(scenario_id)
 
     @classmethod
