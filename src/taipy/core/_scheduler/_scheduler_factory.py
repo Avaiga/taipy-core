@@ -60,7 +60,7 @@ class _SchedulerFactory:
         elif Config.job_config.is_development:
             cls.__build_development_job_dispatcher()
         else:
-            raise ModeNotAvailable
+            raise ModeNotAvailable(f"Job mode {Config.job_config.mode} is not available.")
 
     @classmethod
     def __build_standalone_job_dispatcher(cls, force_restart=False):
