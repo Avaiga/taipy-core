@@ -217,10 +217,10 @@ class _ScenarioManager(_Manager[Scenario]):
     @classmethod
     def _compare(cls, *scenarios: Scenario, data_node_config_id: str = None):
         if len(scenarios) < 2:
-            raise InsufficientScenarioToCompare("At least two scenarios are required to compare")
+            raise InsufficientScenarioToCompare("At least two scenarios are required to compare.")
 
-        if not all([scenarios[0].config_id == scenario.config_id for scenario in scenarios]):
-            raise DifferentScenarioConfigs("Scenarios to compare must have the same configuration")
+        if not all(scenarios[0].config_id == scenario.config_id for scenario in scenarios):
+            raise DifferentScenarioConfigs("Scenarios to compare must have the same configuration.")
 
         if scenario_config := _ScenarioManager.__get_config(scenarios[0]):
             results = {}

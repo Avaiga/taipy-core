@@ -97,11 +97,11 @@ class GenericDataNode(DataNode):
             if self._READ_FUNCTION_PARAMS_PROPERTY in self.properties.keys():
                 return read_fct(*self.properties[self._READ_FUNCTION_PARAMS_PROPERTY])
             return read_fct()
-        raise MissingReadFunction("The read function is not defined in data node config " + self.config_id)
+        raise MissingReadFunction(f"The read function is not defined in data node config {self.config_id}.")
 
     def _write(self, data: Any):
         if write_fct := self.properties[self._REQUIRED_WRITE_FUNCTION_PROPERTY]:
             if self._WRITE_FUNCTION_PARAMS_PROPERTY in self.properties.keys():
                 return write_fct(data, *self.properties[self._WRITE_FUNCTION_PARAMS_PROPERTY])
             return write_fct(data)
-        raise MissingWriteFunction("The write function is not defined in data node config " + self.config_id)
+        raise MissingWriteFunction(f"The write function is not defined in data node config {self.config_id}.")
