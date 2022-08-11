@@ -228,7 +228,7 @@ class _ScenarioManager(_Manager[Scenario]):
                 if data_node_config_id in scenario_config.comparators.keys():
                     dn_comparators = {data_node_config_id: scenario_config.comparators[data_node_config_id]}
                 else:
-                    raise NonExistingComparator(data_node_config_id)
+                    raise NonExistingComparator(f"Data node config {data_node_config_id} has no comparator.")
             else:
                 dn_comparators = scenario_config.comparators
 
