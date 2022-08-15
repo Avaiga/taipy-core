@@ -182,7 +182,7 @@ class _ScenarioManager(_Manager[Scenario]):
             cls._set(scenario)
         else:
             raise DoesNotBelongToACycle(
-                f"Can't set scenario {scenario.id} to primary because it doesn't belong to a cycle"
+                f"Can't set scenario {scenario.id} to primary because it doesn't belong to a cycle."
             )
 
     @classmethod
