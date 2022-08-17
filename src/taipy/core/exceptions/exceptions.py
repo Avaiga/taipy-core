@@ -17,6 +17,9 @@ class CycleAlreadyExists(Exception):
 class NonExistingCycle(Exception):
     """Raised if we request a cycle not known by the cycle manager."""
 
+    def __init__(self, cycle_id: str):
+        self.message = f"Cycle: {cycle_id} does not exist."
+
 
 class MissingRequiredProperty(Exception):
     """Raised if a required property is missing when creating a Data Node."""
