@@ -18,11 +18,12 @@ from typing import Any, Collection, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, table, text
+
 from taipy.config.data_node.scope import Scope
 
-from .data_node import DataNode
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
+from .data_node import DataNode
 
 
 class SQLDataNode(DataNode):
@@ -122,7 +123,7 @@ class SQLDataNode(DataNode):
             username = urllib.parse.quote_plus(username)
             password = urllib.parse.quote_plus(password)
             database = urllib.parse.quote_plus(database)
-            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver={driver}"
+            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{database}?driver={driver}&TrustServerCertificate=yes"
         elif engine == "sqlite":
             return os.path.join("sqlite:///", path, f"{database}.sqlite3")
         raise UnknownDatabaseEngine(f"Unknown engine: {engine}")
