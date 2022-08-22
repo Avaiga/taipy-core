@@ -18,11 +18,12 @@ from typing import Any, Collection, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, table, text
-from taipy.config.data_node.scope import Scope
 
-from .data_node import DataNode
+from taipy.config.common.scope import Scope
+
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty, UnknownDatabaseEngine
+from .data_node import DataNode
 
 
 class SQLDataNode(DataNode):

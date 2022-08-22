@@ -211,3 +211,7 @@ class MultipleTaskFromSameConfigWithSameParent(Exception):
 
 class SchedulerNotBuilt(Exception):
     """Raised if the scheduler was not built in the SchedulerFactory"""
+
+
+class ModeNotAvailable(Exception):
+    """Raised if the mode in JobConfig is not supported."""
