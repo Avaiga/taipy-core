@@ -169,13 +169,10 @@ class SQLDataNode(DataNode):
             if not isinstance(data, list):
                 data = [data]
 
-            if isinstance(data[0], tuple):
+            if isinstance(data[0], (tuple, list)):
                 self.__insert_tuples(data, write_table, connection)
             elif isinstance(data[0], dict):
                 self.__insert_dicts(data, write_table, connection)
-            elif isinstance(data[0], list):
-                data = list(tuple(x) for x in data)
-                self.__insert_tuples(data, write_table, connection)
             # If data is a primitive type, it will be inserted as a tuple of one element.
             else:
                 self.__insert_tuples([(x,) for x in data], write_table, connection)
