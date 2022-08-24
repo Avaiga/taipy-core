@@ -113,7 +113,7 @@ class SQLDataNode(DataNode):
             self.properties.get("db_name"),
             self.properties.get("db_port", 1433),
             self.properties.get("db_driver", "ODBC Driver 17 for SQL Server"),
-            self.properties.get("db_extra_args", {}),
+            self.properties.get(self.__DB_EXTRA_ARGS_KEY, {}),
             self.properties.get("path", ""),
         )
 
