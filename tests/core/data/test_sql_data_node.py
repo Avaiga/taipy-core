@@ -210,6 +210,8 @@ class TestSQLDataNode:
             (np.array([1, 2, 3, 4]), [(1,), (2,), (3,), (4,)], "_insert_tuples"),
             (np.array([np.array([1, 2]), np.array([3, 4])]), [[1, 2], [3, 4]], "_insert_tuples"),
             ([], None, None),
+            (pd.DataFrame([]), None, None),
+            (np.array([]), None, None),
         ],
     )
     def test_write(self, data, written_data, called_func):
@@ -252,6 +254,8 @@ class TestSQLDataNode:
                     dn2._write(data)
                     insert_dicts_mock.assert_not_called()
                     insert_tuples_mock.assert_not_called()
+                    engine_mock.assert_not_called()
+                    create_table_mock.assert_not_called()
                 return
 
             with mock.patch(f"src.taipy.core.data.sql.SQLDataNode.{called_func}") as insert_mock:

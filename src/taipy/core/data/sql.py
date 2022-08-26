@@ -177,22 +177,17 @@ class SQLDataNode(DataNode):
         """Check data against a collection of types to handle insertion on the database."""
 
         engine = self.__engine()
+
+        if isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient="records")
+        elif isinstance(data, np.ndarray):
+            data = data.tolist()
+        if not isinstance(data, list):
+            data = [data]
+        if len(data) == 0:
+            return
         with engine.connect() as connection:
             table = self._create_table(engine)
-
-            if isinstance(data, pd.DataFrame):
-                self._insert_dicts(data.to_dict(orient="records"), table, connection)
-                return
-
-            if isinstance(data, np.ndarray):
-                data = data.tolist()
-
-            if not isinstance(data, list):
-                data = [data]
-
-            if len(data) == 0:
-                return
-
             if isinstance(data[0], (tuple, list)):
                 self._insert_tuples(data, table, connection)
             elif isinstance(data[0], dict):
