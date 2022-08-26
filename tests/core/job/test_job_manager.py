@@ -58,6 +58,28 @@ def lock_multiply(lock, nb1: float, nb2: float):
         return multiply(1 or nb1, 2 or nb2)
 
 
+def test_create_jobs():
+    Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
+    _SchedulerFactory._build_dispatcher()
+    task = _create_task(multiply, name="get_job")
+
+    job_1 = _JobManager._create(task, [print], "submit_id", True)
+    assert _JobManager._get(job_1.id) == job_1
+    assert job_1.is_submitted()
+    assert task.config_id in job_1.id
+    assert job_1.task.id == task.id
+    assert job_1.submit_id == "submit_id"
+    assert job_1.force
+
+    job_2 = _JobManager._create(task, [print], "submit_id_1", False)
+    assert _JobManager._get(job_2.id) == job_2
+    assert job_2.is_submitted()
+    assert task.config_id in job_2.id
+    assert job_2.task.id == task.id
+    assert job_2.submit_id == "submit_id_1"
+    assert not job_2.force
+
+
 def test_get_job():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
     _SchedulerFactory._build_dispatcher()
@@ -335,6 +357,11 @@ def test_cancel_subsequent_jobs():
     assert_true_after_1_minute_max(job_4.is_canceled)
     assert_true_after_1_minute_max(job_5.is_abandoned)
     assert_true_after_1_minute_max(job_6.is_abandoned)
+    assert_true_after_1_minute_max(
+        lambda: all(
+            not _SchedulerFactory._scheduler._is_blocked(job) for job in [job_1, job_2, job_3, job_4, job_5, job_6]
+        )
+    )
     assert_true_after_1_minute_max(lambda: _SchedulerFactory._scheduler.jobs_to_run.qsize() == 0)
 
 
