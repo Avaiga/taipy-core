@@ -164,29 +164,37 @@ class SQLDataNode(DataNode):
             return pd.read_sql_query(self.read_query, con=self.__engine())[columns]
         return pd.read_sql_query(self.read_query, con=self.__engine())
 
+    def _create_table(self, engine) -> Table:
+        return Table(
+            self.write_table,
+            MetaData(),
+            autoload=True,
+            autoload_with=engine,
+        )
+
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
         engine = self.__engine()
         with engine.connect() as connection:
-            write_table = Table(self.write_table, MetaData(), autoload=True, autoload_with=engine)
+            table = self._create_table(engine)
 
             if isinstance(data, pd.DataFrame):
-                self.__insert_dicts(data.to_dict(orient="records"), write_table, connection)
+                self._insert_dicts(data.to_dict(orient="records"), table, connection)
                 return
 
             if not isinstance(data, list):
                 data = [data]
 
             if isinstance(data[0], (tuple, list)):
-                self.__insert_tuples(data, write_table, connection)
+                self._insert_tuples(data, table, connection)
             elif isinstance(data[0], dict):
-                self.__insert_dicts(data, write_table, connection)
+                self._insert_dicts(data, table, connection)
             # If data is a primitive type, it will be inserted as a tuple of one element.
             else:
-                self.__insert_tuples([(x,) for x in data], write_table, connection)
+                self._insert_tuples([(x,) for x in data], table, connection)
 
     @staticmethod
-    def __insert_tuples(data: Sequence[Tuple], write_table: Any, connection: Any) -> None:
+    def _insert_tuples(data: Sequence[Tuple], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of tuples
         :param write_table: a SQLAlchemy object that represents a table
@@ -209,7 +217,7 @@ class SQLDataNode(DataNode):
                 transaction.commit()
 
     @staticmethod
-    def __insert_dicts(data: Sequence[Dict], write_table: Any, connection: Any) -> None:
+    def _insert_dicts(data: Sequence[Dict], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of tuples
         :param write_table: a SQLAlchemy object that represents a table
