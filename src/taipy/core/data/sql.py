@@ -175,6 +175,7 @@ class SQLDataNode(DataNode):
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
+
         engine = self.__engine()
         with engine.connect() as connection:
             table = self._create_table(engine)
@@ -188,6 +189,9 @@ class SQLDataNode(DataNode):
 
             if not isinstance(data, list):
                 data = [data]
+
+            if len(data) == 0:
+                return
 
             if isinstance(data[0], (tuple, list)):
                 self._insert_tuples(data, table, connection)
