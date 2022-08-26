@@ -13,7 +13,7 @@ import os
 import re
 import urllib.parse
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -202,9 +202,9 @@ class SQLDataNode(DataNode):
                 self._insert_tuples([(x,) for x in data], table, connection)
 
     @staticmethod
-    def _insert_tuples(data: Sequence[Tuple], write_table: Any, connection: Any) -> None:
+    def _insert_tuples(data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
         """
-        :param data: a list of tuples
+        :param data: a list of tuples or lists
         :param write_table: a SQLAlchemy object that represents a table
         :param connection: a SQLAlchemy connection to write the data
 
@@ -225,9 +225,9 @@ class SQLDataNode(DataNode):
                 transaction.commit()
 
     @staticmethod
-    def _insert_dicts(data: Sequence[Dict], write_table: Any, connection: Any) -> None:
+    def _insert_dicts(data: List[Dict], write_table: Any, connection: Any) -> None:
         """
-        :param data: a list of tuples
+        :param data: a list of dictionaries
         :param write_table: a SQLAlchemy object that represents a table
         :param connection: a SQLAlchemy connection to write the data
 
