@@ -12,6 +12,7 @@
 from importlib import util
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -206,6 +207,8 @@ class TestSQLDataNode:
             ([1, 2, 3, 4], [(1,), (2,), (3,), (4,)], "_insert_tuples"),
             ("foo", [("foo",)], "_insert_tuples"),
             (None, [(None,)], "_insert_tuples"),
+            (np.array([1, 2, 3, 4]), [(1,), (2,), (3,), (4,)], "_insert_tuples"),
+            (np.array([np.array([1, 2]), np.array([3, 4])]), [[1, 2], [3, 4]], "_insert_tuples"),
         ],
     )
     def test_write(self, data, written_data, called_func):

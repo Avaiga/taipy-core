@@ -15,6 +15,7 @@ import urllib.parse
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+import numpy as np
 import pandas as pd
 from sqlalchemy import MetaData, Table, create_engine, text
 
@@ -181,6 +182,9 @@ class SQLDataNode(DataNode):
             if isinstance(data, pd.DataFrame):
                 self._insert_dicts(data.to_dict(orient="records"), table, connection)
                 return
+
+            if isinstance(data, np.ndarray):
+                data = data.tolist()
 
             if not isinstance(data, list):
                 data = [data]
