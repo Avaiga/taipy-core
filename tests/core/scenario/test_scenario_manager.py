@@ -41,9 +41,11 @@ from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from src.taipy.core.scenario.scenario import Scenario
 from src.taipy.core.task._task_manager import _TaskManager
 from src.taipy.core.task.task import Task
+
 from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
+from tests.core.utils import assert_true_after_1_minute_max
 from tests.core.utils.NotifyMock import NotifyMock
 
 
@@ -819,9 +821,9 @@ def test_submit():
         submit_calls = []
 
         @classmethod
-        def submit_task(cls, task: Task, submit_id: str, callbacks=None, force=False):
+        def _submit_task(cls, task: Task, submit_id: str, callbacks=None, force=False, wait=False, timeout=None):
             cls.submit_calls.append(task.id)
-            return super().submit_task(task, callbacks)
+            return super()._submit_task(task, submit_id, callbacks, force)
 
     _TaskManager._scheduler = MockScheduler
 
@@ -974,14 +976,14 @@ def test_scenarios_comparison_standalone_mode():
     _ScenarioManager._submit(scenario_2.id)
 
     bar_comparison = _ScenarioManager._compare(scenario_1, scenario_2, data_node_config_id="bar")["bar"]
-    assert bar_comparison["subtraction"] == 0
+    assert_true_after_1_minute_max(lambda: bar_comparison["subtraction"] == 0)
 
     foo_comparison = _ScenarioManager._compare(scenario_1, scenario_2, data_node_config_id="foo")["foo"]
-    assert len(foo_comparison.keys()) == 2
-    assert foo_comparison["addition"] == 2
-    assert foo_comparison["subtraction"] == 0
+    assert_true_after_1_minute_max(lambda: len(foo_comparison.keys()) == 2)
+    assert_true_after_1_minute_max(lambda: foo_comparison["addition"] == 2)
+    assert_true_after_1_minute_max(lambda: foo_comparison["subtraction"] == 0)
 
-    assert len(_ScenarioManager._compare(scenario_1, scenario_2).keys()) == 2
+    assert_true_after_1_minute_max(lambda: len(_ScenarioManager._compare(scenario_1, scenario_2).keys()) == 2)
 
     with pytest.raises(NonExistingScenarioConfig):
         _ScenarioManager._compare(scenario_3, scenario_3)
