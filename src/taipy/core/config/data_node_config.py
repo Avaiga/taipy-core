@@ -85,6 +85,8 @@ class DataNodeConfig(Section):
     _REQUIRED_DB_ENGINE_MSSQL = "mssql"
     _REQUIRED_READ_QUERY_SQL_PROPERTY = "read_query"
     _REQUIRED_WRITE_TABLE_SQL_PROPERTY = "write_table"
+    _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY = "db_extra_args"
+
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -130,7 +132,7 @@ class DataNodeConfig(Section):
             _OPTIONAL_SHEET_NAME_EXCEL_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
-        _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY],
+        _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -437,6 +439,7 @@ class DataNodeConfig(Section):
         db_port: int = 1433,
         db_host: str = "localhost",
         db_driver: str = "ODBC Driver 17 for SQL Server",
+        db_extra_args: Dict[str, Any] = None,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
@@ -454,6 +457,8 @@ class DataNodeConfig(Section):
             db_host (str): The database host. The default value is _"localhost"_.
             db_driver (str): The database driver. The default value is
                 _"ODBC Driver 17 for SQL Server"_.
+            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
+                connection string.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -474,6 +479,7 @@ class DataNodeConfig(Section):
             read_query=read_query,
             write_table=write_table,
             db_port=db_port,
+            db_extra_args=db_extra_args,
             **properties,
         )
         Config._register(section)

@@ -20,10 +20,8 @@ from src.taipy.core.data.data_node import DataNode
 from src.taipy.core.data.in_memory import InMemoryDataNode
 from src.taipy.core.task._task_manager import _TaskManager
 from src.taipy.core.task.task import Task
-from taipy.config.config import Config
-from taipy.config.data_node.data_node_config import DataNodeConfig
 from taipy.config.common.scope import Scope
-
+from taipy.config.config import Config
 from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 
