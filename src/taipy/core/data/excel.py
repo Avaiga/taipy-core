@@ -117,6 +117,10 @@ class ExcelDataNode(DataNode):
     def path(self, value):
         self._path = value
         self.properties[self.__PATH_KEY] = value
+        if self.__EXPOSED_TYPE_PROPERTY in self._properties:
+            self.properties[self.__EXPOSED_TYPE_PROPERTY] = self.__exposed_types_to_dict(
+                self.properties, self.config_id
+            )
 
     def __exposed_types_to_dict(self, properties, config_id):
         if properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
