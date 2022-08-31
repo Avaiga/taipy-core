@@ -202,8 +202,8 @@ class SQLDataNode(DataNode):
             else:
                 self._insert_tuples([(x,) for x in data], table, connection)
 
-    @staticmethod
-    def _delete_all_rows(table, connection):
+    @classmethod
+    def _delete_all_rows(cls, table, connection):
         with connection.begin() as transaction:
             try:
                 connection.execute(table.delete())
@@ -213,8 +213,8 @@ class SQLDataNode(DataNode):
             else:
                 transaction.commit()
 
-    @staticmethod
-    def _insert_tuples(data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
+    @classmethod
+    def _insert_tuples(cls, data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of tuples or lists
         :param write_table: a SQLAlchemy object that represents a table
@@ -237,8 +237,8 @@ class SQLDataNode(DataNode):
             else:
                 transaction.commit()
 
-    @staticmethod
-    def _insert_dicts(data: List[Dict], write_table: Any, connection: Any) -> None:
+    @classmethod
+    def _insert_dicts(cls, data: List[Dict], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of dictionaries
         :param write_table: a SQLAlchemy object that represents a table
@@ -257,11 +257,11 @@ class SQLDataNode(DataNode):
             else:
                 transaction.commit()
 
-    @staticmethod
-    def _insert_dataframe(df: pd.DataFrame, write_table: Any, connection: Any) -> None:
+    @classmethod
+    def _insert_dataframe(cls, df: pd.DataFrame, write_table: Any, connection: Any) -> None:
         """
         :param data: a pandas dataframe
         :param write_table: a SQLAlchemy object that represents a table
         :param connection: a SQLAlchemy connection to write the data
         """
-        df.to_sql(write_table.name, connection, if_exists="replace", index=False)
+        cls._insert_dicts(df.to_dict(orient="records"), write_table, connection)
