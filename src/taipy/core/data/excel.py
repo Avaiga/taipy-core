@@ -188,10 +188,10 @@ class ExcelDataNode(DataNode):
         return work_books
 
     def _read_as_numpy(self):
-        sheet_names = self.__sheet_name_to_list(self.properties)
-        if len(sheet_names) > 1:
-            return {sheet_name: df.to_numpy() for sheet_name, df in self._read_as_pandas_dataframe().items()}
-        return self._read_as_pandas_dataframe().to_numpy()
+        sheets = self._read_as_pandas_dataframe()
+        if (isinstance(sheets, dict)):
+            return {sheet_name: df.to_numpy() for sheet_name, df in sheets.items()}
+        return sheets.to_numpy()
 
     def _read_as_pandas_dataframe(self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None):
         try:
