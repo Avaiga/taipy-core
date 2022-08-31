@@ -67,8 +67,11 @@ class NonExistingExcelSheet(Exception):
         self.message = f"{sheet_name} does not exist in {excel_file_name}."
 
 
-class NotMatchSheetNameAndCustomObject(Exception):
-    """Raised if a provided list of sheet names does not match with the provided list of custom objects."""
+class ExposedTypeLengthMismatch(Exception):
+    """Raised if length of exposed type list does not match with number of sheets in the provided Excel file."""
+
+    def __init__(self, data_node_config_id):
+        self.message = f"Length of exposed type list does not match with number of sheets in {data_node_config_id}."
 
 
 class MissingReadFunction(Exception):

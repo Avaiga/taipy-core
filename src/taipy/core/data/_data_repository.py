@@ -76,6 +76,10 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
                     properties[self._EXPOSED_TYPE_KEY] = {
                         k: f"{v.__module__}.{v.__qualname__}" for k, v in properties[self._EXPOSED_TYPE_KEY].items()
                     }
+                elif isinstance(properties[self._EXPOSED_TYPE_KEY], List):
+                    properties[self._EXPOSED_TYPE_KEY] = [
+                        f"{v.__module__}.{v.__qualname__}" for v in properties[self._EXPOSED_TYPE_KEY]
+                    ]
                 else:
                     properties[
                         self._EXPOSED_TYPE_KEY
@@ -147,10 +151,14 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
                     model.data_node_properties[self._EXPOSED_TYPE_KEY] = locate(
                         model.data_node_properties[self._EXPOSED_TYPE_KEY]
                     )
-                if isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], Dict):
+                elif isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], Dict):
                     model.data_node_properties[self._EXPOSED_TYPE_KEY] = {
                         k: locate(v) for k, v in model.data_node_properties[self._EXPOSED_TYPE_KEY].items()
                     }
+                elif isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], List):
+                    model.data_node_properties[self._EXPOSED_TYPE_KEY] = [
+                        locate(v) for v in model.data_node_properties[self._EXPOSED_TYPE_KEY]
+                    ]
 
         validity_period = None
         if model.validity_seconds is not None and model.validity_days is not None:

@@ -21,7 +21,7 @@ from taipy.config.common.scope import Scope
 
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
-from ..exceptions.exceptions import MissingRequiredProperty, NonExistingExcelSheet, NotMatchSheetNameAndCustomObject
+from ..exceptions.exceptions import ExposedTypeLengthMismatch, MissingRequiredProperty, NonExistingExcelSheet
 from .data_node import DataNode
 
 
@@ -89,8 +89,6 @@ class ExcelDataNode(DataNode):
             properties[self.__SHEET_NAME_PROPERTY] = None
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
-        if self.__EXPOSED_TYPE_PROPERTY in properties.keys():
-            properties[self.__EXPOSED_TYPE_PROPERTY] = self.__exposed_types_to_dict(properties, config_id)
 
         super().__init__(
             config_id,
@@ -118,23 +116,6 @@ class ExcelDataNode(DataNode):
         self._path = value
         self.properties[self.__PATH_KEY] = value
 
-    def __exposed_types_to_dict(self, properties, config_id):
-        if properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return properties[self.__EXPOSED_TYPE_PROPERTY]
-        if isinstance(properties[self.__EXPOSED_TYPE_PROPERTY], Dict):
-            return properties[self.__EXPOSED_TYPE_PROPERTY]
-        sheet_names = self.__sheet_name_to_list(properties)
-        if isinstance(properties[self.__EXPOSED_TYPE_PROPERTY], List):
-            if len(sheet_names) == len(properties[self.__EXPOSED_TYPE_PROPERTY]):
-                return {
-                    sheet_name: custom_obj
-                    for sheet_name, custom_obj in zip(sheet_names, properties[self.__EXPOSED_TYPE_PROPERTY])
-                }
-            raise NotMatchSheetNameAndCustomObject(
-                f"Sheet name and custom object do not match for data node config {config_id}."
-            )
-        return {sheet_name: properties[self.__EXPOSED_TYPE_PROPERTY] for sheet_name in sheet_names}
-
     @classmethod
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
@@ -157,14 +138,37 @@ class ExcelDataNode(DataNode):
 
     def _read_as(self):
         excel_file = load_workbook(self._path)
-        custom_class_dict = self.properties[self.__EXPOSED_TYPE_PROPERTY]
+        exposed_type = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         work_books = defaultdict()
+        sheet_names = excel_file.sheetnames
 
-        for sheet_name, custom_class in custom_class_dict.items():
-            if not (sheet_name in excel_file.sheetnames):
-                raise NonExistingExcelSheet(sheet_name, self._path)
+        if isinstance(exposed_type, dict):
+            provided_sheet_names = list(exposed_type.keys())
+            for sheet_name in provided_sheet_names:
+                if not sheet_name in sheet_names:
+                    raise NonExistingExcelSheet(sheet_name, self._path)
+            sheet_names = provided_sheet_names
+        elif isinstance(exposed_type, List):
+            provided_sheet_names = self.__sheet_name_to_list(self.properties)
+            if len(provided_sheet_names) != len(self.properties[self.__EXPOSED_TYPE_PROPERTY]):
+                raise ExposedTypeLengthMismatch(self.config_id)
+            sheet_names = provided_sheet_names
+        else:
+            # Exposed type is a custom class
+            provided_sheet_names = self.__sheet_name_to_list(self.properties)
+            for sheet_name in provided_sheet_names:
+                if not sheet_name in sheet_names:
+                    raise NonExistingExcelSheet(sheet_name, self._path)
+            sheet_names = provided_sheet_names
 
+        for i, sheet_name in enumerate(sheet_names):
             work_sheet = excel_file[sheet_name]
+            custom_class = exposed_type
+            if isinstance(exposed_type, dict):
+                custom_class = exposed_type[sheet_name]
+            elif isinstance(exposed_type, List):
+                custom_class = exposed_type[i]
+
             res = list()
             for row in work_sheet.rows:
                 res.append([col.value for col in row])
@@ -179,9 +183,8 @@ class ExcelDataNode(DataNode):
 
         excel_file.close()
 
-        if len(custom_class_dict) == 1:
-            return work_books[list(custom_class_dict.keys())[0]]
-
+        if len(sheet_names) == 1:
+            return work_books[sheet_names[0]]
         return work_books
 
     def _read_as_numpy(self):
