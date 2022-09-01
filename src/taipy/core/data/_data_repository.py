@@ -75,12 +75,12 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             if not isinstance(properties[self._EXPOSED_TYPE_KEY], str):
                 if isinstance(properties[self._EXPOSED_TYPE_KEY], Dict):
                     properties[self._EXPOSED_TYPE_KEY] = {
-                        k: v if isinstance(v, str) else f"{v.__module__}.{v.__qualname__}"
+                        k: v if v in self._VALID_STRING_EXPOSED_TYPES else f"{v.__module__}.{v.__qualname__}"
                         for k, v in properties[self._EXPOSED_TYPE_KEY].items()
                     }
                 elif isinstance(properties[self._EXPOSED_TYPE_KEY], List):
                     properties[self._EXPOSED_TYPE_KEY] = [
-                        v if isinstance(v, str) else f"{v.__module__}.{v.__qualname__}"
+                        v if v in self._VALID_STRING_EXPOSED_TYPES else f"{v.__module__}.{v.__qualname__}"
                         for v in properties[self._EXPOSED_TYPE_KEY]
                     ]
                 else:
