@@ -11,6 +11,7 @@
 
 import os
 import pathlib
+from io import UnsupportedOperation
 from typing import Dict
 
 import numpy as np
@@ -22,6 +23,7 @@ from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data.excel import ExcelDataNode
 from src.taipy.core.exceptions.exceptions import (
     ExposedTypeLengthMismatch,
+    InvalidStringExposedType,
     MissingRequiredProperty,
     NoData,
     NonExistingExcelSheet,
@@ -828,3 +830,34 @@ class TestExcelDataNode:
         assert isinstance(data["Sheet1"][0], MyCustomObject1)
         assert isinstance(data["Sheet2"], np.ndarray)
         assert isinstance(data["Sheet3"], pd.DataFrame)
+
+    def test_invalid_exposed_type(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
+        with pytest.raises(InvalidStringExposedType):
+            ExcelDataNode(
+                "foo",
+                Scope.PIPELINE,
+                properties={"default_path": path, "exposed_type": "invalid", "sheet_name": "Sheet1"},
+            )
+
+        with pytest.raises(InvalidStringExposedType):
+            ExcelDataNode(
+                "foo",
+                Scope.PIPELINE,
+                properties={
+                    "default_path": path,
+                    "exposed_type": ["numpy", "invalid", "pandas"],
+                    "sheet_name": "Sheet1",
+                },
+            )
+
+        with pytest.raises(InvalidStringExposedType):
+            ExcelDataNode(
+                "foo",
+                Scope.PIPELINE,
+                properties={
+                    "default_path": path,
+                    "exposed_type": {"Sheet1": "pandas", "Sheet2": "invalid"},
+                    "sheet_name": "Sheet1",
+                },
+            )

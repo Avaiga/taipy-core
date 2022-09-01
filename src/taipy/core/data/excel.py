@@ -21,7 +21,12 @@ from taipy.config.common.scope import Scope
 
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
-from ..exceptions.exceptions import ExposedTypeLengthMismatch, MissingRequiredProperty, NonExistingExcelSheet
+from ..exceptions.exceptions import (
+    ExposedTypeLengthMismatch,
+    InvalidStringExposedType,
+    MissingRequiredProperty,
+    NonExistingExcelSheet,
+)
 from .data_node import DataNode
 
 
@@ -54,6 +59,7 @@ class ExcelDataNode(DataNode):
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __EXPOSED_TYPE_NUMPY = "numpy"
     __EXPOSED_TYPE_PANDAS = "pandas"
+    __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
     __HAS_HEADER_PROPERTY = "has_header"
@@ -92,6 +98,7 @@ class ExcelDataNode(DataNode):
             properties[self.__HAS_HEADER_PROPERTY] = True
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
+        self._check_exposed_type(properties[self.__EXPOSED_TYPE_PROPERTY])
 
         super().__init__(
             config_id,
@@ -123,6 +130,18 @@ class ExcelDataNode(DataNode):
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
+    def _check_exposed_type(self, exposed_type):
+        if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
+            raise InvalidStringExposedType(
+                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+            )
+        elif isinstance(exposed_type, list):
+            for t in exposed_type:
+                self._check_exposed_type(t)
+        elif isinstance(exposed_type, dict):
+            for t in exposed_type.values():
+                self._check_exposed_type(t)
+
     def _read(self):
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
             return self._read_as_pandas_dataframe()
@@ -152,22 +171,24 @@ class ExcelDataNode(DataNode):
 
         if isinstance(exposed_type, List):
             if len(provided_sheet_names) != len(self.properties[self.__EXPOSED_TYPE_PROPERTY]):
-                raise ExposedTypeLengthMismatch(self.config_id)
+                raise ExposedTypeLengthMismatch(
+                    f"Expected {len(provided_sheet_names)} exposed types, got {len(self.properties[self.__EXPOSED_TYPE_PROPERTY])}"
+                )
 
         for i, sheet_name in enumerate(provided_sheet_names):
             work_sheet = excel_file[sheet_name]
-            custom_class = exposed_type
+            sheet_exposed_type = exposed_type
 
-            if not isinstance(custom_class, str):
+            if not isinstance(sheet_exposed_type, str):
                 if isinstance(exposed_type, dict):
-                    custom_class = exposed_type.get(sheet_name, self.__EXPOSED_TYPE_PANDAS)
+                    sheet_exposed_type = exposed_type.get(sheet_name, self.__EXPOSED_TYPE_PANDAS)
                 elif isinstance(exposed_type, List):
-                    custom_class = exposed_type[i]
+                    sheet_exposed_type = exposed_type[i]
 
-                if isinstance(custom_class, str):
-                    if custom_class == self.__EXPOSED_TYPE_NUMPY:
+                if isinstance(sheet_exposed_type, str):
+                    if sheet_exposed_type == self.__EXPOSED_TYPE_NUMPY:
                         work_books[sheet_name] = self._read_as_pandas_dataframe(sheet_name).to_numpy()
-                    elif custom_class == self.__EXPOSED_TYPE_PANDAS:
+                    elif sheet_exposed_type == self.__EXPOSED_TYPE_PANDAS:
                         work_books[sheet_name] = self._read_as_pandas_dataframe(sheet_name)
                     continue
 
@@ -177,10 +198,10 @@ class ExcelDataNode(DataNode):
             if self.properties[self.__HAS_HEADER_PROPERTY]:
                 header = res.pop(0)
                 for i, row in enumerate(res):
-                    res[i] = custom_class(**dict([[h, r] for h, r in zip(header, row)]))
+                    res[i] = sheet_exposed_type(**dict([[h, r] for h, r in zip(header, row)]))
             else:
                 for i, row in enumerate(res):
-                    res[i] = custom_class(*row)
+                    res[i] = sheet_exposed_type(*row)
             work_books[sheet_name] = res
 
         excel_file.close()

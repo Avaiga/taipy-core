@@ -33,7 +33,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
     _JSON_DECODER_NAME_KEY = "decoder_name"
     _JSON_DECODER_MODULE_KEY = "decoder_module"
     _EXPOSED_TYPE_KEY = "exposed_type"
-    _SUPPORTED_EXPOSED_TYPES = ["numpy", "pandas"]
+    _VALID_STRING_EXPOSED_TYPES = ["numpy", "pandas"]
 
     def __init__(self, **kwargs):
         kwargs.update({"to_model_fct": self._to_model, "from_model_fct": self._from_model})
@@ -149,19 +149,19 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             del model.data_node_properties[self._JSON_DECODER_MODULE_KEY]
 
         if self._EXPOSED_TYPE_KEY in model.data_node_properties.keys():
-            if model.data_node_properties[self._EXPOSED_TYPE_KEY] not in self._SUPPORTED_EXPOSED_TYPES:
+            if model.data_node_properties[self._EXPOSED_TYPE_KEY] not in self._VALID_STRING_EXPOSED_TYPES:
                 if isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], str):
                     model.data_node_properties[self._EXPOSED_TYPE_KEY] = locate(
                         model.data_node_properties[self._EXPOSED_TYPE_KEY]
                     )
                 elif isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], Dict):
                     model.data_node_properties[self._EXPOSED_TYPE_KEY] = {
-                        k: v if v in self._SUPPORTED_EXPOSED_TYPES else locate(v)
+                        k: v if v in self._VALID_STRING_EXPOSED_TYPES else locate(v)
                         for k, v in model.data_node_properties[self._EXPOSED_TYPE_KEY].items()
                     }
                 elif isinstance(model.data_node_properties[self._EXPOSED_TYPE_KEY], List):
                     model.data_node_properties[self._EXPOSED_TYPE_KEY] = [
-                        v if v in self._SUPPORTED_EXPOSED_TYPES else locate(v)
+                        v if v in self._VALID_STRING_EXPOSED_TYPES else locate(v)
                         for v in model.data_node_properties[self._EXPOSED_TYPE_KEY]
                     ]
 
