@@ -53,6 +53,7 @@ class ExcelDataNode(DataNode):
     __STORAGE_TYPE = "excel"
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __EXPOSED_TYPE_NUMPY = "numpy"
+    __EXPOSED_TYPE_PANDAS = "pandas"
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
     __HAS_HEADER_PROPERTY = "has_header"
@@ -89,6 +90,8 @@ class ExcelDataNode(DataNode):
             properties[self.__SHEET_NAME_PROPERTY] = None
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
+        if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
+            properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
 
         super().__init__(
             config_id,
@@ -121,11 +124,11 @@ class ExcelDataNode(DataNode):
         return cls.__STORAGE_TYPE
 
     def _read(self):
-        if self.__EXPOSED_TYPE_PROPERTY in self.properties:
-            if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-                return self._read_as_numpy()
-            return self._read_as()
-        return self._read_as_pandas_dataframe()
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
+            return self._read_as_pandas_dataframe()
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
+            return self._read_as_numpy()
+        return self._read_as()
 
     def __sheet_name_to_list(self, properties):
         if properties[self.__SHEET_NAME_PROPERTY]:
@@ -141,33 +144,32 @@ class ExcelDataNode(DataNode):
         exposed_type = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         work_books = defaultdict()
         sheet_names = excel_file.sheetnames
+        provided_sheet_names = self.__sheet_name_to_list(self.properties)
 
-        if isinstance(exposed_type, dict):
-            provided_sheet_names = list(exposed_type.keys())
-            for sheet_name in provided_sheet_names:
-                if not sheet_name in sheet_names:
-                    raise NonExistingExcelSheet(sheet_name, self._path)
-            sheet_names = provided_sheet_names
-        elif isinstance(exposed_type, List):
-            provided_sheet_names = self.__sheet_name_to_list(self.properties)
+        for sheet_name in provided_sheet_names:
+            if sheet_name not in sheet_names:
+                raise NonExistingExcelSheet(sheet_name, self._path)
+
+        if isinstance(exposed_type, List):
             if len(provided_sheet_names) != len(self.properties[self.__EXPOSED_TYPE_PROPERTY]):
                 raise ExposedTypeLengthMismatch(self.config_id)
-            sheet_names = provided_sheet_names
-        else:
-            # Exposed type is a custom class
-            provided_sheet_names = self.__sheet_name_to_list(self.properties)
-            for sheet_name in provided_sheet_names:
-                if not sheet_name in sheet_names:
-                    raise NonExistingExcelSheet(sheet_name, self._path)
-            sheet_names = provided_sheet_names
 
-        for i, sheet_name in enumerate(sheet_names):
+        for i, sheet_name in enumerate(provided_sheet_names):
             work_sheet = excel_file[sheet_name]
             custom_class = exposed_type
-            if isinstance(exposed_type, dict):
-                custom_class = exposed_type[sheet_name]
-            elif isinstance(exposed_type, List):
-                custom_class = exposed_type[i]
+
+            if not isinstance(custom_class, str):
+                if isinstance(exposed_type, dict):
+                    custom_class = exposed_type.get(sheet_name, self.__EXPOSED_TYPE_PANDAS)
+                elif isinstance(exposed_type, List):
+                    custom_class = exposed_type[i]
+
+                if isinstance(custom_class, str):
+                    if custom_class == self.__EXPOSED_TYPE_NUMPY:
+                        work_books[sheet_name] = self._read_as_pandas_dataframe(sheet_name).to_numpy()
+                    elif custom_class == self.__EXPOSED_TYPE_PANDAS:
+                        work_books[sheet_name] = self._read_as_pandas_dataframe(sheet_name)
+                    continue
 
             res = list()
             for row in work_sheet.rows:
@@ -183,41 +185,29 @@ class ExcelDataNode(DataNode):
 
         excel_file.close()
 
-        if len(sheet_names) == 1:
-            return work_books[sheet_names[0]]
+        if len(provided_sheet_names) == 1:
+            return work_books[provided_sheet_names[0]]
         return work_books
 
     def _read_as_numpy(self):
         sheets = self._read_as_pandas_dataframe()
-        if (isinstance(sheets, dict)):
+        if isinstance(sheets, dict):
             return {sheet_name: df.to_numpy() for sheet_name, df in sheets.items()}
         return sheets.to_numpy()
 
-    def _read_as_pandas_dataframe(self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None):
+    def _read_as_pandas_dataframe(self, sheet_names=None):
+        if sheet_names is None:
+            sheet_names = self.properties[self.__SHEET_NAME_PROPERTY]
         try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return pd.read_excel(
-                        self._path,
-                        sheet_name=self.properties[self.__SHEET_NAME_PROPERTY],
-                    )[column_names]
-                return pd.read_excel(
-                    self._path,
-                    sheet_name=self.properties[self.__SHEET_NAME_PROPERTY],
-                )
-            else:
-                if usecols:
-                    return pd.read_excel(
-                        self._path,
-                        header=None,
-                        usecols=usecols,
-                        sheet_name=self.properties[self.__SHEET_NAME_PROPERTY],
-                    )
-                return pd.read_excel(
-                    self._path,
-                    header=None,
-                    sheet_name=self.properties[self.__SHEET_NAME_PROPERTY],
-                )
+            kwargs = {}
+            if not self.properties[self.__HAS_HEADER_PROPERTY]:
+                kwargs["header"] = None
+            return pd.read_excel(
+                self._path,
+                sheet_name=sheet_names,
+                **kwargs,
+            )
+
         except pd.errors.EmptyDataError:
             return pd.DataFrame()
 

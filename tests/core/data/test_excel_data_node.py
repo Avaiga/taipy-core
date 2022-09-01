@@ -734,8 +734,7 @@ class TestExcelDataNode:
         )
         dn.read()
         dn.path = new_path
-        with pytest.raises(NonExistingExcelSheet):
-            dn.read()
+        dn.read()
 
     def test_exposed_type_list_after_modify_path(self):
         path_1 = os.path.join(
@@ -769,3 +768,63 @@ class TestExcelDataNode:
             Scope.PIPELINE,
             properties={"default_path": "notexistyet.xlsx", "exposed_type": [MyCustomObject1, MyCustomObject2]},
         )
+
+    def test_exposed_type_default(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
+        dn = ExcelDataNode("foo", Scope.PIPELINE, properties={"default_path": path, "sheet_name": "Sheet1"})
+        assert dn.exposed_type == "pandas"
+        data = dn.read()
+        assert isinstance(data, pd.DataFrame)
+
+    def test_pandas_exposed_type(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
+        dn = ExcelDataNode(
+            "foo", Scope.PIPELINE, properties={"default_path": path, "exposed_type": "pandas", "sheet_name": "Sheet1"}
+        )
+        assert dn.exposed_type == "pandas"
+        data = dn.read()
+        assert isinstance(data, pd.DataFrame)
+
+    def test_complex_exposed_type_dict(self):
+        # ["Sheet1", "Sheet2", "Sheet3", "Sheet4", "Sheet5"]
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example_4.xlsx")
+        dn = ExcelDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={
+                "default_path": path,
+                "exposed_type": {
+                    "Sheet1": MyCustomObject1,
+                    "Sheet2": "numpy",
+                    "Sheet3": "pandas",
+                },
+                "sheet_name": ["Sheet1", "Sheet2", "Sheet3", "Sheet4"],
+            },
+        )
+        data = dn.read()
+        assert isinstance(data, dict)
+        assert isinstance(data["Sheet1"], list)
+        assert isinstance(data["Sheet1"][0], MyCustomObject1)
+        assert isinstance(data["Sheet2"], np.ndarray)
+        assert isinstance(data["Sheet3"], pd.DataFrame)
+        assert isinstance(data["Sheet4"], pd.DataFrame)
+        assert data.get("Sheet5") is None
+
+    def test_complex_exposed_type_list(self):
+        # ["Sheet1", "Sheet2", "Sheet3", "Sheet4","Sheet5"]
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example_4.xlsx")
+        dn = ExcelDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={
+                "default_path": path,
+                "exposed_type": [MyCustomObject1, "numpy", "pandas"],
+                "sheet_name": ["Sheet1", "Sheet2", "Sheet3"],
+            },
+        )
+        data = dn.read()
+        assert isinstance(data, dict)
+        assert isinstance(data["Sheet1"], list)
+        assert isinstance(data["Sheet1"][0], MyCustomObject1)
+        assert isinstance(data["Sheet2"], np.ndarray)
+        assert isinstance(data["Sheet3"], pd.DataFrame)
