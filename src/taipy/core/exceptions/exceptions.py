@@ -71,8 +71,8 @@ class ExposedTypeLengthMismatch(Exception):
     """Raised if length of exposed type list does not match with number of sheets in the provided Excel file."""
 
 
-class InvalidStringExposedType(Exception):
-    """Raised if an invalid string exposed type is provided."""
+class InvalidExposedType(Exception):
+    """Raised if an invalid exposed type is provided."""
 
 
 class MissingReadFunction(Exception):

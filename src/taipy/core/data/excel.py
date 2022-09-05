@@ -23,7 +23,7 @@ from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import (
     ExposedTypeLengthMismatch,
-    InvalidStringExposedType,
+    InvalidExposedType,
     MissingRequiredProperty,
     NonExistingExcelSheet,
 )
@@ -132,7 +132,7 @@ class ExcelDataNode(DataNode):
 
     def _check_exposed_type(self, exposed_type):
         if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
-            raise InvalidStringExposedType(
+            raise InvalidExposedType(
                 f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
         elif isinstance(exposed_type, list):

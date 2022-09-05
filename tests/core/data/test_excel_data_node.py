@@ -11,7 +11,6 @@
 
 import os
 import pathlib
-from io import UnsupportedOperation
 from typing import Dict
 
 import numpy as np
@@ -23,7 +22,7 @@ from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data.excel import ExcelDataNode
 from src.taipy.core.exceptions.exceptions import (
     ExposedTypeLengthMismatch,
-    InvalidStringExposedType,
+    InvalidExposedType,
     MissingRequiredProperty,
     NoData,
     NonExistingExcelSheet,
@@ -833,14 +832,14 @@ class TestExcelDataNode:
 
     def test_invalid_exposed_type(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
-        with pytest.raises(InvalidStringExposedType):
+        with pytest.raises(InvalidExposedType):
             ExcelDataNode(
                 "foo",
                 Scope.PIPELINE,
                 properties={"default_path": path, "exposed_type": "invalid", "sheet_name": "Sheet1"},
             )
 
-        with pytest.raises(InvalidStringExposedType):
+        with pytest.raises(InvalidExposedType):
             ExcelDataNode(
                 "foo",
                 Scope.PIPELINE,
@@ -851,7 +850,7 @@ class TestExcelDataNode:
                 },
             )
 
-        with pytest.raises(InvalidStringExposedType):
+        with pytest.raises(InvalidExposedType):
             ExcelDataNode(
                 "foo",
                 Scope.PIPELINE,

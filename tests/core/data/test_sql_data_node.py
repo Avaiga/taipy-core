@@ -18,9 +18,8 @@ import pytest
 
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data.sql import SQLDataNode
-from src.taipy.core.exceptions.exceptions import MissingRequiredProperty
+from src.taipy.core.exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from taipy.config.common.scope import Scope
-
 
 if not util.find_spec("pyodbc"):
     pytest.skip("skipping tests because PyODBC is not installed", allow_module_level=True)
@@ -67,6 +66,7 @@ class TestSQLDataNode:
         assert dn.job_ids == []
         assert dn.is_ready_for_reading
         assert dn.read_query != ""
+        assert dn.exposed_type == "pandas"
 
     @pytest.mark.parametrize(
         "properties",
@@ -109,10 +109,10 @@ class TestSQLDataNode:
                 "db_engine": "mssql",
                 "read_query": "SELECT * from table_name",
                 "write_table": "foo",
-                "exposed_type": "Whatever",
+                "exposed_type": "pandas",
             },
         )
-        assert sql_data_node_as_custom_object._read() == "custom"
+        assert sql_data_node_as_custom_object._read() == "pandas"
 
         # Create the same SQLDataSource but with numpy exposed_type
         sql_data_source_as_numpy_object = SQLDataNode(
@@ -265,3 +265,17 @@ class TestSQLDataNode:
             with mock.patch(f"src.taipy.core.data.sql.SQLDataNode.{called_func}") as insert_mock:
                 dn2._write(data)
                 insert_mock.assert_called_once_with(written_data, create_table_mock.return_value, cursor_mock)
+
+    def test_raise_error_invalid_exposed_type(self):
+        with pytest.raises(InvalidExposedType):
+            SQLDataNode(
+                "foo",
+                Scope.PIPELINE,
+                properties={
+                    "db_name": "datanode",
+                    "db_engine": "sqlite",
+                    "read_query": "SELECT * from foo",
+                    "write_table": "foo",
+                    "exposed_type": "foo",
+                },
+            )
