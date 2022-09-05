@@ -190,16 +190,22 @@ class SQLDataNode(DataNode):
 
         engine = self.__engine()
 
-        if isinstance(data, pd.DataFrame):
-            data = data.to_dict(orient="records")
-        elif isinstance(data, np.ndarray):
-            data = data.tolist()
-        if not isinstance(data, list):
-            data = [data]
-        if len(data) == 0:
-            return
         with engine.connect() as connection:
             table = self._create_table(engine)
+
+            if isinstance(data, pd.DataFrame):
+                self._insert_dataframe(data, table, connection)
+                return
+
+            if isinstance(data, np.ndarray):
+                data = data.tolist()
+            if not isinstance(data, list):
+                data = [data]
+
+            if len(data) == 0:
+                self._delete_all_rows(table, connection)
+                return
+
             if isinstance(data[0], (tuple, list)):
                 self._insert_tuples(data, table, connection)
             elif isinstance(data[0], dict):
@@ -208,8 +214,19 @@ class SQLDataNode(DataNode):
             else:
                 self._insert_tuples([(x,) for x in data], table, connection)
 
-    @staticmethod
-    def _insert_tuples(data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
+    @classmethod
+    def _delete_all_rows(cls, table, connection):
+        with connection.begin() as transaction:
+            try:
+                connection.execute(table.delete())
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+
+    @classmethod
+    def _insert_tuples(cls, data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of tuples or lists
         :param write_table: a SQLAlchemy object that represents a table
@@ -221,6 +238,7 @@ class SQLDataNode(DataNode):
         """
         with connection.begin() as transaction:
             try:
+                connection.execute(write_table.delete())
                 markers = ",".join("?" * len(data[0]))
                 ins = "INSERT INTO {tablename} VALUES ({markers})"
                 ins = ins.format(tablename=write_table.name, markers=markers)
@@ -231,8 +249,8 @@ class SQLDataNode(DataNode):
             else:
                 transaction.commit()
 
-    @staticmethod
-    def _insert_dicts(data: List[Dict], write_table: Any, connection: Any) -> None:
+    @classmethod
+    def _insert_dicts(cls, data: List[Dict], write_table: Any, connection: Any) -> None:
         """
         :param data: a list of dictionaries
         :param write_table: a SQLAlchemy object that represents a table
@@ -243,9 +261,19 @@ class SQLDataNode(DataNode):
         """
         with connection.begin() as transaction:
             try:
+                connection.execute(write_table.delete())
                 connection.execute(write_table.insert(), data)
             except:
                 transaction.rollback()
                 raise
             else:
                 transaction.commit()
+
+    @classmethod
+    def _insert_dataframe(cls, df: pd.DataFrame, write_table: Any, connection: Any) -> None:
+        """
+        :param data: a pandas dataframe
+        :param write_table: a SQLAlchemy object that represents a table
+        :param connection: a SQLAlchemy connection to write the data
+        """
+        cls._insert_dicts(df.to_dict(orient="records"), write_table, connection)
