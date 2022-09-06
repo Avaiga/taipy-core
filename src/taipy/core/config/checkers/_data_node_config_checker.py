@@ -112,5 +112,5 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._EXPOSED_TYPE_KEY,
                 data_node_config.exposed_type,
-                f'`{data_node_config._EXPOSED_TYPE_KEY}` of DataNode `{data_node_config_id}` must be either "pandas", "numpy" or a type.',
+                f'The `{data_node_config._EXPOSED_TYPE_KEY}` of the DataNodeConfig `{data_node_config_id}` must be either "pandas", "numpy" or a custom type.',
             )
