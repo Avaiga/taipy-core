@@ -271,7 +271,7 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new CSV data node configuration.
             default_path (str): The default path of the CSV file.
             has_header (bool): If True, indicates that the CSV file has a header.
-            exposed_type: The exposed type of the data read from CSV file.
+            exposed_type: The exposed type of the data read from CSV file. The default value is `pandas`.
             scope (Scope^): The scope of the CSV data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -344,7 +344,7 @@ class DataNodeConfig(Section):
             has_header (bool): If True, indicates that the Excel file has a header.
             sheet_name (Union[List[str], str]): The list of sheet names to be used. This
                 can be a unique name.
-            exposed_type: The exposed type of the data read from Excel file.
+            exposed_type: The exposed type of the data read from Excel file. The default value is `pandas`.
             scope (Scope^): The scope of the Excel data node configuration. The default
                 value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -482,7 +482,7 @@ class DataNodeConfig(Section):
                 _"ODBC Driver 17 for SQL Server"_.
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
-            exposed_type: The exposed type of the data read from SQL query.
+            exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
