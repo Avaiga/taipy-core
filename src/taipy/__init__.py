@@ -18,6 +18,14 @@ if find_spec("taipy"):
     if find_spec("taipy.core"):
         from taipy.core import *
 
+    if find_spec("taipy.gui"):
+        from taipy.gui import Gui
+
+        if find_spec("taipy.enterprise") and find_spec("taipy.enterprise.gui"):
+            from taipy.enterprise.gui import _init_gui_enterprise
+
+            _init_gui_enterprise(Gui)
+
     if find_spec("taipy.rest"):
         pass
 
