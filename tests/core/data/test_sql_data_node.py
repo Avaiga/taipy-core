@@ -25,6 +25,14 @@ if not util.find_spec("pyodbc"):
     pytest.skip("skipping tests because PyODBC is not installed", allow_module_level=True)
 
 
+class MyCustomObject:
+    def __init__(self, foo=None, bar=None, *args, **kwargs):
+        self.foo = foo
+        self.bar = bar
+        self.args = args
+        self.kwargs = kwargs
+
+
 class TestSQLDataNode:
     __properties = [
         {
@@ -109,10 +117,10 @@ class TestSQLDataNode:
                 "db_engine": "mssql",
                 "read_query": "SELECT * from table_name",
                 "write_table": "foo",
-                "exposed_type": "pandas",
+                "exposed_type": MyCustomObject,
             },
         )
-        assert sql_data_node_as_custom_object._read() == "pandas"
+        assert sql_data_node_as_custom_object._read() == "custom"
 
         # Create the same SQLDataSource but with numpy exposed_type
         sql_data_source_as_numpy_object = SQLDataNode(
@@ -133,12 +141,6 @@ class TestSQLDataNode:
 
     @pytest.mark.parametrize("properties", __properties)
     def test_read_as(self, properties):
-        class MyCustomObject:
-            def __init__(self, foo=None, bar=None, *args, **kwargs):
-                self.foo = foo
-                self.bar = bar
-                self.args = args
-                self.kwargs = kwargs
 
         sql_data_node = SQLDataNode(
             "foo",
@@ -150,6 +152,7 @@ class TestSQLDataNode:
                 "db_engine": "mssql",
                 "read_query": "SELECT * from table_name",
                 "write_table": "foo",
+                "exposed_type": MyCustomObject,
             },
         )
 
@@ -163,7 +166,7 @@ class TestSQLDataNode:
                 {"KWARGS_KEY": "KWARGS_VALUE"},
                 {},
             ]
-            data = sql_data_node._read_as("fake query", MyCustomObject)
+            data = sql_data_node._read_as()
 
         assert isinstance(data, list)
         assert isinstance(data[0], MyCustomObject)
@@ -192,7 +195,7 @@ class TestSQLDataNode:
         with mock.patch("sqlalchemy.engine.Engine.connect") as engine_mock:
             cursor_mock = engine_mock.return_value.__enter__.return_value
             cursor_mock.execute.return_value = []
-            data_2 = sql_data_node._read_as("fake query", MyCustomObject)
+            data_2 = sql_data_node._read_as()
         assert isinstance(data_2, list)
         assert len(data_2) == 0
 

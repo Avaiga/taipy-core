@@ -129,9 +129,10 @@ class CSVDataNode(DataNode):
             return self._read_as_pandas_dataframe()
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
             return self._read_as_numpy()
-        return self._read_as(self.properties[self.__EXPOSED_TYPE_PROPERTY])
+        return self._read_as()
 
-    def _read_as(self, custom_class):
+    def _read_as(self):
+        custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         with open(self._path) as csvFile:
             res = list()
             if self.properties[self.__HAS_HEADER_PROPERTY]:

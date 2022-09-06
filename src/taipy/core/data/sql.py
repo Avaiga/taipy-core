@@ -158,15 +158,16 @@ class SQLDataNode(DataNode):
         return cls.__STORAGE_TYPE
 
     def _read(self):
-        if self.properties.get(self.__EXPOSED_TYPE_PROPERTY) == self.__EXPOSED_TYPE_PANDAS:
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
             return self._read_as_pandas_dataframe()
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
             return self._read_as_numpy()
-        return self._read_as_pandas_dataframe()
+        return self._read_as()
 
-    def _read_as(self, query, custom_class):
+    def _read_as(self):
+        custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         with self.__engine().connect() as connection:
-            query_result = connection.execute(text(query))
+            query_result = connection.execute(text(self.read_query))
         return list(map(lambda row: custom_class(**row), query_result))
 
     def _read_as_numpy(self):

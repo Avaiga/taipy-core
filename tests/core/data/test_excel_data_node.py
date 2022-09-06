@@ -714,13 +714,8 @@ class TestExcelDataNode:
         with pytest.raises(NonExistingExcelSheet):
             dn.read()
 
-    def test_exposed_type_dict_after_modify_path(self):
-        path = os.path.join(
-            pathlib.Path(__file__).parent.resolve(), "data_sample/example_2.xlsx"
-        )  # ["Sheet1", "Sheet2", "Sheet3"]
-        new_path = os.path.join(
-            pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx"
-        )  # ["Sheet1", "Sheet2"]
+    def test_exposed_type_dict(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")  # ["Sheet1", "Sheet2"]
         dn = ExcelDataNode(
             "foo",
             Scope.PIPELINE,
@@ -728,47 +723,62 @@ class TestExcelDataNode:
                 "default_path": path,
                 "exposed_type": {
                     "Sheet1": MyCustomObject1,
-                    "Sheet2": MyCustomObject1,
+                    "Sheet2": MyCustomObject2,
                     "Sheet3": MyCustomObject1,
                 },
             },
         )
-        dn.read()
-        dn.path = new_path
-        dn.read()
+        data = dn.read()
+        assert isinstance(data, Dict)
+        assert isinstance(data["Sheet1"][0], MyCustomObject1)
+        assert isinstance(data["Sheet2"][0], MyCustomObject2)
 
-    def test_exposed_type_list_after_modify_path(self):
+    def test_exposed_type_list(self):
         path_1 = os.path.join(
             pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx"
         )  # ["Sheet1", "Sheet2"]
         path_2 = os.path.join(
             pathlib.Path(__file__).parent.resolve(), "data_sample/example_2.xlsx"
         )  # ["Sheet1", "Sheet2", "Sheet3"]
-        path_3 = os.path.join(
-            pathlib.Path(__file__).parent.resolve(), "data_sample/example_3.xlsx"
-        )  # ["Sheet3", "Sheet4"]
 
         dn = ExcelDataNode(
-            "foo", Scope.PIPELINE, properties={"default_path": path_1, "exposed_type": [MyCustomObject, MyCustomObject]}
+            "foo",
+            Scope.PIPELINE,
+            properties={"default_path": path_1, "exposed_type": [MyCustomObject1, MyCustomObject2]},
         )
 
-        dn.read()
-        dn.path = path_3
-        dn.read()
+        data = dn.read()
+        assert isinstance(data, Dict)
+        assert isinstance(data["Sheet1"][0], MyCustomObject1)
+        assert isinstance(data["Sheet2"][0], MyCustomObject2)
 
         dn.path = path_2
         with pytest.raises(ExposedTypeLengthMismatch):
             dn.read()
 
     def test_not_trying_to_read_sheet_names_when_exposed_type_is_set(self):
-        ExcelDataNode(
+        dn = ExcelDataNode(
             "foo", Scope.PIPELINE, properties={"default_path": "notexistyet.xlsx", "exposed_type": MyCustomObject1}
         )
-        ExcelDataNode(
+        assert dn.path == "notexistyet.xlsx"
+        assert dn.exposed_type == MyCustomObject1
+        dn = ExcelDataNode(
             "foo",
             Scope.PIPELINE,
             properties={"default_path": "notexistyet.xlsx", "exposed_type": [MyCustomObject1, MyCustomObject2]},
         )
+        assert dn.path == "notexistyet.xlsx"
+        assert dn.exposed_type == [MyCustomObject1, MyCustomObject2]
+        dn = ExcelDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={
+                "default_path": "notexistyet.xlsx",
+                "exposed_type": {"Sheet1": MyCustomObject1, "Sheet2": MyCustomObject2},
+            },
+        )
+        assert dn.path == "notexistyet.xlsx"
+        assert dn.exposed_type == {"Sheet1": MyCustomObject1, "Sheet2": MyCustomObject2}
 
     def test_exposed_type_default(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
