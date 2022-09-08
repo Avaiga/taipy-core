@@ -57,13 +57,14 @@ class SQLDataNode(DataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __DB_EXTRA_ARGS_KEY = "db_extra_args"
+    __TABLE_KEY = "table"
+    __READ_QUERY_KEY = "read_query"
+    _WRITE_QUERY_FACTORY_KEY = "write_query_factory"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
         "db_password",
         "db_name",
         "db_engine",
-        "read_query",
-        "write_table",
     ]
 
     def __init__(
@@ -81,15 +82,17 @@ class SQLDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
-        required = (
-            self._REQUIRED_PROPERTIES
-            if properties.get("db_engine") != "sqlite"
-            else ["db_name", "read_query", "write_table"]
-        )
+        required = self._REQUIRED_PROPERTIES
         if missing := set(required) - set(properties.keys()):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
+
+        if properties.get(self.__TABLE_KEY) is None:
+            if properties.get(self.__READ_QUERY_KEY) is None or properties.get(self._WRITE_QUERY_FACTORY_KEY) is None:
+                raise MissingRequiredProperty(
+                    f"The following properties {self.__TABLE_KEY} or ({self.__READ_QUERY_KEY} and {self._WRITE_QUERY_FACTORY_KEY}) were not informed and are required"
+                )
 
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
@@ -167,7 +170,7 @@ class SQLDataNode(DataNode):
     def _read_as(self):
         custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         with self.__engine().connect() as connection:
-            query_result = connection.execute(text(self.read_query))
+            query_result = connection.execute(text(self.get_read_query()))
         return list(map(lambda row: custom_class(**row), query_result))
 
     def _read_as_numpy(self):
@@ -175,12 +178,17 @@ class SQLDataNode(DataNode):
 
     def _read_as_pandas_dataframe(self, columns: Optional[List[str]] = None):
         if columns:
-            return pd.read_sql_query(self.read_query, con=self.__engine())[columns]
-        return pd.read_sql_query(self.read_query, con=self.__engine())
+            return pd.read_sql_query(self.get_read_query(), con=self.__engine())[columns]
+        return pd.read_sql_query(self.get_read_query(), con=self.__engine())
+
+    def get_read_query(self):
+        if self.properties.get(self.__READ_QUERY_KEY) is not None:
+            return self.properties.get(self.__READ_QUERY_KEY)
+        return f"SELECT * FROM {self.properties[self.__TABLE_KEY]}"
 
     def _create_table(self, engine) -> Table:
         return Table(
-            self.write_table,
+            self.table,
             MetaData(),
             autoload=True,
             autoload_with=engine,
@@ -192,6 +200,10 @@ class SQLDataNode(DataNode):
         engine = self.__engine()
 
         with engine.connect() as connection:
+            if factory := self.properties.get(self._WRITE_QUERY_FACTORY_KEY):
+                self._insert_by_query_factory(data, factory, connection)
+                return
+
             table = self._create_table(engine)
 
             if isinstance(data, pd.DataFrame):
@@ -220,6 +232,22 @@ class SQLDataNode(DataNode):
         with connection.begin() as transaction:
             try:
                 connection.execute(table.delete())
+            except:
+                transaction.rollback()
+                raise
+            else:
+                transaction.commit()
+
+    @classmethod
+    def _insert_by_query_factory(cls, data, factory, connection):
+        queries = factory(data)
+        with connection.begin() as transaction:
+            try:
+                for query in queries:
+                    if isinstance(query, str):
+                        connection.execute(query)
+                    elif isinstance(query, tuple):
+                        connection.execute(*query)
             except:
                 transaction.rollback()
                 raise
