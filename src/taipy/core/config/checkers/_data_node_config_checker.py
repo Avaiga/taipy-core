@@ -55,14 +55,22 @@ class _DataNodeConfigChecker(_ConfigChecker):
         if storage_type := data_node_config.storage_type:
             if storage_type in DataNodeConfig._REQUIRED_PROPERTIES:
                 required_properties = DataNodeConfig._REQUIRED_PROPERTIES[storage_type]
-                if storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_SQL:
+                if storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_SQL_DB:
                     if engine := data_node_config.properties.get(DataNodeConfig._REQUIRED_DB_ENGINE_SQL_PROPERTY):
                         if engine == DataNodeConfig._REQUIRED_DB_ENGINE_SQLITE:
                             required_properties = [
                                 DataNodeConfig._REQUIRED_DB_NAME_SQL_PROPERTY,
                                 DataNodeConfig._REQUIRED_DB_ENGINE_SQL_PROPERTY,
                                 DataNodeConfig._REQUIRED_READ_QUERY_SQL_PROPERTY,
-                                DataNodeConfig._REQUIRED_WRITE_TABLE_SQL_PROPERTY,
+                                DataNodeConfig._REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY,
+                            ]
+                if storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_SQL_TABLE:
+                    if engine := data_node_config.properties.get(DataNodeConfig._REQUIRED_DB_ENGINE_SQL_PROPERTY):
+                        if engine == DataNodeConfig._REQUIRED_DB_ENGINE_SQLITE:
+                            required_properties = [
+                                DataNodeConfig._REQUIRED_DB_NAME_SQL_PROPERTY,
+                                DataNodeConfig._REQUIRED_DB_ENGINE_SQL_PROPERTY,
+                                DataNodeConfig._REQUIRED_TABLE_NAME_PROPERTY,
                             ]
                 for required_property in required_properties:
                     if required_property not in data_node_config.properties:

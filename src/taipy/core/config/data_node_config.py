@@ -40,7 +40,8 @@ class DataNodeConfig(Section):
 
     _STORAGE_TYPE_KEY = "storage_type"
     _STORAGE_TYPE_VALUE_PICKLE = "pickle"
-    _STORAGE_TYPE_VALUE_SQL = "sql"
+    _STORAGE_TYPE_VALUE_SQL_TABLE = "sql_table"
+    _STORAGE_TYPE_VALUE_SQL_DB = "sql_db"
     _STORAGE_TYPE_VALUE_CSV = "csv"
     _STORAGE_TYPE_VALUE_EXCEL = "excel"
     _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
@@ -49,7 +50,8 @@ class DataNodeConfig(Section):
     _DEFAULT_STORAGE_TYPE = _STORAGE_TYPE_VALUE_PICKLE
     _ALL_STORAGE_TYPES = [
         _STORAGE_TYPE_VALUE_PICKLE,
-        _STORAGE_TYPE_VALUE_SQL,
+        _STORAGE_TYPE_VALUE_SQL_TABLE,
+        _STORAGE_TYPE_VALUE_SQL_DB,
         _STORAGE_TYPE_VALUE_CSV,
         _STORAGE_TYPE_VALUE_EXCEL,
         _STORAGE_TYPE_VALUE_IN_MEMORY,
@@ -93,10 +95,12 @@ class DataNodeConfig(Section):
     _REQUIRED_DB_ENGINE_SQL_PROPERTY = "db_engine"
     _REQUIRED_DB_ENGINE_SQLITE = "sqlite"
     _REQUIRED_DB_ENGINE_MSSQL = "mssql"
-    _REQUIRED_READ_QUERY_SQL_PROPERTY = "read_query"
-    _REQUIRED_WRITE_TABLE_SQL_PROPERTY = "write_table"
     _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY = "db_extra_args"
-
+    # SQL_TABLE
+    _REQUIRED_TABLE_NAME_PROPERTY = "table_name"
+    # SQL_DB
+    _REQUIRED_READ_QUERY_SQL_PROPERTY = "read_query"
+    _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY = "write_query_builder"
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -107,13 +111,20 @@ class DataNodeConfig(Section):
 
     _REQUIRED_PROPERTIES: Dict[str, List] = {
         _STORAGE_TYPE_VALUE_PICKLE: [],
-        _STORAGE_TYPE_VALUE_SQL: [
+        _STORAGE_TYPE_VALUE_SQL_TABLE: [
+            _REQUIRED_DB_USERNAME_SQL_PROPERTY,
+            _REQUIRED_DB_PASSWORD_SQL_PROPERTY,
+            _REQUIRED_DB_NAME_SQL_PROPERTY,
+            _REQUIRED_DB_ENGINE_SQL_PROPERTY,
+            _REQUIRED_TABLE_NAME_PROPERTY,
+        ],
+        _STORAGE_TYPE_VALUE_SQL_DB: [
             _REQUIRED_DB_USERNAME_SQL_PROPERTY,
             _REQUIRED_DB_PASSWORD_SQL_PROPERTY,
             _REQUIRED_DB_NAME_SQL_PROPERTY,
             _REQUIRED_DB_ENGINE_SQL_PROPERTY,
             _REQUIRED_READ_QUERY_SQL_PROPERTY,
-            _REQUIRED_WRITE_TABLE_SQL_PROPERTY,
+            _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
@@ -142,7 +153,8 @@ class DataNodeConfig(Section):
             _OPTIONAL_SHEET_NAME_EXCEL_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
-        _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
+        _STORAGE_TYPE_VALUE_SQL_TABLE: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
+        _STORAGE_TYPE_VALUE_SQL_DB: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -450,15 +462,13 @@ class DataNodeConfig(Section):
         return Config.sections[DataNodeConfig.name][id]
 
     @staticmethod
-    def _configure_sql(
+    def _configure_sql_table(
         id: str,
         db_username: str,
         db_password: str,
         db_name: str,
         db_engine: str,
-        table: str = None,
-        read_query: str = None,
-        write_query_factory: Callable = None,
+        table_name: str = None,
         db_port: int = 1433,
         db_host: str = "localhost",
         db_driver: str = "ODBC Driver 17 for SQL Server",
@@ -474,15 +484,14 @@ class DataNodeConfig(Section):
             db_username (str): The database username.
             db_password (str): The database password.
             db_name (str): The database name.
-            db_engine (str): The database engine. Possible values are _"sqlite"_ or _"mssql"_.
-            read_query (str): The SQL query string used to read the data from the database.
-            write_table (str): The name of the table in the database to write the data to.
-            db_port (int): The database port. The default value is 1433.
             db_host (str): The database host. The default value is _"localhost"_.
+            db_engine (str): The database engine. Possible values are _"sqlite"_ or _"mssql"_.
             db_driver (str): The database driver. The default value is
                 _"ODBC Driver 17 for SQL Server"_.
+            db_port (int): The database port. The default value is 1433.
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
+            table_name (str): The name of the SQL table.
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
@@ -493,8 +502,67 @@ class DataNodeConfig(Section):
         """
         section = DataNodeConfig(
             id,
-            DataNodeConfig._STORAGE_TYPE_VALUE_SQL,
+            DataNodeConfig._STORAGE_TYPE_VALUE_SQL_TABLE,
+            db_username=db_username,
+            db_password=db_password,
+            db_name=db_name,
+            db_host=db_host,
+            db_engine=db_engine,
+            db_driver=db_driver,
+            db_port=db_port,
+            db_extra_args=db_extra_args,
+            table_name=table_name,
+            exposed_type=exposed_type,
             scope=scope,
+            **properties,
+        )
+        Config._register(section)
+        return Config.sections[DataNodeConfig.name][id]
+
+    @staticmethod
+    def _configure_sql_db(
+        id: str,
+        db_username: str,
+        db_password: str,
+        db_name: str,
+        db_engine: str,
+        db_port: int = 1433,
+        db_host: str = "localhost",
+        db_driver: str = "ODBC Driver 17 for SQL Server",
+        db_extra_args: Dict[str, Any] = None,
+        read_query: str = None,
+        write_query_builder: Callable = None,
+        exposed_type=_EXPOSED_TYPE_PANDAS,
+        scope: Scope = _DEFAULT_SCOPE,
+        **properties,
+    ):
+        """Configure a new SQL data node configuration.
+
+        Parameters:
+            id (str): The unique identifier of the new SQL data node configuration.
+            db_username (str): The database username.
+            db_password (str): The database password.
+            db_name (str): The database name.
+            db_engine (str): The database engine. Possible values are _"sqlite"_ or _"mssql"_.
+            db_port (int): The database port. The default value is 1433.
+            db_host (str): The database host. The default value is _"localhost"_.
+            db_driver (str): The database driver. The default value is
+                _"ODBC Driver 17 for SQL Server"_.
+            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
+                connection string.
+            read_query (str): The SQL query string used to read the data from the database.
+            write_query_builder (Callable): Function called to build the SQL query from data.
+            exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
+            scope (Scope^): The scope of the SQL data node configuration. The default value is
+                `Scope.SCENARIO`.
+            **properties (Dict[str, Any]): A keyworded variable length list of additional
+                arguments.
+        Returns:
+            DataNodeConfig^: The new SQL data node configuration.
+        """
+        section = DataNodeConfig(
+            id,
+            DataNodeConfig._STORAGE_TYPE_VALUE_SQL_DB,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
@@ -502,11 +570,11 @@ class DataNodeConfig(Section):
             db_engine=db_engine,
             db_driver=db_driver,
             read_query=read_query,
-            table=table,
-            write_query_factory=write_query_factory,
+            write_query_buider=write_query_builder,
             db_port=db_port,
             db_extra_args=db_extra_args,
             exposed_type=exposed_type,
+            scope=scope,
             **properties,
         )
         Config._register(section)

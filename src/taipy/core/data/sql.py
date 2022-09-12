@@ -12,12 +12,12 @@
 import os
 import re
 import urllib.parse
+from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 
-import numpy as np
 import pandas as pd
-from sqlalchemy import MetaData, Table, create_engine, text
+from sqlalchemy import create_engine, text
 
 from taipy.config.common.scope import Scope
 
@@ -27,39 +27,12 @@ from .data_node import DataNode
 
 
 class SQLDataNode(DataNode):
-    """Data Node stored in a SQL database.
-
-    Attributes:
-        config_id (str): Identifier of the data node configuration. It must be a valid Python
-            identifier.
-        scope (Scope^): The scope of this data node.
-        id (str): The unique identifier of this data node.
-        name (str): A user-readable name of this data node.
-        parent_id (str): The identifier of the parent (pipeline_id, scenario_id, cycle_id) or
-            None.
-        last_edit_date (datetime): The date and time of the last modification.
-        job_ids (List[str]): The ordered list of jobs that have written this data node.
-        validity_period (Optional[timedelta]): The validity period of a cacheable data node.
-            Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
-            always up-to-date.
-        edit_in_progress (bool): True if a task computing the data node has been submitted
-            and not completed yet. False otherwise.
-        properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"db_username"_,
-            _"db_password"_, _"db_name"_, _"db_engine"_, _"read_query"_, and _"write_table"_.
-            For now, the accepted values for the _"db_engine"_ property are _"mssql"_ and
-            _"sqlite"_.
-    """
-
-    __STORAGE_TYPE = "sql"
+    __STORAGE_TYPE = None
     __EXPOSED_TYPE_NUMPY = "numpy"
     __EXPOSED_TYPE_PANDAS = "pandas"
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __DB_EXTRA_ARGS_KEY = "db_extra_args"
-    __TABLE_KEY = "table"
-    __READ_QUERY_KEY = "read_query"
-    _WRITE_QUERY_FACTORY_KEY = "write_query_factory"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
         "db_password",
@@ -87,12 +60,6 @@ class SQLDataNode(DataNode):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
-
-        if properties.get(self.__TABLE_KEY) is None:
-            if properties.get(self.__READ_QUERY_KEY) is None or properties.get(self._WRITE_QUERY_FACTORY_KEY) is None:
-                raise MissingRequiredProperty(
-                    f"The following properties {self.__TABLE_KEY} or ({self.__READ_QUERY_KEY} and {self._WRITE_QUERY_FACTORY_KEY}) were not informed and are required"
-                )
 
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
@@ -170,7 +137,7 @@ class SQLDataNode(DataNode):
     def _read_as(self):
         custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         with self.__engine().connect() as connection:
-            query_result = connection.execute(text(self.get_read_query()))
+            query_result = connection.execute(text(self._get_read_query()))
         return list(map(lambda row: custom_class(**row), query_result))
 
     def _read_as_numpy(self):
@@ -178,131 +145,26 @@ class SQLDataNode(DataNode):
 
     def _read_as_pandas_dataframe(self, columns: Optional[List[str]] = None):
         if columns:
-            return pd.read_sql_query(self.get_read_query(), con=self.__engine())[columns]
-        return pd.read_sql_query(self.get_read_query(), con=self.__engine())
+            return pd.read_sql_query(self._get_read_query(), con=self.__engine())[columns]
+        return pd.read_sql_query(self._get_read_query(), con=self.__engine())
 
-    def get_read_query(self):
-        if self.properties.get(self.__READ_QUERY_KEY) is not None:
-            return self.properties.get(self.__READ_QUERY_KEY)
-        return f"SELECT * FROM {self.properties[self.__TABLE_KEY]}"
+    @abstractmethod
+    def _get_read_query(self):
+        raise NotImplementedError
 
-    def _create_table(self, engine) -> Table:
-        return Table(
-            self.table,
-            MetaData(),
-            autoload=True,
-            autoload_with=engine,
-        )
+    @abstractmethod
+    def _do_write(self, data, engine, connection) -> None:
+        raise NotImplementedError
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
-
         engine = self.__engine()
-
         with engine.connect() as connection:
-            if factory := self.properties.get(self._WRITE_QUERY_FACTORY_KEY):
-                self._insert_by_query_factory(data, factory, connection)
-                return
-
-            table = self._create_table(engine)
-
-            if isinstance(data, pd.DataFrame):
-                self._insert_dataframe(data, table, connection)
-                return
-
-            if isinstance(data, np.ndarray):
-                data = data.tolist()
-            if not isinstance(data, list):
-                data = [data]
-
-            if len(data) == 0:
-                self._delete_all_rows(table, connection)
-                return
-
-            if isinstance(data[0], (tuple, list)):
-                self._insert_tuples(data, table, connection)
-            elif isinstance(data[0], dict):
-                self._insert_dicts(data, table, connection)
-            # If data is a primitive type, it will be inserted as a tuple of one element.
-            else:
-                self._insert_tuples([(x,) for x in data], table, connection)
-
-    @classmethod
-    def _delete_all_rows(cls, table, connection):
-        with connection.begin() as transaction:
-            try:
-                connection.execute(table.delete())
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-
-    @classmethod
-    def _insert_by_query_factory(cls, data, factory, connection):
-        queries = factory(data)
-        with connection.begin() as transaction:
-            try:
-                for query in queries:
-                    if isinstance(query, str):
-                        connection.execute(query)
-                    elif isinstance(query, tuple):
-                        connection.execute(*query)
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-
-    @classmethod
-    def _insert_tuples(cls, data: List[Union[Tuple, List]], write_table: Any, connection: Any) -> None:
-        """
-        :param data: a list of tuples or lists
-        :param write_table: a SQLAlchemy object that represents a table
-        :param connection: a SQLAlchemy connection to write the data
-
-        This method will lookup the length of the first object of the list and build the insert through
-        creation of a string of '?' equivalent to the length of the element. The '?' character is used as
-        placeholder for a tuple of same size.
-        """
-        with connection.begin() as transaction:
-            try:
-                connection.execute(write_table.delete())
-                markers = ",".join("?" * len(data[0]))
-                ins = "INSERT INTO {tablename} VALUES ({markers})"
-                ins = ins.format(tablename=write_table.name, markers=markers)
-                connection.execute(ins, data)
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-
-    @classmethod
-    def _insert_dicts(cls, data: List[Dict], write_table: Any, connection: Any) -> None:
-        """
-        :param data: a list of dictionaries
-        :param write_table: a SQLAlchemy object that represents a table
-        :param connection: a SQLAlchemy connection to write the data
-
-        This method will insert the data contained in a list of dictionaries into a table. The query itself is handled
-        by SQLAlchemy, so it's only needed to pass the correctly data type.
-        """
-        with connection.begin() as transaction:
-            try:
-                connection.execute(write_table.delete())
-                connection.execute(write_table.insert(), data)
-            except:
-                transaction.rollback()
-                raise
-            else:
-                transaction.commit()
-
-    @classmethod
-    def _insert_dataframe(cls, df: pd.DataFrame, write_table: Any, connection: Any) -> None:
-        """
-        :param data: a pandas dataframe
-        :param write_table: a SQLAlchemy object that represents a table
-        :param connection: a SQLAlchemy connection to write the data
-        """
-        cls._insert_dicts(df.to_dict(orient="records"), write_table, connection)
+            with connection.begin() as transaction:
+                try:
+                    self._do_write(data, engine, connection)
+                except:
+                    transaction.rollback()
+                    raise
+                else:
+                    transaction.commit()

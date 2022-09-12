@@ -9,7 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import pathlib
 from datetime import datetime, timedelta
 from pydoc import locate
 from typing import Any, Dict, Iterable, List, Optional
@@ -21,7 +20,7 @@ from ._data_model import _DataNodeModel
 from .data_node import DataNode
 from .generic import GenericDataNode
 from .json import JSONDataNode
-from .sql import SQLDataNode
+from .sql_db import SQLDbDataNode
 
 
 class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: ignore
@@ -34,8 +33,8 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
     _JSON_DECODER_NAME_KEY = "decoder_name"
     _JSON_DECODER_MODULE_KEY = "decoder_module"
     _EXPOSED_TYPE_KEY = "exposed_type"
-    _WRITE_QUERY_FACTORY_NAME_KEY = "write_query_factory_name"
-    _WRITE_QUERY_FACTORY_MODULE_KEY = "write_query_factory_module"
+    _WRITE_QUERY_BUILDER_NAME_KEY = "write_query_builder_name"
+    _WRITE_QUERY_BUILDER_MODULE_KEY = "write_query_builder_module"
     _VALID_STRING_EXPOSED_TYPES = ["numpy", "pandas"]
 
     def __init__(self, **kwargs):
@@ -74,15 +73,11 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             properties[self._JSON_DECODER_MODULE_KEY] = decoder.__module__ if decoder else None
             properties.pop(JSONDataNode._DECODER_KEY, None)
 
-        if data_node.storage_type() == SQLDataNode.storage_type():
-            write_query_factory = data_node._properties.get(SQLDataNode._WRITE_QUERY_FACTORY_KEY)
-            properties[self._WRITE_QUERY_FACTORY_NAME_KEY] = (
-                write_query_factory.__name__ if write_query_factory else None
-            )
-            properties[self._WRITE_QUERY_FACTORY_MODULE_KEY] = (
-                write_query_factory.__module__ if write_query_factory else None
-            )
-            properties.pop(SQLDataNode._WRITE_QUERY_FACTORY_KEY, None)
+        if data_node.storage_type() == SQLDbDataNode.storage_type():
+            query_builder = data_node._properties.get(SQLDbDataNode._WRITE_QUERY_BUILDER_KEY)
+            properties[self._WRITE_QUERY_BUILDER_NAME_KEY] = query_builder.__name__ if query_builder else None
+            properties[self._WRITE_QUERY_BUILDER_MODULE_KEY] = query_builder.__module__ if query_builder else None
+            properties.pop(SQLDbDataNode._WRITE_QUERY_BUILDER_KEY, None)
 
         if self._EXPOSED_TYPE_KEY in properties.keys():
             if not isinstance(properties[self._EXPOSED_TYPE_KEY], str):
@@ -161,17 +156,17 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             del model.data_node_properties[self._JSON_DECODER_NAME_KEY]
             del model.data_node_properties[self._JSON_DECODER_MODULE_KEY]
 
-        if model.storage_type == SQLDataNode.storage_type():
-            if model.data_node_properties[self._WRITE_QUERY_FACTORY_MODULE_KEY]:
-                model.data_node_properties[SQLDataNode._WRITE_QUERY_FACTORY_KEY] = _load_fct(
-                    model.data_node_properties[self._WRITE_QUERY_FACTORY_MODULE_KEY],
-                    model.data_node_properties[self._WRITE_QUERY_FACTORY_NAME_KEY],
+        if model.storage_type == SQLDbDataNode.storage_type():
+            if model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY]:
+                model.data_node_properties[SQLDbDataNode._WRITE_QUERY_BUILDER_KEY] = _load_fct(
+                    model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY],
+                    model.data_node_properties[self._WRITE_QUERY_BUILDER_NAME_KEY],
                 )
             else:
-                model.data_node_properties[SQLDataNode._WRITE_QUERY_FACTORY_KEY] = None
+                model.data_node_properties[SQLDbDataNode._WRITE_QUERY_BUILDER_KEY] = None
 
-            del model.data_node_properties[self._WRITE_QUERY_FACTORY_NAME_KEY]
-            del model.data_node_properties[self._WRITE_QUERY_FACTORY_MODULE_KEY]
+            del model.data_node_properties[self._WRITE_QUERY_BUILDER_NAME_KEY]
+            del model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY]
 
         if self._EXPOSED_TYPE_KEY in model.data_node_properties.keys():
             if model.data_node_properties[self._EXPOSED_TYPE_KEY] not in self._VALID_STRING_EXPOSED_TYPES:

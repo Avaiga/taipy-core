@@ -43,7 +43,7 @@ class NoData(Exception):
 
 
 class UnknownDatabaseEngine(Exception):
-    """Raised if the database engine is not known when creating a connection with a SQLDataNode."""
+    """Raised if the database engine is not known when creating a connection with an SQLDataNode."""
 
 
 class NonExistingDataNode(Exception):
