@@ -570,7 +570,7 @@ class DataNodeConfig(Section):
             db_engine=db_engine,
             db_driver=db_driver,
             read_query=read_query,
-            write_query_buider=write_query_builder,
+            write_query_builder=write_query_builder,
             db_port=db_port,
             db_extra_args=db_extra_args,
             exposed_type=exposed_type,

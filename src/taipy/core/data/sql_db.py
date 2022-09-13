@@ -85,7 +85,7 @@ class SQLDbDataNode(SQLDataNode):
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
-    def get_read_query(self):
+    def _get_read_query(self):
         return self.properties.get(self.__READ_QUERY_KEY)
 
     def _do_write(self, data, engine, connection) -> None:
