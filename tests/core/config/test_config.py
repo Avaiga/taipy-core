@@ -44,15 +44,14 @@ class TestConfig:
         Config.configure_json_data_node(a, dp, ec, dc, sc, path=p)
         assert len(Config.data_nodes) == 2
 
-    def test_configure_sql_data_node(self):
-        a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope, k = (
+    def test_configure_sql_table_data_node(self):
+        a, b, c, d, e, f, g, h, i, extra_args, exposed_type, scope, k = (
             "foo",
             "user",
             "pwd",
             "db",
             "engine",
-            "read",
-            "write",
+            "table_name",
             "port",
             "host",
             "driver",
@@ -61,5 +60,29 @@ class TestConfig:
             Scope.PIPELINE,
             "qux",
         )
-        Config.configure_sql_data_node(a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope=scope, property=k)
+        Config.configure_sql_table_data_node(
+            a, b, c, d, e, f, g, h, i, extra_args, exposed_type, scope=scope, property=k
+        )
+        assert len(Config.data_nodes) == 2
+
+    def test_configure_sql_db_data_node(self):
+        a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope, k = (
+            "foo",
+            "user",
+            "pwd",
+            "db",
+            "engine",
+            "read_query",
+            "write_query_builder",
+            "port",
+            "host",
+            "driver",
+            {"foo": "bar"},
+            "exposed_type",
+            Scope.PIPELINE,
+            "qux",
+        )
+        Config.configure_sql_db_data_node(
+            a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope=scope, property=k
+        )
         assert len(Config.data_nodes) == 2

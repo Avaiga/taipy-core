@@ -61,6 +61,8 @@ class SQLDbDataNode(SQLDataNode):
         edit_in_progress: bool = False,
         properties: Dict = None,
     ):
+        if properties is None:
+            properties = {}
         if properties.get(self.__READ_QUERY_KEY) is None:
             raise MissingRequiredProperty(f"Property {self.__READ_QUERY_KEY} is not informed and is required")
         if properties.get(self._WRITE_QUERY_BUILDER_KEY) is None:
@@ -76,8 +78,12 @@ class SQLDbDataNode(SQLDataNode):
             job_ids,
             validity_period,
             edit_in_progress,
-            **properties,
+            properties=properties,
         )
+
+    @classmethod
+    def storage_type(cls) -> str:
+        return cls.__STORAGE_TYPE
 
     def get_read_query(self):
         return self.properties.get(self.__READ_QUERY_KEY)

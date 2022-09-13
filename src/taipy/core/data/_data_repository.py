@@ -40,7 +40,17 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
     def __init__(self, **kwargs):
         kwargs.update({"to_model_fct": self._to_model, "from_model_fct": self._from_model})
         self.repo = _RepositoryAdapter.select_base_repository()(**kwargs)
-        self.class_map = {c.storage_type(): c for c in DataNode.__subclasses__()}
+        self.class_map = self._build_class_map()
+
+    @staticmethod
+    def _build_class_map():
+        def all_subclasses(cls):
+            subclasses = set(cls.__subclasses__())
+            for s in cls.__subclasses__():
+                subclasses.update(all_subclasses(s))
+            return subclasses
+
+        return {c.storage_type(): c for c in all_subclasses(DataNode) if c.storage_type() is not None}
 
     @property
     def repository(self):

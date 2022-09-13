@@ -33,12 +33,13 @@ class SQLDataNode(DataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __DB_EXTRA_ARGS_KEY = "db_extra_args"
-    _REQUIRED_PROPERTIES: List[str] = [
-        "db_username",
-        "db_password",
-        "db_name",
-        "db_engine",
-    ]
+    __ENGINE_MSSQL = "mssql"
+    __ENGINE_SQLITE = "sqlite"
+
+    _ENGINE_REQUIRED_PROPERTIES: Dict[str, List[str]] = {
+        __ENGINE_MSSQL: ["db_username", "db_password", "db_name"],
+        __ENGINE_SQLITE: ["db_name", "path"],
+    }
 
     def __init__(
         self,
@@ -55,11 +56,6 @@ class SQLDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
-        required = self._REQUIRED_PROPERTIES
-        if missing := set(required) - set(properties.keys()):
-            raise MissingRequiredProperty(
-                f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
-            )
 
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
@@ -92,6 +88,19 @@ class SQLDataNode(DataNode):
             self.properties.get(self.__DB_EXTRA_ARGS_KEY, {}),
             self.properties.get("path", ""),
         )
+
+    def _check_required_properties(self, properties: Dict):
+        db_engine = properties.get("db_engine")
+        if not db_engine:
+            raise MissingRequiredProperty("db_engine is required.")
+        if db_engine not in self._ENGINE_REQUIRED_PROPERTIES.keys():
+            raise UnknownDatabaseEngine(f"Unknown engine: {db_engine}")
+        required = self._ENGINE_REQUIRED_PROPERTIES[db_engine]
+
+        if missing := set(required) - set(properties.keys()):
+            raise MissingRequiredProperty(
+                f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
+            )
 
     def _check_exposed_type(self, exposed_type):
         if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:

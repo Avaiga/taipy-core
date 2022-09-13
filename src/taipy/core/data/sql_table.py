@@ -64,6 +64,8 @@ class SQLTableDataNode(SQLDataNode):
         edit_in_progress: bool = False,
         properties: Dict = None,
     ):
+        if properties is None:
+            properties = {}
         if properties.get(self.__TABLE_KEY) is None:
             raise MissingRequiredProperty(f"Property {self.__TABLE_KEY} is not informed and is required")
         super().__init__(
@@ -76,8 +78,12 @@ class SQLTableDataNode(SQLDataNode):
             job_ids=job_ids,
             validity_period=validity_period,
             edit_in_progress=edit_in_progress,
-            **properties,
+            properties=properties,
         )
+
+    @classmethod
+    def storage_type(cls) -> str:
+        return cls.__STORAGE_TYPE
 
     def _get_read_query(self):
         return f"SELECT * FROM {self.properties[self.__TABLE_KEY]}"
