@@ -20,7 +20,7 @@ from .sql import SQLDataNode
 
 
 class SQLDbDataNode(SQLDataNode):
-    """Data Node stored in an SQL database.
+    """Data Node stored in a SQL database.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. It must be a valid Python

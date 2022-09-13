@@ -477,7 +477,7 @@ class DataNodeConfig(Section):
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
-        """Configure a new SQL data node configuration.
+        """Configure a new SQL table data node configuration.
 
         Parameters:
             id (str): The unique identifier of the new SQL data node configuration.
@@ -536,7 +536,7 @@ class DataNodeConfig(Section):
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
-        """Configure a new SQL data node configuration.
+        """Configure a new SQL database data node configuration.
 
         Parameters:
             id (str): The unique identifier of the new SQL data node configuration.

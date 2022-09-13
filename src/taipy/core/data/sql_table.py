@@ -24,7 +24,7 @@ from .sql import SQLDataNode
 
 
 class SQLTableDataNode(SQLDataNode):
-    """Data Node stored in an SQL table.
+    """Data Node stored in a SQL table.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. It must be a valid Python
