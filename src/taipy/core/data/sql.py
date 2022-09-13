@@ -44,7 +44,7 @@ class SQLDataNode(AbstractSQLDataNode):
             _"sqlite"_.
     """
 
-    __STORAGE_TYPE = "sql_db"
+    __STORAGE_TYPE = "sql"
     __READ_QUERY_KEY = "read_query"
     _WRITE_QUERY_BUILDER_KEY = "write_query_builder"
 
@@ -90,8 +90,10 @@ class SQLDataNode(AbstractSQLDataNode):
 
     def _do_write(self, data, engine, connection) -> None:
         queries = self.properties.get(self._WRITE_QUERY_BUILDER_KEY)(data)
+        if not isinstance(queries, list):
+            queries = [queries]
         for query in queries:
             if isinstance(query, str):
                 connection.execute(query)
-            elif isinstance(query, tuple):
+            else:
                 connection.execute(*query)

@@ -41,7 +41,7 @@ class DataNodeConfig(Section):
     _STORAGE_TYPE_KEY = "storage_type"
     _STORAGE_TYPE_VALUE_PICKLE = "pickle"
     _STORAGE_TYPE_VALUE_SQL_TABLE = "sql_table"
-    _STORAGE_TYPE_VALUE_SQL_DB = "sql"
+    _STORAGE_TYPE_VALUE_SQL = "sql"
     _STORAGE_TYPE_VALUE_CSV = "csv"
     _STORAGE_TYPE_VALUE_EXCEL = "excel"
     _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
@@ -51,7 +51,7 @@ class DataNodeConfig(Section):
     _ALL_STORAGE_TYPES = [
         _STORAGE_TYPE_VALUE_PICKLE,
         _STORAGE_TYPE_VALUE_SQL_TABLE,
-        _STORAGE_TYPE_VALUE_SQL_DB,
+        _STORAGE_TYPE_VALUE_SQL,
         _STORAGE_TYPE_VALUE_CSV,
         _STORAGE_TYPE_VALUE_EXCEL,
         _STORAGE_TYPE_VALUE_IN_MEMORY,
@@ -98,7 +98,7 @@ class DataNodeConfig(Section):
     _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY = "db_extra_args"
     # SQL_TABLE
     _REQUIRED_TABLE_NAME_PROPERTY = "table_name"
-    # SQL_DB
+    # SQL
     _REQUIRED_READ_QUERY_SQL_PROPERTY = "read_query"
     _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY = "write_query_builder"
     # Pickle
@@ -118,7 +118,7 @@ class DataNodeConfig(Section):
             _REQUIRED_DB_ENGINE_SQL_PROPERTY,
             _REQUIRED_TABLE_NAME_PROPERTY,
         ],
-        _STORAGE_TYPE_VALUE_SQL_DB: [
+        _STORAGE_TYPE_VALUE_SQL: [
             _REQUIRED_DB_USERNAME_SQL_PROPERTY,
             _REQUIRED_DB_PASSWORD_SQL_PROPERTY,
             _REQUIRED_DB_NAME_SQL_PROPERTY,
@@ -154,7 +154,7 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL_TABLE: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_SQL_DB: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
+        _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -562,7 +562,7 @@ class DataNodeConfig(Section):
         """
         section = DataNodeConfig(
             id,
-            DataNodeConfig._STORAGE_TYPE_VALUE_SQL_DB,
+            DataNodeConfig._STORAGE_TYPE_VALUE_SQL,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,

@@ -72,6 +72,8 @@ class TestSQLTableDataNode:
         assert dn.job_ids == []
         assert dn.is_ready_for_reading
         assert dn.exposed_type == "pandas"
+        assert dn.table_name == "foo"
+        assert dn._get_read_query() == "SELECT * FROM foo"
 
     @pytest.mark.parametrize(
         "properties",

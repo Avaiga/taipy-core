@@ -55,7 +55,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
         if storage_type := data_node_config.storage_type:
             if storage_type in DataNodeConfig._REQUIRED_PROPERTIES:
                 required_properties = DataNodeConfig._REQUIRED_PROPERTIES[storage_type]
-                if storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_SQL_DB:
+                if storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_SQL:
                     if engine := data_node_config.properties.get(DataNodeConfig._REQUIRED_DB_ENGINE_SQL_PROPERTY):
                         if engine == DataNodeConfig._REQUIRED_DB_ENGINE_SQLITE:
                             required_properties = [
