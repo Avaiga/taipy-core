@@ -83,7 +83,7 @@ class TestDataNodeConfigChecker:
         _DataNodeConfigChecker(config, collector)._check()
         assert len(collector.errors) == 5
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql_db"
+        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
         collector = IssueCollector()
         _DataNodeConfigChecker(config, collector)._check()
         assert len(collector.errors) == 6
@@ -151,7 +151,7 @@ class TestDataNodeConfigChecker:
         _DataNodeConfigChecker(config, collector)._check()
         assert len(collector.errors) == 5
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql_db"
+        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
         collector = IssueCollector()
         _DataNodeConfigChecker(config, collector)._check()
         assert len(collector.errors) == 6
@@ -171,7 +171,7 @@ class TestDataNodeConfigChecker:
             "read_query",
             "write_query_builder",
         ]
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql_db"
+        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
         config._sections[DataNodeConfig.name]["default"].properties = {key: f"the_{key}" for key in required_properties}
         collector = IssueCollector()
         _DataNodeConfigChecker(config, collector)._check()

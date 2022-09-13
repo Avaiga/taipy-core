@@ -16,5 +16,5 @@ from .generic import GenericDataNode
 from .in_memory import InMemoryDataNode
 from .json import JSONDataNode
 from .pickle import PickleDataNode
-from .sql_db import SQLDbDataNode
+from .sql import SQLDataNode
 from .sql_table import SQLTableDataNode

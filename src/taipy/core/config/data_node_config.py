@@ -41,7 +41,7 @@ class DataNodeConfig(Section):
     _STORAGE_TYPE_KEY = "storage_type"
     _STORAGE_TYPE_VALUE_PICKLE = "pickle"
     _STORAGE_TYPE_VALUE_SQL_TABLE = "sql_table"
-    _STORAGE_TYPE_VALUE_SQL_DB = "sql_db"
+    _STORAGE_TYPE_VALUE_SQL_DB = "sql"
     _STORAGE_TYPE_VALUE_CSV = "csv"
     _STORAGE_TYPE_VALUE_EXCEL = "excel"
     _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
@@ -254,7 +254,7 @@ class DataNodeConfig(Section):
             storage_type (str): The data node configuration storage type. The possible values
                 are _"pickle"_ (which the default value, unless it has been overloaded by the
                 _storage_type_ value set in the default data node configuration
-                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql_table"_, _"sql_db"_, _"json"_,
+                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql_table"_, _"sql"_, _"json"_,
                 _"in_memory"_, or _"generic"_.
             scope (Scope^): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in
@@ -520,7 +520,7 @@ class DataNodeConfig(Section):
         return Config.sections[DataNodeConfig.name][id]
 
     @staticmethod
-    def _configure_sql_db(
+    def _configure_sql(
         id: str,
         db_username: str,
         db_password: str,

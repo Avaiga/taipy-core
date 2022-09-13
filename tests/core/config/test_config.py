@@ -65,7 +65,7 @@ class TestConfig:
         )
         assert len(Config.data_nodes) == 2
 
-    def test_configure_sql_db_data_node(self):
+    def test_configure_sql_data_node(self):
         a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope, k = (
             "foo",
             "user",
@@ -82,7 +82,5 @@ class TestConfig:
             Scope.PIPELINE,
             "qux",
         )
-        Config.configure_sql_db_data_node(
-            a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope=scope, property=k
-        )
+        Config.configure_sql_data_node(a, b, c, d, e, f, g, h, i, j, extra_args, exposed_type, scope=scope, property=k)
         assert len(Config.data_nodes) == 2

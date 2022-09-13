@@ -20,7 +20,7 @@ from ._data_model import _DataNodeModel
 from .data_node import DataNode
 from .generic import GenericDataNode
 from .json import JSONDataNode
-from .sql_db import SQLDbDataNode
+from .sql import SQLDataNode
 
 
 class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: ignore
@@ -73,11 +73,11 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             properties[self._JSON_DECODER_MODULE_KEY] = decoder.__module__ if decoder else None
             properties.pop(JSONDataNode._DECODER_KEY, None)
 
-        if data_node.storage_type() == SQLDbDataNode.storage_type():
-            query_builder = data_node._properties.get(SQLDbDataNode._WRITE_QUERY_BUILDER_KEY)
+        if data_node.storage_type() == SQLDataNode.storage_type():
+            query_builder = data_node._properties.get(SQLDataNode._WRITE_QUERY_BUILDER_KEY)
             properties[self._WRITE_QUERY_BUILDER_NAME_KEY] = query_builder.__name__ if query_builder else None
             properties[self._WRITE_QUERY_BUILDER_MODULE_KEY] = query_builder.__module__ if query_builder else None
-            properties.pop(SQLDbDataNode._WRITE_QUERY_BUILDER_KEY, None)
+            properties.pop(SQLDataNode._WRITE_QUERY_BUILDER_KEY, None)
 
         if self._EXPOSED_TYPE_KEY in properties.keys():
             if not isinstance(properties[self._EXPOSED_TYPE_KEY], str):
@@ -156,14 +156,14 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             del model.data_node_properties[self._JSON_DECODER_NAME_KEY]
             del model.data_node_properties[self._JSON_DECODER_MODULE_KEY]
 
-        if model.storage_type == SQLDbDataNode.storage_type():
+        if model.storage_type == SQLDataNode.storage_type():
             if model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY]:
-                model.data_node_properties[SQLDbDataNode._WRITE_QUERY_BUILDER_KEY] = _load_fct(
+                model.data_node_properties[SQLDataNode._WRITE_QUERY_BUILDER_KEY] = _load_fct(
                     model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY],
                     model.data_node_properties[self._WRITE_QUERY_BUILDER_NAME_KEY],
                 )
             else:
-                model.data_node_properties[SQLDbDataNode._WRITE_QUERY_BUILDER_KEY] = None
+                model.data_node_properties[SQLDataNode._WRITE_QUERY_BUILDER_KEY] = None
 
             del model.data_node_properties[self._WRITE_QUERY_BUILDER_NAME_KEY]
             del model.data_node_properties[self._WRITE_QUERY_BUILDER_MODULE_KEY]
