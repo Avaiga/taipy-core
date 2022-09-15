@@ -551,7 +551,7 @@ class DataNodeConfig(Section):
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
             read_query (str): The SQL query string used to read the data from the database.
-            write_query_builder (Callable): A callback function which takes in the data and returns a list of queries.
+            write_query_builder (Callable): A callback function that takes the data as an input parameter and returns a list of SQL queries.
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
