@@ -12,13 +12,12 @@
 from importlib import util
 from unittest import mock
 
-import numpy as np
 import pandas as pd
 import pytest
 
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data.sql import SQLDataNode
-from src.taipy.core.exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
+from src.taipy.core.exceptions.exceptions import MissingRequiredProperty
 from taipy.config.common.scope import Scope
 
 if not util.find_spec("pyodbc"):
@@ -35,10 +34,7 @@ class MyCustomObject:
 
 def my_write_query_builder(data: pd.DataFrame):
     insert_data = list(data.itertuples(index=False, name=None))
-    return [
-        "DELETE FROM foo",
-        ("INSERT INTO foo VALUES (?,?)", insert_data)
-    ]
+    return ["DELETE FROM foo", ("INSERT INTO foo VALUES (?,?)", insert_data)]
 
 
 def single_write_query_builder(data):
@@ -120,7 +116,8 @@ class TestSQLDataNode:
             dn.write(pd.DataFrame({"foo": [1, 2, 3], "bar": [4, 5, 6]}))
             assert engine_mock.mock_calls[4] == mock.call().__enter__().execute("DELETE FROM foo")
             assert engine_mock.mock_calls[5] == mock.call().__enter__().execute(
-                "INSERT INTO foo VALUES (?,?)", [(1, 4), (2, 5), (3, 6)])
+                "INSERT INTO foo VALUES (?,?)", [(1, 4), (2, 5), (3, 6)]
+            )
 
         dn = SQLDataNode(
             "foo_bar",

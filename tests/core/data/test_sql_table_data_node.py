@@ -275,11 +275,11 @@ class TestSQLTableDataNode:
         df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [5, 6, 7, 8]})
         with mock.patch("sqlalchemy.engine.Engine.connect") as engine_mock, mock.patch(
             "src.taipy.core.data.sql_table.SQLTableDataNode._create_table"
-        ) as create_table_mock:
+        ):
             cursor_mock = engine_mock.return_value.__enter__.return_value
             cursor_mock.execute.side_effect = None
 
-            with mock.patch(f"src.taipy.core.data.sql_table.SQLTableDataNode._insert_dataframe") as mck:
+            with mock.patch("src.taipy.core.data.sql_table.SQLTableDataNode._insert_dataframe") as mck:
                 dn._write(df)
                 assert mck.call_args[0][0].equals(df)
 
@@ -309,6 +309,40 @@ class TestSQLTableDataNode:
             cursor_mock = engine_mock.return_value.__enter__.return_value
             cursor_mock.execute.side_effect = None
 
-            with mock.patch(f"src.taipy.core.data.sql_table.SQLTableDataNode._delete_all_rows") as mck:
+            with mock.patch("src.taipy.core.data.sql_table.SQLTableDataNode._delete_all_rows") as mck:
                 dn._write(data)
                 mck.assert_called_once_with(create_table_mock.return_value, cursor_mock)
+
+    @mock.patch("pandas.read_sql_query")
+    def test_engine_cache(self, _):
+        dn = SQLTableDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={
+                "db_username": "sa",
+                "db_password": "foobar",
+                "db_name": "datanode",
+                "db_engine": "mssql",
+                "table_name": "foo",
+            },
+        )
+
+        assert dn.engine is None
+
+        with mock.patch("sqlalchemy.engine.Engine.connect") as engine_mock, mock.patch(
+            "src.taipy.core.data.sql_table.SQLTableDataNode._create_table"
+        ):
+            cursor_mock = engine_mock.return_value.__enter__.return_value
+            cursor_mock.execute.side_effect = None
+
+            dn.read()
+            assert dn.engine is not None
+
+            dn.db_username = "foo"
+            assert dn.engine is None
+
+            dn.write(1)
+            assert dn.engine is not None
+
+            dn.some_random_attribute_that_does_not_related_to_engine = "foo"
+            assert dn.engine is not None
