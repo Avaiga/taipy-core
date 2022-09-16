@@ -101,6 +101,8 @@ class DataNodeConfig(Section):
     # MONGO
     _OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY = "exposed_type"
     _OPTIONAL_EXPOSED_TYPE_MONGO_NUMPY = "numpy"
+    _OPTIONAL_ENCODER_MONGO_PROPERTY = "encoder"
+    _OPTIONAL_DECODER_TYPE_MONGO_PROPERTY = "decoder"
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
@@ -162,7 +164,11 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_MONGO: [_OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY],
+        _STORAGE_TYPE_VALUE_MONGO: [
+            _OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY,
+            _OPTIONAL_ENCODER_MONGO_PROPERTY,
+            _OPTIONAL_DECODER_TYPE_MONGO_PROPERTY,
+        ],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -541,6 +547,8 @@ class DataNodeConfig(Section):
         write_table: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
+        encoder: json.JSONEncoder = None,
+        decoder: json.JSONDecoder = None,
         db_extra_args: Dict[str, Any] = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
@@ -558,6 +566,8 @@ class DataNodeConfig(Section):
             write_table (str): The name of the table in the database to write the data to.
             db_port (int): The database port. The default value is 1433.
             db_host (str): The database host. The default value is _"localhost"_.
+            encoder (json.JSONEncoder): The JSON encoder used to write data into the JSON file.
+            decoder (json.JSONDecoder): The JSON decoder used to read data from the JSON file.
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
             exposed_type: The exposed type of the data read from Mongo query. The default value is `pandas`.
@@ -580,6 +590,8 @@ class DataNodeConfig(Section):
             read_query=read_query,
             write_table=write_table,
             db_port=db_port,
+            encoder=encoder,
+            decoder=decoder,
             db_extra_args=db_extra_args,
             exposed_type=exposed_type,
             **properties,

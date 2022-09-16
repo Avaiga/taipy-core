@@ -11,7 +11,6 @@
 
 import json
 from datetime import datetime, timedelta
-from enum import Enum
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -44,6 +43,8 @@ class MongoDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
+        encoder (json.JSONEncoder): The JSON encoder that is used to write into the JSON file.
+        decoder (json.JSONDecoder): The JSON decoder that is used to read from the JSON file.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
             _properties_ parameter must at least contain an entry for _"db_username"_,
             _"db_password"_, _"db_name"_, _"collection_name"_, _"read_query"_, and _"write_table"_.
@@ -102,6 +103,8 @@ class MongoDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
+        self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
+        self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
 
         mongo_client = _connect_mongodb(
             db_host=properties.get("db_host", "localhost"),
@@ -111,9 +114,6 @@ class MongoDataNode(DataNode):
         )
         mongo_db = mongo_client[properties.get("db_name")]
         self.collection = mongo_db[properties.get("collection_name")]
-
-        self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
-        self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
 
         if not self._last_edit_date:
             self.unlock_edit()
@@ -171,7 +171,9 @@ class MongoDataNode(DataNode):
     def _read_by_query(self):
         """Query from MongoDB, exclude the _id field"""
 
-        return self.collection.find(self.read_query, {"_id": 0})
+        query_result = list(self.collection.find(self.read_query, {"_id": 0}))
+        encoded_json = json.dumps(query_result)
+        return json.loads(encoded_json, cls=self._decoder)
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
@@ -209,7 +211,7 @@ class MongoDataNode(DataNode):
         :param data: data of any type to encode into JSON
         """
         encoded_json = json.dumps(data, cls=self._encoder)
-        return json.loads(encoded_json, cls=self._decoder)
+        return json.loads(encoded_json)
 
 
 def _connect_mongodb(db_host, db_port, db_username, db_password):
