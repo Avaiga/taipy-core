@@ -11,6 +11,7 @@
 
 import copy
 import datetime
+import json
 from dataclasses import dataclass
 from enum import Enum
 from unittest import mock
@@ -33,6 +34,31 @@ class MyCustomObject:
         self.bar = bar
         self.args = args
         self.kwargs = kwargs
+
+
+class AnotherCustomObject:
+    def __init__(self, id, integer, text):
+        self.id = id
+        self.integer = integer
+        self.text = text
+
+
+class MyCustomEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, AnotherCustomObject):
+            return {"__type__": "AnotherCustomObject", "id": o.id, "integer": o.integer, "text": o.text}
+        return super().default(self, o)
+
+
+class MyCustomDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(object_hook=self.object_hook, *args, **kwargs)
+
+    def object_hook(self, o):
+        if o.get("__type__") == "AnotherCustomObject":
+            return AnotherCustomObject(o["id"], o["integer"], o["text"])
+        else:
+            return o
 
 
 class TestMongoDataNode:
@@ -285,3 +311,37 @@ class TestMongoDataNode:
         read_data = dn.read()
         assert read_data["integer"][0] == 1
         assert read_data["string"][0] == "foo"
+
+    @pytest.mark.parametrize("properties", __properties)
+    def test_write_custom_encoder(self, properties):
+        custom_properties = properties.copy()
+        custom_properties["encoder"] = MyCustomEncoder
+        dn = MongoDataNode("foo", Scope.PIPELINE, properties=custom_properties)
+        data = [{"data": AnotherCustomObject("1", 1, "abc"), "data2": 100}]
+        dn.write(data)
+
+        read_data = dn.read()
+
+        assert read_data["data"][0]["__type__"] == "AnotherCustomObject"
+        assert read_data["data"][0]["id"] == "1"
+        assert read_data["data"][0]["integer"] == 1
+        assert read_data["data"][0]["text"] == "abc"
+        assert read_data["data2"][0] == 100
+
+    @pytest.mark.parametrize("properties", __properties)
+    def test_read_write_custom_encoder_decoder(self, properties):
+        custom_properties = properties.copy()
+        custom_properties["encoder"] = MyCustomEncoder
+        custom_properties["decoder"] = MyCustomDecoder
+        dn = MongoDataNode("foo", Scope.PIPELINE, properties=custom_properties)
+        data = [{"data": AnotherCustomObject("1", 1, "abc"), "data2": 100}]
+        dn.write(data)
+
+        read_data = dn.read()
+        print("read_data: ", read_data, "\n\n")
+
+        assert isinstance(read_data["data"][0], AnotherCustomObject)
+        assert read_data["data"][0].id == "1"
+        assert read_data["data"][0].integer == 1
+        assert read_data["data"][0].text == "abc"
+        assert read_data["data2"][0] == 100
