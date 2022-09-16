@@ -67,12 +67,9 @@ class TestMongoDataNode:
             "db_username": "",
             "db_password": "",
             "db_name": "taipy",
-            "collection_name": "test",
+            "read_collection": "foo",
             "read_query": {},
-            "write_table": "foo",
-            "db_extra_args": {
-                "TrustServerCertificate": "yes",
-            },
+            "write_collection": "foo",
         }
     ]
 
@@ -149,7 +146,7 @@ class TestMongoDataNode:
     @pytest.mark.parametrize("properties", __properties)
     def test_read_as(self, properties):
         mock_client = pymongo.MongoClient("localhost")
-        mock_client[properties["db_name"]][properties["collection_name"]].insert_many(
+        mock_client[properties["db_name"]][properties["read_collection"]].insert_many(
             [
                 {"foo": "baz", "bar": "qux"},
                 {"foo": "quux", "bar": "quuz"},

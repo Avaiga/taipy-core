@@ -43,11 +43,9 @@ class MongoDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
-        encoder (json.JSONEncoder): The JSON encoder that is used to write into the JSON file.
-        decoder (json.JSONDecoder): The JSON decoder that is used to read from the JSON file.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
             _properties_ parameter must at least contain an entry for _"db_username"_,
-            _"db_password"_, _"db_name"_, _"collection_name"_, _"read_query"_, and _"write_table"_.
+            _"db_password"_, _"db_name"_, _"read_collection"_, _"read_query"_, and _"write_collection"_.
     """
 
     __STORAGE_TYPE = "mongo"
@@ -61,9 +59,9 @@ class MongoDataNode(DataNode):
         "db_username",
         "db_password",
         "db_name",
-        "collection_name",
+        "read_collection",
         "read_query",
-        "write_table",
+        "write_collection",
     ]
 
     def __init__(
@@ -112,8 +110,7 @@ class MongoDataNode(DataNode):
             db_username=properties.get("db_username"),
             db_password=properties.get("db_password"),
         )
-        mongo_db = mongo_client[properties.get("db_name")]
-        self.collection = mongo_db[properties.get("collection_name")]
+        self.mongo_db = mongo_client[properties.get("db_name")]
 
         if not self._last_edit_date:
             self.unlock_edit()
@@ -171,7 +168,9 @@ class MongoDataNode(DataNode):
     def _read_by_query(self):
         """Query from MongoDB, exclude the _id field"""
 
-        query_result = list(self.collection.find(self.read_query, {"_id": 0}))
+        read_collection = self.mongo_db[self.properties.get("read_collection")]
+        query_result = list(read_collection.find(self.read_query, {"_id": 0}))
+
         encoded_json = json.dumps(query_result)
         return json.loads(encoded_json, cls=self._decoder)
 
@@ -186,7 +185,8 @@ class MongoDataNode(DataNode):
             data = [data]
 
         if len(data) == 0:
-            self.collection.delete_many({})
+            read_collection = self.mongo_db[self.properties.get("read_collection")]
+            read_collection.delete_many({})
             return
 
         self._insert_dicts(self._encode_json(data))
@@ -197,8 +197,9 @@ class MongoDataNode(DataNode):
 
         This method will overwrite the data contained in a list of dictionaries into a collection.
         """
-        self.collection.delete_many({})
-        self.collection.insert_many(data)
+        write_collection = self.mongo_db[self.properties.get("write_collection")]
+        write_collection.delete_many({})
+        write_collection.insert_many(data)
 
     def _insert_dataframe(self, df: pd.DataFrame) -> None:
         """

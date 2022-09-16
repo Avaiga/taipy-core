@@ -106,10 +106,9 @@ class DataNodeConfig(Section):
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
-    _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY = "collection_name"
+    _REQUIRED_READ_COLLECTION_MONGO_PROPERTY = "read_collection"
     _REQUIRED_READ_QUERY_MONGO_PROPERTY = "read_query"
-    _REQUIRED_WRITE_TABLE_MONGO_PROPERTY = "write_table"
-
+    _REQUIRED_WRITE_COLLECTION_MONGO_PROPERTY = "write_collection"
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -132,9 +131,9 @@ class DataNodeConfig(Section):
             _REQUIRED_DB_USERNAME_MONGO_PROPERTY,
             _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
-            _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
+            _REQUIRED_READ_COLLECTION_MONGO_PROPERTY,
             _REQUIRED_READ_QUERY_MONGO_PROPERTY,
-            _REQUIRED_WRITE_TABLE_MONGO_PROPERTY,
+            _REQUIRED_WRITE_COLLECTION_MONGO_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
@@ -542,14 +541,13 @@ class DataNodeConfig(Section):
         db_username: str,
         db_password: str,
         db_name: str,
-        collection_name: str,
+        read_collection: str,
         read_query: str,
-        write_table: str = None,
+        write_collection: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
         encoder: json.JSONEncoder = None,
         decoder: json.JSONDecoder = None,
-        db_extra_args: Dict[str, Any] = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
@@ -561,15 +559,13 @@ class DataNodeConfig(Section):
             db_username (str): The database username.
             db_password (str): The database password.
             db_name (str): The database name.
-            collection_name (str): The column name in the database.
+            read_collection (str): The collection in the database to read from.
             read_query (str): The Mongo query string used to read the data from the database.
-            write_table (str): The name of the table in the database to write the data to.
-            db_port (int): The database port. The default value is 1433.
+            write_collection (str): The collection in the database to write the data to.
+            db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
-            encoder (json.JSONEncoder): The JSON encoder used to write data into the JSON file.
-            decoder (json.JSONDecoder): The JSON decoder used to read data from the JSON file.
-            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
-                connection string.
+            encoder (json.JSONEncoder): The JSON encoder that is used to encode different object to acceptable JSON object.
+            decoder (json.JSONDecoder): The JSON decoder that is used to read from JSON object.
             exposed_type: The exposed type of the data read from Mongo query. The default value is `pandas`.
             scope (Scope^): The scope of the Mongo data node configuration. The default value is
                 `Scope.SCENARIO`.
@@ -585,14 +581,13 @@ class DataNodeConfig(Section):
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
-            collection_name=collection_name,
+            read_collection=read_collection,
             db_host=db_host,
             read_query=read_query,
-            write_table=write_table,
+            write_collection=write_collection,
             db_port=db_port,
             encoder=encoder,
             decoder=decoder,
-            db_extra_args=db_extra_args,
             exposed_type=exposed_type,
             **properties,
         )
