@@ -11,7 +11,6 @@ sqlalchemy = "==1.4"
 toml = "==0.10"
 taipy-config = {git = "https://git@github.com/avaiga/taipy-config.git@develop"}
 pymongo = "*"
-mongomock = "*"
 
 [dev-packages]
 black = "*"
@@ -26,6 +25,7 @@ pytest-mock = ">=3.6"
 tox = ">=3.24"
 types-toml = ">=0.10.0"
 autopep8 = "*"
+mongomock = "*"
 
 [requires]
 python_version = "3"
