@@ -67,9 +67,8 @@ class TestMongoDataNode:
             "db_username": "",
             "db_password": "",
             "db_name": "taipy",
-            "read_collection": "foo",
+            "collection_name": "foo",
             "read_query": {},
-            "write_collection": "foo",
         }
     ]
 
@@ -146,7 +145,7 @@ class TestMongoDataNode:
     @pytest.mark.parametrize("properties", __properties)
     def test_read_as(self, properties):
         mock_client = pymongo.MongoClient("localhost")
-        mock_client[properties["db_name"]][properties["read_collection"]].insert_many(
+        mock_client[properties["db_name"]][properties["collection_name"]].insert_many(
             [
                 {"foo": "baz", "bar": "qux"},
                 {"foo": "quux", "bar": "quuz"},

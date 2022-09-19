@@ -106,9 +106,8 @@ class DataNodeConfig(Section):
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
-    _REQUIRED_READ_COLLECTION_MONGO_PROPERTY = "read_collection"
+    _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY = "collection_name"
     _REQUIRED_READ_QUERY_MONGO_PROPERTY = "read_query"
-    _REQUIRED_WRITE_COLLECTION_MONGO_PROPERTY = "write_collection"
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -131,9 +130,8 @@ class DataNodeConfig(Section):
             _REQUIRED_DB_USERNAME_MONGO_PROPERTY,
             _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
-            _REQUIRED_READ_COLLECTION_MONGO_PROPERTY,
+            _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
             _REQUIRED_READ_QUERY_MONGO_PROPERTY,
-            _REQUIRED_WRITE_COLLECTION_MONGO_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
@@ -541,9 +539,8 @@ class DataNodeConfig(Section):
         db_username: str,
         db_password: str,
         db_name: str,
-        read_collection: str,
         read_query: str,
-        write_collection: str = None,
+        collection_name: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
         encoder: json.JSONEncoder = None,
@@ -559,9 +556,8 @@ class DataNodeConfig(Section):
             db_username (str): The database username.
             db_password (str): The database password.
             db_name (str): The database name.
-            read_collection (str): The collection in the database to read from.
+            collection_name (str): The collection in the database to read from and to write the data to.
             read_query (str): The Mongo query string used to read the data from the database.
-            write_collection (str): The collection in the database to write the data to.
             db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
             encoder (json.JSONEncoder): The JSON encoder that is used to encode different object to acceptable JSON object.
@@ -581,10 +577,9 @@ class DataNodeConfig(Section):
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
-            read_collection=read_collection,
-            db_host=db_host,
+            collection_name=collection_name,
             read_query=read_query,
-            write_collection=write_collection,
+            db_host=db_host,
             db_port=db_port,
             encoder=encoder,
             decoder=decoder,
