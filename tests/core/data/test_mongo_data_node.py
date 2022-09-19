@@ -9,18 +9,24 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+
 import copy
 import datetime
 import json
 from dataclasses import dataclass
 from enum import Enum
+from importlib import util
 from unittest import mock
+
+import pytest
+
+if not util.find_spec("pymongo"):
+    pytest.skip("skipping tests because PyODBC is not installed", allow_module_level=True)
 
 import mongomock
 import numpy as np
 import pandas as pd
 import pymongo
-import pytest
 
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data.mongo import MongoDataNode

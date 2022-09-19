@@ -66,4 +66,10 @@ back-end application.
         - directly with the regular `pip install pyodbc` command
         - by installing Taipy Core with extra package mssql, using: `pip install taipy-core[mssql]`
         - or by installing complete Taipy with extra package mssql, using: `pip install taipy[mssql]`
+    - `pymongo`: is used by data nodes configured using the predefined
+    [`MongoDB data node config`](../../core/config/data-node-config.md#mongo).
+    You can install that package :
+        - directly with the regular `pip install pymongo` command
+        - by installing Taipy Core with extra package mongo, using: `pip install taipy-core[mongo]`
+        - or by installing complete Taipy with extra package mongo, using: `pip install taipy[mongo]`
 """
