@@ -44,7 +44,7 @@ class AbstractSQLDataNode(DataNode):
     __DB_EXTRA_ARGS_KEY = "db_extra_args"
     __SQLITE_PATH_KEY = "path"
 
-    __ENGINE_PROERTIES: List[str] = [
+    __ENGINE_PROPERTIES: List[str] = [
         __DB_NAME_KEY,
         __DB_USERNAME_KEY,
         __DB_PASSWORD_KEY,
@@ -99,7 +99,7 @@ class AbstractSQLDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self.engine = None
+        self._engine = None
         if not self._last_edit_date:
             self.unlock_edit()
 
@@ -123,9 +123,9 @@ class AbstractSQLDataNode(DataNode):
             )
 
     def _get_engine(self):
-        if self.engine is None:
-            self.engine = create_engine(self._conn_string())
-        return self.engine
+        if self._engine is None:
+            self._engine = create_engine(self._conn_string())
+        return self._engine
 
     def _conn_string(self) -> str:
         engine = self.properties.get(self.__DB_ENGINE_KEY)
@@ -201,6 +201,6 @@ class AbstractSQLDataNode(DataNode):
                     transaction.commit()
 
     def __setattr__(self, key: str, value) -> None:
-        if key in self.__ENGINE_PROERTIES:
-            self.engine = None
+        if key in self.__ENGINE_PROPERTIES:
+            self._engine = None
         return super().__setattr__(key, value)

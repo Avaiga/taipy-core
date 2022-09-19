@@ -327,7 +327,7 @@ class TestSQLTableDataNode:
             },
         )
 
-        assert dn.engine is None
+        assert dn._engine is None
 
         with mock.patch("sqlalchemy.engine.Engine.connect") as engine_mock, mock.patch(
             "src.taipy.core.data.sql_table.SQLTableDataNode._create_table"
@@ -336,13 +336,13 @@ class TestSQLTableDataNode:
             cursor_mock.execute.side_effect = None
 
             dn.read()
-            assert dn.engine is not None
+            assert dn._engine is not None
 
             dn.db_username = "foo"
-            assert dn.engine is None
+            assert dn._engine is None
 
             dn.write(1)
-            assert dn.engine is not None
+            assert dn._engine is not None
 
             dn.some_random_attribute_that_does_not_related_to_engine = "foo"
-            assert dn.engine is not None
+            assert dn._engine is not None
