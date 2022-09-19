@@ -21,7 +21,7 @@ from unittest import mock
 import pytest
 
 if not util.find_spec("pymongo"):
-    pytest.skip("skipping tests because PyODBC is not installed", allow_module_level=True)
+    pytest.skip("skipping tests because PyMongo is not installed", allow_module_level=True)
 
 import mongomock
 import numpy as np
