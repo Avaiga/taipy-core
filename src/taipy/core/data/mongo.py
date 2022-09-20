@@ -42,18 +42,17 @@ class MongoCollectionDataNode(DataNode):
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
             _properties_ parameter must at least contain an entry for _"db_username"_,
-            _"db_password"_, _"db_name"_, _"collection_name"_, and _"read_query"_.
+            _"db_password"_, _"db_name"_, _"collection_name"_, and _"custom_document"_.
     """
 
     __STORAGE_TYPE = "mongo_collection"
-    __EXPOSED_TYPE_PROPERTY = "exposed_type"
+    __CUSTOM_DOCUMENT_PROPERTY = "exposed_type"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
         "db_password",
         "db_name",
         "collection_name",
-        "read_query",
-        __EXPOSED_TYPE_PROPERTY,
+        __CUSTOM_DOCUMENT_PROPERTY,
     ]
 
     def __init__(
@@ -77,7 +76,7 @@ class MongoCollectionDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        self._check_exposed_type(properties[self.__EXPOSED_TYPE_PROPERTY])
+        self._check_exposed_type(properties[self.__CUSTOM_DOCUMENT_PROPERTY])
 
         super().__init__(
             config_id,
@@ -100,17 +99,17 @@ class MongoCollectionDataNode(DataNode):
         )
         self.collection = mongo_client[properties.get("db_name")][properties.get("collection_name")]
 
-        self.custom_class = properties[self.__EXPOSED_TYPE_PROPERTY]
+        self.custom_document = properties[self.__CUSTOM_DOCUMENT_PROPERTY]
 
         self._decoder = self._default_decoder
-        custom_decoder = getattr(self.custom_class, "decode", None)
+        custom_decoder = getattr(self.custom_document, "decode", None)
         if callable(custom_decoder):
             self._decoder = custom_decoder
         else:
             self._decoder = self._default_decoder
 
         self._encoder = self._default_encoder
-        custom_encoder = getattr(self.custom_class, "encode", None)
+        custom_encoder = getattr(self.custom_document, "encode", None)
         if callable(custom_encoder):
             self._encoder = custom_encoder
         else:
@@ -170,7 +169,7 @@ class MongoCollectionDataNode(DataNode):
         Returns:
             Any: A custom document object.
         """
-        return self.custom_class(**document)
+        return self.custom_document(**document)
 
     def _default_encoder(self, document_object: Any) -> Dict:
         """Encode a custom document object to a dictionary for writing to MongoDB.

@@ -96,12 +96,12 @@ class DataNodeConfig(Section):
     _REQUIRED_WRITE_TABLE_SQL_PROPERTY = "write_table"
     _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY = "db_extra_args"
     # MONGO
-    _OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY = "exposed_type"
+    _OPTIONAL_READ_QUERY_MONGO_PROPERTY = "read_query"
+    _REQUIRED_EXPOSED_TYPE_MONGO_PROPERTY = "exposed_type"
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
     _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY = "collection_name"
-    _REQUIRED_READ_QUERY_MONGO_PROPERTY = "read_query"
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -125,7 +125,7 @@ class DataNodeConfig(Section):
             _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
             _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
-            _REQUIRED_READ_QUERY_MONGO_PROPERTY,
+            _REQUIRED_EXPOSED_TYPE_MONGO_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
@@ -155,7 +155,7 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [_OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY],
+        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [_OPTIONAL_READ_QUERY_MONGO_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -529,11 +529,11 @@ class DataNodeConfig(Section):
         db_username: str,
         db_password: str,
         db_name: str,
-        read_query: str,
+        custom_document: Any,
+        read_query: dict = {},
         collection_name: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
-        exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
@@ -545,10 +545,12 @@ class DataNodeConfig(Section):
             db_password (str): The database password.
             db_name (str): The database name.
             collection_name (str): The collection in the database to read from and to write the data to.
-            read_query (str): The Mongo query string used to read the data from the database.
+            read_query (dict): The Mongo query dictionary used to read the data from the database.
+            custom_document (Any): The custom document class to store, encode, and decode data when reading and writing to a Mongo collection.
+                The custom_document can have optional `decoder` method to decode data in the Mongo collection to a custom object,
+                and `encoder` method to encode the object's properties to the Mongo collection when writing.
             db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
-            exposed_type: The exposed type of the data read from Mongo query. The default value is `pandas`.
             scope (Scope^): The scope of the Mongo collection data node configuration. The default value is
                 `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -565,9 +567,9 @@ class DataNodeConfig(Section):
             db_name=db_name,
             collection_name=collection_name,
             read_query=read_query,
+            exposed_type=custom_document,
             db_host=db_host,
             db_port=db_port,
-            exposed_type=exposed_type,
             **properties,
         )
         Config._register(section)
