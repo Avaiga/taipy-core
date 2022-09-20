@@ -24,7 +24,7 @@ import pymongo
 from bson.errors import InvalidDocument
 
 from src.taipy.core.common.alias import DataNodeId
-from src.taipy.core.data.mongo import MongoDataNode
+from src.taipy.core.data.mongo import MongoCollectionDataNode
 from src.taipy.core.exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from taipy.config.common.scope import Scope
 
@@ -62,7 +62,7 @@ class CustomObjectWithCustomEncoderDecoder(CustomObjectWithCustomEncoder):
         return cls(data["id"], data["integer"], data["text"], datetime.fromisoformat(data["time"]))
 
 
-class TestMongoDataNode:
+class TestMongoCollectionDataNode:
     __properties = [
         {
             "db_username": "",
@@ -76,13 +76,13 @@ class TestMongoDataNode:
 
     @pytest.mark.parametrize("properties", __properties)
     def test_create(self, properties):
-        mongo_dn = MongoDataNode(
+        mongo_dn = MongoCollectionDataNode(
             "foo_bar",
             Scope.PIPELINE,
             properties=properties,
         )
-        assert isinstance(mongo_dn, MongoDataNode)
-        assert mongo_dn.storage_type() == "mongo"
+        assert isinstance(mongo_dn, MongoCollectionDataNode)
+        assert mongo_dn.storage_type() == "mongo_collection"
         assert mongo_dn.config_id == "foo_bar"
         assert mongo_dn.scope == Scope.PIPELINE
         assert mongo_dn.id is not None
@@ -103,16 +103,16 @@ class TestMongoDataNode:
     )
     def test_create_with_missing_parameters(self, properties):
         with pytest.raises(MissingRequiredProperty):
-            MongoDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"))
+            MongoCollectionDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"))
         with pytest.raises(MissingRequiredProperty):
-            MongoDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
+            MongoCollectionDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
 
     @pytest.mark.parametrize("properties", __properties)
     def test_raise_error_invalid_exposed_type(self, properties):
         custom_properties = properties.copy()
         custom_properties["exposed_type"] = "foo"
         with pytest.raises(InvalidExposedType):
-            MongoDataNode(
+            MongoCollectionDataNode(
                 "foo",
                 Scope.PIPELINE,
                 properties=custom_properties,
@@ -133,7 +133,7 @@ class TestMongoDataNode:
             ]
         )
 
-        mongo_dn = MongoDataNode(
+        mongo_dn = MongoCollectionDataNode(
             "foo",
             Scope.PIPELINE,
             properties=properties,
@@ -168,7 +168,7 @@ class TestMongoDataNode:
     @mongomock.patch(servers=(("localhost", 27017),))
     @pytest.mark.parametrize("properties", __properties)
     def test_read_empty_as(self, properties):
-        mongo_dn = MongoDataNode(
+        mongo_dn = MongoCollectionDataNode(
             "foo",
             Scope.PIPELINE,
             properties=properties,
@@ -189,7 +189,7 @@ class TestMongoDataNode:
     def test_read_wrong_object_properties_name(self, properties, data):
         custom_properties = properties.copy()
         custom_properties["exposed_type"] = CustomObjectWithoutArgs
-        mongo_dn = MongoDataNode(
+        mongo_dn = MongoCollectionDataNode(
             "foo",
             Scope.PIPELINE,
             properties=custom_properties,
@@ -209,7 +209,7 @@ class TestMongoDataNode:
         ],
     )
     def test_write(self, properties, data, written_data):
-        mongo_dn = MongoDataNode("foo", Scope.PIPELINE, properties=properties)
+        mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=properties)
         mongo_dn.write(data)
 
         written_objects = [CustomObjectWithArgs(**document) for document in written_data]
@@ -226,7 +226,7 @@ class TestMongoDataNode:
         ],
     )
     def test_write_empty_list(self, properties, data):
-        mongo_dn = MongoDataNode(
+        mongo_dn = MongoCollectionDataNode(
             "foo",
             Scope.PIPELINE,
             properties=properties,
@@ -237,7 +237,7 @@ class TestMongoDataNode:
 
     @pytest.mark.parametrize("properties", __properties)
     def test_write_non_serializable(self, properties):
-        mongo_dn = MongoDataNode("foo", Scope.PIPELINE, properties=properties)
+        mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=properties)
         data = {"a": 1, "b": mongo_dn}
         with pytest.raises(InvalidDocument):
             mongo_dn.write(data)
@@ -246,7 +246,7 @@ class TestMongoDataNode:
     def test_write_custom_encoder(self, properties):
         custom_properties = properties.copy()
         custom_properties["exposed_type"] = CustomObjectWithCustomEncoder
-        mongo_dn = MongoDataNode("foo", Scope.PIPELINE, properties=custom_properties)
+        mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=custom_properties)
         data = [
             CustomObjectWithCustomEncoder("1", 1, "abc", datetime.now()),
             CustomObjectWithCustomEncoder("2", 2, "def", datetime.now()),
@@ -270,7 +270,7 @@ class TestMongoDataNode:
     def test_write_custom_encoder_decoder(self, properties):
         custom_properties = properties.copy()
         custom_properties["exposed_type"] = CustomObjectWithCustomEncoderDecoder
-        mongo_dn = MongoDataNode("foo", Scope.PIPELINE, properties=custom_properties)
+        mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=custom_properties)
         data = [
             CustomObjectWithCustomEncoderDecoder("1", 1, "abc", datetime.now()),
             CustomObjectWithCustomEncoderDecoder("2", 2, "def", datetime.now()),

@@ -22,8 +22,8 @@ from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from .data_node import DataNode
 
 
-class MongoDataNode(DataNode):
-    """Data Node stored in a Mongo database.
+class MongoCollectionDataNode(DataNode):
+    """Data Node stored in a Mongo collection.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. It must be a valid Python
@@ -45,7 +45,7 @@ class MongoDataNode(DataNode):
             _"db_password"_, _"db_name"_, _"collection_name"_, and _"read_query"_.
     """
 
-    __STORAGE_TYPE = "mongo"
+    __STORAGE_TYPE = "mongo_collection"
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
@@ -133,7 +133,7 @@ class MongoDataNode(DataNode):
         return list(map(lambda row: self._decoder(row), cursor))
 
     def _read_by_query(self):
-        """Query from MongoDB, exclude the _id field"""
+        """Query from a Mongo collection, exclude the _id field"""
 
         return self.collection.find(self.read_query, {"_id": 0})
 
@@ -162,10 +162,10 @@ class MongoDataNode(DataNode):
         self.collection.insert_many(data)
 
     def _default_decoder(self, document: Dict) -> Any:
-        """Decode a MongoDB dictionary to a custom document object for reading.
+        """Decode a Mongo dictionary to a custom document object for reading.
 
         Args:
-            document (Dict): the document dictionary return by MongoDB.
+            document (Dict): the document dictionary return by Mongo query.
 
         Returns:
             Any: A custom document object.

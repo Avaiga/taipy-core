@@ -15,6 +15,6 @@ from .excel import ExcelDataNode
 from .generic import GenericDataNode
 from .in_memory import InMemoryDataNode
 from .json import JSONDataNode
-from .mongo import MongoDataNode
+from .mongo import MongoCollectionDataNode
 from .pickle import PickleDataNode
 from .sql import SQLDataNode

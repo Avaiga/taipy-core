@@ -29,7 +29,7 @@ class DataNodeConfig(Section):
     Attributes:
         id (str):  Unique identifier of the data node config. It must be a valid Python variable name.
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
-            are : "csv", "excel", "pickle", "sql", "mongo", "generic", "json" and "in_memory". The default value is "pickle".
+            are : "csv", "excel", "pickle", "sql", "mongo_collection", "generic", "json" and "in_memory". The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Scope^):  The `Scope^` of the data nodes instantiated from the data node config. The default value is
             SCENARIO.
@@ -41,7 +41,7 @@ class DataNodeConfig(Section):
     _STORAGE_TYPE_KEY = "storage_type"
     _STORAGE_TYPE_VALUE_PICKLE = "pickle"
     _STORAGE_TYPE_VALUE_SQL = "sql"
-    _STORAGE_TYPE_VALUE_MONGO = "mongo"
+    _STORAGE_TYPE_VALUE_MONGO_COLLECTION = "mongo_collection"
     _STORAGE_TYPE_VALUE_CSV = "csv"
     _STORAGE_TYPE_VALUE_EXCEL = "excel"
     _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
@@ -51,7 +51,7 @@ class DataNodeConfig(Section):
     _ALL_STORAGE_TYPES = [
         _STORAGE_TYPE_VALUE_PICKLE,
         _STORAGE_TYPE_VALUE_SQL,
-        _STORAGE_TYPE_VALUE_MONGO,
+        _STORAGE_TYPE_VALUE_MONGO_COLLECTION,
         _STORAGE_TYPE_VALUE_CSV,
         _STORAGE_TYPE_VALUE_EXCEL,
         _STORAGE_TYPE_VALUE_IN_MEMORY,
@@ -120,7 +120,7 @@ class DataNodeConfig(Section):
             _REQUIRED_READ_QUERY_SQL_PROPERTY,
             _REQUIRED_WRITE_TABLE_SQL_PROPERTY,
         ],
-        _STORAGE_TYPE_VALUE_MONGO: [
+        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [
             _REQUIRED_DB_USERNAME_MONGO_PROPERTY,
             _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
@@ -155,7 +155,7 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_MONGO: [_OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY],
+        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [_OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -235,7 +235,7 @@ class DataNodeConfig(Section):
         Parameters:
             storage_type (str): The default storage type for all data node configurations.
                 The possible values are _"pickle"_ (the default value), _"csv"_, _"excel"_,
-                _"sql"_, _"mongo"_, _"in_memory"_, _"json"_ or _"generic"_.
+                _"sql"_, _"mongo_collection"_, _"in_memory"_, _"json"_ or _"generic"_.
             scope (Scope^): The default scope fot all data node configurations.
                 The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -255,7 +255,7 @@ class DataNodeConfig(Section):
             storage_type (str): The data node configuration storage type. The possible values
                 are _"pickle"_ (which the default value, unless it has been overloaded by the
                 _storage_type_ value set in the default data node configuration
-                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql"_, _"mongo"_,
+                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql"_, _"mongo_collection"_,
                 _"in_memory"_, or _"generic"_.
             scope (Scope^): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in
@@ -524,7 +524,7 @@ class DataNodeConfig(Section):
         return Config.sections[DataNodeConfig.name][id]
 
     @staticmethod
-    def _configure_mongo(
+    def _configure_mongo_collection(
         id: str,
         db_username: str,
         db_password: str,
@@ -537,10 +537,10 @@ class DataNodeConfig(Section):
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
-        """Configure a new Mongo data node configuration.
+        """Configure a new Mongo collection data node configuration.
 
         Parameters:
-            id (str): The unique identifier of the new Mongo data node configuration.
+            id (str): The unique identifier of the new Mongo collection data node configuration.
             db_username (str): The database username.
             db_password (str): The database password.
             db_name (str): The database name.
@@ -549,16 +549,16 @@ class DataNodeConfig(Section):
             db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
             exposed_type: The exposed type of the data read from Mongo query. The default value is `pandas`.
-            scope (Scope^): The scope of the Mongo data node configuration. The default value is
+            scope (Scope^): The scope of the Mongo collection data node configuration. The default value is
                 `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new Mongo data node configuration.
+            DataNodeConfig^: The new Mongo collection data node configuration.
         """
         section = DataNodeConfig(
             id,
-            DataNodeConfig._STORAGE_TYPE_VALUE_MONGO,
+            DataNodeConfig._STORAGE_TYPE_VALUE_MONGO_COLLECTION,
             scope=scope,
             db_username=db_username,
             db_password=db_password,
