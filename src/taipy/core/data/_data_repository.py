@@ -21,7 +21,6 @@ from ._data_model import _DataNodeModel
 from .data_node import DataNode
 from .generic import GenericDataNode
 from .json import JSONDataNode
-from .mongo import MongoDataNode
 
 
 class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: ignore
@@ -61,7 +60,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
                 properties[GenericDataNode._REQUIRED_WRITE_FUNCTION_PROPERTY],
             )
 
-        if data_node.storage_type() in [JSONDataNode.storage_type(), MongoDataNode.storage_type()]:
+        if data_node.storage_type() == JSONDataNode.storage_type():
             encoder = data_node._properties.get(JSONDataNode._ENCODER_KEY)
             properties[self._JSON_ENCODER_NAME_KEY] = encoder.__name__ if encoder else None
             properties[self._JSON_ENCODER_MODULE_KEY] = encoder.__module__ if encoder else None
@@ -127,7 +126,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             del model.data_node_properties[self._WRITE_FCT_NAME_KEY]
             del model.data_node_properties[self._WRITE_FCT_MODULE_KEY]
 
-        if model.storage_type in [JSONDataNode.storage_type(), MongoDataNode.storage_type()]:
+        if model.storage_type == JSONDataNode.storage_type():
             if model.data_node_properties[self._JSON_ENCODER_MODULE_KEY]:
                 model.data_node_properties[JSONDataNode._ENCODER_KEY] = _load_fct(
                     model.data_node_properties[self._JSON_ENCODER_MODULE_KEY],
