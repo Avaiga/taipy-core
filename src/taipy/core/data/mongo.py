@@ -9,20 +9,17 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import json
 from datetime import datetime, timedelta
+from inspect import isclass
 from typing import Any, Dict, List, Optional
 
-import pandas as pd
 import pymongo
 
 from taipy.config.common.scope import Scope
 
-from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from .data_node import DataNode
-from .json import DefaultJSONDecoder, DefaultJSONEncoder
 
 
 class MongoDataNode(DataNode):
@@ -49,18 +46,14 @@ class MongoDataNode(DataNode):
     """
 
     __STORAGE_TYPE = "mongo"
-    __EXPOSED_TYPE_NUMPY = "numpy"
-    __EXPOSED_TYPE_PANDAS = "pandas"
-    __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
-    _ENCODER_KEY = "encoder"
-    _DECODER_KEY = "decoder"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
         "db_password",
         "db_name",
         "collection_name",
         "read_query",
+        __EXPOSED_TYPE_PROPERTY,
     ]
 
     def __init__(
@@ -84,8 +77,6 @@ class MongoDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
-            properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
         self._check_exposed_type(properties[self.__EXPOSED_TYPE_PROPERTY])
 
         super().__init__(
@@ -100,8 +91,6 @@ class MongoDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
-        self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
 
         mongo_client = _connect_mongodb(
             db_host=properties.get("db_host", "localhost"),
@@ -111,73 +100,45 @@ class MongoDataNode(DataNode):
         )
         self.collection = mongo_client[properties.get("db_name")][properties.get("collection_name")]
 
+        self.custom_class = properties[self.__EXPOSED_TYPE_PROPERTY]
+
+        self._decoder = self._default_decoder
+        custom_decoder = getattr(self.custom_class, "decode", None)
+        if callable(custom_decoder):
+            self._decoder = custom_decoder
+        else:
+            self._decoder = self._default_decoder
+
+        self._encoder = self._default_encoder
+        custom_encoder = getattr(self.custom_class, "encode", None)
+        if callable(custom_encoder):
+            self._encoder = custom_encoder
+        else:
+            self._encoder = self._default_encoder
+
         if not self._last_edit_date:
             self.unlock_edit()
 
     def _check_exposed_type(self, exposed_type):
-        if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
-            raise InvalidExposedType(
-                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
-            )
+        if not isclass(exposed_type):
+            raise InvalidExposedType(f"Invalid exposed type of {exposed_type}. Only custom object class are supported.")
 
     @classmethod
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
-    @property  # type: ignore
-    @_self_reload(DataNode._MANAGER_NAME)
-    def encoder(self):
-        return self._encoder
-
-    @encoder.setter
-    def encoder(self, encoder: json.JSONEncoder):
-        self.properties[self._ENCODER_KEY] = encoder
-
-    @property  # type: ignore
-    @_self_reload(DataNode._MANAGER_NAME)
-    def decoder(self):
-        return self._decoder
-
-    @decoder.setter
-    def decoder(self, decoder: json.JSONDecoder):
-        self.properties[self._DECODER_KEY] = decoder
-
     def _read(self):
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
-            return self._read_as_pandas_dataframe()
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return self._read_as_numpy()
-        return self._read_as()
-
-    def _read_as(self):
-        custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
         cursor = self._read_by_query()
 
-        return list(map(lambda row: custom_class(**row), cursor))
-
-    def _read_as_numpy(self):
-        return self._read_as_pandas_dataframe().to_numpy()
-
-    def _read_as_pandas_dataframe(self, columns: Optional[List[str]] = None):
-        cursor = self._read_by_query()
-        if columns:
-            return pd.DataFrame(list(cursor))[columns]
-        return pd.DataFrame(list(cursor))
+        return list(map(lambda row: self._decoder(row), cursor))
 
     def _read_by_query(self):
         """Query from MongoDB, exclude the _id field"""
 
-        query_result = list(self.collection.find(self.read_query, {"_id": 0}))
-
-        encoded_json = json.dumps(query_result)
-        return json.loads(encoded_json, cls=self._decoder)
+        return self.collection.find(self.read_query, {"_id": 0})
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
-
-        if isinstance(data, pd.DataFrame):
-            self._insert_dataframe(data)
-            return
 
         if not isinstance(data, list):
             data = [data]
@@ -186,7 +147,10 @@ class MongoDataNode(DataNode):
             self.collection.delete_many({})
             return
 
-        self._insert_dicts(self._encode_json(data))
+        if isinstance(data[0], dict):
+            self._insert_dicts(data)
+        else:
+            self._insert_dicts([self._encoder(row) for row in data])
 
     def _insert_dicts(self, data: List[Dict]) -> None:
         """
@@ -197,21 +161,41 @@ class MongoDataNode(DataNode):
         self.collection.delete_many({})
         self.collection.insert_many(data)
 
-    def _insert_dataframe(self, df: pd.DataFrame) -> None:
-        """
-        :param df: a pandas dataframe
-        """
-        self._insert_dicts(df.to_dict(orient="records"))
+    def _default_decoder(self, document: Dict) -> Any:
+        """Decode a MongoDB dictionary to a custom document object for reading.
 
-    def _encode_json(self, data: Any) -> Dict:
+        Args:
+            document (Dict): the document dictionary return by MongoDB.
+
+        Returns:
+            Any: A custom document object.
         """
-        :param data: data of any type to encode into JSON
+        return self.custom_class(**document)
+
+    def _default_encoder(self, document_object: Any) -> Dict:
+        """Encode a custom document object to a dictionary for writing to MongoDB.
+
+        Args:
+            document_object: the custom document class.
+
+        Returns:
+            Dict: the document dictionary.
         """
-        encoded_json = json.dumps(data, cls=self._encoder)
-        return json.loads(encoded_json)
+        return document_object.__dict__
 
 
-def _connect_mongodb(db_host, db_port, db_username, db_password):
+def _connect_mongodb(db_host: str, db_port: int, db_username: str, db_password: str) -> pymongo.MongoClient:
+    """Create a connection to a Mongo database.
+
+    Args:
+        db_host (str): the database host.
+        db_port (int): the database port.
+        db_username (str): the database username.
+        db_password (str): the database password.
+
+    Returns:
+        pymongo.MongoClient
+    """
     if db_username and db_password:
         return pymongo.MongoClient(host=db_host, port=db_port, username=db_username, password=db_password)
 

@@ -75,12 +75,10 @@ class DataNodeConfig(Section):
     _OPTIONAL_WRITE_FUNCTION_PARAMS_GENERIC_PROPERTY = "write_fct_params"
     # CSV
     _OPTIONAL_EXPOSED_TYPE_CSV_PROPERTY = "exposed_type"
-    _OPTIONAL_EXPOSED_TYPE_CSV_NUMPY = "numpy"
     _OPTIONAL_DEFAULT_PATH_CSV_PROPERTY = "default_path"
     _OPTIONAL_HAS_HEADER_CSV_PROPERTY = "has_header"
     # Excel
     _OPTIONAL_EXPOSED_TYPE_EXCEL_PROPERTY = "exposed_type"
-    _OPTIONAL_EXPOSED_TYPE_EXCEL_NUMPY = "numpy"
     _OPTIONAL_DEFAULT_PATH_EXCEL_PROPERTY = "default_path"
     _OPTIONAL_HAS_HEADER_EXCEL_PROPERTY = "has_header"
     _OPTIONAL_SHEET_NAME_EXCEL_PROPERTY = "sheet_name"
@@ -88,7 +86,6 @@ class DataNodeConfig(Section):
     _OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY = "default_data"
     # SQL
     _OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY = "exposed_type"
-    _OPTIONAL_EXPOSED_TYPE_SQL_NUMPY = "numpy"
     _REQUIRED_DB_USERNAME_SQL_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_SQL_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_SQL_PROPERTY = "db_name"
@@ -100,9 +97,6 @@ class DataNodeConfig(Section):
     _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY = "db_extra_args"
     # MONGO
     _OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY = "exposed_type"
-    _OPTIONAL_EXPOSED_TYPE_MONGO_NUMPY = "numpy"
-    _OPTIONAL_ENCODER_MONGO_PROPERTY = "encoder"
-    _OPTIONAL_DECODER_TYPE_MONGO_PROPERTY = "decoder"
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
@@ -161,11 +155,7 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_MONGO: [
-            _OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY,
-            _OPTIONAL_ENCODER_MONGO_PROPERTY,
-            _OPTIONAL_DECODER_TYPE_MONGO_PROPERTY,
-        ],
+        _STORAGE_TYPE_VALUE_MONGO: [_OPTIONAL_EXPOSED_TYPE_MONGO_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -284,7 +274,7 @@ class DataNodeConfig(Section):
         id: str,
         default_path: str = None,
         has_header: bool = True,
-        exposed_type=_EXPOSED_TYPE_PANDAS,
+        exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope=_DEFAULT_SCOPE,
         **properties,
     ):
@@ -355,7 +345,7 @@ class DataNodeConfig(Section):
         default_path: str = None,
         has_header: bool = True,
         sheet_name: Union[List[str], str] = None,
-        exposed_type=_EXPOSED_TYPE_PANDAS,
+        exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
@@ -485,7 +475,7 @@ class DataNodeConfig(Section):
         db_host: str = "localhost",
         db_driver: str = "ODBC Driver 17 for SQL Server",
         db_extra_args: Dict[str, Any] = None,
-        exposed_type=_EXPOSED_TYPE_PANDAS,
+        exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
@@ -543,8 +533,6 @@ class DataNodeConfig(Section):
         collection_name: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
-        encoder: json.JSONEncoder = None,
-        decoder: json.JSONDecoder = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
@@ -560,8 +548,6 @@ class DataNodeConfig(Section):
             read_query (str): The Mongo query string used to read the data from the database.
             db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
-            encoder (json.JSONEncoder): The JSON encoder that is used to encode different object to acceptable JSON object.
-            decoder (json.JSONDecoder): The JSON decoder that is used to read from JSON object.
             exposed_type: The exposed type of the data read from Mongo query. The default value is `pandas`.
             scope (Scope^): The scope of the Mongo data node configuration. The default value is
                 `Scope.SCENARIO`.
@@ -581,8 +567,6 @@ class DataNodeConfig(Section):
             read_query=read_query,
             db_host=db_host,
             db_port=db_port,
-            encoder=encoder,
-            decoder=decoder,
             exposed_type=exposed_type,
             **properties,
         )
