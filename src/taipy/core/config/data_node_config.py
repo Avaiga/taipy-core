@@ -669,6 +669,7 @@ class DataNodeConfig(Section):
         db_port: int = 27017,
         db_host: str = "localhost",
         scope: Scope = _DEFAULT_SCOPE,
+        cacheable: bool = False,
         **properties,
     ):
         """Configure a new Mongo collection data node configuration.
@@ -687,6 +688,7 @@ class DataNodeConfig(Section):
             db_host (str): The database host. The default value is _"localhost"_.
             scope (Scope^): The scope of the Mongo collection data node configuration. The default value is
                 `Scope.SCENARIO`.
+            cacheable (bool): If True, indicates that the SQL data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -696,6 +698,7 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_MONGO_COLLECTION,
             scope=scope,
+            cacheable=cacheable,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
