@@ -46,20 +46,20 @@ class CustomObjectWithoutArgs:
 
 
 class CustomObjectWithCustomEncoder:
-    def __init__(self, id=None, integer=None, text=None, time=None):
-        self.id = id
+    def __init__(self, _id=None, integer=None, text=None, time=None):
+        self.id = _id
         self.integer = integer
         self.text = text
         self.time = time
 
     def encode(self):
-        return {"id": self.id, "integer": self.integer, "text": self.text, "time": self.time.isoformat()}
+        return {"_id": self.id, "integer": self.integer, "text": self.text, "time": self.time.isoformat()}
 
 
 class CustomObjectWithCustomEncoderDecoder(CustomObjectWithCustomEncoder):
     @classmethod
     def decode(cls, data):
-        return cls(data["id"], data["integer"], data["text"], datetime.fromisoformat(data["time"]))
+        return cls(data["_id"], data["integer"], data["text"], datetime.fromisoformat(data["time"]))
 
 
 class TestMongoCollectionDataNode:
@@ -163,7 +163,7 @@ class TestMongoCollectionDataNode:
         assert data[5].foo is None
         assert data[5].bar is None
         assert len(data[5].args) == 0
-        assert len(data[5].kwargs) == 0
+        assert len(data[5].kwargs) == 1  # The _id of mongo document
 
     @mongomock.patch(servers=(("localhost", 27017),))
     @pytest.mark.parametrize("properties", __properties)

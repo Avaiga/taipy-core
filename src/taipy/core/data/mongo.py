@@ -134,7 +134,7 @@ class MongoCollectionDataNode(DataNode):
     def _read_by_query(self):
         """Query from a Mongo collection, exclude the _id field"""
 
-        return self.collection.find(self.read_query, {"_id": 0})
+        return self.collection.find(self.read_query)
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
