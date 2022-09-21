@@ -25,7 +25,7 @@ from .pickle import PickleDataNode
 
 class _DataManager(_Manager[DataNode]):
 
-    __DATA_NODE_CLASS_MAP = {c.storage_type(): c for c in DataNode.__subclasses__()}  # type: ignore
+    __DATA_NODE_CLASS_MAP = DataNode._class_map()  # type: ignore
     _repository = _DataRepositoryFactory._build_repository()  # type: ignore
     _ENTITY_NAME = DataNode.__name__
 
@@ -65,6 +65,7 @@ class _DataManager(_Manager[DataNode]):
                 config_id=data_node_config.id,
                 scope=data_node_config.scope or DataNodeConfig._DEFAULT_SCOPE,
                 parent_id=parent_id,
+                cacheable=data_node_config.cacheable,
                 validity_period=validity_period,
                 properties=props,
             )
