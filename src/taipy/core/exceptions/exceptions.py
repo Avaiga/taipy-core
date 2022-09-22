@@ -75,6 +75,10 @@ class InvalidExposedType(Exception):
     """Raised if an invalid exposed type is provided."""
 
 
+class InvalidCustomDocument(Exception):
+    """Raised if an invalid custom document class is provided."""
+
+
 class MissingReadFunction(Exception):
     """Raised if no read function is provided for the GenericDataNode."""
 

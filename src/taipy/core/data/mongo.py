@@ -18,7 +18,7 @@ import pymongo
 from taipy.config.common.scope import Scope
 
 from ..common.alias import DataNodeId, JobId
-from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
+from ..exceptions.exceptions import InvalidCustomDocument, MissingRequiredProperty
 from .data_node import DataNode
 
 
@@ -123,7 +123,7 @@ class MongoCollectionDataNode(DataNode):
 
     def _check_custom_document(self, custom_document):
         if not isclass(custom_document):
-            raise InvalidExposedType(
+            raise InvalidCustomDocument(
                 f"Invalid exposed type of {custom_document}. Only custom object class are supported."
             )
 
