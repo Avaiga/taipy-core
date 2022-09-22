@@ -55,12 +55,12 @@ class AbstractSQLDataNode(DataNode):
         __SQLITE_PATH_KEY,
     ]
 
-    __ENGINE_MSSQL = "mssql"
-    __ENGINE_SQLITE = "sqlite"
-
     __DB_HOST_DEFAULT = "localhost"
     __DB_PORT_DEFAULT = 1433
     __DB_DRIVER_DEFAULT = "ODBC Driver 17 for SQL Server"
+
+    __ENGINE_MSSQL = "mssql"
+    __ENGINE_SQLITE = "sqlite"
 
     _ENGINE_REQUIRED_PROPERTIES: Dict[str, List[str]] = {
         __ENGINE_MSSQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
@@ -137,16 +137,15 @@ class AbstractSQLDataNode(DataNode):
         driver = self.properties.get(self.__DB_DRIVER_KEY, self.__DB_DRIVER_DEFAULT)
         extra_args = self.properties.get(self.__DB_EXTRA_ARGS_KEY, {})
 
+        username = urllib.parse.quote_plus(username)
+        password = urllib.parse.quote_plus(password)
+        db_name = urllib.parse.quote_plus(db_name)
+        extra_args = {**extra_args, "driver": driver}
+        for k, v in extra_args.items():
+            extra_args[k] = re.sub(r"\s+", "+", v)
+        extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
+
         if engine == self.__ENGINE_MSSQL:
-            username = urllib.parse.quote_plus(username)
-            password = urllib.parse.quote_plus(password)
-            db_name = urllib.parse.quote_plus(db_name)
-
-            extra_args = {**extra_args, "driver": driver}
-            for k, v in extra_args.items():
-                extra_args[k] = re.sub(r"\s+", "+", v)
-            extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
-
             return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
         elif engine == self.__ENGINE_SQLITE:
             path = self.properties.get(self.__SQLITE_PATH_KEY, "")
