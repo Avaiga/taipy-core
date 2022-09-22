@@ -47,7 +47,7 @@ class MongoCollectionDataNode(DataNode):
     """
 
     __STORAGE_TYPE = "mongo_collection"
-    __CUSTOM_DOCUMENT_PROPERTY = "exposed_type"
+    __CUSTOM_DOCUMENT_PROPERTY = "custom_document"
     _REQUIRED_PROPERTIES: List[str] = [
         "db_username",
         "db_password",
@@ -78,7 +78,7 @@ class MongoCollectionDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        self._check_exposed_type(properties[self.__CUSTOM_DOCUMENT_PROPERTY])
+        self._check_custom_document(properties[self.__CUSTOM_DOCUMENT_PROPERTY])
 
         super().__init__(
             config_id,
@@ -121,9 +121,11 @@ class MongoCollectionDataNode(DataNode):
         if not self._last_edit_date:
             self.unlock_edit()
 
-    def _check_exposed_type(self, exposed_type):
-        if not isclass(exposed_type):
-            raise InvalidExposedType(f"Invalid exposed type of {exposed_type}. Only custom object class are supported.")
+    def _check_custom_document(self, custom_document):
+        if not isclass(custom_document):
+            raise InvalidExposedType(
+                f"Invalid exposed type of {custom_document}. Only custom object class are supported."
+            )
 
     @classmethod
     def storage_type(cls) -> str:
@@ -137,7 +139,7 @@ class MongoCollectionDataNode(DataNode):
     def _read_by_query(self):
         """Query from a Mongo collection, exclude the _id field"""
 
-        return self.collection.find(self.read_query)
+        return self.collection.find()
 
     def _write(self, data) -> None:
         """Check data against a collection of types to handle insertion on the database."""
@@ -160,7 +162,7 @@ class MongoCollectionDataNode(DataNode):
 
         This method will overwrite the data contained in a list of dictionaries into a collection.
         """
-        self.collection.delete_many({})
+        self.collection.drop()
         self.collection.insert_many(data)
 
     def _default_decoder(self, document: Dict) -> Any:

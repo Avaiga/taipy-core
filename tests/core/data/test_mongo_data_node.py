@@ -70,7 +70,7 @@ class TestMongoCollectionDataNode:
             "db_name": "taipy",
             "collection_name": "foo",
             "read_query": {},
-            "exposed_type": CustomObjectWithArgs,
+            "custom_document": CustomObjectWithArgs,
         }
     ]
 
@@ -90,7 +90,7 @@ class TestMongoCollectionDataNode:
         assert mongo_dn.job_ids == []
         assert mongo_dn.is_ready_for_reading
         assert mongo_dn.read_query != ""
-        assert mongo_dn.exposed_type == CustomObjectWithArgs
+        assert mongo_dn.custom_document == CustomObjectWithArgs
 
     @pytest.mark.parametrize(
         "properties",
@@ -108,9 +108,9 @@ class TestMongoCollectionDataNode:
             MongoCollectionDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
 
     @pytest.mark.parametrize("properties", __properties)
-    def test_raise_error_invalid_exposed_type(self, properties):
+    def test_raise_error_invalid_custom_document(self, properties):
         custom_properties = properties.copy()
-        custom_properties["exposed_type"] = "foo"
+        custom_properties["custom_document"] = "foo"
         with pytest.raises(InvalidExposedType):
             MongoCollectionDataNode(
                 "foo",
@@ -188,7 +188,7 @@ class TestMongoCollectionDataNode:
     )
     def test_read_wrong_object_properties_name(self, properties, data):
         custom_properties = properties.copy()
-        custom_properties["exposed_type"] = CustomObjectWithoutArgs
+        custom_properties["custom_document"] = CustomObjectWithoutArgs
         mongo_dn = MongoCollectionDataNode(
             "foo",
             Scope.PIPELINE,
@@ -245,7 +245,7 @@ class TestMongoCollectionDataNode:
     @pytest.mark.parametrize("properties", __properties)
     def test_write_custom_encoder(self, properties):
         custom_properties = properties.copy()
-        custom_properties["exposed_type"] = CustomObjectWithCustomEncoder
+        custom_properties["custom_document"] = CustomObjectWithCustomEncoder
         mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=custom_properties)
         data = [
             CustomObjectWithCustomEncoder("1", 1, "abc", datetime.now()),
@@ -269,7 +269,7 @@ class TestMongoCollectionDataNode:
     @pytest.mark.parametrize("properties", __properties)
     def test_write_custom_encoder_decoder(self, properties):
         custom_properties = properties.copy()
-        custom_properties["exposed_type"] = CustomObjectWithCustomEncoderDecoder
+        custom_properties["custom_document"] = CustomObjectWithCustomEncoderDecoder
         mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=custom_properties)
         data = [
             CustomObjectWithCustomEncoderDecoder("1", 1, "abc", datetime.now()),

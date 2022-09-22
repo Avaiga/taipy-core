@@ -102,8 +102,7 @@ class DataNodeConfig(Section):
     _REQUIRED_READ_QUERY_SQL_PROPERTY = "read_query"
     _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY = "write_query_builder"
     # MONGO
-    _OPTIONAL_READ_QUERY_MONGO_PROPERTY = "read_query"
-    _REQUIRED_EXPOSED_TYPE_MONGO_PROPERTY = "exposed_type"
+    _REQUIRED_CUSTOM_DOCUMENT_MONGO_PROPERTY = "custom_document"
     _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
     _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
@@ -138,7 +137,7 @@ class DataNodeConfig(Section):
             _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
             _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
-            _REQUIRED_EXPOSED_TYPE_MONGO_PROPERTY,
+            _REQUIRED_CUSTOM_DOCUMENT_MONGO_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
@@ -169,7 +168,6 @@ class DataNodeConfig(Section):
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL_TABLE: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
-        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [_OPTIONAL_READ_QUERY_MONGO_PROPERTY],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -664,7 +662,6 @@ class DataNodeConfig(Section):
         db_password: str,
         db_name: str,
         custom_document: Any,
-        read_query: dict = {},
         collection_name: str = None,
         db_port: int = 27017,
         db_host: str = "localhost",
@@ -680,7 +677,6 @@ class DataNodeConfig(Section):
             db_password (str): The database password.
             db_name (str): The database name.
             collection_name (str): The collection in the database to read from and to write the data to.
-            read_query (dict): The Mongo query dictionary used to read the data from the database.
             custom_document (Any): The custom document class to store, encode, and decode data when reading and writing to a Mongo collection.
                 The custom_document can have optional `decoder` method to decode data in the Mongo collection to a custom object,
                 and `encoder` method to encode the object's properties to the Mongo collection when writing.
@@ -703,8 +699,7 @@ class DataNodeConfig(Section):
             db_password=db_password,
             db_name=db_name,
             collection_name=collection_name,
-            read_query=read_query,
-            exposed_type=custom_document,
+            custom_document=custom_document,
             db_host=db_host,
             db_port=db_port,
             **properties,
