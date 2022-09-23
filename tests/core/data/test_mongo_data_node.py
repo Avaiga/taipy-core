@@ -25,7 +25,7 @@ from bson.errors import InvalidDocument
 
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data.mongo import MongoCollectionDataNode
-from src.taipy.core.exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
+from src.taipy.core.exceptions.exceptions import InvalidCustomDocument, MissingRequiredProperty
 from taipy.config.common.scope import Scope
 
 
@@ -69,7 +69,6 @@ class TestMongoCollectionDataNode:
             "db_password": "",
             "db_name": "taipy",
             "collection_name": "foo",
-            "read_query": {},
             "custom_document": CustomObjectWithArgs,
         }
     ]
@@ -89,7 +88,6 @@ class TestMongoCollectionDataNode:
         assert mongo_dn.parent_id is None
         assert mongo_dn.job_ids == []
         assert mongo_dn.is_ready_for_reading
-        assert mongo_dn.read_query != ""
         assert mongo_dn.custom_document == CustomObjectWithArgs
 
     @pytest.mark.parametrize(
@@ -111,7 +109,7 @@ class TestMongoCollectionDataNode:
     def test_raise_error_invalid_custom_document(self, properties):
         custom_properties = properties.copy()
         custom_properties["custom_document"] = "foo"
-        with pytest.raises(InvalidExposedType):
+        with pytest.raises(InvalidCustomDocument):
             MongoCollectionDataNode(
                 "foo",
                 Scope.PIPELINE,

@@ -678,8 +678,8 @@ class DataNodeConfig(Section):
             db_name (str): The database name.
             collection_name (str): The collection in the database to read from and to write the data to.
             custom_document (Any): The custom document class to store, encode, and decode data when reading and writing to a Mongo collection.
-                The custom_document can have optional `decoder` method to decode data in the Mongo collection to a custom object,
-                and `encoder` method to encode the object's properties to the Mongo collection when writing.
+                The custom_document can have optional `decode` method to decode data in the Mongo collection to a custom object,
+                and `encode` method to encode the object's properties to the Mongo collection when writing.
             db_port (int): The database port. The default value is 27017.
             db_host (str): The database host. The default value is _"localhost"_.
             scope (Scope^): The scope of the Mongo collection data node configuration. The default value is

@@ -108,15 +108,11 @@ class MongoCollectionDataNode(DataNode):
         custom_decoder = getattr(self.custom_document, "decode", None)
         if callable(custom_decoder):
             self._decoder = custom_decoder
-        else:
-            self._decoder = self._default_decoder
 
         self._encoder = self._default_encoder
         custom_encoder = getattr(self.custom_document, "encode", None)
         if callable(custom_encoder):
             self._encoder = custom_encoder
-        else:
-            self._encoder = self._default_encoder
 
         if not self._last_edit_date:
             self.unlock_edit()
@@ -148,7 +144,7 @@ class MongoCollectionDataNode(DataNode):
             data = [data]
 
         if len(data) == 0:
-            self.collection.delete_many({})
+            self.collection.drop()
             return
 
         if isinstance(data[0], dict):
