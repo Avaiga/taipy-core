@@ -76,7 +76,7 @@ class InvalidExposedType(Exception):
 
 
 class InvalidCustomDocument(Exception):
-    """Raised if an invalid custom document class is provided."""
+    """Raised if an invalid custom document class is provided to a `MongoCollectionDataNode`."""
 
 
 class MissingReadFunction(Exception):
