@@ -22,9 +22,9 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 
 from taipy.config.config import Config
-from taipy.core._repository import _AbstractRepository, _CustomDecoder, _CustomEncoder
-from taipy.core.exceptions.exceptions import MissingRequiredProperty, ModelNotFound
 
+from ..exceptions.exceptions import MissingRequiredProperty, ModelNotFound
+from ._repository import _AbstractRepository, _CustomDecoder, _CustomEncoder
 from ._sql_model import Base, _TaipyModel
 
 ModelType = TypeVar("ModelType")
