@@ -70,6 +70,11 @@ class TestMongoCollectionDataNode:
             "db_name": "taipy",
             "collection_name": "foo",
             "custom_document": CustomObjectWithArgs,
+            "db_extra_args": {
+                "ssl": "true",
+                "retrywrites": "false",
+                "maxIdleTimeMS": "120000",
+            },
         }
     ]
 
@@ -233,6 +238,7 @@ class TestMongoCollectionDataNode:
 
         assert len(mongo_dn.read()) == 0
 
+    @mongomock.patch(servers=(("localhost", 27017),))
     @pytest.mark.parametrize("properties", __properties)
     def test_write_non_serializable(self, properties):
         mongo_dn = MongoCollectionDataNode("foo", Scope.PIPELINE, properties=properties)
@@ -240,6 +246,7 @@ class TestMongoCollectionDataNode:
         with pytest.raises(InvalidDocument):
             mongo_dn.write(data)
 
+    @mongomock.patch(servers=(("localhost", 27017),))
     @pytest.mark.parametrize("properties", __properties)
     def test_write_custom_encoder(self, properties):
         custom_properties = properties.copy()
@@ -264,6 +271,7 @@ class TestMongoCollectionDataNode:
         assert read_data[1].text == "def"
         assert isinstance(read_data[1].time, str)
 
+    @mongomock.patch(servers=(("localhost", 27017),))
     @pytest.mark.parametrize("properties", __properties)
     def test_write_custom_encoder_decoder(self, properties):
         custom_properties = properties.copy()
