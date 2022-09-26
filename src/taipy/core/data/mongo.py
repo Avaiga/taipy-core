@@ -42,15 +42,13 @@ class MongoCollectionDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"db_username"_,
-            _"db_password"_, _"db_name"_, _"collection_name"_, and _"custom_document"_.
+            _properties_ parameter must at least contain an entry for _"db_name"_, _"collection_name"_, and _"custom_document"_.
     """
 
     __STORAGE_TYPE = "mongo_collection"
     __CUSTOM_DOCUMENT_PROPERTY = "custom_document"
+    __DB_EXTRA_ARGS_KEY = "db_extra_args"
     _REQUIRED_PROPERTIES: List[str] = [
-        "db_username",
-        "db_password",
         "db_name",
         "collection_name",
         __CUSTOM_DOCUMENT_PROPERTY,
@@ -97,8 +95,9 @@ class MongoCollectionDataNode(DataNode):
         mongo_client = _connect_mongodb(
             db_host=properties.get("db_host", "localhost"),
             db_port=properties.get("db_port", 27017),
-            db_username=properties.get("db_username"),
-            db_password=properties.get("db_password"),
+            db_username=properties.get("db_username", ""),
+            db_password=properties.get("db_password", ""),
+            db_extra_args=properties.get(self.__DB_EXTRA_ARGS_KEY, {}),
         )
         self.collection = mongo_client[properties.get("db_name")][properties.get("collection_name")]
 
@@ -184,7 +183,9 @@ class MongoCollectionDataNode(DataNode):
         return document_object.__dict__
 
 
-def _connect_mongodb(db_host: str, db_port: int, db_username: str, db_password: str) -> pymongo.MongoClient:
+def _connect_mongodb(
+    db_host: str, db_port: int, db_username: str, db_password: str, db_extra_args: Dict[str, str]
+) -> pymongo.MongoClient:
     """Create a connection to a Mongo database.
 
     Args:
@@ -192,14 +193,19 @@ def _connect_mongodb(db_host: str, db_port: int, db_username: str, db_password: 
         db_port (int): the database port.
         db_username (str): the database username.
         db_password (str): the database password.
+        db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
 
     Returns:
         pymongo.MongoClient
     """
+    auth_str = ""
     if db_username and db_password:
-        return pymongo.MongoClient(host=db_host, port=db_port, username=db_username, password=db_password)
+        auth_str = f"{db_username}:{db_password}@"
 
-    return pymongo.MongoClient(
-        host=db_host,
-        port=db_port,
-    )
+    extra_args_str = "&".join(f"{k}={str(v)}" for k, v in db_extra_args.items())
+    if extra_args_str:
+        extra_args_str = "/?" + extra_args_str
+
+    connection_string = f"mongodb://{auth_str}{db_host}:{db_port}{extra_args_str}"
+
+    return pymongo.MongoClient(connection_string)

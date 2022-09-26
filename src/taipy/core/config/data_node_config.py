@@ -103,10 +103,11 @@ class DataNodeConfig(Section):
     _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY = "write_query_builder"
     # MONGO
     _REQUIRED_CUSTOM_DOCUMENT_MONGO_PROPERTY = "custom_document"
-    _REQUIRED_DB_USERNAME_MONGO_PROPERTY = "db_username"
-    _REQUIRED_DB_PASSWORD_MONGO_PROPERTY = "db_password"
     _REQUIRED_DB_NAME_MONGO_PROPERTY = "db_name"
     _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY = "collection_name"
+    _OPTIONAL_DB_USERNAME_MONGO_PROPERTY = "db_username"
+    _OPTIONAL_DB_PASSWORD_MONGO_PROPERTY = "db_password"
+    _OPTIONAL_DB_EXTRA_ARGS_MONGO_PROPERTY = "db_extra_args"
     # Pickle
     _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY = "default_path"
     _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY = "default_data"
@@ -133,8 +134,6 @@ class DataNodeConfig(Section):
             _REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [
-            _REQUIRED_DB_USERNAME_MONGO_PROPERTY,
-            _REQUIRED_DB_PASSWORD_MONGO_PROPERTY,
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
             _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
             _REQUIRED_CUSTOM_DOCUMENT_MONGO_PROPERTY,
@@ -168,6 +167,11 @@ class DataNodeConfig(Section):
         _STORAGE_TYPE_VALUE_IN_MEMORY: [_OPTIONAL_DEFAULT_DATA_IN_MEMORY_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL_TABLE: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
         _STORAGE_TYPE_VALUE_SQL: [_OPTIONAL_EXPOSED_TYPE_SQL_PROPERTY, _OPTIONAL_DB_EXTRA_ARGS_SQL_PROPERTY],
+        _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [
+            _OPTIONAL_DB_USERNAME_MONGO_PROPERTY,
+            _OPTIONAL_DB_PASSWORD_MONGO_PROPERTY,
+            _OPTIONAL_DB_EXTRA_ARGS_MONGO_PROPERTY,
+        ],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
     }
@@ -658,13 +662,14 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_mongo_collection(
         id: str,
-        db_username: str,
-        db_password: str,
         db_name: str,
+        collection_name: str,
         custom_document: Any,
-        collection_name: str = None,
-        db_port: int = 27017,
+        db_username: str = "",
+        db_password: str = "",
         db_host: str = "localhost",
+        db_port: int = 27017,
+        db_extra_args: Dict[str, Any] = {},
         scope: Scope = _DEFAULT_SCOPE,
         cacheable: bool = False,
         **properties,
@@ -673,15 +678,16 @@ class DataNodeConfig(Section):
 
         Parameters:
             id (str): The unique identifier of the new Mongo collection data node configuration.
-            db_username (str): The database username.
-            db_password (str): The database password.
             db_name (str): The database name.
             collection_name (str): The collection in the database to read from and to write the data to.
             custom_document (Any): The custom document class to store, encode, and decode data when reading and writing to a Mongo collection.
                 The custom_document can have optional `decode` method to decode data in the Mongo collection to a custom object,
                 and `encode` method to encode the object's properties to the Mongo collection when writing.
-            db_port (int): The database port. The default value is 27017.
+            db_username (str): The database username.
+            db_password (str): The database password.
             db_host (str): The database host. The default value is _"localhost"_.
+            db_port (int): The database port. The default value is 27017.
+            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database connection string.
             scope (Scope^): The scope of the Mongo collection data node configuration. The default value is
                 `Scope.SCENARIO`.
             cacheable (bool): If True, indicates that the SQL data node is cacheable. The default value is _False_.
@@ -702,6 +708,7 @@ class DataNodeConfig(Section):
             custom_document=custom_document,
             db_host=db_host,
             db_port=db_port,
+            db_extra_args=db_extra_args,
             **properties,
         )
         Config._register(section)
