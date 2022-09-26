@@ -193,7 +193,7 @@ def _connect_mongodb(
         db_port (int): the database port.
         db_username (str): the database username.
         db_password (str): the database password.
-        db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
+        db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database connection string.
 
     Returns:
         pymongo.MongoClient
