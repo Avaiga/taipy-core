@@ -66,4 +66,16 @@ back-end application.
         - directly with the regular `pip install pyodbc` command
         - by installing Taipy Core with extra package mssql, using: `pip install taipy-core[mssql]`
         - or by installing complete Taipy with extra package mssql, using: `pip install taipy[mssql]`
+    - [`pymongo`]: is used by data nodes configured using the predefined
+    [`SQL data node config`](../../core/config/data-node-config.md#sql). with `mysql` engine.
+    You can install that package :
+        - directly with the regular `pip install pymysql` command
+        - by installing Taipy Core with extra package mysql;, using: `pip install taipy-core[mysql]`
+        - or by installing complete Taipy with extra package mysql, using: `pip install taipy[mysql]`
+    - [`psycopg2`]: is used by data nodes configured using the predefined
+    [`SQL data node config`](../../core/config/data-node-config.md#sql). with `postgresql` engine.
+    You can install that package :
+        - directly with the regular `pip install psycopg2` command
+        - by installing Taipy Core with extra package postgresql;, using: `pip install taipy-core[postgresql]`
+        - or by installing complete Taipy with extra package postgresql, using: `pip install taipy[postgresql]`
 """
