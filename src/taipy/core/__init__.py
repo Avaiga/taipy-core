@@ -60,22 +60,9 @@ back-end application.
     There are Python packages that you can install in your environment to
     add functionality to Taipy Core:
 
-    - [`pyodbc`](https://pypi.org/project/pyodbc/): is used by data nodes configured using the predefined
-    [`SQL data node config`](../../core/config/data-node-config.md#sql) with `mssql` engine.
-    You can install that package :
-        - directly with the regular `pip install pyodbc` command
-        - by installing Taipy Core with extra package mssql, using: `pip install taipy-core[mssql]`
-        - or by installing complete Taipy with extra package mssql, using: `pip install taipy[mssql]`
-    - [`pymongo`]: is used by data nodes configured using the predefined
-    [`SQL data node config`](../../core/config/data-node-config.md#sql). with `mysql` engine.
-    You can install that package :
-        - directly with the regular `pip install pymysql` command
-        - by installing Taipy Core with extra package mysql;, using: `pip install taipy-core[mysql]`
-        - or by installing complete Taipy with extra package mysql, using: `pip install taipy[mysql]`
-    - [`psycopg2`]: is used by data nodes configured using the predefined
-    [`SQL data node config`](../../core/config/data-node-config.md#sql). with `postgresql` engine.
-    You can install that package :
-        - directly with the regular `pip install psycopg2` command
-        - by installing Taipy Core with extra package postgresql;, using: `pip install taipy-core[postgresql]`
-        - or by installing complete Taipy with extra package postgresql, using: `pip install taipy[postgresql]`
+    - [`pyodbc`](https://pypi.org/project/pyodbc/), [`pymysql`](https://pypi.org/project/PyMySQL/), [`psycopg2`](https://www.psycopg.org/): are used by data nodes configured using the predefined [`SQL data node config`](../../core/config/data-node-config.md#sql) with `mssql`, `mysql`, and `postgresql` engines, respectively.
+    You can install these packages :
+        - directly with the regular `pip install <package-name>` command with the `<package-name>` is `pyodbc`, `pymysql`, or `psycopg2`.
+        - by installing Taipy Core with extra packages for specific SQL engine, using: `pip install taipy-core[<sql-engine>]` with the `<sql-engine>` is `mssql`, `mysql`, or `postgresql`.
+        - or by installing complete Taipy with extra packages for specific SQL engine, using: `pip install taipy[<sql-engine>]` with the `<sql-engine>` is `mssql`, `mysql`, or `postgresql`.
 """
