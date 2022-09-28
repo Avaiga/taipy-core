@@ -12,15 +12,10 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from importlib import util
-
-import pytest
-
-if not util.find_spec("pymongo"):
-    pytest.skip("skipping tests because PyMongo is not installed", allow_module_level=True)
 
 import mongomock
 import pymongo
+import pytest
 from bson.errors import InvalidDocument
 
 from src.taipy.core.common.alias import DataNodeId

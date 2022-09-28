@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
-      - name: Pyodbc and Pymongo
+      - name: Pyodbc
         env:
           TOX_PARALLEL_NO_SPINNER: 1
         run: |

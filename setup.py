@@ -31,7 +31,6 @@ test_requirements = ["pytest>=3.8"]
 
 extras_require = {
     "mssql": ["pyodbc>=4,<4.1"],
-    "mongo": ["pymongo>=4,<4.3"],
 }
 
 setup(
