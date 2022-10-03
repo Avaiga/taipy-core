@@ -9,10 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-# © 2022, Avaiga Pte Ltd. All Rights Reserved. The use of the Taipy software and any part thereof is governed by Avaiga
-# Pte Ltd’s Software License and Maintenance Agreement. Unauthorised use, reproduction and modification is strictly not
-# allowed.
-
 import json
 from abc import abstractmethod
 from typing import Any, Callable, Iterable, List, Optional, Type, TypeVar
