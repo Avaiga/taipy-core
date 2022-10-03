@@ -27,6 +27,8 @@ from .data_node import DataNode
 
 
 class AbstractSQLDataNode(DataNode):
+    """Abstract base class for data node implementations (SQLDataNode and SQLTableDataNode) that use SQL."""
+
     __STORAGE_TYPE = None
 
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
@@ -76,6 +78,7 @@ class AbstractSQLDataNode(DataNode):
         parent_id: Optional[str] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
         properties: Dict = None,
@@ -95,6 +98,7 @@ class AbstractSQLDataNode(DataNode):
             parent_id,
             last_edit_date,
             job_ids,
+            cacheable,
             validity_period,
             edit_in_progress,
             **properties,
