@@ -9,14 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from .abstract_sql import AbstractSQLDataNode
-from .csv import CSVDataNode
-from .data_node import DataNode
-from .excel import ExcelDataNode
-from .generic import GenericDataNode
-from .in_memory import InMemoryDataNode
-from .json import JSONDataNode
-from .mongo import MongoCollectionDataNode
-from .pickle import PickleDataNode
-from .sql import SQLDataNode
-from .sql_table import SQLTableDataNode
+from taipy.config.common._validate_id import _validate_id
+
+
+class DefaultCustomDocument:
+    def __init__(self, **data):
+        for attribute_name, value in data.items():
+            setattr(self, _validate_id(attribute_name), value)
