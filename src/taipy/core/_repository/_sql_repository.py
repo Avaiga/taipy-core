@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import json
+import pathlib
 from abc import abstractmethod
 from typing import Any, Callable, Iterable, List, Optional, Type, TypeVar
 
@@ -187,3 +188,19 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         data = json.loads(file_content, cls=_CustomDecoder)
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
+
+    def _export(self, entity_id: str, folder_path: str):
+        folder: pathlib.Path = pathlib.Path(folder_path)
+
+        export_dir = folder / self.model_name
+        if not export_dir.exists():
+            export_dir.mkdir(parents=True)
+
+        export_path = export_dir / f"{entity_id}.json"
+
+        entry = self.session.query(_TaipyModel).filter_by(model_id=entity_id).first()
+        if entry is None:
+            raise ModelNotFound(self.model, entity_id)  # type: ignore
+
+        with open(export_path, "w", encoding="utf-8") as export_file:
+            export_file.write(entry.document)
