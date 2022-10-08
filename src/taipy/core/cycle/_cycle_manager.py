@@ -47,7 +47,9 @@ class _CycleManager(_Manager[Cycle]):
     ) -> Cycle:
         creation_date = creation_date if creation_date else datetime.now()
         start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date)
-        cycles = cls._repository.get_cycles_by_frequency_and_start_date(frequency=frequency, start_date=start_date)  # type: ignore
+        cycles = cls._repository.get_cycles_by_frequency_and_start_date(
+            frequency=frequency, start_date=start_date
+        )  # type: ignore
         if len(cycles) > 0:
             return cycles[0]
         else:
@@ -84,12 +86,12 @@ class _CycleManager(_Manager[Cycle]):
     @classmethod
     def _hard_delete(cls, cycle_id: CycleId):
         cycle = cls._get(cycle_id)
-        entity_ids_to_delete = cls._get_owned_entities(cycle)
+        entity_ids_to_delete = cls._get_children_entity_ids(cycle)
         entity_ids_to_delete.cycle_ids.add(cycle.id)
         cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
-    def _get_owned_entities(cls, cycle: Cycle) -> _EntityIds:
+    def _get_children_entity_ids(cls, cycle: Cycle) -> _EntityIds:
         from ..scenario._scenario_manager_factory import _ScenarioManagerFactory
 
         entity_ids = _EntityIds()
@@ -99,14 +101,14 @@ class _CycleManager(_Manager[Cycle]):
         for scenario in scenarios:
             entity_ids.scenario_ids.add(scenario.id)
             for pipeline in scenario.pipelines.values():
-                parent_ids = {pipeline.id, scenario.id, cycle.id}
-                if pipeline.parent_id in parent_ids:
+                owner_ids = {pipeline.id, scenario.id, cycle.id}
+                if pipeline.owner_id in owner_ids:
                     entity_ids.pipeline_ids.add(pipeline.id)
                 for task in pipeline.tasks.values():
-                    if task.parent_id in parent_ids:
+                    if task.owner_id in owner_ids:
                         entity_ids.task_ids.add(task.id)
                     for data_node in task.data_nodes.values():
-                        if data_node.parent_id in parent_ids:
+                        if data_node.owner_id in owner_ids:
                             entity_ids.data_node_ids.add(data_node.id)
 
         jobs = _JobManagerFactory._build_manager()._get_all()

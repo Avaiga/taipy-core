@@ -18,7 +18,8 @@ from typing import Any, Dict, List, Optional
 class _TaskModel:
 
     id: str
-    parent_id: Optional[str]
+    owner_id: Optional[str]
+    parent_ids: List[str]
     config_id: str
     input_ids: List[str]
     function_name: str
@@ -32,7 +33,8 @@ class _TaskModel:
     def from_dict(data: Dict[str, Any]):
         return _TaskModel(
             id=data["id"],
-            parent_id=data["parent_id"],
+            owner_id=data.get("owner_id", data.get("parent_id")),
+            parent_ids=data["parent_ids"],
             config_id=data["config_id"],
             input_ids=data["input_ids"],
             function_name=data["function_name"],

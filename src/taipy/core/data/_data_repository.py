@@ -108,7 +108,8 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             data_node._scope,
             data_node.storage_type(),
             data_node._name,
-            data_node.parent_id,
+            data_node.owner_id,
+            list(data_node.parent_ids),
             data_node._last_edit_date.isoformat() if data_node._last_edit_date else None,
             data_node._job_ids.data,
             data_node._cacheable,
@@ -206,7 +207,8 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             scope=model.scope,
             id=model.id,
             name=model.name,
-            parent_id=model.parent_id,
+            owner_id=model.owner_id,
+            parent_ids=set(model.parent_ids),
             last_edit_date=datetime.fromisoformat(model.last_edit_date) if model.last_edit_date else None,
             job_ids=model.job_ids,
             cacheable=model.cacheable,
@@ -238,3 +240,6 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
 
     def _search(self, attribute: str, value: Any) -> Optional[DataNode]:
         return self.repo._search(attribute, value)
+
+    def _export(self, entity_id: str, folder_path: str):
+        return self.repo._export(entity_id, folder_path)

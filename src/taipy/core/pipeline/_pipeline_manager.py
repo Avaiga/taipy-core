@@ -22,6 +22,7 @@ from ..exceptions.exceptions import NonExistingPipeline
 from ..job._job_manager_factory import _JobManagerFactory
 from ..job.job import Job
 from ..task._task_manager_factory import _TaskManagerFactory
+from ..task.task import Task
 from ._pipeline_repository_factory import _PipelineRepositoryFactory
 from .pipeline import Pipeline
 
@@ -73,18 +74,25 @@ class _PipelineManager(_Manager[Pipeline]):
 
     @classmethod
     def _get_or_create(cls, pipeline_config: PipelineConfig, scenario_id: Optional[ScenarioId] = None) -> Pipeline:
-        pipeline_id = Pipeline._new_id(pipeline_config.id)
+        pipeline_id = Pipeline._new_id(pipeline_config.id)  # type: ignore
 
         task_manager = _TaskManagerFactory._build_manager()
         tasks = task_manager._bulk_get_or_create(pipeline_config.task_configs, scenario_id, pipeline_id)
 
         scope = min(task.scope for task in tasks) if len(tasks) != 0 else Scope.GLOBAL
-        parent_id = scenario_id if scope == Scope.SCENARIO else pipeline_id if scope == Scope.PIPELINE else None
+        owner_id = scenario_id if scope == Scope.SCENARIO else pipeline_id if scope == Scope.PIPELINE else None
 
-        if pipelines_from_parent := cls._repository._get_by_config_and_parent_id(pipeline_config.id, parent_id):  # type: ignore
-            return pipelines_from_parent
+        if pipelines_from_owner := cls._repository._get_by_config_and_owner_id(pipeline_config.id, owner_id):  # type: ignore
+            return pipelines_from_owner
 
-        pipeline = Pipeline(pipeline_config.id, dict(**pipeline_config._properties), tasks, pipeline_id, parent_id)
+        pipeline = Pipeline(
+            pipeline_config.id,  # type: ignore
+            dict(**pipeline_config._properties),
+            tasks,
+            pipeline_id,
+            owner_id,
+            {scenario_id} if scenario_id else None,
+        )
         cls._set(pipeline)
         return pipeline
 
@@ -116,18 +124,20 @@ class _PipelineManager(_Manager[Pipeline]):
     @classmethod
     def _hard_delete(cls, pipeline_id: PipelineId):
         pipeline = cls._get(pipeline_id)
-        entity_ids_to_delete = cls._get_owned_entity_ids(pipeline)
+        entity_ids_to_delete = cls._get_children_entity_ids(pipeline)
         entity_ids_to_delete.pipeline_ids.add(pipeline.id)
         cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
-    def _get_owned_entity_ids(cls, pipeline: Pipeline) -> _EntityIds:
+    def _get_children_entity_ids(cls, pipeline: Pipeline) -> _EntityIds:
         entity_ids = _EntityIds()
         for task in pipeline.tasks.values():
-            if task.parent_id == pipeline.id:
+            if not isinstance(task, Task):
+                task = _TaskManagerFactory._build_manager()._get(task)
+            if task.owner_id == pipeline.id:
                 entity_ids.task_ids.add(task.id)
             for data_node in task.data_nodes.values():
-                if data_node.parent_id == pipeline.id:
+                if data_node.owner_id == pipeline.id:
                     entity_ids.data_node_ids.add(data_node.id)
         jobs = _JobManagerFactory._build_manager()._get_all()
         for job in jobs:

@@ -57,29 +57,37 @@ class _TaskManager(_Manager[Task]):
             data_node_configs, scenario_id, pipeline_id
         )
 
-        tasks_configs_and_parent_id = []
+        tasks_configs_and_owner_id = []
         for task_config in task_configs:
             task_dn_configs = task_config.output_configs + task_config.input_configs
             task_config_data_nodes = [data_nodes[dn_config] for dn_config in task_dn_configs]
 
             scope = min(dn.scope for dn in task_config_data_nodes) if len(task_config_data_nodes) != 0 else Scope.GLOBAL
-            parent_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
+            owner_id = pipeline_id if scope == Scope.PIPELINE else scenario_id if scope == Scope.SCENARIO else None
 
-            tasks_configs_and_parent_id.append((task_config, parent_id))
+            tasks_configs_and_owner_id.append((task_config, owner_id))
 
-        tasks_by_config = cls._repository._get_by_configs_and_parent_ids(tasks_configs_and_parent_id)  # type: ignore
+        tasks_by_config = cls._repository._get_by_configs_and_owner_ids(tasks_configs_and_owner_id)  # type: ignore
 
         tasks = []
-        for task_config, parent_id in tasks_configs_and_parent_id:
-            if task := tasks_by_config.get((task_config, parent_id)):
-                tasks.append(task)
+        for task_config, owner_id in tasks_configs_and_owner_id:
+            if task := tasks_by_config.get((task_config, owner_id)):
+                task.parent_ids.update([pipeline_id])
             else:
                 inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
                 outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
-                task = Task(task_config.id, task_config.function, inputs, outputs, parent_id=parent_id)
-                cls._set(task)
-                tasks.append(task)
-
+                task = Task(
+                    task_config.id,  # type: ignore
+                    task_config.function,
+                    inputs,
+                    outputs,
+                    owner_id=owner_id,
+                    parent_ids={pipeline_id} if pipeline_id else None,
+                )
+                for dn in set(inputs + outputs):
+                    dn.parent_ids.update([task.id])
+            cls._set(task)
+            tasks.append(task)
         return tasks
 
     @classmethod
@@ -91,12 +99,12 @@ class _TaskManager(_Manager[Task]):
     @classmethod
     def _hard_delete(cls, task_id: TaskId):
         task = cls._get(task_id)
-        entity_ids_to_delete = cls._get_owned_entity_ids(task)
+        entity_ids_to_delete = cls._get_children_entity_ids(task)
         entity_ids_to_delete.task_ids.add(task.id)
         cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
-    def _get_owned_entity_ids(cls, task: Task):
+    def _get_children_entity_ids(cls, task: Task):
         entity_ids = _EntityIds()
         jobs = _JobManagerFactory._build_manager()._get_all()
         for job in jobs:

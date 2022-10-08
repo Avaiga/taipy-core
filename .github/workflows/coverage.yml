@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-versions: [3.9]
-        os: [ubuntu-18.04]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-versions }}
 
-      - name: Pyodbc
+      - name: Pyodbc and Pymysql and Psycopg2
         env:
           TOX_PARALLEL_NO_SPINNER: 1
         run: |

@@ -18,7 +18,7 @@ from typing import Callable, Iterable, Iterator, List, Optional, Type, TypeVar, 
 
 from taipy.config.config import Config
 
-from ..exceptions.exceptions import ModelNotFound
+from ..exceptions.exceptions import InvalidExportPath, ModelNotFound
 from ._repository import _AbstractRepository, _CustomDecoder, _CustomEncoder
 
 ModelType = TypeVar("ModelType")
@@ -118,38 +118,38 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     def _search(self, attribute: str, value: str) -> Optional[Entity]:
         return next(self.__search(attribute, value), None)
 
-    def _get_by_config_and_parent_id(self, config_id: str, parent_id: Optional[str]) -> Optional[Entity]:
+    def _get_by_config_and_owner_id(self, config_id: str, owner_id: Optional[str]) -> Optional[Entity]:
         try:
             files = filter(lambda f: config_id in f.name, self.dir_path.iterdir())
             entities = map(
-                lambda f: self.__to_entity(f, by=parent_id, retry=Config.global_config.read_entity_retry or 0), files
+                lambda f: self.__to_entity(f, by=owner_id, retry=Config.global_config.read_entity_retry or 0), files
             )
             corresponding_entities = filter(
-                lambda e: e is not None and e.config_id == config_id and e.parent_id == parent_id, entities  # type: ignore
+                lambda e: e is not None and e.config_id == config_id and e.owner_id == owner_id, entities  # type: ignore
             )
             return next(corresponding_entities, None)
         except FileNotFoundError:
             pass
         return None
 
-    def _get_by_configs_and_parent_ids(self, configs_and_parent_ids):
+    def _get_by_configs_and_owner_ids(self, configs_and_owner_ids):
         # Design in order to optimize performance on Entity creation.
         # Maintainability and readability were impacted.
         res = {}
-        configs_and_parent_ids = set(configs_and_parent_ids)
+        configs_and_owner_ids = set(configs_and_owner_ids)
 
         try:
             for f in self.dir_path.iterdir():
-                config_id, parent_id, entity = self.__match_file_and_get_entity(
-                    f, configs_and_parent_ids, retry=Config.global_config.read_entity_retry or 0
+                config_id, owner_id, entity = self.__match_file_and_get_entity(
+                    f, configs_and_owner_ids, retry=Config.global_config.read_entity_retry or 0
                 )
 
                 if entity:
-                    key = config_id, parent_id
+                    key = config_id, owner_id
                     res[key] = entity
-                    configs_and_parent_ids.remove(key)
+                    configs_and_owner_ids.remove(key)
 
-                    if len(configs_and_parent_ids) == 0:
+                    if len(configs_and_owner_ids) == 0:
                         return res
         except FileNotFoundError:
             # Folder with data was not created yet.
@@ -186,24 +186,40 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     def __create_directory_if_not_exists(self):
         self.dir_path.mkdir(parents=True, exist_ok=True)
 
-    def __match_file_and_get_entity(self, filepath, config_and_parent_ids, retry: Optional[int] = 0):
+    def __match_file_and_get_entity(self, filepath, config_and_owner_ids, retry: Optional[int] = 0):
         filename = filepath.name
 
-        if match := [(c, p) for c, p in config_and_parent_ids if c.id in filename]:
+        if match := [(c, p) for c, p in config_and_owner_ids if c.id in filename]:
             try:
                 with open(filepath, "r") as f:
                     file_content = f.read()
 
-                for config_id, parent_id in match:
-                    if parent_id and parent_id not in file_content:
+                for config_id, owner_id in match:
+                    if owner_id and owner_id not in file_content:
                         continue
 
                     entity = self.__model_to_entity(file_content)
-                    if entity.parent_id == parent_id and entity.config_id == config_id.id:
-                        return config_id, parent_id, entity
+                    if entity.owner_id == owner_id and entity.config_id == config_id.id:
+                        return config_id, owner_id, entity
             except Exception as e:
                 if retry and retry > 0:
-                    return self.__match_file_and_get_entity(filepath, config_and_parent_ids, retry=retry - 1)
+                    return self.__match_file_and_get_entity(filepath, config_and_owner_ids, retry=retry - 1)
                 raise e
 
         return None, None, None
+
+    def _export(self, entity_id: str, folder_path: str):
+        folder: pathlib.Path = pathlib.Path(folder_path)
+        if folder.resolve() == self._storage_folder.resolve():
+            raise InvalidExportPath("The export folder must not be the storage folder.")
+
+        export_dir = folder / self._dir_name
+        if not export_dir.exists():
+            export_dir.mkdir(parents=True)
+
+        export_path = export_dir / f"{entity_id}.json"
+        # Delete if exists.
+        if export_path.exists():
+            export_path.unlink()
+
+        shutil.copy2(self._get_model_filepath(entity_id), export_path)

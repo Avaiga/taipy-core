@@ -14,7 +14,7 @@ import re
 import urllib.parse
 from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -63,9 +63,13 @@ class AbstractSQLDataNode(DataNode):
 
     __ENGINE_MSSQL = "mssql"
     __ENGINE_SQLITE = "sqlite"
+    __ENGINE_MYSQL = "mysql"
+    __ENGINE_POSTGRESQL = "postgresql"
 
     _ENGINE_REQUIRED_PROPERTIES: Dict[str, List[str]] = {
         __ENGINE_MSSQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
+        __ENGINE_MYSQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
+        __ENGINE_POSTGRESQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
         __ENGINE_SQLITE: [__DB_NAME_KEY, __SQLITE_PATH_KEY],
     }
 
@@ -75,7 +79,8 @@ class AbstractSQLDataNode(DataNode):
         scope: Scope,
         id: Optional[DataNodeId] = None,
         name: Optional[str] = None,
-        parent_id: Optional[str] = None,
+        owner_id: Optional[str] = None,
+        parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
         cacheable: bool = False,
@@ -95,7 +100,8 @@ class AbstractSQLDataNode(DataNode):
             scope,
             id,
             name,
-            parent_id,
+            owner_id,
+            parent_ids,
             last_edit_date,
             job_ids,
             cacheable,
@@ -132,34 +138,36 @@ class AbstractSQLDataNode(DataNode):
         return self._engine
 
     def _conn_string(self) -> str:
-        engine = self.properties.get(self.__DB_ENGINE_KEY)
-        username = self.properties.get(self.__DB_USERNAME_KEY)
-        host = self.properties.get(self.__DB_HOST_KEY, self.__DB_HOST_DEFAULT)
-        password = self.properties.get(self.__DB_PASSWORD_KEY)
-        db_name = self.properties.get(self.__DB_NAME_KEY)
-        port = self.properties.get(self.__DB_PORT_KEY, self.__DB_PORT_DEFAULT)
-        driver = self.properties.get(self.__DB_DRIVER_KEY, self.__DB_DRIVER_DEFAULT)
-        extra_args = self.properties.get(self.__DB_EXTRA_ARGS_KEY, {})
+        if engine in ["mssql", "mysql", "postgresql"]:
+            engine = self.properties.get(self.__DB_ENGINE_KEY)
+            username = self.properties.get(self.__DB_USERNAME_KEY)
+            host = self.properties.get(self.__DB_HOST_KEY, self.__DB_HOST_DEFAULT)
+            password = self.properties.get(self.__DB_PASSWORD_KEY)
+            db_name = self.properties.get(self.__DB_NAME_KEY)
+            port = self.properties.get(self.__DB_PORT_KEY, self.__DB_PORT_DEFAULT)
+            driver = self.properties.get(self.__DB_DRIVER_KEY, self.__DB_DRIVER_DEFAULT)
+            extra_args = self.properties.get(self.__DB_EXTRA_ARGS_KEY, {})
 
-        username = urllib.parse.quote_plus(username)
-        password = urllib.parse.quote_plus(password)
-        db_name = urllib.parse.quote_plus(db_name)
-        extra_args = {**extra_args, "driver": driver}
-        for k, v in extra_args.items():
-            extra_args[k] = re.sub(r"\s+", "+", v)
-        extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
+            username = urllib.parse.quote_plus(username)
+            password = urllib.parse.quote_plus(password)
+            db_name = urllib.parse.quote_plus(db_name)
+            extra_args = {**extra_args, "driver": driver}
+            for k, v in extra_args.items():
+                extra_args[k] = re.sub(r"\s+", "+", v)
+            extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
 
-        if engine == self.__ENGINE_MSSQL:
-            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+            if engine == self.__ENGINE_MSSQL:
+                return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+            elif engine == self.__ENGINE_MYSQL:
+                return f"mysql+pymysql://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+            elif engine == self.__ENGINE_POSTGRESQL:
+                return f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+
         elif engine == self.__ENGINE_SQLITE:
             path = self.properties.get(self.__SQLITE_PATH_KEY, "")
             return os.path.join("sqlite:///", path, f"{db_name}.sqlite3")
 
         raise UnknownDatabaseEngine(f"Unknown engine: {engine}")
-
-    @classmethod
-    def storage_type(cls) -> str:
-        return cls.__STORAGE_TYPE
 
     def _read(self):
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:

@@ -43,7 +43,8 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
                 task_datanode_edges[task_id].append(str(successor.id))
         return _PipelineModel(
             pipeline.id,
-            pipeline.parent_id,
+            pipeline.owner_id,
+            list(pipeline.parent_ids),
             pipeline.config_id,
             pipeline._properties.data,
             self.__to_task_ids(pipeline._tasks),
@@ -57,7 +58,8 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
                 model.properties,
                 model.tasks,
                 model.id,
-                model.parent_id,
+                model.owner_id,
+                set(model.parent_ids),
                 [
                     Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
                     for it in model.subscribers
@@ -93,6 +95,9 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
 
     def _search(self, attribute: str, value: Any) -> Optional[Pipeline]:
         return self.repo._search(attribute, value)
+
+    def _export(self, entity_id: str, folder_path: str):
+        return self.repo._export(entity_id, folder_path)
 
     @staticmethod
     def __to_task_ids(tasks):

@@ -22,7 +22,8 @@ class TestDataModel:
                 "scope": repr(Scope.PIPELINE),
                 "storage_type": "pickle",
                 "name": "name",
-                "parent_id": "parent_id",
+                "parent_id": "owner_id",
+                "parent_ids": ["parent_id"],
                 "last_edition_date": "2020-01-01T00:00:00",
                 "read_fct_name": "read_fct_name",
                 "read_fct_module": "read_fct_module",
@@ -38,6 +39,7 @@ class TestDataModel:
         )
         assert model.edit_in_progress is False
         assert model.last_edit_date == "2020-01-01T00:00:00"
+        assert model.owner_id == "owner_id"
 
     def test_override_deprecated_properties(self):
         model = _DataNodeModel.from_dict(
@@ -48,6 +50,8 @@ class TestDataModel:
                 "storage_type": "pickle",
                 "name": "name",
                 "parent_id": "parent_id",
+                "owner_id": "owner_id",
+                "parent_ids": ["parent_id"],
                 "last_edit_date": "2020-01-02T00:00:00",
                 "last_edition_date": "2020-01-01T00:00:00",
                 "read_fct_name": "read_fct_name",
@@ -65,3 +69,4 @@ class TestDataModel:
         )
         assert model.edit_in_progress is True
         assert model.last_edit_date == "2020-01-02T00:00:00"
+        assert model.owner_id == "owner_id"
