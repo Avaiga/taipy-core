@@ -64,7 +64,7 @@ class TestSQLTableDataNode:
                 "TrustServerCertificate": "yes",
             },
         },)
-        
+
     if util.find_spec("psycopg2"):
         __properties.append({
             "db_username": "sa",
@@ -76,7 +76,7 @@ class TestSQLTableDataNode:
                 "TrustServerCertificate": "yes",
             },
         },)
-    
+
 
     @pytest.mark.parametrize("properties", __properties)
     def test_create(self, properties):
@@ -127,7 +127,7 @@ class TestSQLTableDataNode:
         )
 
         assert sql_data_node_as_pandas._read() == "pandas"
-        
+
         custom_properties.pop("db_extra_args")
         custom_properties["exposed_type"] = MyCustomObject
         # Create the same SQLTableDataNode but with custom exposed_type
@@ -147,12 +147,12 @@ class TestSQLTableDataNode:
         )
 
         assert sql_data_source_as_numpy_object._read() == "numpy"
-        
+
 
     @pytest.mark.parametrize("properties", __properties)
     def test_read_as(self, properties):
         custom_properties=properties.copy()
-        
+
         custom_properties.pop("db_extra_args")
         custom_properties["exposed_type"] = MyCustomObject
         sql_data_node = SQLTableDataNode(
@@ -299,18 +299,13 @@ class TestSQLTableDataNode:
                 dn._write(data)
                 mck.assert_called_once_with(create_table_mock.return_value, cursor_mock)
 
+    @pytest.mark.parametrize("properties", __properties)
     @mock.patch("pandas.read_sql_query")
-    def test_engine_cache(self, _):
+    def test_engine_cache(self, _, properties):
         dn = SQLTableDataNode(
             "foo",
             Scope.PIPELINE,
-            properties={
-                "db_username": "sa",
-                "db_password": "foobar",
-                "db_name": "datanode",
-                "db_engine": "mssql",
-                "table_name": "foo",
-            },
+            properties=properties,
         )
 
         assert dn._engine is None
