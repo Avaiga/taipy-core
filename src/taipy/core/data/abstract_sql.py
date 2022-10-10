@@ -70,7 +70,7 @@ class AbstractSQLDataNode(DataNode):
         __ENGINE_MSSQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
         __ENGINE_MYSQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
         __ENGINE_POSTGRESQL: [__DB_USERNAME_KEY, __DB_PASSWORD_KEY, __DB_NAME_KEY],
-        __ENGINE_SQLITE: [__DB_NAME_KEY, __SQLITE_PATH_KEY],
+        __ENGINE_SQLITE: [__DB_NAME_KEY],
     }
 
     def __init__(
@@ -90,6 +90,7 @@ class AbstractSQLDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
+        self._check_required_properties(properties)
 
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
@@ -138,31 +139,36 @@ class AbstractSQLDataNode(DataNode):
         return self._engine
 
     def _conn_string(self) -> str:
-        if engine in ["mssql", "mysql", "postgresql"]:
-            engine = self.properties.get(self.__DB_ENGINE_KEY)
+        engine = self.properties.get(self.__DB_ENGINE_KEY)
+
+        if self.__DB_USERNAME_KEY in self._ENGINE_REQUIRED_PROPERTIES[engine]:
             username = self.properties.get(self.__DB_USERNAME_KEY)
-            host = self.properties.get(self.__DB_HOST_KEY, self.__DB_HOST_DEFAULT)
-            password = self.properties.get(self.__DB_PASSWORD_KEY)
-            db_name = self.properties.get(self.__DB_NAME_KEY)
-            port = self.properties.get(self.__DB_PORT_KEY, self.__DB_PORT_DEFAULT)
-            driver = self.properties.get(self.__DB_DRIVER_KEY, self.__DB_DRIVER_DEFAULT)
-            extra_args = self.properties.get(self.__DB_EXTRA_ARGS_KEY, {})
-
             username = urllib.parse.quote_plus(username)
+
+        if self.__DB_PASSWORD_KEY in self._ENGINE_REQUIRED_PROPERTIES[engine]:
+            password = self.properties.get(self.__DB_PASSWORD_KEY)
             password = urllib.parse.quote_plus(password)
+
+        if self.__DB_NAME_KEY in self._ENGINE_REQUIRED_PROPERTIES[engine]:
+            db_name = self.properties.get(self.__DB_NAME_KEY)
             db_name = urllib.parse.quote_plus(db_name)
-            extra_args = {**extra_args, "driver": driver}
-            for k, v in extra_args.items():
-                extra_args[k] = re.sub(r"\s+", "+", v)
-            extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
 
-            if engine == self.__ENGINE_MSSQL:
-                return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
-            elif engine == self.__ENGINE_MYSQL:
-                return f"mysql+pymysql://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
-            elif engine == self.__ENGINE_POSTGRESQL:
-                return f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+        host = self.properties.get(self.__DB_HOST_KEY, self.__DB_HOST_DEFAULT)
+        port = self.properties.get(self.__DB_PORT_KEY, self.__DB_PORT_DEFAULT)
+        driver = self.properties.get(self.__DB_DRIVER_KEY, self.__DB_DRIVER_DEFAULT)
+        extra_args = self.properties.get(self.__DB_EXTRA_ARGS_KEY, {})
 
+        extra_args = {**extra_args, "driver": driver}
+        for k, v in extra_args.items():
+            extra_args[k] = re.sub(r"\s+", "+", v)
+        extra_args_str = "&".join(f"{k}={str(v)}" for k, v in extra_args.items())
+
+        if engine == self.__ENGINE_MSSQL:
+            return f"mssql+pyodbc://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+        elif engine == self.__ENGINE_MYSQL:
+            return f"mysql+pymysql://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
+        elif engine == self.__ENGINE_POSTGRESQL:
+            return f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{db_name}?{extra_args_str}"
         elif engine == self.__ENGINE_SQLITE:
             path = self.properties.get(self.__SQLITE_PATH_KEY, "")
             return os.path.join("sqlite:///", path, f"{db_name}.sqlite3")
