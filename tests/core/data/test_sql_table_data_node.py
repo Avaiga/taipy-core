@@ -42,6 +42,7 @@ class TestSQLTableDataNode:
             },
         },
     ]
+
     if util.find_spec("pyodbc"):
         __properties.append({
             "db_username": "sa",
@@ -53,6 +54,7 @@ class TestSQLTableDataNode:
                 "TrustServerCertificate": "yes",
             },
         },)
+
     if util.find_spec("pymysql"):
         __properties.append({
             "db_username": "sa",
@@ -76,7 +78,6 @@ class TestSQLTableDataNode:
                 "TrustServerCertificate": "yes",
             },
         },)
-
 
     @pytest.mark.parametrize("properties", __properties)
     def test_create(self, properties):
@@ -126,7 +127,7 @@ class TestSQLTableDataNode:
             properties=properties,
         )
 
-        assert sql_data_node_as_pandas._read() == "pandas"
+        assert sql_data_node_as_pandas.read() == "pandas"
 
         custom_properties.pop("db_extra_args")
         custom_properties["exposed_type"] = MyCustomObject
@@ -136,7 +137,7 @@ class TestSQLTableDataNode:
             Scope.PIPELINE,
             properties=custom_properties
         )
-        assert sql_data_node_as_custom_object._read() == "custom"
+        assert sql_data_node_as_custom_object.read() == "custom"
 
         # Create the same SQLDataSource but with numpy exposed_type
         custom_properties["exposed_type"] = "numpy"
@@ -146,7 +147,7 @@ class TestSQLTableDataNode:
             properties=custom_properties
         )
 
-        assert sql_data_source_as_numpy_object._read() == "numpy"
+        assert sql_data_source_as_numpy_object.read() == "numpy"
 
 
     @pytest.mark.parametrize("properties", __properties)
@@ -236,7 +237,7 @@ class TestSQLTableDataNode:
             cursor_mock.execute.side_effect = None
 
             with mock.patch(f"src.taipy.core.data.sql_table.SQLTableDataNode.{called_func}") as mck:
-                dn._write(data)
+                dn.write(data)
                 mck.assert_called_once_with(written_data, create_table_mock.return_value, cursor_mock)
 
     @pytest.mark.parametrize("properties", __properties)
@@ -269,7 +270,7 @@ class TestSQLTableDataNode:
             cursor_mock.execute.side_effect = None
 
             with mock.patch("src.taipy.core.data.sql_table.SQLTableDataNode._insert_dataframe") as mck:
-                dn._write(df)
+                dn.write(df)
                 assert mck.call_args[0][0].equals(df)
 
     @pytest.mark.parametrize(
@@ -296,7 +297,7 @@ class TestSQLTableDataNode:
             cursor_mock.execute.side_effect = None
 
             with mock.patch("src.taipy.core.data.sql_table.SQLTableDataNode._delete_all_rows") as mck:
-                dn._write(data)
+                dn.write(data)
                 mck.assert_called_once_with(create_table_mock.return_value, cursor_mock)
 
     @pytest.mark.parametrize("properties", __properties)
