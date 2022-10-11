@@ -158,6 +158,8 @@ class TestPickleDataNodeEntity:
         assert previous_edit_date < dn.last_edit_date
         assert new_edit_date == dn.last_edit_date
 
+        sleep(0.1)
+
         dn.write(pd.DataFrame([7, 8, 9]))
         assert new_edit_date < dn.last_edit_date
 
