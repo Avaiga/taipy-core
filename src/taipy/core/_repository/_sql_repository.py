@@ -12,7 +12,7 @@
 import json
 import pathlib
 from abc import abstractmethod
-from typing import Any, Callable, Iterable, List, Optional, Type, TypeVar
+from typing import Any, Callable, Iterable, List, Optional, Type, TypeVar, Union
 
 from sqlalchemy import create_engine, delete
 from sqlalchemy.exc import NoResultFound
@@ -189,8 +189,11 @@ class _SQLRepository(_AbstractRepository[ModelType, Entity]):
         model = self.model.from_dict(data)  # type: ignore
         return self._from_model(model)
 
-    def _export(self, entity_id: str, folder_path: str):
-        folder: pathlib.Path = pathlib.Path(folder_path)
+    def _export(self, entity_id: str, folder_path: Union[str, pathlib.Path]):
+        if isinstance(folder_path, str):
+            folder: pathlib.Path = pathlib.Path(folder_path)
+        else:
+            folder = folder_path
 
         export_dir = folder / self.model_name
         if not export_dir.exists():
