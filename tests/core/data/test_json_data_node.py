@@ -257,4 +257,7 @@ class TestJSONDataNode:
         assert previous_edit_date < dn.last_edit_date
         assert new_edit_date == dn.last_edit_date
 
+        dn.write([1, 2, 3])
+        assert new_edit_date < dn.last_edit_date
+
         os.unlink(temp_file_path)
