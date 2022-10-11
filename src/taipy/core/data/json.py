@@ -150,7 +150,10 @@ class JSONDataNode(DataNode):
 class DefaultJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Enum):
-            return {"__type__": f"Enum-{o.__class__.__qualname__}-{o.name}", "__value__": o.value}
+            return {
+                "__type__": f"Enum-{o.__class__.__module__}-{o.__class__.__qualname__}-{o.name}",
+                "__value__": o.value,
+            }
 
         if isinstance(o, (datetime, date)):
             return {"__type__": "Datetime", "__value__": o.isoformat()}
@@ -171,8 +174,9 @@ class DefaultJSONDecoder(json.JSONDecoder):
     def object_hook(self, source):
         if _type := source.get("__type__"):
             if _type.startswith("Enum"):
-                _, classname, name = _type.split("-")
-                return Enum(classname, [(name, source.get("__value__"))])[name]
+                _, module, classname, name = _type.split("-")
+                _enum_class = locate(f"{module}.{classname}")
+                return _enum_class[name]
 
             if _type == "Datetime":
                 return datetime.fromisoformat(source.get("__value__"))

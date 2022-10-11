@@ -181,12 +181,7 @@ class TestJSONDataNode:
         data = [MyEnum.A, MyEnum.B, MyEnum.C]
         json_dn.write(data)
         read_data = json_dn.read()
-        assert read_data[0].value == 1
-        assert read_data[0].name == "A"
-        assert read_data[1].value == 2
-        assert read_data[1].name == "B"
-        assert read_data[2].value == 3
-        assert read_data[2].name == "C"
+        assert read_data == [MyEnum.A, MyEnum.B, MyEnum.C]
 
     def test_write_dataclass(self, json_file):
         json_dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": json_file})
