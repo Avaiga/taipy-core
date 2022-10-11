@@ -182,8 +182,8 @@ class DefaultJSONDecoder(json.JSONDecoder):
                 return datetime.fromisoformat(source.get("__value__"))
 
             if _type.startswith("dataclass"):
-                _, module, name = _type.split("-")
-                ds = locate(f"{module}.{name}")
-                return ds(**source.get("__value__"))
+                _, module, classname = _type.split("-")
+                _data_class = locate(f"{module}.{classname}")
+                return _data_class(**source.get("__value__"))
 
         return source
