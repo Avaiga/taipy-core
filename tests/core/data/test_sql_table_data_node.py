@@ -56,6 +56,7 @@ class TestSQLTableDataNode:
                 },
             },
         )
+
     if util.find_spec("pymysql"):
         __properties.append(
             {
@@ -132,19 +133,19 @@ class TestSQLTableDataNode:
             properties=properties,
         )
 
-        assert sql_data_node_as_pandas._read() == "pandas"
+        assert sql_data_node_as_pandas.read() == "pandas"
 
         custom_properties.pop("db_extra_args")
         custom_properties["exposed_type"] = MyCustomObject
         # Create the same SQLTableDataNode but with custom exposed_type
         sql_data_node_as_custom_object = SQLTableDataNode("foo", Scope.PIPELINE, properties=custom_properties)
-        assert sql_data_node_as_custom_object._read() == "custom"
+        assert sql_data_node_as_custom_object.read() == "custom"
 
         # Create the same SQLDataSource but with numpy exposed_type
         custom_properties["exposed_type"] = "numpy"
         sql_data_source_as_numpy_object = SQLTableDataNode("foo", Scope.PIPELINE, properties=custom_properties)
 
-        assert sql_data_source_as_numpy_object._read() == "numpy"
+        assert sql_data_source_as_numpy_object.read() == "numpy"
 
     @pytest.mark.parametrize("properties", __properties)
     def test_read_as(self, properties):
