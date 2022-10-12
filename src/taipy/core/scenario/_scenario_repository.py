@@ -9,13 +9,14 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import pathlib
 from datetime import datetime
-from typing import Any, Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Union
 
 from .._repository._repository import _AbstractRepository
 from .._repository._repository_adapter import _RepositoryAdapter
 from ..common import _utils
-from ..common._utils import Subscriber
+from ..common._utils import _Subscriber
 from ..common.alias import CycleId, PipelineId
 from ..cycle._cycle_manager_factory import _CycleManagerFactory
 from ..cycle.cycle import Cycle
@@ -57,7 +58,7 @@ class _ScenarioRepository(_AbstractRepository[_ScenarioModel, Scenario]):  # typ
             tags=set(model.tags),
             cycle=self.__to_cycle(model.cycle),
             subscribers=[
-                Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
+                _Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
                 for it in model.subscribers
             ],
         )
@@ -87,7 +88,7 @@ class _ScenarioRepository(_AbstractRepository[_ScenarioModel, Scenario]):  # typ
     def _search(self, attribute: str, value: Any) -> Optional[Scenario]:
         return self.repo._search(attribute, value)
 
-    def _export(self, entity_id: str, folder_path: str):
+    def _export(self, entity_id: str, folder_path: Union[str, pathlib.Path]):
         return self.repo._export(entity_id, folder_path)
 
     @staticmethod

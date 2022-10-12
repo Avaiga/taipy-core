@@ -9,13 +9,14 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import pathlib
 from collections import defaultdict
-from typing import Any, Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Union
 
 from .._repository._repository import _AbstractRepository
 from .._repository._repository_adapter import _RepositoryAdapter
 from ..common import _utils
-from ..common._utils import Subscriber
+from ..common._utils import _Subscriber
 from ..exceptions.exceptions import NonExistingPipeline, NonExistingTask
 from ..task.task import Task
 from ._pipeline_model import _PipelineModel
@@ -61,7 +62,7 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
                 model.owner_id,
                 set(model.parent_ids),
                 [
-                    Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
+                    _Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
                     for it in model.subscribers
                 ],  # type: ignore
             )
@@ -96,7 +97,7 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
     def _search(self, attribute: str, value: Any) -> Optional[Pipeline]:
         return self.repo._search(attribute, value)
 
-    def _export(self, entity_id: str, folder_path: str):
+    def _export(self, entity_id: str, folder_path: Union[str, pathlib.Path]):
         return self.repo._export(entity_id, folder_path)
 
     @staticmethod

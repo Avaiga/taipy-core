@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import pathlib
 import uuid
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Set, Union
@@ -22,7 +23,7 @@ from ..common._entity import _Entity
 from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
 from ..common._reload import _reload, _self_reload, _self_setter
-from ..common._utils import Subscriber
+from ..common._utils import _Subscriber
 from ..common.alias import PipelineId, ScenarioId
 from ..cycle.cycle import Cycle
 from ..data.data_node import DataNode
@@ -63,7 +64,7 @@ class Scenario(_Entity):
         creation_date=None,
         is_primary: bool = False,
         cycle: Cycle = None,
-        subscribers: List[Subscriber] = None,
+        subscribers: List[_Subscriber] = None,
         tags: Set[str] = None,
     ):
         self.config_id = _validate_id(config_id)
@@ -198,7 +199,7 @@ class Scenario(_Entity):
 
     def _add_subscriber(self, callback: Callable, params: Optional[List[Any]] = None):
         params = [] if params is None else params
-        self._subscribers.append(Subscriber(callback=callback, params=params))
+        self._subscribers.append(_Subscriber(callback=callback, params=params))
 
     def _add_tag(self, tag: str):
         self._tags = _reload("scenario", self)._tags
@@ -216,7 +217,7 @@ class Scenario(_Entity):
 
     def _remove_subscriber(self, callback: Callable, params: Optional[List[Any]] = None):
         if params is not None:
-            self._subscribers.remove(Subscriber(callback, params))
+            self._subscribers.remove(_Subscriber(callback, params))
         else:
             elem = [x for x in self._subscribers if x.callback == callback]
             if not elem:
@@ -278,12 +279,12 @@ class Scenario(_Entity):
 
     def export(
         self,
-        folder_path: str,
+        folder_path: Union[str, pathlib.Path],
     ):
         """Export all related entities of this scenario to a folder.
 
         Parameters:
-            folder_path (str): The folder path to export the scenario to.
+            folder_path (Union[str, pathlib.Path]): The folder path to export the scenario to.
         """
         from ... import core as tp
 

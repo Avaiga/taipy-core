@@ -100,8 +100,8 @@ class JSONDataNode(DataNode):
             edit_in_progress,
             **properties,
         )
-        self._decoder = self._properties.get(self._DECODER_KEY, DefaultJSONDecoder)
-        self._encoder = self._properties.get(self._ENCODER_KEY, DefaultJSONEncoder)
+        self._decoder = self._properties.get(self._DECODER_KEY, _DefaultJSONDecoder)
+        self._encoder = self._properties.get(self._ENCODER_KEY, _DefaultJSONEncoder)
 
         if not self._last_edit_date and isfile(self._path):  # type: ignore
             self.unlock_edit()
@@ -147,7 +147,7 @@ class JSONDataNode(DataNode):
             json.dump(data, f, indent=4, cls=self._encoder)
 
 
-class DefaultJSONEncoder(json.JSONEncoder):
+class _DefaultJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Enum):
             return {
@@ -167,7 +167,7 @@ class DefaultJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-class DefaultJSONDecoder(json.JSONDecoder):
+class _DefaultJSONDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
 
