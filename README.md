@@ -1,4 +1,5 @@
 # Taipy Core
+![tests](https://github.com/Avaiga/taipy-core/blob/develop/.github/workflows/tests.yml/badge.svg)
 
 ## License
 Copyright 2022 Avaiga Private Limited
@@ -12,13 +13,14 @@ an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express o
 specific language governing permissions and limitations under the License.
 
 ## Usage
-- [License](#license)
-- [Usage](#usage)
-- [Taipy Core](#what-is-taipy-core)
-- [Installation](#installation)
-- [Contributing](#contributing)
-- [Code of conduct](#code-of-conduct)
-- [Directory Structure](#directory-structure)
+- [Taipy Core](#taipy-core)
+  - [License](#license)
+  - [Usage](#usage)
+  - [What is Taipy Core](#what-is-taipy-core)
+  - [Installation](#installation)
+  - [Contributing](#contributing)
+  - [Code of conduct](#code-of-conduct)
+  - [Directory Structure](#directory-structure)
 
 ## What is Taipy Core
 
