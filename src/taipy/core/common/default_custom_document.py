@@ -13,7 +13,7 @@ from taipy.config.common._validate_id import _validate_id
 
 
 class DefaultCustomDocument:
-    """The default \"custom_document\" property to configure a `MongoCollectionDataNode^`.
+    """The default class for \"custom_document\" property to configure a `MongoCollectionDataNode^`.
 
     Attributes:
         **kwargs: Attributes of the DefaultCustomDocument object.
