@@ -43,7 +43,7 @@ class MongoCollectionDataNode(DataNode):
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"db_name"_, _"collection_name"_, and _"custom_document"_.
+            _properties_ parameter must at least contain an entry for _"db_name"_ and _"collection_name"_.
     """
 
     __STORAGE_TYPE = "mongo_collection"
