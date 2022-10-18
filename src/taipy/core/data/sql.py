@@ -16,10 +16,10 @@ from taipy.config.common.scope import Scope
 
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty
-from .abstract_sql import AbstractSQLDataNode
+from .abstract_sql import _AbstractSQLDataNode
 
 
-class SQLDataNode(AbstractSQLDataNode):
+class SQLDataNode(_AbstractSQLDataNode):
     """Data Node stored in a SQL database.
 
     Attributes:
