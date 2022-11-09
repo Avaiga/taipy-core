@@ -14,9 +14,9 @@
 The Taipy Core package is a Python library designed to build powerful and customized data-driven back-end
 applications. It provides the necessary tools to help Python developers transform their algorithms into a
 complete back-end application.
-More details on the [Taipy Core](../../../manuals/core/) functionalities are available on the user manual.
+More details on the [Taipy Core](../../../manuals/core/) functionalities are available in the user manual.
 
-To build a Taipy Core application, the first step consist in setting up the Taipy configuration to design the
+To build a Taipy Core application, the first step consists of setting up the Taipy configuration to design the
 characteristics and the behavior of your application.
 Import `Config^` from the `taipy.config^` module, then use the various methods of the `Config^` singleton class to
 configure your core application. In particular configure the [data nodes](../../../manuals/core/config/data-node-config,
@@ -31,9 +31,9 @@ in the following [function](./#functions) section. In particular, the most used 
 !!! Note
 
     Taipy Core provides a runnable service `Core^`. can run as a service in a dedicated thread. The purpose is to
-    have a dedicated thread responsible for dispatching the submitted jobs to an available executor for its execution.
+    have a dedicated thread responsible for dispatching the submitted jobs to an available executor for their execution.
 
-    In particular this `Core^` service is automatically run when Core is used with taipy-rest or taipy-gui. See
+    In particular, this `Core^` service is automatically run when Core is used with taipy-rest or taipy-gui. See
     [running services](../../../manuals/running_services/) page of the user manual for more details.
 
 """
