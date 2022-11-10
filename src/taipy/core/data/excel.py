@@ -47,6 +47,7 @@ class ExcelDataNode(DataNode):
         parent_ids (Optional[Set[str]]): The identifiers of the parent tasks or `None`.
         last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
+        version (str): The string indicates the version number of the config. The default version is "latest".
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data node is
@@ -86,6 +87,7 @@ class ExcelDataNode(DataNode):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        version: str = "latest",
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -121,6 +123,7 @@ class ExcelDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
+            version,
             cacheable,
             validity_period,
             edit_in_progress,

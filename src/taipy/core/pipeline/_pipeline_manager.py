@@ -12,6 +12,7 @@
 from functools import partial
 from typing import Any, Callable, List, Optional, Union
 
+from taipy.config import Config
 from taipy.config.common.scope import Scope
 
 from .._manager._manager import _Manager
@@ -85,6 +86,7 @@ class _PipelineManager(_Manager[Pipeline]):
         if pipelines_from_owner := cls._repository._get_by_config_and_owner_id(str(pipeline_config.id), owner_id):
             return pipelines_from_owner
 
+        version = Config.global_config.get("version", "latest")
         pipeline = Pipeline(
             str(pipeline_config.id),  # type: ignore
             dict(**pipeline_config._properties),
@@ -92,6 +94,7 @@ class _PipelineManager(_Manager[Pipeline]):
             pipeline_id,
             owner_id,
             {scenario_id} if scenario_id else None,
+            version=version,
         )
         for task in tasks:
             task._parent_ids.update([pipeline_id])

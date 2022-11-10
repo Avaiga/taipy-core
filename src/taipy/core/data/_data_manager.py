@@ -12,6 +12,7 @@
 import os
 from typing import Dict, Iterable, Optional, Set, Union
 
+from taipy.config import Config
 from taipy.config.common.scope import Scope
 
 from .._manager._manager import _Manager
@@ -64,6 +65,7 @@ class _DataManager(_Manager[DataNode]):
         cls, data_node_config: DataNodeConfig, owner_id: Optional[str], parent_ids: Optional[Set[str]]
     ) -> DataNode:
         try:
+            version = Config.global_config.get("version", "latest")
             props = data_node_config._properties.copy()
             validity_period = props.pop("validity_period", None)
             return cls.__DATA_NODE_CLASS_MAP[data_node_config.storage_type](  # type: ignore
@@ -71,6 +73,7 @@ class _DataManager(_Manager[DataNode]):
                 scope=data_node_config.scope or DataNodeConfig._DEFAULT_SCOPE,
                 owner_id=owner_id,
                 parent_ids=parent_ids,
+                version=version,
                 cacheable=data_node_config.cacheable,
                 validity_period=validity_period,
                 properties=props,

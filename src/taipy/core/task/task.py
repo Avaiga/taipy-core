@@ -37,6 +37,7 @@ class Task(_Entity):
         id (str): The unique identifier of the task.
         owner_id (str):  The identifier of the owner (pipeline_id, scenario_id, cycle_id) or None.
         parent_ids (Optional[Set[str]]): The set of identifiers of the parent pipelines.
+        version (str): The string indicates the version number of the config. The default version is "latest".
     """
 
     _ID_PREFIX = "TASK"
@@ -52,6 +53,7 @@ class Task(_Entity):
         id: TaskId = None,
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
+        version: str = "latest",
     ):
         self.config_id = _validate_id(config_id)
         self.id = id or TaskId(self.__ID_SEPARATOR.join([self._ID_PREFIX, self.config_id, str(uuid.uuid4())]))
@@ -60,6 +62,7 @@ class Task(_Entity):
         self.__input = {dn.config_id: dn for dn in input or []}
         self.__output = {dn.config_id: dn for dn in output or []}
         self._function = function
+        self._version = version
 
     @property  # type: ignore
     def parent_id(self):
@@ -138,6 +141,10 @@ class Task(_Entity):
         data_nodes = list(self.__input.values()) + list(self.__output.values())
         scope = min(dn.scope for dn in data_nodes) if len(data_nodes) != 0 else Scope.GLOBAL
         return Scope(scope)
+
+    @property  # type: ignore
+    def version(self):
+        return self._version
 
     def submit(
         self,
