@@ -65,7 +65,7 @@ class _DataManager(_Manager[DataNode]):
         cls, data_node_config: DataNodeConfig, owner_id: Optional[str], parent_ids: Optional[Set[str]]
     ) -> DataNode:
         try:
-            version = Config.global_config.get("version", "latest")
+            version = Config.global_config.version or "latest"
             props = data_node_config._properties.copy()
             validity_period = props.pop("validity_period", None)
             return cls.__DATA_NODE_CLASS_MAP[data_node_config.storage_type](  # type: ignore
