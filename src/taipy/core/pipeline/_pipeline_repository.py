@@ -50,6 +50,7 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
             pipeline._properties.data,
             self.__to_task_ids(pipeline._tasks),
             _utils._fcts_to_dict(pipeline._subscribers),
+            pipeline.version,
         )
 
     def _from_model(self, model: _PipelineModel) -> Pipeline:
@@ -65,6 +66,7 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
                     _Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
                     for it in model.subscribers
                 ],  # type: ignore
+                model.version,
             )
             return pipeline
         except NonExistingTask as err:
