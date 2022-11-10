@@ -135,7 +135,9 @@ def current_datetime():
 
 @pytest.fixture(scope="function")
 def scenario(cycle):
-    return Scenario("sc", [], {}, ScenarioId("sc_id"), current_time, is_primary=False, tags={"foo"}, cycle=None)
+    return Scenario(
+        "sc", [], {}, ScenarioId("sc_id"), current_time, is_primary=False, tags={"foo"}, version="", cycle=None
+    )
 
 
 @pytest.fixture(scope="function")
@@ -160,6 +162,7 @@ def scenario_model(cycle):
         primary_scenario=False,
         subscribers=[],
         tags=["foo"],
+        version="",
         cycle=None,
     )
 
@@ -187,6 +190,7 @@ def pipeline():
         PipelineId("pipeline_id"),
         owner_id="owner_id",
         parent_ids=set(["parent_id_1", "parent_id_2"]),
+        version="",
     )
 
 
@@ -206,7 +210,7 @@ def cycle_model():
 @pytest.fixture(scope="class")
 def pipeline_model():
     return _PipelineModel(
-        PipelineId("pipeline_id"), "owner_id", list({"parent_id_1", "parent_id_2"}), "pipeline", {}, [], []
+        PipelineId("pipeline_id"), "owner_id", list({"parent_id_1", "parent_id_2"}), "pipeline", {}, [], [], ""
     )
 
 
