@@ -9,7 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import csv
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional, Set
@@ -25,8 +24,8 @@ from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from .data_node import DataNode
 
 
-class CSVDataNode(DataNode):
-    """Data Node stored as a CSV file.
+class ParquetDataNode(DataNode):
+    """Data Node stored as a Parquet file.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. This string must be a valid
@@ -44,16 +43,18 @@ class CSVDataNode(DataNode):
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
-        path (str): The path to the CSV file.
+        path (str): The path to the Parquet file.
         properties (dict[str, Any]): A dictionary of additional properties. The _properties_
-            must have a _"default_path"_ or _"path"_ entry with the path of the CSV file:
+            must have a _"default_path"_ or _"path"_ entry with the path of the Parquet file:
 
-            - _"default_path"_ `(str)`: The default path of the CSV file.\n
-            - _"has_header"_ `(bool)`: If True, indicates that the CSV file has a header.\n
-            - _"exposed_type"_: The exposed type of the data read from CSV file. The default value is `pandas`.\n
+            - _"default_path"_ `(str)`: The default path of the Parquet file.\n
+            - _"columns"_ `(Optional[List[str]])`: If not None, only these columns will be read from the file.
+            The default value is None. Does not apply to writing to the file.\n
+            - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
+            `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
     """
 
-    __STORAGE_TYPE = "csv"
+    __STORAGE_TYPE = "parquet"
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __EXPOSED_TYPE_NUMPY = "numpy"
     __EXPOSED_TYPE_PANDAS = "pandas"
@@ -61,7 +62,8 @@ class CSVDataNode(DataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
-    __HAS_HEADER_PROPERTY = "has_header"
+    __COLUMNS_PROPERTY = "columns"
+    __COMPRESSION_PROPERTY = "compression"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -86,12 +88,15 @@ class CSVDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        if self.__HAS_HEADER_PROPERTY not in properties.keys():
-            properties[self.__HAS_HEADER_PROPERTY] = True
+        if self.__COLUMNS_PROPERTY not in properties.keys():
+            properties[self.__COLUMNS_PROPERTY] = None
+
+        if self.__COMPRESSION_PROPERTY not in properties.keys():
+            ...
 
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if self._path is None:
-            raise MissingRequiredProperty("default_path is required in a CSV data node config")
+            raise MissingRequiredProperty("default_path is required in a Parquet data node config")
         else:
             properties[self.__PATH_KEY] = self._path
 
@@ -131,9 +136,9 @@ class CSVDataNode(DataNode):
         self.properties[self.__PATH_KEY] = value
 
     def _check_exposed_type(self, exposed_type):
-        if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
+        if exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
             raise InvalidExposedType(
-                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+                f"Invalid exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
     def _read(self):
@@ -143,76 +148,19 @@ class CSVDataNode(DataNode):
             return self._read_as_modin_dataframe()
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
             return self._read_as_numpy()
-        return self._read_as()
-
-    def _read_as(self):
-        custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
-        with open(self._path) as csvFile:
-            res = list()
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                reader = csv.DictReader(csvFile)
-                for line in reader:
-                    res.append(custom_class(**line))
-            else:
-                reader = csv.reader(
-                    csvFile,
-                )
-                for line in reader:
-                    res.append(custom_class(*line))
-            return res
 
     def _read_as_numpy(self):
         return self._read_as_pandas_dataframe().to_numpy()
 
-    def _read_as_pandas_dataframe(
-        self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None
-    ) -> pd.DataFrame:
-        try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return pd.read_csv(self._path)[column_names]
-                return pd.read_csv(self._path)
-            else:
-                if usecols:
-                    return pd.read_csv(self._path, header=None, usecols=usecols)
-                return pd.read_csv(self._path, header=None)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame()
+    def _read_as_pandas_dataframe(self) -> pd.DataFrame:
+        return pd.read_parquet(self._path, columns=self.properties[self.__COLUMNS_PROPERTY])
 
-    def _read_as_modin_dataframe(
-        self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None
-    ) -> modin_pd.DataFrame:
-        try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return modin_pd.read_csv(self._path)[column_names]
-                return modin_pd.read_csv(self._path)
-            else:
-                if usecols:
-                    return modin_pd.read_csv(self._path, header=None, usecols=usecols)
-                return modin_pd.read_csv(self._path, header=None)
-        except pd.errors.EmptyDataError:
-            return modin_pd.DataFrame()
+    def _read_as_modin_dataframe(self) -> modin_pd.DataFrame:
+        return modin_pd.read_parquet(self._path, columns=self.properties[self.__COLUMNS_PROPERTY])
 
     def _write(self, data: Any):
-        if isinstance(data, (pd.DataFrame, modin_pd.DataFrame)):
-            data.to_csv(self._path, index=False)
-        else:
-            pd.DataFrame(data).to_csv(self._path, index=False)
-
-    def write_with_column_names(self, data: Any, columns: List[str] = None, job_id: Optional[JobId] = None):
-        """Write a selection of columns.
-
-        Parameters:
-            data (Any): The data to write.
-            columns (List[str]): The list of column names to write.
-            job_id (JobId^): An optional identifier of the writer.
-        """
-        if not columns:
-            df = pd.DataFrame(data)
-        else:
-            df = pd.DataFrame(data, columns=columns)
-        df.to_csv(self._path, index=False)
-        self._last_edit_date = datetime.now()
-        if job_id:
-            self.job_ids.append(job_id)
+        kwargs = {}
+        compression = self.properties.get(self.__COMPRESSION_PROPERTY)
+        if compression is not None:
+            kwargs["compression"] = compression
+        pd.DataFrame(data).to_parquet(self._path, **kwargs)
