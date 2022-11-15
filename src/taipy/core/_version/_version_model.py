@@ -25,6 +25,6 @@ class _VersionModel:
     @staticmethod
     def from_dict(data: Dict[str, Any]):
         return _VersionModel(
-            id=data["version"],
+            id=data["id"],
             config=data["config"],
         )

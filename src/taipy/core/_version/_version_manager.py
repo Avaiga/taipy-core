@@ -18,12 +18,14 @@ from ._version_repository_factory import _VersionRepositoryFactory
 
 
 class _VersionManager(_Manager[_Version]):
-    _repository: _VersionRepositoryFactory._build_repository()  # type: ignore
+    _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
 
     @classmethod
     def _create(cls, id: str, config: Config) -> _Version:
         if cls._get(id) is not None:
             raise VersionAlreadyExists(f"Version {id} already exists")
+
+        # TODO: replace with config export to new format
         version = _Version(id=id, config=config)
         cls._set(version)
 
