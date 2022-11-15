@@ -9,16 +9,11 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.config import Config
+from src.taipy.core._version._version import _Version
+from taipy.config.config import Config
 
-from ..common._entity import _Entity
 
-
-class _Version(_Entity):
-    def __init__(self, id: str, config: Config) -> None:
-        self.id = id
-        self.config = config
-
-    def __eq__(self, other):
-        # TODO: add config to comparison
-        return self.id == other.id
+def test_create_version():
+    v = _Version("foo", config=Config.configure_global_app())
+    assert v.id == "foo"
+    assert v.config is not None
