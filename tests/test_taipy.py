@@ -18,6 +18,7 @@ from unittest import mock
 import pytest
 
 import src.taipy.core.taipy as tp
+from src.taipy.core import Core
 from src.taipy.core.common.alias import CycleId, JobId, PipelineId, ScenarioId, TaskId
 from src.taipy.core.config.job_config import JobConfig
 from src.taipy.core.config.pipeline_config import PipelineConfig
@@ -240,38 +241,6 @@ class TestTaipy:
             tp.cancel_job("job_id")
             mck.assert_called_once_with("job_id")
 
-    def test_block_config_when_core_is_running_in_standalone_mode(self):
-        Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE)
-
-        input_cfg_1 = Config.configure_data_node(id="i1", storage_type="pickle", default_data=1, scope=Scope.PIPELINE)
-        output_cfg_1 = Config.configure_data_node(id="o1", storage_type="pickle", scope=Scope.PIPELINE)
-        task_cfg_1 = Config.configure_task("t1", print, input_cfg_1, output_cfg_1)
-        pipeline_cfg_1 = Config.configure_pipeline("p1", task_cfg_1)
-        scenario_cfg_1 = Config.configure_scenario("s1", pipeline_cfg_1, Frequency.DAILY)
-
-        input_cfg_2 = Config.configure_data_node(id="i2", storage_type="pickle", default_data=2, scope=Scope.SCENARIO)
-        output_cfg_2 = Config.configure_data_node(id="o2", storage_type="pickle", scope=Scope.SCENARIO)
-        task_cfg_2 = Config.configure_task("t2", print, input_cfg_2, output_cfg_2)
-        pipeline_cfg_2 = Config.configure_pipeline("p2", task_cfg_2)
-        scenario_cfg_2 = Config.configure_scenario("s2", pipeline_cfg_2, Frequency.DAILY)
-
-        scenario_1 = tp.create_scenario(scenario_cfg_1)
-        scenario_2 = tp.create_scenario(scenario_cfg_2)
-
-        print("Before submit job 1")
-        job_1 = tp.submit(scenario_1)  # A Job dispatcher is created
-        job_1 = job_1[scenario_1.p1.id][0]
-        print("After submit job 1")
-        # When the job is finished, the job dispatcher is deleted.
-
-        print("Before submit job 2")
-        job_2 = tp.submit(scenario_2)
-        job_2 = job_2[scenario_2.p2.id][0]
-        print("After submit job 2")
-
-        with pytest.raises(ConfigurationUpdateBlocked):
-            scenario_3_config = Config.configure_scenario("my_scenario_3", pipeline_cfg_2)
-
     def test_block_config_when_core_is_running_in_development_mode(self):
         Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
@@ -281,28 +250,28 @@ class TestTaipy:
         pipeline_cfg_1 = Config.configure_pipeline("p1", task_cfg_1)
         scenario_cfg_1 = Config.configure_scenario("s1", pipeline_cfg_1, Frequency.DAILY)
 
-        input_cfg_2 = Config.configure_data_node(id="i2", storage_type="pickle", default_data=2, scope=Scope.SCENARIO)
-        output_cfg_2 = Config.configure_data_node(id="o2", storage_type="pickle", scope=Scope.SCENARIO)
-        task_cfg_2 = Config.configure_task("t2", print, input_cfg_2, output_cfg_2)
-        pipeline_cfg_2 = Config.configure_pipeline("p2", task_cfg_2)
-        scenario_cfg_2 = Config.configure_scenario("s2", pipeline_cfg_2, Frequency.DAILY)
-
         scenario_1 = tp.create_scenario(scenario_cfg_1)
-        scenario_2 = tp.create_scenario(scenario_cfg_2)
-
-        print("Before submit job 1")
-        job_1 = tp.submit(scenario_1)  # A Job dispatcher is created
-        job_1 = job_1[scenario_1.p1.id][0]
-        print("After submit job 1")
-        # When the job is finished, the job dispatcher is deleted.
-
-        print("Before submit job 2")
-        job_2 = tp.submit(scenario_2)
-        job_2 = job_2[scenario_2.p2.id][0]
-        print("After submit job 2")
+        tp.submit(scenario_1)
 
         with pytest.raises(ConfigurationUpdateBlocked):
-            scenario_3_config = Config.configure_scenario("my_scenario_3", pipeline_cfg_2)
+            blocked_scenario_config = Config.configure_scenario("block_scenario", pipeline_cfg_1)
+
+    def test_block_config_when_core_is_running_in_standalone_mode(self):
+        Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE)
+
+        input_cfg_1 = Config.configure_data_node(id="i1", storage_type="pickle", default_data=1, scope=Scope.PIPELINE)
+        output_cfg_1 = Config.configure_data_node(id="o1", storage_type="pickle", scope=Scope.PIPELINE)
+        task_cfg_1 = Config.configure_task("t1", print, input_cfg_1, output_cfg_1)
+        pipeline_cfg_1 = Config.configure_pipeline("p1", task_cfg_1)
+        scenario_cfg_1 = Config.configure_scenario("s1", pipeline_cfg_1, Frequency.DAILY)
+
+        Core().run()
+
+        scenario_1 = tp.create_scenario(scenario_cfg_1)
+        tp.submit(scenario_1)
+
+        with pytest.raises(ConfigurationUpdateBlocked):
+            blocked_scenario_config = Config.configure_scenario("block_scenario", pipeline_cfg_1)
 
     def test_get_data_node(self, data_node):
         with mock.patch("src.taipy.core.data._data_manager._DataManager._get") as mck:

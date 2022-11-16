@@ -40,7 +40,6 @@ class TestCore:
         assert isinstance(_SchedulerFactory._dispatcher, _DevelopmentJobDispatcher)
 
     def test_run_core_as_a_service_standalone_mode(self):
-        # The test is failed because the job dispatcher is not deleted after core.run() from previous function
         _SchedulerFactory._dispatcher = None
 
         core = Core()
@@ -61,21 +60,19 @@ class TestCore:
         assert _SchedulerFactory._dispatcher.is_running()
 
     def test_block_config_update_when_core_service_is_running_development_mode(self):
-        # The test is failed because the job dispatcher is not deleted after core.run() from previous function
         _SchedulerFactory._dispatcher = None
 
         core = Core()
         Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
         core.run()
         with pytest.raises(ConfigurationUpdateBlocked):
-            input_cfg_1 = Config.configure_data_node(id="i1")
+            blocked_config = Config.configure_data_node(id="i1")
 
     def test_block_config_update_when_core_service_is_running_standalone_mode(self):
-        # The test is failed because the job dispatcher is not deleted after core.run() from previous function
         _SchedulerFactory._dispatcher = None
 
         core = Core()
         Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE, max_nb_of_workers=2)
         core.run()
         with pytest.raises(ConfigurationUpdateBlocked):
-            input_cfg_1 = Config.configure_data_node(id="i1")
+            blocked_config = Config.configure_data_node(id="i1")
