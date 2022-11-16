@@ -42,7 +42,6 @@ class _JobDispatcher(threading.Thread):
         threading.Thread.__init__(self, name="Thread-Taipy-JobDispatcher")
         self.daemon = True
         self.scheduler = scheduler
-        print("dispatcher is created")
         Config.block_update()
 
     def start(self):
