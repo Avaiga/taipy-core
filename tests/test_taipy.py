@@ -329,6 +329,9 @@ class TestTaipy:
         assert len(_CycleManager._get_all()) == 1
         assert len(_JobManager._get_all()) == 1
 
+        # Temporarily unblock config update to test config global app
+        Config.unblock_update()
+
         # Test with clean entities disabled
         Config.configure_global_app(clean_entities_enabled=False)
         success = tp.clean_all_entities()
