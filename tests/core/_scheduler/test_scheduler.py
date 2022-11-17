@@ -34,6 +34,7 @@ from src.taipy.core.task.task import Task
 from taipy.config import Config
 from taipy.config._config import _Config
 from taipy.config.common.scope import Scope
+from taipy.config.exceptions.exceptions import ConfigurationUpdateBlocked
 from tests.core.utils import assert_true_after_1_minute_max
 
 
@@ -501,6 +502,46 @@ def test_can_exec_task_with_modified_config():
         jobs[0].is_completed
     )  # If the job is completed, that means the asserts in the task are successful
     taipy.clean_all_entities()
+
+
+def update_config_task(n):
+    from taipy.config import Config
+
+    # The exception will be saved to logger, and there is no way to check for it
+    # so it will be checked here
+    with pytest.raises(ConfigurationUpdateBlocked):
+        Config.global_config.storage_folder = ".new_storage_folder/"
+    with pytest.raises(ConfigurationUpdateBlocked):
+        Config.global_config.properties = {"custom_property": "new_custom_property"}
+
+    Config.global_config.storage_folder = ".new_storage_folder/"
+    Config.global_config.properties = {"custom_property": "new_custom_property"}
+
+    return n * 2
+
+
+def test_cannot_exec_task_that_update_config():
+    """
+    _ConfigBlocker singleton is not passed to the subprocesses. That means in each subprocess,
+    the config update will not be blocked.
+
+    After rebuilding a new Config in each subprocess, the Config should be blocked.
+    """
+    Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE, max_nb_of_workers=2)
+
+    dn_input_config = Config.configure_data_node("input", "pickle", scope=Scope.PIPELINE, default_data=1)
+    dn_output_config = Config.configure_data_node("output", "pickle")
+    task_config = Config.configure_task("task_config", update_config_task, dn_input_config, dn_output_config)
+    pipeline_config = Config.configure_pipeline("pipeline_config", [task_config])
+
+    _SchedulerFactory._build_dispatcher()
+
+    pipeline = _PipelineManager._get_or_create(pipeline_config)
+
+    jobs = pipeline.submit()
+
+    # The job should fail due to an exception is raised
+    assert_true_after_1_minute_max(jobs[0].is_failed)
 
 
 def test_can_execute_task_with_development_mode():
