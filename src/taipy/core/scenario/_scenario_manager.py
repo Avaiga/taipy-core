@@ -107,7 +107,7 @@ class _ScenarioManager(_Manager[Scenario]):
         props = config._properties.copy()
         if name:
             props["name"] = name
-        version = Config.global_config.version or "latest"
+        version = Version.get_version()
         scenario = Scenario(
             str(config.id),  # type: ignore
             pipelines,
