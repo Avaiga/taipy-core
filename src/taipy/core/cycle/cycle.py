@@ -15,6 +15,7 @@ from typing import Any, Dict
 
 from taipy.config.common.frequency import Frequency
 
+from .._version._version import _Version
 from ..common._entity import _Entity
 from ..common._get_valid_filename import _get_valid_filename
 from ..common._properties import _Properties
@@ -57,7 +58,7 @@ class Cycle(_Entity):
         self._end_date = end_date
         self._name = self._new_name(name)
         self.id = id or self._new_id(self._name)
-        self._version = version or Version.get_version()
+        self._version = version or _Version.get_version()
         self._properties = _Properties(self, **properties)
 
     def _new_name(self, name: str = None) -> str:

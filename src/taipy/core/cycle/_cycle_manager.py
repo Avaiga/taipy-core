@@ -16,6 +16,7 @@ from typing import Optional
 from taipy.config.common.frequency import Frequency
 
 from .._manager._manager import _Manager
+from .._version._version import _Version
 from ..common._entity_ids import _EntityIds
 from ..common.alias import CycleId
 from ..job._job_manager_factory import _JobManagerFactory
@@ -35,7 +36,7 @@ class _CycleManager(_Manager[Cycle]):
         start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date)
         end_date = _CycleManager._get_end_date_of_cycle(frequency, start_date)
         properties["display_name"] = display_name if display_name else start_date.isoformat()
-        version = Version.get_version()
+        version = _Version.get_version()
         cycle = Cycle(
             frequency,
             properties,

@@ -20,6 +20,7 @@ from openpyxl import load_workbook
 
 from taipy.config.common.scope import Scope
 
+from .._version._version import _Version
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import (
@@ -123,7 +124,7 @@ class ExcelDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
-            version or Version.get_version(),
+            version or _Version.get_version(),
             cacheable,
             validity_period,
             edit_in_progress,

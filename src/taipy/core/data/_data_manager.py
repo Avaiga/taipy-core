@@ -16,6 +16,7 @@ from taipy.config import Config
 from taipy.config.common.scope import Scope
 
 from .._manager._manager import _Manager
+from .._version._version import _Version
 from ..common.alias import DataNodeId, PipelineId, ScenarioId, TaskId
 from ..config.data_node_config import DataNodeConfig
 from ..exceptions.exceptions import InvalidDataNodeType
@@ -65,7 +66,7 @@ class _DataManager(_Manager[DataNode]):
         cls, data_node_config: DataNodeConfig, owner_id: Optional[str], parent_ids: Optional[Set[str]]
     ) -> DataNode:
         try:
-            version = Version.get_version()
+            version = _Version.get_version()
             props = data_node_config._properties.copy()
             validity_period = props.pop("validity_period", None)
             return cls.__DATA_NODE_CLASS_MAP[data_node_config.storage_type](  # type: ignore
