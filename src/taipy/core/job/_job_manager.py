@@ -28,8 +28,13 @@ class _JobManager(_Manager[Job]):
 
     @classmethod
     def _create(cls, task: Task, callbacks: Iterable[Callable], submit_id: str, force=False) -> Job:
+        version = Version.get_version()
         job = Job(
-            id=JobId(f"{cls._ID_PREFIX}{task.config_id}_{uuid.uuid4()}"), task=task, submit_id=submit_id, force=force
+            id=JobId(f"{cls._ID_PREFIX}{task.config_id}_{uuid.uuid4()}"),
+            task=task,
+            submit_id=submit_id,
+            force=force,
+            version=version,
         )
         cls._set(job)
         job._on_status_change(*callbacks)
