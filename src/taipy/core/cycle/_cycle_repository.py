@@ -38,7 +38,6 @@ class _CycleRepository(_AbstractRepository[_CycleModel, Cycle]):  # type: ignore
             creation_date=cycle._creation_date.isoformat(),
             start_date=cycle._start_date.isoformat(),
             end_date=cycle._end_date.isoformat(),
-            version=scenario.version,
             properties=cycle._properties.data,
         )
 
@@ -51,7 +50,6 @@ class _CycleRepository(_AbstractRepository[_CycleModel, Cycle]):  # type: ignore
             creation_date=datetime.fromisoformat(model.creation_date),
             start_date=datetime.fromisoformat(model.start_date),
             end_date=datetime.fromisoformat(model.end_date),
-            version=model.version,
         )
 
     def load(self, model_id: str) -> Cycle:

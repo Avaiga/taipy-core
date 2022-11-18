@@ -36,15 +36,8 @@ class _CycleManager(_Manager[Cycle]):
         start_date = _CycleManager._get_start_date_of_cycle(frequency, creation_date)
         end_date = _CycleManager._get_end_date_of_cycle(frequency, start_date)
         properties["display_name"] = display_name if display_name else start_date.isoformat()
-        version = _Version.get_version()
         cycle = Cycle(
-            frequency,
-            properties,
-            creation_date=creation_date,
-            start_date=start_date,
-            end_date=end_date,
-            name=name,
-            version=version,
+            frequency, properties, creation_date=creation_date, start_date=start_date, end_date=end_date, name=name
         )
         cls._set(cycle)
         return cycle
