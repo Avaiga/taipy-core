@@ -165,3 +165,43 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
     assert Config.data_nodes[data_node_id].cacheable == False
     assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+
+
+def test_block_datanode_config_update_in_standalone_mode():
+    data_node_id = "data_node_id"
+    Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE)
+    data_node_config = Config.configure_data_node(
+        id=data_node_id,
+        storage_type="pickle",
+        default_path="foo.p",
+        scope=Scope.SCENARIO,
+        cacheable=False,
+    )
+
+    assert Config.data_nodes[data_node_id].id == data_node_id
+    assert Config.data_nodes[data_node_id].default_path == "foo.p"
+    assert Config.data_nodes[data_node_id].storage_type == "pickle"
+    assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
+    assert Config.data_nodes[data_node_id].cacheable == False
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+
+    _SchedulerFactory._build_dispatcher()
+
+    with pytest.raises(ConfigurationUpdateBlocked):
+        data_node_config.storage_type = "foo"
+
+    with pytest.raises(ConfigurationUpdateBlocked):
+        data_node_config.scope = Scope.PIPELINE
+
+    with pytest.raises(ConfigurationUpdateBlocked):
+        data_node_config.cacheable = True
+
+    with pytest.raises(ConfigurationUpdateBlocked):
+        data_node_config.properties = {"foo": "bar"}
+
+    assert Config.data_nodes[data_node_id].id == data_node_id
+    assert Config.data_nodes[data_node_id].default_path == "foo.p"
+    assert Config.data_nodes[data_node_id].storage_type == "pickle"
+    assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
+    assert Config.data_nodes[data_node_id].cacheable == False
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
