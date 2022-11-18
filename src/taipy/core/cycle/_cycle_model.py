@@ -27,6 +27,7 @@ class _CycleModel:
     creation_date: str
     start_date: str
     end_date: str
+    version: str
 
     def to_dict(self) -> Dict[str, Any]:
         return {**dataclasses.asdict(self), "frequency": repr(self.frequency)}
@@ -41,4 +42,5 @@ class _CycleModel:
             creation_date=data["creation_date"],
             start_date=data["start_date"],
             end_date=data["end_date"],
+            version=data["version"],
         )

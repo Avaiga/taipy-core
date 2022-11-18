@@ -107,7 +107,6 @@ class _ScenarioManager(_Manager[Scenario]):
         props = config._properties.copy()
         if name:
             props["name"] = name
-        version = Version.get_version()
         scenario = Scenario(
             str(config.id),  # type: ignore
             pipelines,
@@ -116,7 +115,6 @@ class _ScenarioManager(_Manager[Scenario]):
             creation_date,
             is_primary=is_primary_scenario,
             cycle=cycle,
-            version=version,
         )
         for pipeline in pipelines:
             pipeline._parent_ids.update([scenario_id])

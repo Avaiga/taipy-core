@@ -32,6 +32,7 @@ class Cycle(_Entity):
         start_date (datetime): The date and time of the start of this cycle.
         end_date (datetime): The date and time of the end of this cycle.
         name (str): The name of this cycle.
+        version (str): The string indicates the application version of the cycle to instantiate. If not provided, the current version is used.
         properties (dict[str, Any]): A dictionary of additional properties.
     """
 
@@ -48,6 +49,7 @@ class Cycle(_Entity):
         end_date: datetime,
         name: str = None,
         id: CycleId = None,
+        version: str = None,
     ):
         self._frequency = frequency
         self._creation_date = creation_date
@@ -55,6 +57,7 @@ class Cycle(_Entity):
         self._end_date = end_date
         self._name = self._new_name(name)
         self.id = id or self._new_id(self._name)
+        self._version = version or Version.get_version()
         self._properties = _Properties(self, **properties)
 
     def _new_name(self, name: str = None) -> str:
@@ -109,6 +112,10 @@ class Cycle(_Entity):
     @_self_setter(_MANAGER_NAME)
     def name(self, val):
         self._name = val
+
+    @property  # type: ignore
+    def version(self):
+        return self._version
 
     @property  # type: ignore
     def properties(self):
