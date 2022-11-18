@@ -15,7 +15,6 @@ from typing import Any, Dict
 
 from taipy.config.common.frequency import Frequency
 
-from .._version._version import _Version
 from ..common._entity import _Entity
 from ..common._get_valid_filename import _get_valid_filename
 from ..common._properties import _Properties

@@ -16,7 +16,6 @@ from typing import Optional
 from taipy.config.common.frequency import Frequency
 
 from .._manager._manager import _Manager
-from .._version._version import _Version
 from ..common._entity_ids import _EntityIds
 from ..common.alias import CycleId
 from ..job._job_manager_factory import _JobManagerFactory
