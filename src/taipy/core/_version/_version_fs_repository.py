@@ -8,7 +8,9 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+from datetime import datetime
 
+from taipy.config.config import Config
 
 from .._repository._filesystem_repository import _FileSystemRepository
 from ._version import _Version
@@ -20,7 +22,11 @@ class _VersionFSRepository(_FileSystemRepository):
         super().__init__(_VersionModel, "version", self._to_model, self._from_model)
 
     def _to_model(self, version: _Version):
-        return _VersionModel(id=version.id, config=version.config)
+        return _VersionModel(
+            id=version.id, config=Config._to_json(version.config), creation_date=version.creation_date.isoformat()
+        )
 
     def _from_model(self, model):
-        return _Version(id=model.id, config=model.config)
+        version = _Version(id=model.id, config=Config._from_json(model.config))
+        version.creation_date = datetime.fromisoformat(model.creation_date)
+        return version

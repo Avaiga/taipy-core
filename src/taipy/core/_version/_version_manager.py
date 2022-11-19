@@ -21,12 +21,11 @@ class _VersionManager(_Manager[_Version]):
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
 
     @classmethod
-    def _create(cls, id: str, config: Config) -> _Version:
+    def create(cls, id: str) -> _Version:
         if cls._get(id) is not None:
             raise VersionAlreadyExists(f"Version {id} already exists")
 
-        # TODO: replace with config export to new format
-        version = _Version(id=id, config=config)
+        version = _Version(id=id, config=Config._applied_config)
         cls._set(version)
 
         return version

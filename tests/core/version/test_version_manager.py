@@ -13,6 +13,7 @@ import pytest
 from src.taipy.core._version._version import _Version
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
+from taipy.config.config import Config
 
 
 def test_save_and_get_version_entity(tmpdir):
@@ -20,14 +21,13 @@ def test_save_and_get_version_entity(tmpdir):
     assert len(_VersionManager._get_all()) == 0
 
     # TODO: replace with config export format
-    version = _Version(id="foo", config={})
+    version = _Version(id="foo", config=Config._applied_config)
 
-    _VersionManager._create(id="foo", config={})
+    _VersionManager.create(id="foo")
 
     version_1 = _VersionManager._get(version.id)
-
     assert version_1.id == version.id
-    assert version_1.config == version.config
+    assert Config._serializer._str(version_1.config) == Config._serializer._str(version.config)
 
     assert len(_VersionManager._get_all()) == 1
     assert _VersionManager._get(version.id) == version
@@ -35,8 +35,8 @@ def test_save_and_get_version_entity(tmpdir):
 
 def test_save_existing_version_should_fail(tmpdir):
     _VersionManager._repository.base_path = tmpdir
-    # TODO: replace with config export format
-    _VersionManager._create(id="foo", config={})
+
+    _VersionManager.create(id="foo")
 
     with pytest.raises(VersionAlreadyExists):
-        _VersionManager._create(id="foo", config={})
+        _VersionManager.create(id="foo")

@@ -18,6 +18,7 @@ from typing import Any, Dict
 class _VersionModel:
     id: str
     config: Dict[str, Any]
+    creation_date: str
 
     def to_dict(self) -> Dict[str, Any]:
         return dataclasses.asdict(self)
@@ -27,4 +28,5 @@ class _VersionModel:
         return _VersionModel(
             id=data["id"],
             config=data["config"],
+            creation_date=data["creation_date"],
         )
