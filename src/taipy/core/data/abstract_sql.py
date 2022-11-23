@@ -18,11 +18,12 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 from sqlalchemy import create_engine, text
+
 from taipy.config.common.scope import Scope
 
-from .data_node import DataNode
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty, UnknownDatabaseEngine
+from .data_node import DataNode
 
 
 class AbstractSQLDataNode(DataNode):
@@ -77,7 +78,7 @@ class AbstractSQLDataNode(DataNode):
             **properties,
         )
         if not self._last_edit_date:
-            self.unlock_edit()
+            self.last_edit_date = datetime.now()  # type: ignore
 
     def __engine(self):
         return self.__create_engine(
