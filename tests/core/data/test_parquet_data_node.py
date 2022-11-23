@@ -70,7 +70,7 @@ class TestParquetDataNode:
         with pytest.raises(InvalidConfigurationId):
             dn = ParquetDataNode("foo bar", Scope.PIPELINE, name="super name", properties={"path": path})
 
-    def test_new_csv_data_node_with_existing_file_is_ready_for_reading(self, parquet_file_path):
+    def test_new_parquet_data_node_with_existing_file_is_ready_for_reading(self, parquet_file_path):
         not_ready_dn_cfg = Config.configure_data_node(
             "not_ready_data_node_config_id", "parquet", path="NOT_EXISTING.parquet"
         )
@@ -167,7 +167,7 @@ class TestParquetDataNode:
         assert all([isinstance(obj, MyOtherCustomObject) for obj in dn.read()])
 
     def test_raise_error_invalid_exposed_type(self):
-        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.parquet")
         with pytest.raises(InvalidExposedType):
             ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path, "exposed_type": "foo"})
 
