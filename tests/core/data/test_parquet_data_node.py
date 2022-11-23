@@ -28,6 +28,23 @@ from taipy.config.config import Config
 from taipy.config.exceptions.exceptions import InvalidConfigurationId
 
 
+class MyCustomObject:
+    def __init__(self, id, integer, text):
+        self.id = id
+        self.integer = integer
+        self.text = text
+
+
+class MyOtherCustomObject:
+    def __init__(self, id, sentence):
+        self.id = id
+        self.sentence = sentence
+
+
+def create_custom_class(**kwargs):
+    return MyOtherCustomObject(id=kwargs["id"], sentence=kwargs["text"])
+
+
 class TestParquetDataNode:
     def test_create(self):
         path = "data/node/path"
@@ -136,12 +153,40 @@ class TestParquetDataNode:
         dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": parquet_file_path, "exposed_type": "numpy"})
         assert isinstance(dn.read(), np.ndarray)
 
+    def test_custom_exposed_type(self):
+        example_parquet_path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.parquet")
+
+        dn = ParquetDataNode(
+            "foo", Scope.PIPELINE, properties={"path": example_parquet_path, "exposed_type": MyCustomObject}
+        )
+        assert all([isinstance(obj, MyCustomObject) for obj in dn.read()])
+
+        dn = ParquetDataNode(
+            "foo", Scope.PIPELINE, properties={"path": example_parquet_path, "exposed_type": create_custom_class}
+        )
+        assert all([isinstance(obj, MyOtherCustomObject) for obj in dn.read()])
+
     def test_raise_error_invalid_exposed_type(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
         with pytest.raises(InvalidExposedType):
             ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path, "exposed_type": "foo"})
-        with pytest.raises(InvalidExposedType):
-            ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path, "exposed_type": lambda row: row})
+
+    def test_read_empty_data(self, tmpdir_factory):
+        temp_file_path = str(tmpdir_factory.mktemp("data").join("temp.parquet"))
+        empty_df = pd.DataFrame([])
+        empty_df.to_parquet(temp_file_path)
+
+        # Pandas
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "exposed_type": "pandas"})
+        assert dn.read().equals(empty_df)
+
+        # Numpy
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "exposed_type": "numpy"})
+        assert np.array_equal(dn.read(), empty_df.to_numpy())
+
+        # Custom
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "exposed_type": MyCustomObject})
+        assert dn.read() == []
 
     def test_get_system_modified_date_instead_of_last_edit_date(self, tmpdir_factory):
         temp_file_path = str(tmpdir_factory.mktemp("data").join("temp.parquet"))

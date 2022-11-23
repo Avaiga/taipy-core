@@ -136,9 +136,9 @@ class ParquetDataNode(DataNode):
         self.properties[self.__PATH_KEY] = value
 
     def _check_exposed_type(self, exposed_type):
-        if exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
+        if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
             raise InvalidExposedType(
-                f"Invalid exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
     def _read(self):
@@ -148,6 +148,12 @@ class ParquetDataNode(DataNode):
             return self._read_as_modin_dataframe()
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
             return self._read_as_numpy()
+        return self._read_as()
+
+    def _read_as(self):
+        custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
+        list_of_dicts = self._read_as_pandas_dataframe().to_dict(orient="records")
+        return [custom_class(**dct) for dct in list_of_dicts]
 
     def _read_as_numpy(self):
         return self._read_as_pandas_dataframe().to_numpy()
