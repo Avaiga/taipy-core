@@ -186,7 +186,7 @@ class _Scheduler(_AbstractScheduler):
         jobs = [jobs] if isinstance(jobs, Job) else jobs
         for job in jobs:
             for dn in job.task.output.values():
-                dn.unlock_edit(at=dn.last_edit_date)
+                dn.unlock_edit()
 
     @classmethod
     def _on_status_change(cls, job: Job):
