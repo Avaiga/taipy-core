@@ -16,11 +16,13 @@ from abc import abstractmethod
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
 
+import modin.pandas as modin_pd
 import pandas as pd
 from sqlalchemy import create_engine, text
 
 from taipy.config.common.scope import Scope
 
+from .._version._version import _Version
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty, UnknownDatabaseEngine
 from .data_node import DataNode
@@ -34,7 +36,8 @@ class _AbstractSQLDataNode(DataNode):
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __EXPOSED_TYPE_NUMPY = "numpy"
     __EXPOSED_TYPE_PANDAS = "pandas"
-    __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY]
+    __EXPOSED_TYPE_MODIN = "modin"
+    __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY, __EXPOSED_TYPE_MODIN]
 
     __DB_NAME_KEY = "db_name"
     __DB_USERNAME_KEY = "db_username"
@@ -83,6 +86,7 @@ class _AbstractSQLDataNode(DataNode):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        version: str = None,
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -105,6 +109,7 @@ class _AbstractSQLDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
+            version or _Version.get_version(),
             cacheable,
             validity_period,
             edit_in_progress,
@@ -178,6 +183,8 @@ class _AbstractSQLDataNode(DataNode):
     def _read(self):
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
             return self._read_as_pandas_dataframe()
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
+            return self._read_as_modin_dataframe()
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
             return self._read_as_numpy()
         return self._read_as()
@@ -195,6 +202,11 @@ class _AbstractSQLDataNode(DataNode):
         if columns:
             return pd.read_sql_query(self._get_read_query(), con=self._get_engine())[columns]
         return pd.read_sql_query(self._get_read_query(), con=self._get_engine())
+
+    def _read_as_modin_dataframe(self, columns: Optional[List[str]] = None):
+        if columns:
+            return modin_pd.read_sql_query(self._get_read_query(), con=self._get_engine())[columns]
+        return modin_pd.read_sql_query(self._get_read_query(), con=self._get_engine())
 
     @abstractmethod
     def _get_read_query(self):

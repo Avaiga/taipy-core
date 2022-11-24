@@ -13,9 +13,10 @@ import datetime
 from functools import partial
 from typing import Any, Callable, List, Optional, Union
 
-from taipy.config.config import Config
+from taipy.config import Config
 
 from .._manager._manager import _Manager
+from .._version._version import _Version
 from ..common._entity_ids import _EntityIds
 from ..common.alias import ScenarioId
 from ..config.scenario_config import ScenarioConfig
@@ -107,6 +108,7 @@ class _ScenarioManager(_Manager[Scenario]):
         props = config._properties.copy()
         if name:
             props["name"] = name
+        version = _Version.get_version()
         scenario = Scenario(
             str(config.id),  # type: ignore
             pipelines,
@@ -115,6 +117,7 @@ class _ScenarioManager(_Manager[Scenario]):
             creation_date,
             is_primary=is_primary_scenario,
             cycle=cycle,
+            version=version,
         )
         for pipeline in pipelines:
             pipeline._parent_ids.update([scenario_id])

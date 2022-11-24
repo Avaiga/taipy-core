@@ -37,7 +37,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
     _CUSTOM_DOCUMENT_KEY = "custom_document"
     _WRITE_QUERY_BUILDER_NAME_KEY = "write_query_builder_name"
     _WRITE_QUERY_BUILDER_MODULE_KEY = "write_query_builder_module"
-    _VALID_STRING_EXPOSED_TYPES = ["numpy", "pandas"]
+    _VALID_STRING_EXPOSED_TYPES = ["numpy", "pandas", "modin"]
 
     def __init__(self, **kwargs):
         kwargs.update({"to_model_fct": self._to_model, "from_model_fct": self._from_model})
@@ -113,6 +113,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             list(data_node._parent_ids),
             data_node._last_edit_date.isoformat() if data_node._last_edit_date else None,
             data_node._job_ids.data,
+            data_node._version,
             data_node._cacheable,
             data_node._validity_period.days if data_node._validity_period else None,
             data_node._validity_period.seconds if data_node._validity_period else None,
@@ -212,6 +213,7 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             parent_ids=set(model.parent_ids),
             last_edit_date=datetime.fromisoformat(model.last_edit_date) if model.last_edit_date else None,
             job_ids=model.job_ids,
+            version=model.version,
             cacheable=model.cacheable,
             validity_period=validity_period,
             edit_in_progress=model.edit_in_progress,

@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from functools import reduce
 from typing import Any, List, Optional, Set, Tuple, Union
 
+import modin.pandas as modin_pd
 import numpy as np
 import pandas as pd
 
@@ -23,6 +24,7 @@ from taipy.config.common._validate_id import _validate_id
 from taipy.config.common.scope import Scope
 from taipy.logger._taipy_logger import _TaipyLogger
 
+from .._version._version import _Version
 from ..common._entity import _Entity
 from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
@@ -58,6 +60,7 @@ class DataNode(_Entity):
         parent_ids (Optional[Set[str]]): The set of identifiers of the parent tasks.
         last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
+        version (str): The string indicates the application version of the data node to instantiate. If not provided, the current version is used.
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
@@ -84,6 +87,7 @@ class DataNode(_Entity):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        version: str = None,
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -99,6 +103,7 @@ class DataNode(_Entity):
         self._edit_in_progress = edit_in_progress
         self._job_ids = _ListAttributes(self, job_ids or list())
 
+        self._version = version or _Version.get_version()
         self._cacheable = cacheable
         self._validity_period = validity_period
 
@@ -198,6 +203,10 @@ class DataNode(_Entity):
     @_self_setter(_MANAGER_NAME)
     def name(self, val):
         self._name = val
+
+    @property  # type: ignore
+    def version(self):
+        return self._version
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -375,19 +384,21 @@ class DataNode(_Entity):
         if len(operators) == 0:
             return data
         if not ((type(operators[0]) == list) or (type(operators[0]) == tuple)):
-            if isinstance(data, pd.DataFrame):
+            if isinstance(data, (pd.DataFrame, modin_pd.DataFrame)):
                 return DataNode.__filter_dataframe_per_key_value(data, operators[0], operators[1], operators[2])
             if isinstance(data, List):
                 return DataNode.__filter_list_per_key_value(data, operators[0], operators[1], operators[2])
         else:
-            if isinstance(data, pd.DataFrame):
+            if isinstance(data, (pd.DataFrame, modin_pd.DataFrame)):
                 return DataNode.__filter_dataframe(data, operators, join_operator=join_operator)
             if isinstance(data, List):
                 return DataNode.__filter_list(data, operators, join_operator=join_operator)
         return NotImplemented
 
     @staticmethod
-    def __filter_dataframe(df_data: pd.DataFrame, operators: Union[List, Tuple], join_operator=JoinOperator.AND):
+    def __filter_dataframe(
+        df_data: Union[pd.DataFrame, modin_pd.DataFrame], operators: Union[List, Tuple], join_operator=JoinOperator.AND
+    ):
         filtered_df_data = []
         if join_operator == JoinOperator.AND:
             how = "inner"
@@ -400,7 +411,9 @@ class DataNode(_Entity):
         return DataNode.__dataframe_merge(filtered_df_data, how) if filtered_df_data else pd.DataFrame()
 
     @staticmethod
-    def __filter_dataframe_per_key_value(df_data: pd.DataFrame, key: str, value, operator: Operator):
+    def __filter_dataframe_per_key_value(
+        df_data: Union[pd.DataFrame, modin_pd.DataFrame], key: str, value, operator: Operator
+    ):
         df_by_col = df_data[key]
         if operator == Operator.EQUAL:
             df_by_col = df_by_col == value

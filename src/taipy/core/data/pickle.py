@@ -15,8 +15,11 @@ import pickle
 from datetime import datetime, timedelta
 from typing import Any, List, Optional, Set
 
+import modin.pandas as pd
+
 from taipy.config.common.scope import Scope
 
+from .._version._version import _Version
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from .data_node import DataNode
@@ -36,6 +39,7 @@ class PickleDataNode(DataNode):
         parent_ids (Optional[Set[str]]): The identifiers of the parent tasks or `None`.
         last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
+        version (str): The string indicates the application version of the data node to instantiate. If not provided, the current version is used.
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
@@ -67,6 +71,7 @@ class PickleDataNode(DataNode):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        version: str = None,
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -89,6 +94,7 @@ class PickleDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
+            version or _Version.get_version(),
             cacheable,
             validity_period,
             edit_in_progress,
@@ -122,9 +128,12 @@ class PickleDataNode(DataNode):
         return self._is_generated
 
     def _read(self):
+        os.environ["MODIN_PERSISTENT_PICKLE"] = "True"
         return pickle.load(open(self._path, "rb"))
 
     def _write(self, data):
+        if isinstance(data, (pd.DataFrame, pd.Series)):
+            os.environ["MODIN_PERSISTENT_PICKLE"] = "True"
         pickle.dump(data, open(self._path, "wb"))
 
     def __build_path(self):

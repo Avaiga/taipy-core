@@ -36,13 +36,14 @@ data_node = CSVDataNode(
     "task_id",
     datetime.datetime(1985, 10, 14, 2, 30, 0),
     [JobId("job_id")],
+    "latest",
     False,
     None,
     False,
     {"path": "/path", "has_header": True},
 )
 
-task = Task("config_id", print, [data_node], [], TaskId("task_id"), owner_id="owner_id")
+task = Task("config_id", print, [data_node], [], TaskId("task_id"), owner_id="owner_id", version="latest")
 
 
 def f():

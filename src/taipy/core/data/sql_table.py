@@ -12,12 +12,14 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
+import modin.pandas as modin_pd
 import numpy as np
 import pandas as pd
 from sqlalchemy import MetaData, Table
 
 from taipy.config.common.scope import Scope
 
+from .._version._version import _Version
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingRequiredProperty
 from .abstract_sql import _AbstractSQLDataNode
@@ -37,6 +39,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
         parent_ids (Optional[Set[str]]): The identifiers of the parent tasks or `None`.
         last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
+        version (str): The string indicates the application version of the data node to instantiate. If not provided, the current version is used.
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
@@ -72,6 +75,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
+        version: str = None,
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -90,6 +94,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
             parent_ids=parent_ids,
             last_edit_date=last_edit_date,
             job_ids=job_ids,
+            version=version or _Version.get_version(),
             cacheable=cacheable,
             validity_period=validity_period,
             edit_in_progress=edit_in_progress,
@@ -105,7 +110,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
 
     def _do_write(self, data, engine, connection) -> None:
         table = self._create_table(engine)
-        if isinstance(data, pd.DataFrame):
+        if isinstance(data, (modin_pd.DataFrame, pd.DataFrame)):
             self._insert_dataframe(data, table, connection)
         else:
             if isinstance(data, np.ndarray):
@@ -141,7 +146,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
         connection.execute(table.insert(), data)
 
     @staticmethod
-    def _insert_dataframe(df: pd.DataFrame, table: Any, connection: Any) -> None:
+    def _insert_dataframe(df: Union[modin_pd.DataFrame, pd.DataFrame], table: Any, connection: Any) -> None:
         """
         :param data: a pandas dataframe
         :param table: a SQLAlchemy object that represents a table

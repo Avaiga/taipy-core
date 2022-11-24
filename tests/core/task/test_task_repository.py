@@ -31,6 +31,7 @@ data_node = CSVDataNode(
     {"task_id"},
     datetime.datetime(1985, 10, 14, 2, 30, 0),
     [JobId("job_id")],
+    "latest",
     False,
     None,
     False,
@@ -48,6 +49,7 @@ task_model = _TaskModel(
     function_name=print.__name__,
     function_module=print.__module__,
     output_ids=[],
+    version="latest",
 )
 
 
