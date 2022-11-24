@@ -402,7 +402,8 @@ class DataNodeConfig(Section):
         id: str,
         default_path: str = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
-        columns: Optional[List[str]] = None,
+        engine: str = "auto",
+        compression: Optional[str] = "snappy",
         scope=_DEFAULT_SCOPE,
         cacheable: bool = False,
         **properties,
@@ -413,8 +414,9 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new Parquet data node configuration.
             default_path (str): The default path of the Parquet file.
             exposed_type: The exposed type of the data read from Parquet file. The default value is `pandas`.
-            columns (Optional[List[str]]): If not None, only these columns will be read from the file.
-                The default value is None. Does not apply to writing to the file.
+            engine (str): Parquet library to use. If 'auto', then the option pandas.io.parquet.engine is used.
+                The default pandas.io.parquet.engine behavior is to try 'pyarrow', falling back to 'fastparquet' if 'pyarrow' is unavailable.
+                `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`.
             compression (Optional[str]): Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.
             scope (Scope^): The scope of the Parquet data node configuration. The default value
@@ -431,7 +433,8 @@ class DataNodeConfig(Section):
             scope=scope,
             cacheable=cacheable,
             default_path=default_path,
-            columns=columns,
+            engine=engine,
+            compression=compression,
             exposed_type=exposed_type,
             **properties,
         )

@@ -48,10 +48,12 @@ class ParquetDataNode(DataNode):
             must have a _"default_path"_ or _"path"_ entry with the path of the Parquet file:
 
             - _"default_path"_ `(str)`: The default path of the Parquet file.\n
-            - _"columns"_ `(Optional[List[str]])`: If not None, only these columns will be read from the file.
-            The default value is None. Does not apply to writing to the file.\n
+            - _"exposed_type"_: The exposed type of the data read from Parquet file. The default value is `pandas`.\n
+            - _"engine"_ `(str)`: Parquet library to use. If 'auto', then the option pandas.io.parquet.engine is used.
+                The default pandas.io.parquet.engine behavior is to try 'pyarrow', falling back to 'fastparquet' if 'pyarrow' is unavailable.
+                `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`. \n
             - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
-            `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
+                `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
     """
 
     __STORAGE_TYPE = "parquet"
@@ -62,7 +64,7 @@ class ParquetDataNode(DataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
-    __COLUMNS_PROPERTY = "columns"
+    __ENGINE_PROPERTY = "engine"
     __COMPRESSION_PROPERTY = "compression"
     _REQUIRED_PROPERTIES: List[str] = []
 
@@ -88,11 +90,11 @@ class ParquetDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        if self.__COLUMNS_PROPERTY not in properties.keys():
-            properties[self.__COLUMNS_PROPERTY] = None
+        if self.__ENGINE_PROPERTY not in properties.keys():
+            properties[self.__ENGINE_PROPERTY] = "pyarrow"
 
         if self.__COMPRESSION_PROPERTY not in properties.keys():
-            ...
+            properties[self.__COMPRESSION_PROPERTY] = "snappy"
 
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if self._path is None:
@@ -159,14 +161,10 @@ class ParquetDataNode(DataNode):
         return self._read_as_pandas_dataframe().to_numpy()
 
     def _read_as_pandas_dataframe(self) -> pd.DataFrame:
-        return pd.read_parquet(self._path, columns=self.properties[self.__COLUMNS_PROPERTY])
+        return pd.read_parquet(self._path)
 
     def _read_as_modin_dataframe(self) -> modin_pd.DataFrame:
-        return modin_pd.read_parquet(self._path, columns=self.properties[self.__COLUMNS_PROPERTY])
+        return modin_pd.read_parquet(self._path)
 
     def _write(self, data: Any):
-        kwargs = {}
-        compression = self.properties.get(self.__COMPRESSION_PROPERTY)
-        if compression is not None:
-            kwargs["compression"] = compression
-        pd.DataFrame(data).to_parquet(self._path, **kwargs)
+        pd.DataFrame(data).to_parquet(self._path, compression=self.properties[self.__COMPRESSION_PROPERTY])

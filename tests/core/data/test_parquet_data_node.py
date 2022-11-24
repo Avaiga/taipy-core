@@ -63,7 +63,6 @@ class TestParquetDataNode:
         assert dn.job_ids == []
         assert not dn.is_ready_for_reading
         assert dn.path == path
-        assert dn.columns is None
         assert dn.exposed_type == "pandas"
         assert dn.compression == "snappy"
 
@@ -221,14 +220,14 @@ class TestParquetDataNode:
         assert pathlib.Path(temp_file_path).exists()
         assert isinstance(dn.read(), pd.DataFrame)
 
-    def test_write_all_columns_but_read_subset_only(self, tmpdir_factory):
-        columns = ["text"]
-        temp_file_path = str(tmpdir_factory.mktemp("data").join("temp.parquet"))
-        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "columns": columns})
+    def test_pandas_parquet_defaults(self, default_data_frame: pd.DataFrame):
+        # If Pandas changes their defaults, we may consider doing the same
+        pyarrow_snappy_bytes = default_data_frame.to_parquet(engine="pyarrow", compression="snappy")
 
-        example_csv_path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
-        df = pd.read_csv(example_csv_path)
-        dn.write(df)
+        assumed_default_engine = "pyarrow"
+        default_compression_bytes = default_data_frame.to_parquet(engine=assumed_default_engine)
+        assert default_compression_bytes == pyarrow_snappy_bytes
 
-        assert set(pd.read_parquet(temp_file_path).columns) == {"id", "integer", "text"}
-        assert set(dn.read().columns) == set(columns)
+        assumed_default_compression = "snappy"
+        default_engine_bytes = default_data_frame.to_parquet(compression=assumed_default_compression)
+        assert default_engine_bytes == pyarrow_snappy_bytes
