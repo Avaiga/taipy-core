@@ -11,6 +11,7 @@
 
 from typing import Optional
 
+from ..core._version._version_cli import version_cli
 from ._scheduler._dispatcher._job_dispatcher import _JobDispatcher
 from ._scheduler._scheduler import _Scheduler
 from ._scheduler._scheduler_factory import _SchedulerFactory
@@ -34,5 +35,7 @@ class Core:
         """
         Start a Core service. This method is blocking.
         """
+        version_cli(standalone_mode=False)
+
         if dispatcher := _SchedulerFactory._build_dispatcher(force_restart=force_restart):
             self._dispatcher = dispatcher

@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+
 import pytest
 
 from src.taipy.core._version._version import _Version
@@ -20,10 +21,9 @@ def test_save_and_get_version_entity(tmpdir):
     _VersionManager._repository.base_path = tmpdir
     assert len(_VersionManager._get_all()) == 0
 
-    # TODO: replace with config export format
     version = _Version(id="foo", config=Config._applied_config)
 
-    _VersionManager.create(id="foo")
+    _VersionManager.create(id="foo", override=False)
 
     version_1 = _VersionManager._get(version.id)
     assert version_1.id == version.id
@@ -36,7 +36,7 @@ def test_save_and_get_version_entity(tmpdir):
 def test_save_existing_version_should_fail(tmpdir):
     _VersionManager._repository.base_path = tmpdir
 
-    _VersionManager.create(id="foo")
+    _VersionManager.create(id="foo", override=False)
 
     with pytest.raises(VersionAlreadyExists):
-        _VersionManager.create(id="foo")
+        _VersionManager.create(id="foo", override=False)
