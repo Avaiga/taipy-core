@@ -16,7 +16,7 @@ from typing import Any, Callable, List, Optional, Union
 from taipy.config import Config
 
 from .._manager._manager import _Manager
-from .._version._version import _Version
+from .._version._version_manager import _VersionManager
 from ..common._entity_ids import _EntityIds
 from ..common.alias import ScenarioId
 from ..config.scenario_config import ScenarioConfig
@@ -108,7 +108,7 @@ class _ScenarioManager(_Manager[Scenario]):
         props = config._properties.copy()
         if name:
             props["name"] = name
-        version = _Version.get_version()
+        version = _VersionManager.get_current_version()
         scenario = Scenario(
             str(config.id),  # type: ignore
             pipelines,

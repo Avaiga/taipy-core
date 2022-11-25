@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from taipy.config.common.scope import Scope
 
-from .._version._version import _Version
+from .._version._version_manager import _VersionManager
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import MissingReadFunction, MissingRequiredProperty, MissingWriteFunction
 from .data_node import DataNode
@@ -89,7 +89,7 @@ class GenericDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
-            version or _Version.get_version(),
+            version or _VersionManager.get_current_version(),
             cacheable,
             validity_period,
             edit_in_progress,

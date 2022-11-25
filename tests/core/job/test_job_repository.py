@@ -80,6 +80,7 @@ job_model = _JobModel(
     creation_date=job._creation_date.isoformat(),
     subscribers=_JobRepository._serialize_subscribers(job._subscribers),
     stacktrace=job._stacktrace,
+    version="latest",
 )
 
 

@@ -136,18 +136,26 @@ def current_datetime():
 @pytest.fixture(scope="function")
 def scenario(cycle):
     return Scenario(
-        "sc", [], {}, ScenarioId("sc_id"), current_time, is_primary=False, tags={"foo"}, version="", cycle=None
+        "sc",
+        [],
+        {},
+        ScenarioId("sc_id"),
+        current_time,
+        is_primary=False,
+        tags={"foo"},
+        version="random_version_number",
+        cycle=None,
     )
 
 
 @pytest.fixture(scope="function")
 def data_node():
-    return InMemoryDataNode("data_node_config_id", Scope.PIPELINE)
+    return InMemoryDataNode("data_node_config_id", Scope.PIPELINE, version="random_version_number")
 
 
 @pytest.fixture(scope="function")
 def task(data_node):
-    dn = InMemoryDataNode("dn_config_id", Scope.PIPELINE)
+    dn = InMemoryDataNode("dn_config_id", Scope.PIPELINE, version="random_version_number")
     return Task("task_config_id", print, [data_node], [dn])
 
 
@@ -162,7 +170,7 @@ def scenario_model(cycle):
         primary_scenario=False,
         subscribers=[],
         tags=["foo"],
-        version="",
+        version="random_version_number",
         cycle=None,
     )
 
@@ -190,7 +198,7 @@ def pipeline():
         PipelineId("pipeline_id"),
         owner_id="owner_id",
         parent_ids=set(["parent_id_1", "parent_id_2"]),
-        version="",
+        version="random_version_number",
     )
 
 
@@ -210,7 +218,14 @@ def cycle_model():
 @pytest.fixture(scope="class")
 def pipeline_model():
     return _PipelineModel(
-        PipelineId("pipeline_id"), "owner_id", list({"parent_id_1", "parent_id_2"}), "pipeline", {}, [], [], ""
+        PipelineId("pipeline_id"),
+        "owner_id",
+        list({"parent_id_1", "parent_id_2"}),
+        "pipeline",
+        {},
+        [],
+        [],
+        "random_version_number",
     )
 
 
