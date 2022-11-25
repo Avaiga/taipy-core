@@ -54,6 +54,10 @@ class ParquetDataNode(DataNode):
                 `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`. \n
             - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
+            - _"read_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.read_parquet_ method.\n
+            - _"write_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.DataFrame.write_parquet_ method.
+                The parameters in _"read_kwargs"_ and _"write_kwargs"_ have a **higher precedence** than the top-level parameters which
+                are also passed to Pandas.\n
     """
 
     __STORAGE_TYPE = "parquet"
@@ -66,6 +70,8 @@ class ParquetDataNode(DataNode):
     __DEFAULT_PATH_KEY = "default_path"
     __ENGINE_PROPERTY = "engine"
     __COMPRESSION_PROPERTY = "compression"
+    __READ_KWARGS_PROPERTY = "read_kwargs"
+    __WRITE_KWARGS_PROPERTY = "write_kwargs"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -95,6 +101,12 @@ class ParquetDataNode(DataNode):
 
         if self.__COMPRESSION_PROPERTY not in properties.keys():
             properties[self.__COMPRESSION_PROPERTY] = "snappy"
+
+        if self.__READ_KWARGS_PROPERTY not in properties.keys():
+            properties[self.__READ_KWARGS_PROPERTY] = {}
+
+        if self.__WRITE_KWARGS_PROPERTY not in properties.keys():
+            properties[self.__WRITE_KWARGS_PROPERTY] = {}
 
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if self._path is None:
@@ -143,28 +155,65 @@ class ParquetDataNode(DataNode):
                 f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
-    def _read(self):
+    def _read(self, read_kwargs: Dict = dict()):
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
-            return self._read_as_pandas_dataframe()
+            return self._read_as_pandas_dataframe(read_kwargs)
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
-            return self._read_as_modin_dataframe()
+            return self._read_as_modin_dataframe(read_kwargs)
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return self._read_as_numpy()
-        return self._read_as()
+            return self._read_as_numpy(read_kwargs)
+        return self._read_as(read_kwargs)
 
-    def _read_as(self):
+    def _read_as(self, read_kwargs: Dict):
         custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
-        list_of_dicts = self._read_as_pandas_dataframe().to_dict(orient="records")
+        list_of_dicts = self._read_as_pandas_dataframe(read_kwargs).to_dict(orient="records")
         return [custom_class(**dct) for dct in list_of_dicts]
 
-    def _read_as_numpy(self):
-        return self._read_as_pandas_dataframe().to_numpy()
+    def _read_as_numpy(self, read_kwargs: Dict):
+        return self._read_as_pandas_dataframe(read_kwargs).to_numpy()
 
-    def _read_as_pandas_dataframe(self) -> pd.DataFrame:
-        return pd.read_parquet(self._path)
+    def _read_as_pandas_dataframe(self, read_kwargs: Dict) -> pd.DataFrame:
+        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
+        kwargs.update(read_kwargs)
+        return pd.read_parquet(self._path, **kwargs)
 
-    def _read_as_modin_dataframe(self) -> modin_pd.DataFrame:
-        return modin_pd.read_parquet(self._path)
+    def _read_as_modin_dataframe(self, read_kwargs: Dict) -> modin_pd.DataFrame:
+        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
+        kwargs.update(read_kwargs)
+        return modin_pd.read_parquet(self._path, **kwargs)
 
-    def _write(self, data: Any):
-        pd.DataFrame(data).to_parquet(self._path, compression=self.properties[self.__COMPRESSION_PROPERTY])
+    def _write(self, data: Any, write_kwargs: Dict = dict()):
+        kwargs = {
+            self.__ENGINE_PROPERTY: self.properties[self.__ENGINE_PROPERTY],
+            self.__COMPRESSION_PROPERTY: self.properties[self.__COMPRESSION_PROPERTY],
+        }
+        kwargs.update(self.properties[self.__WRITE_KWARGS_PROPERTY])
+        kwargs.update(write_kwargs)
+        pd.DataFrame(data).to_parquet(self._path, **kwargs)
+
+    def write_with_kwargs(self, data: Any, job_id: Optional[JobId] = None, **kwargs):
+        """Write data, with keyword arguments passed to `pandas.DataFrame.to_parquet`.
+
+        Parameters:
+            data (Any): The data to write.
+            job_id (JobId^): An optional identifier of the writer.
+            **kwargs: The keyword arguments are passed to `pandas.DataFrame.to_parquet`.
+        """
+
+        self._write(data, kwargs)
+        self._last_edit_date = datetime.now()
+        if job_id:
+            self.job_ids.append(job_id)
+
+    def read_with_kwargs(self, **kwargs):
+        """Read data node, with keyword arguments passed to `pandas.read_parquet`.
+
+        Parameters:
+            **kwargs: The keyword arguments are passed to `pandas.read_parquet`.
+        """
+
+        # return None if data was never written
+        if not self.last_edit_date:
+            return None
+
+        return self._read(kwargs)

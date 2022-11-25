@@ -231,3 +231,90 @@ class TestParquetDataNode:
         assumed_default_compression = "snappy"
         default_engine_bytes = default_data_frame.to_parquet(compression=assumed_default_compression)
         assert default_engine_bytes == pyarrow_snappy_bytes
+
+    def test_pandas_parquet_config_kwargs(self, tmpdir_factory):
+        read_kwargs = {"columns": ["text"], "filters": [("integer", "<", 10)]}
+        temp_file_path = str(tmpdir_factory.mktemp("data").join("temp.parquet"))
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "read_kwargs": read_kwargs})
+
+        example_csv_path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.csv")
+        df = pd.read_csv(example_csv_path)
+        dn.write(df)
+
+        assert set(pd.read_parquet(temp_file_path).columns) == {"id", "integer", "text"}
+        assert set(dn.read().columns) == set(read_kwargs["columns"])
+        assert len(dn.read()) != len(df)
+        assert len(dn.read()) == 2
+
+    def test_kwarg_precedence(self, tmpdir_factory, default_data_frame: pd.DataFrame):
+        # Precedence:
+        # 1. Class read/write methods
+        # 2. Defined in read_kwargs and write_kwargs, in properties
+        # 3. Defined top-level in properties
+
+        temp_file_path = str(tmpdir_factory.mktemp("data").join("temp.parquet"))
+        df = default_data_frame
+
+        ## Write
+        # 3
+        comp3 = "snappy"
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_file_path, "compression": comp3})
+        dn.write(df)
+        assert pathlib.Path(temp_file_path).open("rb").read() == df.to_parquet(compression=comp3)
+
+        # 3 and 2
+        comp2 = "gzip"
+        dn = ParquetDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={"path": temp_file_path, "compression": comp3, "write_kwargs": {"compression": comp2}},
+        )
+        dn.write(df)
+        assert pathlib.Path(temp_file_path).open("rb").read() == df.to_parquet(compression=comp2)
+
+        # 3, 2 and 1
+        comp1 = "brotli"
+        dn = ParquetDataNode(
+            "foo",
+            Scope.PIPELINE,
+            properties={"path": temp_file_path, "compression": comp3, "write_kwargs": {"compression": comp2}},
+        )
+        dn.write_with_kwargs(df, compression=comp1)
+        assert pathlib.Path(temp_file_path).open("rb").read() == df.to_parquet(compression=comp1)
+
+        ## Read
+        df.to_parquet(temp_file_path)
+        # 2
+        cols2 = ["a", "b"]
+        dn = ParquetDataNode(
+            "foo", Scope.PIPELINE, properties={"path": temp_file_path, "read_kwargs": {"columns": cols2}}
+        )
+        assert set(dn.read().columns) == set(cols2)
+
+        # 1
+        cols1 = ["a"]
+        dn = ParquetDataNode(
+            "foo", Scope.PIPELINE, properties={"path": temp_file_path, "read_kwargs": {"columns": cols2}}
+        )
+        assert set(dn.read_with_kwargs(columns=cols1).columns) == set(cols1)
+
+    def test_partition_cols(self, tmpdir_factory, default_data_frame: pd.DataFrame):
+        temp_dir_path = str(tmpdir_factory.mktemp("data").join("temp_dir"))
+
+        write_kwargs = {"partition_cols": ["a", "b"]}
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": temp_dir_path, "write_kwargs": write_kwargs})
+        dn.write(default_data_frame)
+
+        assert pathlib.Path(temp_dir_path).is_dir()
+        # dtypes change during round-trip with partition_cols
+        pd.testing.assert_frame_equal(
+            dn.read().sort_index(axis=1),
+            default_data_frame.sort_index(axis=1),
+            check_dtype=False,
+            check_categorical=False,
+        )
+
+    def test_read_with_kwargs_never_written(self):
+        path = "data/node/path"
+        dn = ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path})
+        assert dn.read_with_kwargs() is None

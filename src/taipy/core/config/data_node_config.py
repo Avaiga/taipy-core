@@ -404,6 +404,8 @@ class DataNodeConfig(Section):
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         engine: str = "auto",
         compression: Optional[str] = "snappy",
+        read_kwargs: Dict = dict(),
+        write_kwargs: Dict = dict(),
         scope=_DEFAULT_SCOPE,
         cacheable: bool = False,
         **properties,
@@ -419,6 +421,10 @@ class DataNodeConfig(Section):
                 `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`.
             compression (Optional[str]): Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.
+            read_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.read_parquet` method.
+            write_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.DataFrame.write_parquet` method.
+                The parameters in "read_kwargs" and "write_kwargs" have a **higher precedence** than the top-level parameters which are also
+                passed to Pandas.
             scope (Scope^): The scope of the Parquet data node configuration. The default value
                 is `Scope.SCENARIO`.
             cacheable (bool): If True, indicates that the Parquet data node is cacheable. The default value is _False_.
@@ -435,6 +441,8 @@ class DataNodeConfig(Section):
             default_path=default_path,
             engine=engine,
             compression=compression,
+            read_kwargs=read_kwargs,
+            write_kwargs=write_kwargs,
             exposed_type=exposed_type,
             **properties,
         )
