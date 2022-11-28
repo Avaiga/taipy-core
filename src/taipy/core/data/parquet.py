@@ -172,7 +172,18 @@ class ParquetDataNode(DataNode):
     def _read_as_modin_dataframe(self, read_kwargs: Dict) -> modin_pd.DataFrame:
         return modin_pd.read_parquet(self._path, **read_kwargs)
 
-    def _write(self, data: Any, write_kwargs: Dict = dict()):
+    def _write(self, data: Any):
+        self.write_with_kwargs(data)
+
+    def write_with_kwargs(self, data: Any, job_id: Optional[JobId] = None, **write_kwargs):
+        """Write data, with keyword arguments passed to `pandas.DataFrame.to_parquet`.
+
+        Parameters:
+            data (Any): The data to write.
+            job_id (JobId^): An optional identifier of the writer.
+            **write_kwargs: The keyword arguments are passed to `pandas.DataFrame.to_parquet`.
+        """
+
         kwargs = {
             self.__ENGINE_PROPERTY: self.properties[self.__ENGINE_PROPERTY],
             self.__COMPRESSION_PROPERTY: self.properties[self.__COMPRESSION_PROPERTY],
@@ -181,16 +192,6 @@ class ParquetDataNode(DataNode):
         kwargs.update(write_kwargs)
         pd.DataFrame(data).to_parquet(self._path, **kwargs)
 
-    def write_with_kwargs(self, data: Any, job_id: Optional[JobId] = None, **kwargs):
-        """Write data, with keyword arguments passed to `pandas.DataFrame.to_parquet`.
-
-        Parameters:
-            data (Any): The data to write.
-            job_id (JobId^): An optional identifier of the writer.
-            **kwargs: The keyword arguments are passed to `pandas.DataFrame.to_parquet`.
-        """
-
-        self._write(data, kwargs)
         self._last_edit_date = datetime.now()
         if job_id:
             self.job_ids.append(job_id)
