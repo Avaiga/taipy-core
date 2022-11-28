@@ -167,14 +167,10 @@ class ParquetDataNode(DataNode):
         return self._read_as_pandas_dataframe(read_kwargs).to_numpy()
 
     def _read_as_pandas_dataframe(self, read_kwargs: Dict) -> pd.DataFrame:
-        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
-        kwargs.update(read_kwargs)
-        return pd.read_parquet(self._path, **kwargs)
+        return pd.read_parquet(self._path, **read_kwargs)
 
     def _read_as_modin_dataframe(self, read_kwargs: Dict) -> modin_pd.DataFrame:
-        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
-        kwargs.update(read_kwargs)
-        return modin_pd.read_parquet(self._path, **kwargs)
+        return modin_pd.read_parquet(self._path, **read_kwargs)
 
     def _write(self, data: Any, write_kwargs: Dict = dict()):
         kwargs = {
@@ -209,14 +205,17 @@ class ParquetDataNode(DataNode):
         # return None if data was never written
         if not self.last_edit_date:
             self._DataNode__logger.warning(
-                f"Data node {self.id} from config {self.config_id} is being read but has never been " f"written."
+                f"Data node {self.id} from config {self.config_id} is being read but has never been written."
             )
             return None
 
+        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
+        kwargs.update(read_kwargs)
+
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
-            return self._read_as_pandas_dataframe(read_kwargs)
+            return self._read_as_pandas_dataframe(kwargs)
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
-            return self._read_as_modin_dataframe(read_kwargs)
+            return self._read_as_modin_dataframe(kwargs)
         if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return self._read_as_numpy(read_kwargs)
-        return self._read_as(read_kwargs)
+            return self._read_as_numpy(kwargs)
+        return self._read_as(kwargs)
