@@ -155,14 +155,8 @@ class ParquetDataNode(DataNode):
                 f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
-    def _read(self, read_kwargs: Dict = dict()):
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
-            return self._read_as_pandas_dataframe(read_kwargs)
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
-            return self._read_as_modin_dataframe(read_kwargs)
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return self._read_as_numpy(read_kwargs)
-        return self._read_as(read_kwargs)
+    def _read(self):
+        return self.read_with_kwargs()
 
     def _read_as(self, read_kwargs: Dict):
         custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
@@ -205,11 +199,11 @@ class ParquetDataNode(DataNode):
         if job_id:
             self.job_ids.append(job_id)
 
-    def read_with_kwargs(self, **kwargs):
+    def read_with_kwargs(self, **read_kwargs):
         """Read data node, with keyword arguments passed to `pandas.read_parquet`.
 
         Parameters:
-            **kwargs: The keyword arguments are passed to `pandas.read_parquet`.
+            **read_kwargs: The keyword arguments are passed to `pandas.read_parquet`.
         """
 
         # return None if data was never written
@@ -219,4 +213,10 @@ class ParquetDataNode(DataNode):
             )
             return None
 
-        return self._read(kwargs)
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
+            return self._read_as_pandas_dataframe(read_kwargs)
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
+            return self._read_as_modin_dataframe(read_kwargs)
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
+            return self._read_as_numpy(read_kwargs)
+        return self._read_as(read_kwargs)
