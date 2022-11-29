@@ -178,6 +178,8 @@ class ParquetDataNode(DataNode):
     def write_with_kwargs(self, data: Any, job_id: Optional[JobId] = None, **write_kwargs):
         """Write data, with keyword arguments passed to `pandas.DataFrame.to_parquet`.
 
+        Keyword arguments here which are also present in the Data Node config will overwrite them.
+
         Parameters:
             data (Any): The data to write.
             job_id (JobId^): An optional identifier of the writer.
@@ -198,6 +200,8 @@ class ParquetDataNode(DataNode):
 
     def read_with_kwargs(self, **read_kwargs):
         """Read data node, with keyword arguments passed to `pandas.read_parquet`.
+
+        Keyword arguments here which are also present in the Data Node config will overwrite them.
 
         Parameters:
             **read_kwargs: The keyword arguments are passed to `pandas.read_parquet`.
