@@ -23,7 +23,13 @@ import pytest
 from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data.parquet import ParquetDataNode
-from src.taipy.core.exceptions.exceptions import InvalidExposedType, MissingRequiredProperty, NoData
+from src.taipy.core.exceptions.exceptions import (
+    InvalidExposedType,
+    MissingRequiredProperty,
+    NoData,
+    UnknownCompressionAlgorithm,
+    UnknownParquetEngine,
+)
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 from taipy.config.exceptions.exceptions import InvalidConfigurationId
@@ -172,6 +178,16 @@ class TestParquetDataNode:
             "foo", Scope.PIPELINE, properties={"path": example_parquet_path, "exposed_type": create_custom_class}
         )
         assert all([isinstance(obj, MyOtherCustomObject) for obj in dn.read()])
+
+    def test_raise_error_unknown_parquet_engine(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.parquet")
+        with pytest.raises(UnknownParquetEngine):
+            ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path, "engine": "foo"})
+
+    def test_raise_error_unknown_compression_algorithm(self):
+        path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.parquet")
+        with pytest.raises(UnknownCompressionAlgorithm):
+            ParquetDataNode("foo", Scope.PIPELINE, properties={"path": path, "compression": "foo"})
 
     def test_raise_error_invalid_exposed_type(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.parquet")
