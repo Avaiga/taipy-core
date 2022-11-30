@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+fastparquet = "2022.11.0"
 modin = {extras = ["dask"], version = "==0.16.2"}
 networkx = "==2.6"
 openpyxl = "==3.0.7"
@@ -26,7 +27,6 @@ tox = ">=3.24"
 types-toml = ">=0.10.0"
 autopep8 = "*"
 mongomock = ">=4.1.2"
-pyarrow = "*"
 
 [requires]
 python_version = "3"
