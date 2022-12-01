@@ -67,7 +67,7 @@ class A:
         pass
 
 
-job = Job(JobId("id"), task, "submit_id")
+job = Job(JobId("id"), task, "submit_id", version="latest")
 job._subscribers = [f, A.f, A.g, A.h, A.B.f]
 job._exceptions = [traceback.TracebackException.from_exception(Exception())]
 

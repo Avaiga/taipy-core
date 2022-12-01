@@ -23,7 +23,7 @@ def test_save_and_get_version_entity(tmpdir):
 
     version = _Version(id="foo", config=Config._applied_config)
 
-    _VersionManager.create(id="foo", override=False)
+    _VersionManager.get_or_create(id="foo", override=False)
 
     version_1 = _VersionManager._get(version.id)
     assert version_1.id == version.id
@@ -36,7 +36,7 @@ def test_save_and_get_version_entity(tmpdir):
 def test_save_existing_version_should_fail(tmpdir):
     _VersionManager._repository.base_path = tmpdir
 
-    _VersionManager.create(id="foo", override=False)
+    _VersionManager.get_or_create(id="foo", override=False)
 
     with pytest.raises(VersionAlreadyExists):
-        _VersionManager.create(id="foo", override=False)
+        _VersionManager.get_or_create(id="foo", override=False)
