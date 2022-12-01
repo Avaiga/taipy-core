@@ -80,7 +80,6 @@ def clean_all_entities_by_version(version_number):
 def version_cli(mode, _version_number, _override):
     if mode == "experiment":
         if _version_number:
-            print(_version_number)
             curren_version_number = _version_number
         else:
             curren_version_number = str(uuid.uuid4())
@@ -89,7 +88,6 @@ def version_cli(mode, _version_number, _override):
 
     elif mode == "development":
         curren_version_number = _VersionManager.get_development_version()
-        print(curren_version_number)
         _VersionManager.set_development_version(curren_version_number)
         override = True
 

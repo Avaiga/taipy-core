@@ -92,7 +92,6 @@ class _VersionFSRepository(_FileSystemRepository):
         try:
             with open(self._version_file_path, "r") as f:
                 file_content = json.load(f)
-            print(file_content)
             return file_content[self._DEVELOPMENT_VERSION_KEY]
 
         except FileNotFoundError:
