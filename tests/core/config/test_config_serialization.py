@@ -234,84 +234,84 @@ test_json_dn = [ "tests.core.config.test_config_serialization.compare_function:f
 def test_read_write_json_configuration_file():
     expected_json_config = """
 {
-    "TAIPY": {
-        "root_folder": "./taipy/",
-        "storage_folder": ".data/",
-        "clean_entities_enabled": "True:bool",
-        "repository_type": "filesystem"
-    },
-    "JOB": {
-        "mode": "development",
-        "max_nb_of_workers": "1:int"
-    },
-    "DATA_NODE": {
-        "default": {
-            "storage_type": "pickle",
-            "scope": "SCENARIO:SCOPE",
-            "cacheable": "False:bool"
-        },
-        "test_csv_dn": {
-            "storage_type": "csv",
-            "scope": "GLOBAL:SCOPE",
-            "cacheable": "False:bool",
-            "default_path": null,
-            "has_header": "True:bool",
-            "exposed_type": "tests.core.config.test_config_serialization.CustomClass:class",
-            "path": "./test.csv"
-        },
-        "test_json_dn": {
-            "storage_type": "json",
-            "scope": "SCENARIO:SCOPE",
-            "cacheable": "False:bool",
-            "default_path": "./test.json",
-            "encoder": "tests.core.config.test_config_serialization.CustomEncoder:class",
-            "decoder": "tests.core.config.test_config_serialization.CustomDecoder:class"
-        }
-    },
-    "TASK": {
-        "default": {
-            "inputs": [],
-            "function": null,
-            "outputs": []
-        },
-        "test_task": {
-            "inputs": [
-                "test_csv_dn:SECTION"
-            ],
-            "function": "tests.core.config.test_config_serialization.multiply:function",
-            "outputs": [
-                "test_json_dn:SECTION"
-            ]
-        }
-    },
-    "PIPELINE": {
-        "default": {
-            "tasks": []
-        },
-        "test_pipeline": {
-            "tasks": [
-                "test_task:SECTION"
-            ]
-        }
-    },
-    "SCENARIO": {
-        "default": {
-            "comparators": {},
-            "pipelines": [],
-            "frequency": null
-        },
-        "test_scenario": {
-            "comparators": {
-                "test_json_dn": [
-                    "tests.core.config.test_config_serialization.compare_function:function"
-                ]
-            },
-            "pipelines": [
-                "test_pipeline:SECTION"
-            ],
-            "frequency": "DAILY:FREQUENCY"
-        }
-    }
+"TAIPY": {
+"root_folder": "./taipy/",
+"storage_folder": ".data/",
+"clean_entities_enabled": "True:bool",
+"repository_type": "filesystem"
+},
+"JOB": {
+"mode": "development",
+"max_nb_of_workers": "1:int"
+},
+"DATA_NODE": {
+"default": {
+"storage_type": "pickle",
+"scope": "SCENARIO:SCOPE",
+"cacheable": "False:bool"
+},
+"test_csv_dn": {
+"storage_type": "csv",
+"scope": "GLOBAL:SCOPE",
+"cacheable": "False:bool",
+"default_path": null,
+"has_header": "True:bool",
+"exposed_type": "tests.core.config.test_config_serialization.CustomClass:class",
+"path": "./test.csv"
+},
+"test_json_dn": {
+"storage_type": "json",
+"scope": "SCENARIO:SCOPE",
+"cacheable": "False:bool",
+"default_path": "./test.json",
+"encoder": "tests.core.config.test_config_serialization.CustomEncoder:class",
+"decoder": "tests.core.config.test_config_serialization.CustomDecoder:class"
+}
+},
+"TASK": {
+"default": {
+"inputs": [],
+"function": null,
+"outputs": []
+},
+"test_task": {
+"inputs": [
+"test_csv_dn:SECTION"
+],
+"function": "tests.core.config.test_config_serialization.multiply:function",
+"outputs": [
+"test_json_dn:SECTION"
+]
+}
+},
+"PIPELINE": {
+"default": {
+"tasks": []
+},
+"test_pipeline": {
+"tasks": [
+"test_task:SECTION"
+]
+}
+},
+"SCENARIO": {
+"default": {
+"comparators": {},
+"pipelines": [],
+"frequency": null
+},
+"test_scenario": {
+"comparators": {
+"test_json_dn": [
+"tests.core.config.test_config_serialization.compare_function:function"
+]
+},
+"pipelines": [
+"test_pipeline:SECTION"
+],
+"frequency": "DAILY:FREQUENCY"
+}
+}
 }
     """.strip()
 
@@ -322,7 +322,6 @@ def test_read_write_json_configuration_file():
     tf = NamedTemporaryFile()
     Config.export(tf.filename)
     actual_config = tf.read().strip()
-    print(actual_config)
     assert actual_config == expected_json_config
 
     Config.load(tf.filename)
