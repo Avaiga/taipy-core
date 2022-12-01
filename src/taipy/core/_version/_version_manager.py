@@ -18,28 +18,37 @@ from ._version_repository_factory import _VersionRepositoryFactory
 
 
 class _VersionManager(_Manager[_Version]):
-    _DEFAULT_VERSION = "latest"
     _ENTITY_NAME = _Version.__name__
 
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
-    _current_version = _DEFAULT_VERSION
 
     @classmethod
-    def create(cls, id: str, override: bool) -> _Version:
-        if not override and cls._get(id) is not None:
-            raise VersionAlreadyExists(f"Version {id} already exists.")
+    def get_or_create(cls, id: str, override: bool) -> _Version:
+        if version := cls._get(id):
+            if not override:
+                raise VersionAlreadyExists(f"Version {id} already exists.")
 
-        version = _Version(id=id, config=Config._applied_config)
+            version.config = Config._applied_config
+        else:
+            version = _Version(id=id, config=Config._applied_config)
+
         cls._set(version)
-
         return version
 
     @classmethod
     def set_current_version(cls, version_number: str, override: bool):
-        cls._current_version = version_number
-
-        return cls.create(version_number, override)
+        cls.get_or_create(version_number, override)
+        cls._repository._set_current_version(version_number)
 
     @classmethod
     def get_current_version(cls) -> str:
-        return cls._current_version
+        return cls._repository._get_current_version()
+
+    @classmethod
+    def set_development_version(cls, version_number: str):
+        cls.get_or_create(version_number, override=True)
+        cls._repository._set_development_version(version_number)
+
+    @classmethod
+    def get_development_version(cls) -> str:
+        return cls._repository._get_development_version()

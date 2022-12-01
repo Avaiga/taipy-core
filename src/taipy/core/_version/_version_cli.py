@@ -13,9 +13,14 @@ import uuid
 
 import click
 
-from taipy.config import Config
+from taipy.logger._taipy_logger import _TaipyLogger
 
-from ..taipy import clean_all_entities
+from ..cycle._cycle_manager_factory import _CycleManagerFactory
+from ..data._data_manager_factory import _DataManagerFactory
+from ..job._job_manager_factory import _JobManagerFactory
+from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
+from ..scenario._scenario_manager_factory import _ScenarioManagerFactory
+from ..task._task_manager_factory import _TaskManagerFactory
 from ._version_manager import _VersionManager
 
 
@@ -24,26 +29,37 @@ def skip_run(ctx, param, value):
         return
 
     # TODO: Copy the current latest version to the new version
-    print("Application skiped.")
     ctx.exit()
+
+
+def clean_all_entities_by_version(version_number):
+    """Delete all entities belongs to a version from the Taipy data folder."""
+    _JobManagerFactory._build_manager()._delete_by_version(version_number)
+    _ScenarioManagerFactory._build_manager()._delete_by_version(version_number)
+    _PipelineManagerFactory._build_manager()._delete_by_version(version_number)
+    _TaskManagerFactory._build_manager()._delete_by_version(version_number)
+    _DataManagerFactory._build_manager()._delete_by_version(version_number)
 
 
 @click.command()
 @click.option(
     "--development",
     "-d",
-    is_flag=True,
+    "mode",
+    flag_value="development",
     default=True,
     help="Execute Taipy application in DEVELOPMENT mode. This is the default behavior.",
 )
-@click.option("--experiment", "-e", is_flag=True, help="Execute Taipy application in EXPERIMENTAL mode.")
 @click.option(
-    "--verison-number",
+    "--experiment", "-e", "mode", flag_value="experiment", help="Execute Taipy application in EXPERIMENTAL mode."
+)
+@click.option(
+    "--version-number",
     "-v",
     "_version_number",
     type=str,
     default=None,
-    help="The version number when execute and save in experimental mode. If not provided, a random ID is used.",
+    help="The version number when execute and save in experimental mode. If not provided, a random version name is used.",
 )
 @click.option(
     "--override",
@@ -61,20 +77,27 @@ def skip_run(ctx, param, value):
     is_eager=True,
     help='Save the "latest" version if existed to a new version specified by "--version-number" without running the application. Default to False.',
 )
-def version_cli(development, experiment, _version_number, _override):
-    if experiment:
+def version_cli(mode, _version_number, _override):
+    if mode == "experiment":
         if _version_number:
-            version_number = _version_number
+            print(_version_number)
+            curren_version_number = _version_number
         else:
-            version_number = str(uuid.uuid4())
+            curren_version_number = str(uuid.uuid4())
 
         override = _override
 
-    elif development:
-        Config.configure_global_app(clean_entities_enabled=True)
-        clean_all_entities()
-
-        version_number = _VersionManager._DEFAULT_VERSION
+    elif mode == "development":
+        curren_version_number = _VersionManager.get_development_version()
+        print(curren_version_number)
+        _VersionManager.set_development_version(curren_version_number)
         override = True
 
-    _VersionManager.set_current_version(version_number, override)
+        clean_all_entities_by_version(curren_version_number)
+        _TaipyLogger._get_logger().info(f"Development mode: Clean all entities with version {curren_version_number}")
+
+    else:
+        _TaipyLogger._get_logger().error("Undefined execution mode.")
+        return
+
+    _VersionManager.set_current_version(curren_version_number, override)
