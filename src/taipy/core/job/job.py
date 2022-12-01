@@ -301,4 +301,4 @@ class Job(_Entity):
 
     def _unlock_edit_on_outputs(self):
         for dn in self.task.output.values():
-            dn.unlock_edit(at=dn.last_edit_date)
+            dn.unlock_edit()

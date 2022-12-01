@@ -14,7 +14,7 @@ import pathlib
 from abc import abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, Iterable, Iterator, List, Optional, TypeVar, Union
+from typing import Any, Generic, Iterable, List, Optional, TypeVar, Union
 
 Json = Union[dict, list, str, int, float, bool, None]
 
@@ -45,7 +45,8 @@ class _AbstractRepository(Generic[ModelType, Entity]):
         Args:
             model_id: The entity id, i.e., its primary key.
 
-        Returns: An entity.
+        Returns:
+            An entity.
 
         """
         raise NotImplementedError
@@ -55,7 +56,8 @@ class _AbstractRepository(Generic[ModelType, Entity]):
         """
         Retrieve all the entities' data from the repository.
 
-        Returns: A list of entities.
+        Returns:
+            A list of entities.
         """
         raise NotImplementedError
 
@@ -65,7 +67,8 @@ class _AbstractRepository(Generic[ModelType, Entity]):
         Retrieve all the entities' data from the repository based
         on a criteria.
 
-        Returns: A list of entities.
+        Returns:
+            The list of all entities matching the criteria.
         """
         raise NotImplementedError
 
@@ -112,7 +115,8 @@ class _AbstractRepository(Generic[ModelType, Entity]):
             attribute: The entity property that is the key to the search.
             value: The value of the attribute that are being searched.
 
-        Returns: A list of entities
+        Returns:
+            A list of entities
 
         """
         raise NotImplementedError

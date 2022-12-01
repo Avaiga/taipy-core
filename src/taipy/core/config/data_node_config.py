@@ -14,6 +14,7 @@ from copy import copy
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from taipy.config._config import _Config
+from taipy.config.common._config_blocker import _ConfigBlocker
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
@@ -32,8 +33,8 @@ class DataNodeConfig(Section):
     Attributes:
         id (str): Unique identifier of the data node config. It must be a valid Python variable name.
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
-            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json" and "in_memory". The default value is
-            "pickle".
+            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json", "parquet" and "in_memory".
+            The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Scope^):  The `Scope^` of the data nodes instantiated from the data node config. The default value is
             SCENARIO.
@@ -53,6 +54,7 @@ class DataNodeConfig(Section):
     _STORAGE_TYPE_VALUE_IN_MEMORY = "in_memory"
     _STORAGE_TYPE_VALUE_GENERIC = "generic"
     _STORAGE_TYPE_VALUE_JSON = "json"
+    _STORAGE_TYPE_VALUE_PARQUET = "parquet"
     _DEFAULT_STORAGE_TYPE = _STORAGE_TYPE_VALUE_PICKLE
     _ALL_STORAGE_TYPES = [
         _STORAGE_TYPE_VALUE_PICKLE,
@@ -64,6 +66,7 @@ class DataNodeConfig(Section):
         _STORAGE_TYPE_VALUE_IN_MEMORY,
         _STORAGE_TYPE_VALUE_GENERIC,
         _STORAGE_TYPE_VALUE_JSON,
+        _STORAGE_TYPE_VALUE_PARQUET,
     ]
 
     _EXPOSED_TYPE_KEY = "exposed_type"
@@ -119,6 +122,11 @@ class DataNodeConfig(Section):
     _OPTIONAL_ENCODER_JSON_PROPERTY = "encoder"
     _OPTIONAL_DECODER_TYPE_JSON_PROPERTY = "decoder"
     _REQUIRED_DEFAULT_PATH_JSON_PROPERTY = "default_path"
+    # Parquet
+    _OPTIONAL_EXPOSED_TYPE_PARQUET_PROPERTY = "exposed_type"
+    _OPTIONAL_DEFAULT_PATH_PARQUET_PROPERTY = "default_path"
+    _OPTIONAL_COLUMNS_PARQUET_PROPERTY = "columns"
+    _OPTIONAL_COMPRESSION_PARQUET_PROPERTY = "compression"
 
     _REQUIRED_PROPERTIES: Dict[str, List] = {
         _STORAGE_TYPE_VALUE_PICKLE: [],
@@ -149,6 +157,7 @@ class DataNodeConfig(Section):
             _REQUIRED_WRITE_FUNCTION_GENERIC_PROPERTY,
         ],
         _STORAGE_TYPE_VALUE_JSON: [_REQUIRED_DEFAULT_PATH_JSON_PROPERTY],
+        _STORAGE_TYPE_VALUE_PARQUET: [],
     }
 
     _OPTIONAL_PROPERTIES = {
@@ -178,6 +187,12 @@ class DataNodeConfig(Section):
         ],
         _STORAGE_TYPE_VALUE_PICKLE: [_OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY, _OPTIONAL_DEFAULT_DATA_PICKLE_PROPERTY],
         _STORAGE_TYPE_VALUE_JSON: [_OPTIONAL_ENCODER_JSON_PROPERTY, _OPTIONAL_DECODER_TYPE_JSON_PROPERTY],
+        _STORAGE_TYPE_VALUE_PARQUET: [
+            _OPTIONAL_EXPOSED_TYPE_PARQUET_PROPERTY,
+            _OPTIONAL_DEFAULT_PATH_PARQUET_PROPERTY,
+            _OPTIONAL_COLUMNS_PARQUET_PROPERTY,
+            _OPTIONAL_COMPRESSION_PARQUET_PROPERTY,
+        ],
     }
 
     _SCOPE_KEY = "scope"
@@ -203,6 +218,7 @@ class DataNodeConfig(Section):
         return _tpl._replace_templates(self._storage_type)
 
     @storage_type.setter  # type: ignore
+    @_ConfigBlocker._check()
     def storage_type(self, val):
         self._storage_type = val
 
@@ -211,6 +227,7 @@ class DataNodeConfig(Section):
         return _tpl._replace_templates(self._scope)
 
     @scope.setter  # type: ignore
+    @_ConfigBlocker._check()
     def scope(self, val):
         self._scope = val
 
@@ -219,6 +236,7 @@ class DataNodeConfig(Section):
         return _tpl._replace_templates(self._cacheable)
 
     @cacheable.setter  # type: ignore
+    @_ConfigBlocker._check()
     def cacheable(self, val):
         self._cacheable = val
 
@@ -267,14 +285,14 @@ class DataNodeConfig(Section):
         Parameters:
             storage_type (str): The default storage type for all data node configurations.
                 The possible values are _"pickle"_ (the default value), _"csv"_, _"excel"_,
-                _"sql"_, _"mongo_collection"_, _"in_memory"_, _"json"_ or _"generic"_.
+                _"sql"_, _"mongo_collection"_, _"in_memory"_, _"json"_, _"parquet"_ or _"generic"_.
             scope (Scope^): The default scope for all data node configurations.
                 The default value is `Scope.SCENARIO`.
             cacheable (bool): If True, indicates that the data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The default data node configuration.
+            `DataNodeConfig^`: The default data node configuration.
         """
         section = DataNodeConfig(_Config.DEFAULT_KEY, storage_type, scope, cacheable, **properties)
         Config._register(section)
@@ -294,8 +312,8 @@ class DataNodeConfig(Section):
             storage_type (str): The data node configuration storage type. The possible values
                 are _"pickle"_ (which the default value, unless it has been overloaded by the
                 _storage_type_ value set in the default data node configuration
-                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql_table"_, _"sql"_, _"json"_, _"mongo_collection"_,
-                _"in_memory"_, or _"generic"_.
+                (see `(Config.)configure_default_data_node()^`)), _"csv"_, _"excel"_, _"sql_table"_, _"sql"_, _"json"_,
+                _"parquet"_, _"mongo_collection"_, _"in_memory"_, or _"generic"_.
             scope (Scope^): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in
                 `(Config.)configure_default_data_node()^`).
@@ -303,7 +321,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new data node configuration.
+            `DataNodeConfig^`: The new data node configuration.
         """
         section = DataNodeConfig(id, storage_type, scope, cacheable, **properties)
         Config._register(section)
@@ -332,7 +350,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new CSV data node configuration.
+            `DataNodeConfig^`: The new CSV data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -370,7 +388,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new JSON data node configuration.
+            `DataNodeConfig^`: The new JSON data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -380,6 +398,58 @@ class DataNodeConfig(Section):
             default_path=default_path,
             encoder=encoder,
             decoder=decoder,
+            **properties,
+        )
+        Config._register(section)
+        return Config.sections[DataNodeConfig.name][id]
+
+    @staticmethod
+    def _configure_parquet(
+        id: str,
+        default_path: str = None,
+        exposed_type=_DEFAULT_EXPOSED_TYPE,
+        engine: str = "auto",
+        compression: Optional[str] = "snappy",
+        read_kwargs: Dict = dict(),
+        write_kwargs: Dict = dict(),
+        scope=_DEFAULT_SCOPE,
+        cacheable: bool = False,
+        **properties,
+    ):
+        """Configure a new Parquet data node configuration.
+
+        Parameters:
+            id (str): The unique identifier of the new Parquet data node configuration.
+            default_path (str): The default path of the Parquet file.
+            exposed_type: The exposed type of the data read from Parquet file. The default value is `pandas`.
+            engine (str): Parquet library to use. If 'auto', then the option pandas.io.parquet.engine is used.
+                The default pandas.io.parquet.engine behavior is to try 'pyarrow', falling back to 'fastparquet' if 'pyarrow' is unavailable.
+                `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`.
+            compression (Optional[str]): Name of the compression to use. Use None for no compression.
+                `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.
+            read_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.read_parquet` method.
+            write_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.DataFrame.write_parquet` method.
+                The parameters in "read_kwargs" and "write_kwargs" have a **higher precedence** than the top-level parameters which are also
+                passed to Pandas.
+            scope (Scope^): The scope of the Parquet data node configuration. The default value
+                is `Scope.SCENARIO`.
+            cacheable (bool): If True, indicates that the Parquet data node is cacheable. The default value is _False_.
+            **properties (Dict[str, Any]): A keyworded variable length list of additional
+                arguments.
+        Returns:
+            `DataNodeConfig^`: The new Parquet data node configuration.
+        """
+        section = DataNodeConfig(
+            id,
+            DataNodeConfig._STORAGE_TYPE_VALUE_PARQUET,
+            scope=scope,
+            cacheable=cacheable,
+            default_path=default_path,
+            engine=engine,
+            compression=compression,
+            read_kwargs=read_kwargs,
+            write_kwargs=write_kwargs,
+            exposed_type=exposed_type,
             **properties,
         )
         Config._register(section)
@@ -411,7 +481,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new CSV data node configuration.
+            `DataNodeConfig^`: The new CSV data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -456,7 +526,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new Generic data node configuration.
+            `DataNodeConfig^`: The new Generic data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -492,7 +562,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new _in_memory_ data node configuration.
+            `DataNodeConfig^`: The new _in_memory_ data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -525,7 +595,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new pickle data node configuration.
+            `DataNodeConfig^`: The new pickle data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -577,7 +647,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new SQL data node configuration.
+            `DataNodeConfig^`: The new SQL data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -640,7 +710,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new SQL data node configuration.
+            `DataNodeConfig^`: The new SQL data node configuration.
         """
         section = DataNodeConfig(
             id,
@@ -698,7 +768,7 @@ class DataNodeConfig(Section):
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
-            DataNodeConfig^: The new Mongo collection data node configuration.
+            `DataNodeConfig^`: The new Mongo collection data node configuration.
         """
         section = DataNodeConfig(
             id,

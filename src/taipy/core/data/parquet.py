@@ -9,7 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import csv
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional, Set
@@ -19,15 +18,14 @@ import pandas as pd
 
 from taipy.config.common.scope import Scope
 
-from .._version._version_manager import _VersionManager
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, JobId
 from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
 from .data_node import DataNode
 
 
-class CSVDataNode(DataNode):
-    """Data Node stored as a CSV file.
+class ParquetDataNode(DataNode):
+    """Data Node stored as a Parquet file.
 
     Attributes:
         config_id (str): Identifier of the data node configuration. This string must be a valid
@@ -39,23 +37,30 @@ class CSVDataNode(DataNode):
         parent_ids (Optional[Set[str]]): The identifiers of the parent tasks or `None`.
         last_edit_date (datetime): The date and time of the last modification.
         job_ids (List[str]): The ordered list of jobs that have written this data node.
-        version (str): The string indicates the version number of the config. The default version is "latest".
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
             always up-to-date.
         edit_in_progress (bool): True if a task computing the data node has been submitted
             and not completed yet. False otherwise.
-        path (str): The path to the CSV file.
+        path (str): The path to the Parquet file.
         properties (dict[str, Any]): A dictionary of additional properties. The _properties_
-            must have a _"default_path"_ or _"path"_ entry with the path of the CSV file:
+            must have a _"default_path"_ or _"path"_ entry with the path of the Parquet file:
 
-            - _"default_path"_ `(str)`: The default path of the CSV file.\n
-            - _"has_header"_ `(bool)`: If True, indicates that the CSV file has a header.\n
-            - _"exposed_type"_: The exposed type of the data read from CSV file. The default value is `pandas`.\n
+            - _"default_path"_ `(str)`: The default path of the Parquet file.\n
+            - _"exposed_type"_: The exposed type of the data read from Parquet file. The default value is `pandas`.\n
+            - _"engine"_ `(str)`: Parquet library to use. If 'auto', then the option pandas.io.parquet.engine is used.
+                The default pandas.io.parquet.engine behavior is to try 'pyarrow', falling back to 'fastparquet' if 'pyarrow' is unavailable.
+                `{'auto', 'pyarrow', 'fastparquet'}`, default `'auto'`. \n
+            - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
+                `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
+            - _"read_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.read_parquet_ method.\n
+            - _"write_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.DataFrame.write_parquet_ method.
+                The parameters in _"read_kwargs"_ and _"write_kwargs"_ have a **higher precedence** than the top-level parameters which
+                are also passed to Pandas.\n
     """
 
-    __STORAGE_TYPE = "csv"
+    __STORAGE_TYPE = "parquet"
     __EXPOSED_TYPE_PROPERTY = "exposed_type"
     __EXPOSED_TYPE_NUMPY = "numpy"
     __EXPOSED_TYPE_PANDAS = "pandas"
@@ -63,7 +68,10 @@ class CSVDataNode(DataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
-    __HAS_HEADER_PROPERTY = "has_header"
+    __ENGINE_PROPERTY = "engine"
+    __COMPRESSION_PROPERTY = "compression"
+    __READ_KWARGS_PROPERTY = "read_kwargs"
+    __WRITE_KWARGS_PROPERTY = "write_kwargs"
     _REQUIRED_PROPERTIES: List[str] = []
 
     def __init__(
@@ -76,7 +84,6 @@ class CSVDataNode(DataNode):
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
         job_ids: List[JobId] = None,
-        version: str = None,
         cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -89,12 +96,21 @@ class CSVDataNode(DataNode):
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
             )
 
-        if self.__HAS_HEADER_PROPERTY not in properties.keys():
-            properties[self.__HAS_HEADER_PROPERTY] = True
+        if self.__ENGINE_PROPERTY not in properties.keys():
+            properties[self.__ENGINE_PROPERTY] = "pyarrow"
+
+        if self.__COMPRESSION_PROPERTY not in properties.keys():
+            properties[self.__COMPRESSION_PROPERTY] = "snappy"
+
+        if self.__READ_KWARGS_PROPERTY not in properties.keys():
+            properties[self.__READ_KWARGS_PROPERTY] = {}
+
+        if self.__WRITE_KWARGS_PROPERTY not in properties.keys():
+            properties[self.__WRITE_KWARGS_PROPERTY] = {}
 
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if self._path is None:
-            raise MissingRequiredProperty("default_path is required in a CSV data node config")
+            raise MissingRequiredProperty("default_path is required in a Parquet data node config")
         else:
             properties[self.__PATH_KEY] = self._path
 
@@ -111,14 +127,13 @@ class CSVDataNode(DataNode):
             parent_ids,
             last_edit_date,
             job_ids,
-            version or _VersionManager.get_current_version(),
             cacheable,
             validity_period,
             edit_in_progress,
             **properties,
         )
         if not self._last_edit_date and isfile(self._path):
-            self.last_edit_date = datetime.now()  # type: ignore
+            self.unlock_edit()
 
     @classmethod
     def storage_type(cls) -> str:
@@ -141,82 +156,71 @@ class CSVDataNode(DataNode):
             )
 
     def _read(self):
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
-            return self._read_as_pandas_dataframe()
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
-            return self._read_as_modin_dataframe()
-        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
-            return self._read_as_numpy()
-        return self._read_as()
+        return self.read_with_kwargs()
 
-    def _read_as(self):
+    def _read_as(self, read_kwargs: Dict):
         custom_class = self.properties[self.__EXPOSED_TYPE_PROPERTY]
-        with open(self._path) as csvFile:
-            res = list()
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                reader = csv.DictReader(csvFile)
-                for line in reader:
-                    res.append(custom_class(**line))
-            else:
-                reader = csv.reader(
-                    csvFile,
-                )
-                for line in reader:
-                    res.append(custom_class(*line))
-            return res
+        list_of_dicts = self._read_as_pandas_dataframe(read_kwargs).to_dict(orient="records")
+        return [custom_class(**dct) for dct in list_of_dicts]
 
-    def _read_as_numpy(self):
-        return self._read_as_pandas_dataframe().to_numpy()
+    def _read_as_numpy(self, read_kwargs: Dict):
+        return self._read_as_pandas_dataframe(read_kwargs).to_numpy()
 
-    def _read_as_pandas_dataframe(
-        self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None
-    ) -> pd.DataFrame:
-        try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return pd.read_csv(self._path)[column_names]
-                return pd.read_csv(self._path)
-            else:
-                if usecols:
-                    return pd.read_csv(self._path, header=None, usecols=usecols)
-                return pd.read_csv(self._path, header=None)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame()
+    def _read_as_pandas_dataframe(self, read_kwargs: Dict) -> pd.DataFrame:
+        return pd.read_parquet(self._path, **read_kwargs)
 
-    def _read_as_modin_dataframe(
-        self, usecols: Optional[List[int]] = None, column_names: Optional[List[str]] = None
-    ) -> modin_pd.DataFrame:
-        try:
-            if self.properties[self.__HAS_HEADER_PROPERTY]:
-                if column_names:
-                    return modin_pd.read_csv(self._path)[column_names]
-                return modin_pd.read_csv(self._path)
-            else:
-                if usecols:
-                    return modin_pd.read_csv(self._path, header=None, usecols=usecols)
-                return modin_pd.read_csv(self._path, header=None)
-        except pd.errors.EmptyDataError:
-            return modin_pd.DataFrame()
+    def _read_as_modin_dataframe(self, read_kwargs: Dict) -> modin_pd.DataFrame:
+        return modin_pd.read_parquet(self._path, **read_kwargs)
 
     def _write(self, data: Any):
-        if isinstance(data, (pd.DataFrame, modin_pd.DataFrame)):
-            data.to_csv(self._path, index=False)
-        else:
-            pd.DataFrame(data).to_csv(self._path, index=False)
+        self.write_with_kwargs(data)
 
-    def write_with_column_names(self, data: Any, columns: List[str] = None, job_id: Optional[JobId] = None):
-        """Write a selection of columns.
+    def write_with_kwargs(self, data: Any, job_id: Optional[JobId] = None, **write_kwargs):
+        """Write data, with keyword arguments passed to `pandas.DataFrame.to_parquet`.
+
+        Keyword arguments here which are also present in the Data Node config will overwrite them.
 
         Parameters:
             data (Any): The data to write.
-            columns (List[str]): The list of column names to write.
             job_id (JobId^): An optional identifier of the writer.
+            **write_kwargs: The keyword arguments are passed to `pandas.DataFrame.to_parquet`.
         """
-        if not columns:
-            df = pd.DataFrame(data)
-        else:
-            df = pd.DataFrame(data, columns=columns)
-        df.to_csv(self._path, index=False)
+
+        kwargs = {
+            self.__ENGINE_PROPERTY: self.properties[self.__ENGINE_PROPERTY],
+            self.__COMPRESSION_PROPERTY: self.properties[self.__COMPRESSION_PROPERTY],
+        }
+        kwargs.update(self.properties[self.__WRITE_KWARGS_PROPERTY])
+        kwargs.update(write_kwargs)
+        pd.DataFrame(data).to_parquet(self._path, **kwargs)
+
         self._last_edit_date = datetime.now()
         if job_id:
             self.job_ids.append(job_id)
+
+    def read_with_kwargs(self, **read_kwargs):
+        """Read data node, with keyword arguments passed to `pandas.read_parquet`.
+
+        Keyword arguments here which are also present in the Data Node config will overwrite them.
+
+        Parameters:
+            **read_kwargs: The keyword arguments are passed to `pandas.read_parquet`.
+        """
+
+        # return None if data was never written
+        if not self.last_edit_date:
+            self._DataNode__logger.warning(
+                f"Data node {self.id} from config {self.config_id} is being read but has never been written."
+            )
+            return None
+
+        kwargs = self.properties[self.__READ_KWARGS_PROPERTY]
+        kwargs.update(read_kwargs)
+
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_PANDAS:
+            return self._read_as_pandas_dataframe(kwargs)
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_MODIN:
+            return self._read_as_modin_dataframe(kwargs)
+        if self.properties[self.__EXPOSED_TYPE_PROPERTY] == self.__EXPOSED_TYPE_NUMPY:
+            return self._read_as_numpy(kwargs)
+        return self._read_as(kwargs)

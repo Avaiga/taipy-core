@@ -167,27 +167,27 @@ class TestDataNode:
 
     def test_ready_for_reading(self):
         dn = InMemoryDataNode("foo_bar", Scope.CYCLE)
-        assert dn.last_edition_date is None
+        assert dn.last_edit_date is None
         assert not dn.is_ready_for_reading
         assert dn.job_ids == []
 
-        dn.lock_edition()
-        assert dn.last_edition_date is None
+        dn.lock_edit()
+        assert dn.last_edit_date is None
         assert not dn.is_ready_for_reading
         assert dn.job_ids == []
 
-        dn.unlock_edition(a_date := datetime.now(), job_id := JobId("a_job_id"))
-        assert dn.last_edition_date == a_date
-        assert dn.is_ready_for_reading
-        assert dn.job_ids == [job_id]
-
-        dn.lock_edition()
-        assert dn.last_edition_date == a_date
+        dn.unlock_edit(datetime.now(), JobId("a_job_id"))
+        assert dn.last_edit_date is None
         assert not dn.is_ready_for_reading
-        assert dn.job_ids == [job_id]
+        assert dn.job_ids == []
 
-        dn.unlock_edition(b_date := datetime.now())
-        assert dn.last_edition_date == b_date
+        dn.lock_edit()
+        assert dn.last_edit_date is None
+        assert not dn.is_ready_for_reading
+        assert dn.job_ids == []
+
+        dn.write("toto", job_id := JobId("a_job_id"))
+        assert dn.last_edit_date is not None
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
 
@@ -255,7 +255,6 @@ class TestDataNode:
 
     def test_do_not_recompute_data_node_in_cache_but_continue_pipeline_execution(self):
         Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
-        _SchedulerFactory._build_dispatcher()
 
         a = Config.configure_data_node("A", "pickle", default_data="A")
         b = Config.configure_data_node("B", "pickle", cacheable=True)
@@ -268,6 +267,8 @@ class TestDataNode:
         pipeline_c = Config.configure_pipeline("pipeline_c", [task_a_b, task_b_c])
         pipeline_d = Config.configure_pipeline("pipeline_d", [task_a_b, task_b_d])
         scenario_cfg = Config.configure_scenario("scenario", [pipeline_c, pipeline_d])
+
+        _SchedulerFactory._build_dispatcher()
 
         scenario = tp.create_scenario(scenario_cfg)
         scenario.submit()
@@ -586,8 +587,8 @@ class TestDataNode:
 
         with pytest.warns(DeprecationWarning):
             with mock.patch("src.taipy.core.data.data_node.DataNode.unlock_edit") as unlock_edit:
-                dn.unlock_edition(d := datetime.now(), None)
-                unlock_edit.assert_called_once_with(d, None)
+                dn.unlock_edition(datetime.now(), None)
+                unlock_edit.assert_called_once_with()
 
     def test_lock_edition_deprecated(self):
         dn = FakeDataNode("foo")
