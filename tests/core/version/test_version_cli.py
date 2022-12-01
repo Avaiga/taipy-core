@@ -9,11 +9,10 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from unittest import mock
-
 from click.testing import CliRunner
 
-from src.taipy.core._version._version_cli import clean_all_entities_by_version, version_cli
+from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
+from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
@@ -102,7 +101,6 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 3
 
     result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
-    print(result.output)
     ver_5 = _VersionManager.get_current_version()
     assert ver_5 == "2.1"
     assert len(_VersionManager._get_all()) == 4
@@ -114,11 +112,37 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
 
+def test_override_version():
+    runner = CliRunner()
+
+    runner.invoke(version_cli, ["--experiment"])
+    assert len(_VersionManager._get_all()) == 1
+
+    runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
+    ver_2 = _VersionManager.get_current_version()
+    assert ver_2 == "2.1"
+    assert len(_VersionManager._get_all()) == 2
+
+    # Without --override parameter
+    result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
+    assert result.exit_code == 1 # Failed
+    assert isinstance(result.exception, VersionAlreadyExists)
+    assert result.exception.args[0] == "Version 2.1 already exists."
+
+    # With --override parameter
+    result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1", "--override"])
+    assert result.exit_code == 0 # Success
+    ver_2 = _VersionManager.get_current_version()
+    assert ver_2 == "2.1"
+    assert len(_VersionManager._get_all()) == 2
+
+
 def task_test(a):
     return a
 
 
 def submit_scenario():
+    Config.unblock_update()
     data_node_1_config = Config.configure_data_node(id="d1", storage_type="in_memory", scope=Scope.SCENARIO)
     data_node_2_config = Config.configure_data_node(
         id="d2", storage_type="pickle", default_data="abc", scope=Scope.SCENARIO
@@ -131,5 +155,4 @@ def submit_scenario():
 
     scenario = _ScenarioManager._create(scenario_config)
 
-    # Use ._submit to avoid Config.block()
     _ScenarioManager._submit(scenario)
