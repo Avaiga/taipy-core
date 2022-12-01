@@ -282,6 +282,18 @@ class _ScenarioManager(_Manager[Scenario]):
         cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
+    def _delete_by_version(cls, version_number: str):
+        """
+        Deletes scenario by the version number.
+
+        Check if the cycle is only attached to this scenario, then delete it.
+        """
+        while scenario := cls._repository._search("version", version_number):
+            if scenario.cycle and len(cls._get_all_by_cycle(scenario.cycle)) == 1:
+                _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
+            cls._repository._delete(scenario.id)
+
+    @classmethod
     def _get_children_entity_ids(cls, scenario: Scenario) -> _EntityIds:
         entity_ids = _EntityIds()
 

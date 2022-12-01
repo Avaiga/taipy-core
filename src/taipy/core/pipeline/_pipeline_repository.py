@@ -96,6 +96,9 @@ class _PipelineRepository(_AbstractRepository[_PipelineModel, Pipeline]):  # typ
     def _delete_many(self, ids: Iterable[str]):
         return self.repo._delete_many(ids)
 
+    def _delete_by(self, attribute: str, value: str):
+        return self.repo._delete_by(attribute, value)
+
     def _search(self, attribute: str, value: Any) -> Optional[Pipeline]:
         return self.repo._search(attribute, value)
 

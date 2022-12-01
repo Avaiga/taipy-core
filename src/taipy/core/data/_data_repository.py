@@ -238,6 +238,9 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
     def _delete_all(self):
         return self.repo._delete_all()
 
+    def _delete_by(self, attribute: str, value: str):
+        return self.repo._delete_by(attribute, value)
+
     def _delete_many(self, ids: Iterable[str]):
         return self.repo._delete_many(ids)
 
