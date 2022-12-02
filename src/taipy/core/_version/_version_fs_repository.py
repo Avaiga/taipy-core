@@ -27,7 +27,10 @@ class _VersionFSRepository(_FileSystemRepository):
 
     def __init__(self):
         super().__init__(_VersionModel, "version", self._to_model, self._from_model)
-        self._version_file_path = self.dir_path / "version.json"
+
+    @property
+    def _version_file_path(self):
+        return self.dir_path / "version.json"
 
     def _to_model(self, version: _Version):
         return _VersionModel(
