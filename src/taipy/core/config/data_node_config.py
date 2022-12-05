@@ -406,7 +406,7 @@ class DataNodeConfig(Section):
         id: str,
         default_path: str = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
-        engine: Optional[str] = "fastparquet",
+        engine: Optional[str] = "pyarrow",
         compression: Optional[str] = "snappy",
         read_kwargs: Dict = dict(),
         write_kwargs: Dict = dict(),
@@ -421,7 +421,7 @@ class DataNodeConfig(Section):
             default_path (str): The default path of the Parquet file.
             exposed_type: The exposed type of the data read from Parquet file. The default value is `pandas`.
             engine (Optional[str]): Parquet library to use. Possible values are _"fastparquet"_ or _"pyarrow"_.
-                The default value is _"fastparquet"_.
+                The default value is _"pyarrow"_.
             compression (Optional[str]): Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.
             read_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.read_parquet` method.

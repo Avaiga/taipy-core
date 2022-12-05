@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastparquet = "2022.11.0"
 modin = {extras = ["dask"], version = "==0.16.2"}
 networkx = "==2.6"
 openpyxl = "==3.0.7"
+pyarrow = "==9.0.0"
 pymongo = "==4.2.0"
 sqlalchemy = "==1.4.18"
 toml = "==0.10"

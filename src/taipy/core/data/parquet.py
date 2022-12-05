@@ -55,7 +55,7 @@ class ParquetDataNode(DataNode):
             - _"default_path"_ `(str)`: The default path of the Parquet file.\n
             - _"exposed_type"_: The exposed type of the data read from Parquet file. The default value is `pandas`.\n
             - _"engine"_ `(Optional[str])`: Parquet library to use. Possible values are _"fastparquet"_ or _"pyarrow"_.
-                The default value is _"fastparquet"_.
+                The default value is _"pyarrow"_.
             - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
             - _"read_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.read_parquet_ method.\n
@@ -103,7 +103,7 @@ class ParquetDataNode(DataNode):
             )
 
         if self.__ENGINE_PROPERTY not in properties.keys():
-            properties[self.__ENGINE_PROPERTY] = "fastparquet"
+            properties[self.__ENGINE_PROPERTY] = "pyarrow"
         if properties[self.__ENGINE_PROPERTY] not in self.__VALID_PARQUET_ENGINES:
             raise UnknownParquetEngine(
                 f"Invalid parquet engine: {properties[self.__ENGINE_PROPERTY]}. Supported engines are {', '.join(self.__VALID_PARQUET_ENGINES)}"

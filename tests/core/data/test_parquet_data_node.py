@@ -61,9 +61,9 @@ def create_custom_class(**kwargs):
 
 
 class TestParquetDataNode:
-    __engine = ["fastparquet"]
-    if util.find_spec("pyarrow"):
-        __engine.append("pyarrow")
+    __engine = ["pyarrow"]
+    if util.find_spec("fastparquet"):
+        __engine.append("fastparquet")
 
     def test_create(self):
         path = "data/node/path"
@@ -84,7 +84,7 @@ class TestParquetDataNode:
         assert dn.path == path
         assert dn.exposed_type == "pandas"
         assert dn.compression == "snappy"
-        assert dn.engine == "fastparquet"
+        assert dn.engine == "pyarrow"
 
         with pytest.raises(InvalidConfigurationId):
             dn = ParquetDataNode("foo bar", Scope.PIPELINE, name="super name", properties={"path": path})
@@ -258,7 +258,7 @@ class TestParquetDataNode:
         print(dn.read())
         assert set(dn.read().columns) == set(read_kwargs["columns"])
 
-        # !!! filter doesn't work with `fastparquet` through pandas interface
+        # !!! filter doesn't work with `fastparquet` without partition_cols
         if engine == "pyarrow":
             assert len(dn.read()) != len(df)
             assert len(dn.read()) == 2
