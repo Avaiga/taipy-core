@@ -38,7 +38,7 @@ class DataNodeConfig(Section):
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Scope^):  The `Scope^` of the data nodes instantiated from the data node config. The default value is
             SCENARIO.
-        cacheable (bool): If True, indicates that the CSV data node is cacheable. The default value is _False_.
+        cacheable (bool): If True, indicates that the data node is cacheable. The default value is _False_.
         **properties (dict[str, Any]): A dictionary of additional properties.
     """
 
