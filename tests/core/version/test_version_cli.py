@@ -16,7 +16,6 @@ from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
-from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
 from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
@@ -181,8 +180,9 @@ def test_override_version():
     assert len(_JobManager._get_all()) == 1
 
     # Without --override parameter
-    with pytest.raises(VersionAlreadyExists):
+    with pytest.raises(SystemExit) as e:
         core.run(parameters=["--experiment", "--version-number", "2.1"])
+    assert str(e.value) == "Version 2.1 already exists."
 
     # With --override parameter
     core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])

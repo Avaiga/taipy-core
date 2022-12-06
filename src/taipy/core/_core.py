@@ -19,6 +19,7 @@ from ._scheduler._scheduler import _Scheduler
 from ._scheduler._scheduler_factory import _SchedulerFactory
 from ._version._version_cli import version_cli
 from ._version._version_manager import _VersionManager
+from .exceptions.exceptions import VersionAlreadyExists
 from .taipy import clean_all_entities_by_version
 
 
@@ -74,4 +75,7 @@ class Core:
         if override:
             clean_all_entities_by_version(curren_version_number)
 
-        _VersionManager.set_current_version(curren_version_number, override)
+        try:
+            _VersionManager.set_current_version(curren_version_number, override)
+        except VersionAlreadyExists as e:
+            raise SystemExit(e)
