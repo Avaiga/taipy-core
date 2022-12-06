@@ -9,13 +9,16 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import pytest
 from click.testing import CliRunner
 
-from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
+from src.taipy.core import Core
+from src.taipy.core._scheduler._scheduler_factory import _SchedulerFactory
 from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
+from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
 from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
@@ -25,11 +28,78 @@ from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 
 
-def test_dev_mode_clean_all_entities_of_the_current_version():
+def test_version_cli_return_value():
     runner = CliRunner()
 
+    # Test default cli values
+    result = runner.invoke(version_cli, standalone_mode=False)
+    mode, version_number, override = result.return_value
+    assert mode == "development"
+    assert version_number is None
+    assert not override
+
+    # Test Dev mode
+    result = runner.invoke(version_cli, ["--development"], standalone_mode=False)
+    mode, _, _ = result.return_value
+    assert mode == "development"
+
+    result = runner.invoke(version_cli, ["--dev"], standalone_mode=False)
+    mode, _, _ = result.return_value
+    assert mode == "development"
+
+    result = runner.invoke(version_cli, ["-d"], standalone_mode=False)
+    mode, _, _ = result.return_value
+    assert mode == "development"
+
+    # Test Experiment mode
+    result = runner.invoke(version_cli, ["--experiment"], standalone_mode=False)
+    mode, version_number, override = result.return_value
+    assert mode == "experiment"
+    assert version_number is None
+    assert not override
+
+    result = runner.invoke(version_cli, ["-e"], standalone_mode=False)
+    mode, version_number, override = result.return_value
+    assert mode == "experiment"
+    assert version_number is None
+    assert not override
+
+    result = runner.invoke(version_cli, ["-e", "--version-number", "2.1"], standalone_mode=False)
+    mode, version_number, override = result.return_value
+    assert mode == "experiment"
+    assert version_number == "2.1"
+    assert not override
+
+    result = runner.invoke(version_cli, ["-e", "--version-number", "2.1", "--override"], standalone_mode=False)
+    mode, version_number, override = result.return_value
+    assert mode == "experiment"
+    assert version_number == "2.1"
+    assert override
+
+
+class CoreForTest(Core):
+    def __init__(self):
+        self.runner = CliRunner()
+        super().__init__()
+
+    def run(self, parameters, force_restart=False):
+        """
+        Start a Core service. This method is blocking.
+        """
+        result = self.runner.invoke(version_cli, parameters, standalone_mode=False)
+        cli_args = result.return_value
+
+        self._Core__setup_versioning_module(*cli_args)
+
+        if dispatcher := _SchedulerFactory._build_dispatcher(force_restart=force_restart):
+            self._dispatcher = dispatcher
+
+
+def test_dev_mode_clean_all_entities_of_the_current_version():
+    core = CoreForTest()
+
     # Create a scenario in development mode
-    runner.invoke(version_cli, ["--development"])
+    core.run(parameters=["--development"])
     submit_scenario()
 
     # Initial assertion
@@ -41,7 +111,7 @@ def test_dev_mode_clean_all_entities_of_the_current_version():
     assert len(_JobManager._get_all()) == 1
 
     # Create a new scenario in experiment mode
-    runner.invoke(version_cli, ["--experiment"])
+    core.run(parameters=["--experiment"])
     submit_scenario()
 
     # Assert number of entities in 2nd version
@@ -53,7 +123,7 @@ def test_dev_mode_clean_all_entities_of_the_current_version():
     assert len(_JobManager._get_all()) == 2
 
     # Run development mode again
-    runner.invoke(version_cli, ["--development"])
+    core.run(parameters=["--development"])
 
     # The 1st dev version should be deleted run with development mode
     assert len(_DataManager._get_all()) == 2
@@ -76,65 +146,76 @@ def test_dev_mode_clean_all_entities_of_the_current_version():
 
 
 def test_version_number_when_switching_mode():
-    runner = CliRunner()
+    core = CoreForTest()
 
-    runner.invoke(version_cli, ["--development"])
+    core.run(parameters=["--development"])
     ver_1 = _VersionManager.get_current_version()
     assert len(_VersionManager._get_all()) == 1
 
     # Run with dev mode, the version number is the same
-    runner.invoke(version_cli, ["--development"])
+    core.run(parameters=["--development"])
     ver_2 = _VersionManager.get_current_version()
     assert ver_1 == ver_2
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
-    runner.invoke(version_cli, ["--experiment"])
+    core.run(parameters=["--experiment"])
     ver_3 = _VersionManager.get_current_version()
     assert ver_1 != ver_3
     assert len(_VersionManager._get_all()) == 2
 
-    runner.invoke(version_cli, ["--experiment"])
+    core.run(parameters=["--experiment"])
     ver_4 = _VersionManager.get_current_version()
     assert ver_1 != ver_4
     assert ver_3 != ver_4
     assert len(_VersionManager._get_all()) == 3
 
-    result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
+    core.run(parameters=["--experiment", "--version-number", "2.1"])
     ver_5 = _VersionManager.get_current_version()
     assert ver_5 == "2.1"
     assert len(_VersionManager._get_all()) == 4
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
-    runner.invoke(version_cli, ["--development"])
+    core.run(parameters=["--development"])
     ver_5 = _VersionManager.get_current_version()
     assert ver_1 == ver_5
     assert len(_VersionManager._get_all()) == 4
 
 
 def test_override_version():
-    runner = CliRunner()
+    core = CoreForTest()
 
-    runner.invoke(version_cli, ["--experiment"])
+    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    ver_2 = _VersionManager.get_current_version()
+    assert ver_2 == "2.1"
     assert len(_VersionManager._get_all()) == 1
 
-    runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
-    ver_2 = _VersionManager.get_current_version()
-    assert ver_2 == "2.1"
-    assert len(_VersionManager._get_all()) == 2
+    submit_scenario()
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
 
     # Without --override parameter
-    result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1"])
-    assert result.exit_code == 1 # Failed
-    assert isinstance(result.exception, VersionAlreadyExists)
-    assert result.exception.args[0] == "Version 2.1 already exists."
+    with pytest.raises(VersionAlreadyExists):
+        core.run(parameters=["--experiment", "--version-number", "2.1"])
 
     # With --override parameter
-    result = runner.invoke(version_cli, ["--experiment", "--version-number", "2.1", "--override"])
-    assert result.exit_code == 0 # Success
+    core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])
     ver_2 = _VersionManager.get_current_version()
     assert ver_2 == "2.1"
-    assert len(_VersionManager._get_all()) == 2
+    assert len(_VersionManager._get_all()) == 1
+
+    # The number of entities should not change
+    submit_scenario()
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
 
 
 def task_test(a):
@@ -142,7 +223,9 @@ def task_test(a):
 
 
 def submit_scenario():
+    # Unblock for test
     Config.unblock_update()
+
     data_node_1_config = Config.configure_data_node(id="d1", storage_type="in_memory", scope=Scope.SCENARIO)
     data_node_2_config = Config.configure_data_node(
         id="d2", storage_type="pickle", default_data="abc", scope=Scope.SCENARIO
