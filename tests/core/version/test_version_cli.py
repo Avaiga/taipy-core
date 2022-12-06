@@ -12,8 +12,6 @@
 import pytest
 from click.testing import CliRunner
 
-from src.taipy.core import Core
-from src.taipy.core._scheduler._scheduler_factory import _SchedulerFactory
 from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
@@ -26,6 +24,8 @@ from src.taipy.core.task._task_manager import _TaskManager
 from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
+
+from ..utils.core_service_for_test import CoreForTest
 
 
 def test_version_cli_return_value():
@@ -75,24 +75,6 @@ def test_version_cli_return_value():
     assert mode == "experiment"
     assert version_number == "2.1"
     assert override
-
-
-class CoreForTest(Core):
-    def __init__(self):
-        self.runner = CliRunner()
-        super().__init__()
-
-    def run(self, parameters, force_restart=False):
-        """
-        Start a Core service. This method is blocking.
-        """
-        result = self.runner.invoke(version_cli, parameters, standalone_mode=False)
-        cli_args = result.return_value
-
-        self._Core__setup_versioning_module(*cli_args)
-
-        if dispatcher := _SchedulerFactory._build_dispatcher(force_restart=force_restart):
-            self._dispatcher = dispatcher
 
 
 def test_dev_mode_clean_all_entities_of_the_current_version():
