@@ -63,7 +63,6 @@ class Core:
             _VersionManager.set_development_version(curren_version_number)
             override = True
 
-            clean_all_entities_by_version(curren_version_number)
             _TaipyLogger._get_logger().info(
                 f"Development mode: Clean all entities with version {curren_version_number}"
             )
@@ -71,5 +70,8 @@ class Core:
         else:
             _TaipyLogger._get_logger().error("Undefined execution mode.")
             return
+
+        if override:
+            clean_all_entities_by_version(curren_version_number)
 
         _VersionManager.set_current_version(curren_version_number, override)
