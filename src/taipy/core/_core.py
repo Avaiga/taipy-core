@@ -58,22 +58,26 @@ class Core:
                 curren_version_number = str(uuid.uuid4())
 
             override = _override
+            if override:
+                clean_all_entities_by_version(curren_version_number)
 
         elif mode == "development":
             curren_version_number = _VersionManager.get_development_version()
             _VersionManager.set_development_version(curren_version_number)
             override = True
 
+            clean_all_entities_by_version(curren_version_number)
             _TaipyLogger._get_logger().info(
                 f"Development mode: Clean all entities with version {curren_version_number}"
             )
 
+        elif mode == "production":
+            curren_version_number = mode
+            override = True
+
         else:
             _TaipyLogger._get_logger().error("Undefined execution mode.")
             return
-
-        if override:
-            clean_all_entities_by_version(curren_version_number)
 
         try:
             _VersionManager.set_current_version(curren_version_number, override)
