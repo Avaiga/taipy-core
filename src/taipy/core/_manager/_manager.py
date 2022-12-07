@@ -62,18 +62,36 @@ class _Manager(Generic[EntityType]):
         cls._repository._save(entity)
 
     @classmethod
-    def _get_all(cls) -> List[EntityType]:
+    def _get_all(cls, version_number="current") -> List[EntityType]:
         """
         Returns all entities.
         """
-        return cls._repository._load_all()
+        from .._version._version_manager_factory import _VersionManagerFactory
+
+        if version_number == "current":
+            version_number = _VersionManagerFactory._build_manager().get_current_version()
+        elif version_number == "develop":
+            version_number = _VersionManagerFactory._build_manager().get_development_version()
+        else:
+            _VersionManagerFactory._build_manager()._get(version_number)
+
+        return cls._repository._load_all(version_number)
 
     @classmethod
-    def _get_all_by(cls, by) -> List[EntityType]:
+    def _get_all_by(cls, by, version_number="current") -> List[EntityType]:
         """
-        Returns all entities.
+        Returns all entities based on a criteria.
         """
-        return cls._repository._load_all_by(by)
+        from .._version._version_manager_factory import _VersionManagerFactory
+
+        if version_number == "current":
+            version_number = _VersionManagerFactory._build_manager().get_current_version()
+        elif version_number == "develop":
+            version_number = _VersionManagerFactory._build_manager().get_development_version()
+        else:
+            _VersionManagerFactory._build_manager()._get(version_number)
+
+        return cls._repository._load_all_by(by, version_number)
 
     @classmethod
     def _get(cls, entity: Union[str, EntityType], default=None) -> EntityType:

@@ -75,20 +75,21 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         except FileNotFoundError:
             raise ModelNotFound(str(self.dir_path), model_id)
 
-    def _load_all(self) -> List[Entity]:
-        try:
-            # type: ignore
-            return [
-                self.__to_entity(f, retry=Config.global_config.read_entity_retry or 0) for f in self.dir_path.iterdir()
-            ]
-        except FileNotFoundError:
-            return []
-
-    def _load_all_by(self, by):
+    def _load_all(self, version_number) -> List[Entity]:
         r = []
         try:
             for f in self.dir_path.iterdir():
-                if entity := self.__to_entity(f, by=by):
+                if entity := self.__to_entity(f, retry=Config.global_config.read_entity_retry or 0, by=version_number):
+                    r.append(entity)
+        except FileNotFoundError:
+            pass
+        return r
+
+    def _load_all_by(self, by, version_number):
+        r = []
+        try:
+            for f in self.dir_path.iterdir():
+                if entity := self.__to_entity(f, by=[by, version_number]):
                     r.append(entity)
         except FileNotFoundError:
             pass
@@ -167,12 +168,16 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     def __search(self, attribute: str, value: str) -> Iterator[Entity]:
         return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
 
-    def __to_entity(self, filepath, by: Optional[str] = None, retry: Optional[int] = 0) -> Entity:
+    def __to_entity(self, filepath, by: Optional[Union[str, List[str]]] = None, retry: Optional[int] = 0) -> Entity:
         try:
             with open(filepath, "r") as f:
                 file_content = f.read()
 
-            if by:
+            if isinstance(by, List):
+                return (
+                    self.__model_to_entity(file_content) if all(condition in file_content for condition in by) else None
+                )
+            elif isinstance(by, str):
                 return self.__model_to_entity(file_content) if by in file_content else None
 
             return self.__model_to_entity(file_content)
