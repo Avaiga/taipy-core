@@ -9,16 +9,22 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from typing import List, Optional
+
 from taipy.config import Config
 
 from .._manager._manager import _Manager
-from ..exceptions.exceptions import VersionAlreadyExists
+from ..exceptions.exceptions import NonExistingVersion, VersionAlreadyExists
 from ._version import _Version
 from ._version_repository_factory import _VersionRepositoryFactory
 
 
 class _VersionManager(_Manager[_Version]):
     _ENTITY_NAME = _Version.__name__
+
+    __DEVELOPMENT_VERSION_NUMBER = ["development", "dev"]
+    __CURRENT_VERSION_NUMBER = "current"
+    __ALL_VERSION_NUMBER = ["all", ""]
 
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
 
@@ -34,6 +40,20 @@ class _VersionManager(_Manager[_Version]):
 
         cls._set(version)
         return version
+
+    @classmethod
+    def _get_all(cls, version_number: Optional[str] = "all") -> List[_Version]:
+        """
+        Returns all entities.
+        """
+        return cls._repository._load_all(version_number)
+
+    @classmethod
+    def _get_all_by(cls, by, version_number: Optional[str] = "all") -> List[_Version]:
+        """
+        Returns all entities based on a criteria.
+        """
+        return cls._repository._load_all_by(by, version_number)
 
     @classmethod
     def set_current_version(cls, version_number: str, override: bool):
@@ -52,3 +72,16 @@ class _VersionManager(_Manager[_Version]):
     @classmethod
     def get_development_version(cls) -> str:
         return cls._repository._get_development_version()
+
+    @classmethod
+    def replace_version_number(cls, version_number):
+        if version_number == cls.__CURRENT_VERSION_NUMBER:
+            return cls.get_current_version()
+        if version_number in cls.__DEVELOPMENT_VERSION_NUMBER:
+            return cls.get_development_version()
+        if version_number in cls.__ALL_VERSION_NUMBER:
+            return ""
+        if version := cls._get(version_number):
+            return version.id
+
+        raise NonExistingVersion(version_number)

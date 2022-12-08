@@ -75,7 +75,17 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         except FileNotFoundError:
             raise ModelNotFound(str(self.dir_path), model_id)
 
-    def _load_all(self, version_number) -> List[Entity]:
+    def _load_all(self, version_number: Optional[str] = None) -> List[Entity]:
+        """
+        Load all entities from a specific version.
+        """
+        if version_number is None:
+            version_number = self._DEFAULT_VERSION
+
+        from .._version._version_manager_factory import _VersionManagerFactory
+
+        version_number = _VersionManagerFactory._build_manager().replace_version_number(version_number)
+
         r = []
         try:
             for f in self.dir_path.iterdir():
@@ -85,7 +95,14 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
             pass
         return r
 
-    def _load_all_by(self, by, version_number):
+    def _load_all_by(self, by, version_number: Optional[str] = None):
+        if version_number is None:
+            version_number = self._DEFAULT_VERSION
+
+        from .._version._version_manager_factory import _VersionManagerFactory
+
+        version_number = _VersionManagerFactory._build_manager().replace_version_number(version_number)
+
         r = []
         try:
             for f in self.dir_path.iterdir():
@@ -116,12 +133,12 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         for model_id in model_ids:
             self._delete(model_id)
 
-    def _delete_by(self, attribute: str, value: str):
-        while entity := self._search(attribute, value):
+    def _delete_by(self, attribute: str, value: str, version_number: Optional[str] = None):
+        while entity := self._search(attribute, value, version_number):
             self._delete(entity.id)  # type: ignore
 
-    def _search(self, attribute: str, value: str) -> Optional[Entity]:
-        return next(self.__search(attribute, value), None)
+    def _search(self, attribute: str, value: str, version_number: Optional[str] = None) -> Optional[Entity]:
+        return next(self.__search(attribute, value, version_number), None)
 
     def _get_by_config_and_owner_id(self, config_id: str, owner_id: Optional[str]) -> Optional[Entity]:
         try:
@@ -165,8 +182,8 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     def _get_model_filepath(self, model_id) -> pathlib.Path:
         return self.dir_path / f"{model_id}.json"
 
-    def __search(self, attribute: str, value: str) -> Iterator[Entity]:
-        return filter(lambda e: getattr(e, attribute, None) == value, self._load_all())
+    def __search(self, attribute: str, value: str, version_number: Optional[str] = None) -> Iterator[Entity]:
+        return filter(lambda e: getattr(e, attribute, None) == value, self._load_all(version_number))
 
     def __to_entity(self, filepath, by: Optional[Union[str, List[str]]] = None, retry: Optional[int] = 0) -> Entity:
         try:
