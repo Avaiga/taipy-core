@@ -16,7 +16,7 @@ from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
-from src.taipy.core.exceptions.exceptions import VersionAlreadyExists
+from src.taipy.core.exceptions.exceptions import NonExistingVersion, VersionAlreadyExists
 from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
@@ -85,46 +85,75 @@ def test_dev_mode_clean_all_entities_of_the_current_version():
     submit_scenario()
 
     # Initial assertion
-    assert len(_DataManager._get_all()) == 2
-    assert len(_TaskManager._get_all()) == 1
-    assert len(_PipelineManager._get_all()) == 1
-    assert len(_ScenarioManager._get_all()) == 1
-    assert len(_CycleManager._get_all()) == 1
-    assert len(_JobManager._get_all()) == 1
+    assert len(_DataManager._get_all(version_number="all")) == 2
+    assert len(_TaskManager._get_all(version_number="all")) == 1
+    assert len(_PipelineManager._get_all(version_number="all")) == 1
+    assert len(_ScenarioManager._get_all(version_number="all")) == 1
+    assert len(_CycleManager._get_all(version_number="all")) == 1
+    assert len(_JobManager._get_all(version_number="all")) == 1
+    print(_VersionManager.get_current_version())
 
     # Create a new scenario in experiment mode
     core.run(parameters=["--experiment"])
     submit_scenario()
 
     # Assert number of entities in 2nd version
-    assert len(_DataManager._get_all()) == 4
-    assert len(_TaskManager._get_all()) == 2
-    assert len(_PipelineManager._get_all()) == 2
-    assert len(_ScenarioManager._get_all()) == 2
-    assert len(_CycleManager._get_all()) == 1  # No new cycle is created since old dev version use the same cycle
-    assert len(_JobManager._get_all()) == 2
+    assert len(_DataManager._get_all(version_number="all")) == 4
+    assert len(_TaskManager._get_all(version_number="all")) == 2
+    assert len(_PipelineManager._get_all(version_number="all")) == 2
+    assert len(_ScenarioManager._get_all(version_number="all")) == 2
+    assert (
+        len(_CycleManager._get_all(version_number="all")) == 1
+    )  # No new cycle is created since old dev version use the same cycle
+    assert len(_JobManager._get_all(version_number="all")) == 2
 
     # Run development mode again
     core.run(parameters=["--development"])
 
     # The 1st dev version should be deleted run with development mode
-    assert len(_DataManager._get_all()) == 2
-    assert len(_TaskManager._get_all()) == 1
-    assert len(_PipelineManager._get_all()) == 1
-    assert len(_ScenarioManager._get_all()) == 1
-    assert len(_CycleManager._get_all()) == 1
-    assert len(_JobManager._get_all()) == 1
+    assert len(_DataManager._get_all(version_number="all")) == 2
+    assert len(_TaskManager._get_all(version_number="all")) == 1
+    assert len(_PipelineManager._get_all(version_number="all")) == 1
+    assert len(_ScenarioManager._get_all(version_number="all")) == 1
+    assert len(_CycleManager._get_all(version_number="all")) == 1
+    assert len(_JobManager._get_all(version_number="all")) == 1
 
     # Submit new dev version
     submit_scenario()
 
     # Assert number of entities with 1 dev version and 1 exp version
-    assert len(_DataManager._get_all()) == 4
-    assert len(_TaskManager._get_all()) == 2
-    assert len(_PipelineManager._get_all()) == 2
-    assert len(_ScenarioManager._get_all()) == 2
-    assert len(_CycleManager._get_all()) == 1
-    assert len(_JobManager._get_all()) == 2
+    assert len(_DataManager._get_all(version_number="all")) == 4
+    assert len(_TaskManager._get_all(version_number="all")) == 2
+    assert len(_PipelineManager._get_all(version_number="all")) == 2
+    assert len(_ScenarioManager._get_all(version_number="all")) == 2
+    assert len(_CycleManager._get_all(version_number="all")) == 1
+    assert len(_JobManager._get_all(version_number="all")) == 2
+
+    # Assert number of entities of the current version only
+    assert len(_DataManager._get_all(version_number="current")) == 2
+    assert len(_TaskManager._get_all(version_number="current")) == 1
+    assert len(_PipelineManager._get_all(version_number="current")) == 1
+    assert len(_ScenarioManager._get_all(version_number="current")) == 1
+    assert len(_JobManager._get_all(version_number="current")) == 1
+
+    # Assert number of entities of the development version only
+    assert len(_DataManager._get_all(version_number="development")) == 2
+    assert len(_TaskManager._get_all(version_number="development")) == 1
+    assert len(_PipelineManager._get_all(version_number="development")) == 1
+    assert len(_ScenarioManager._get_all(version_number="development")) == 1
+    assert len(_JobManager._get_all(version_number="development")) == 1
+
+    # Assert number of entities of an unknown version
+    with pytest.raises(NonExistingVersion):
+        assert _DataManager._get_all(version_number="foo")
+    with pytest.raises(NonExistingVersion):
+        assert _TaskManager._get_all(version_number="foo")
+    with pytest.raises(NonExistingVersion):
+        assert _PipelineManager._get_all(version_number="foo")
+    with pytest.raises(NonExistingVersion):
+        assert _ScenarioManager._get_all(version_number="foo")
+    with pytest.raises(NonExistingVersion):
+        assert _JobManager._get_all(version_number="foo")
 
 
 def test_version_number_when_switching_mode():

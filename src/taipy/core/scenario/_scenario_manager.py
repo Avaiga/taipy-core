@@ -181,7 +181,7 @@ class _ScenarioManager(_Manager[Scenario]):
 
     @classmethod
     def _get_all_by_cycle(cls, cycle: Cycle) -> List[Scenario]:
-        return cls._get_all_by(cycle.id)
+        return cls._get_all_by(cycle.id, "all")
 
     @classmethod
     def _get_primary_scenarios(cls) -> List[Scenario]:
@@ -288,7 +288,7 @@ class _ScenarioManager(_Manager[Scenario]):
 
         Check if the cycle is only attached to this scenario, then delete it.
         """
-        while scenario := cls._repository._search("version", version_number):
+        while scenario := cls._repository._search("version", version_number, version_number="all"):
             if scenario.cycle and len(cls._get_all_by_cycle(scenario.cycle)) == 1:
                 _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
             cls._repository._delete(scenario.id)
