@@ -17,6 +17,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 from taipy.config.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
 
+from ._version._version_manager_factory import _VersionManagerFactory
 from .common._entity import _Entity
 from .common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
 from .config.pipeline_config import PipelineConfig
@@ -462,6 +463,7 @@ def clean_all_entities() -> bool:
     _ScenarioManagerFactory._build_manager()._delete_all()
     _CycleManagerFactory._build_manager()._delete_all()
     _JobManagerFactory._build_manager()._delete_all()
+    _VersionManagerFactory._build_manager()._delete_all()
     return True
 
 
