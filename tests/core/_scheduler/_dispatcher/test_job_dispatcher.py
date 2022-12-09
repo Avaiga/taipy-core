@@ -32,6 +32,15 @@ from src.taipy.core.task.task import Task
 from taipy.config.config import Config
 
 
+@pytest.fixture(scope="function", autouse=True)
+def reset_configuration_singleton():
+    yield
+
+    for f in glob.glob("*.p"):
+        print(f"deleting file {f}")
+        os.remove(f)
+
+
 def execute(lock):
     with lock:
         ...
