@@ -474,6 +474,7 @@ def clean_all_entities_by_version(version_number):
     _PipelineManagerFactory._build_manager()._delete_by_version(version_number)
     _TaskManagerFactory._build_manager()._delete_by_version(version_number)
     _DataManagerFactory._build_manager()._delete_by_version(version_number)
+    _VersionManagerFactory._build_manager()._delete(version_number)
 
 
 def export_scenario(
