@@ -23,8 +23,6 @@ Entity = TypeVar("Entity")
 
 
 class _AbstractRepository(Generic[ModelType, Entity]):
-    _DEFAULT_VERSION = "current"
-
     @abstractmethod
     def _to_model(self, obj):
         """

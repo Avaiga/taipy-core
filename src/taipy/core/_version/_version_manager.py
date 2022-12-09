@@ -26,6 +26,8 @@ class _VersionManager(_Manager[_Version]):
     __CURRENT_VERSION_NUMBER = "current"
     __ALL_VERSION_NUMBER = ["all", ""]
 
+    __DEFAULT_VERSION = __CURRENT_VERSION_NUMBER
+
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
 
     @classmethod
@@ -75,6 +77,9 @@ class _VersionManager(_Manager[_Version]):
 
     @classmethod
     def replace_version_number(cls, version_number):
+        if version_number is None:
+            version_number = cls.__DEFAULT_VERSION
+
         if version_number == cls.__CURRENT_VERSION_NUMBER:
             return cls.get_current_version()
         if version_number in cls.__DEVELOPMENT_VERSION_NUMBER:
