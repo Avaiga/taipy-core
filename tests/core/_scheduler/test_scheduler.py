@@ -37,24 +37,6 @@ from taipy.config.common.scope import Scope
 from taipy.config.exceptions.exceptions import ConfigurationUpdateBlocked
 from tests.core.utils import assert_true_after_1_minute_max
 
-
-@pytest.fixture(scope="function", autouse=True)
-def reset_configuration_singleton():
-    yield
-    Config.unblock_update()
-    Config._python_config = _Config()
-    Config._file_config = None
-    Config._env_file_config = None
-    Config._applied_config = _Config._default_config()
-
-    for f in glob.glob("*.p"):
-        print(f"deleting file {f}")
-        os.remove(f)
-
-    for f in glob.glob("./my_data/*"):
-        os.remove(f)
-
-
 # ################################  USER FUNCTIONS  ##################################
 
 
@@ -501,7 +483,6 @@ def test_can_exec_task_with_modified_config():
     assert_true_after_1_minute_max(
         jobs[0].is_completed
     )  # If the job is completed, that means the asserts in the task are successful
-    taipy.clean_all_entities()
 
 
 def update_config_task(n):

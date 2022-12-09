@@ -36,19 +36,6 @@ from taipy.config.config import Config
 from tests.core.utils import assert_true_after_1_minute_max
 
 
-@pytest.fixture(scope="function", autouse=True)
-def reset_configuration_singleton():
-    yield
-    Config._python_config = _Config()
-    Config._file_config = None
-    Config._env_file_config = None
-    Config._applied_config = _Config._default_config()
-
-    for f in glob.glob("*.p"):
-        print(f"deleting file {f}")
-        os.remove(f)
-
-
 def multiply(nb1: float, nb2: float):
     return nb1 * nb2
 

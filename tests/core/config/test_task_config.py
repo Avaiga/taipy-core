@@ -18,15 +18,6 @@ from taipy.config._config import _Config
 from taipy.config.config import Config
 
 
-@pytest.fixture(scope="function", autouse=True)
-def reset_configuration_singleton():
-    yield
-    Config._python_config = _Config()
-    Config._file_config = _Config()
-    Config._env_file_config = _Config()
-    Config._applied_config = _Config._default_config()
-
-
 def test_task_config_creation():
     input_config = Config.configure_data_node("input")
     output_config = Config.configure_data_node("output")
