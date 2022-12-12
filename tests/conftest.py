@@ -256,11 +256,20 @@ def tmp_sqlite(tmpdir_factory):
 
 
 @pytest.fixture(scope="function", autouse=True)
-def teardown():
+def clean_repository():
+    if Config.global_config.repository_type == "sql":
+        close_sql_database_session_connection()
+        init_managers()
+    init_config()
+    init_scheduler()
+    init_managers()
+    init_config()
+
     yield
 
     if Config.global_config.repository_type == "sql":
         close_sql_database_session_connection()
+        init_managers()
     init_config()
     init_scheduler()
     init_managers()
