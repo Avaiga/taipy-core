@@ -140,6 +140,10 @@ def default_multi_sheet_data_frame():
 def cleanup_files():
     yield
 
+    from time import sleep
+
+    sleep(1)
+
     if os.path.exists(".data"):
         shutil.rmtree(".data", ignore_errors=True)
     if os.path.exists(".my_data"):
