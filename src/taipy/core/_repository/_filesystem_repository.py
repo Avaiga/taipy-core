@@ -81,7 +81,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         """
         from .._version._version_manager_factory import _VersionManagerFactory
 
-        version_number = _VersionManagerFactory._build_manager().replace_version_number(version_number)
+        version_number = _VersionManagerFactory._build_manager()._replace_version_number(version_number)
 
         r = []
         try:
@@ -95,7 +95,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     def _load_all_by(self, by, version_number: Optional[str] = None):
         from .._version._version_manager_factory import _VersionManagerFactory
 
-        version_number = _VersionManagerFactory._build_manager().replace_version_number(version_number)
+        version_number = _VersionManagerFactory._build_manager()._replace_version_number(version_number)
 
         r = []
         try:
@@ -138,7 +138,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         # Only get the entity from the current version
         from .._version._version_manager_factory import _VersionManagerFactory
 
-        version_number = _VersionManagerFactory._build_manager().replace_version_number(None)
+        version_number = _VersionManagerFactory._build_manager()._replace_version_number(None)
 
         try:
             files = filter(lambda f: config_id in f.name, self.dir_path.iterdir())
@@ -222,7 +222,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         # Only get the entity from the current version
         from .._version._version_manager_factory import _VersionManagerFactory
 
-        version_number = _VersionManagerFactory._build_manager().replace_version_number(None)
+        version_number = _VersionManagerFactory._build_manager()._replace_version_number(None)
 
         filename = filepath.name
 

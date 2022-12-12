@@ -58,32 +58,32 @@ class _VersionManager(_Manager[_Version]):
         return cls._repository._load_all_by(by, version_number)
 
     @classmethod
-    def set_current_version(cls, version_number: str, override: bool):
+    def _set_current_version(cls, version_number: str, override: bool):
         cls.get_or_create(version_number, override)
         cls._repository._set_current_version(version_number)
 
     @classmethod
-    def get_current_version(cls) -> str:
+    def _get_current_version(cls) -> str:
         return cls._repository._get_current_version()
 
     @classmethod
-    def set_development_version(cls, version_number: str):
+    def _set_development_version(cls, version_number: str):
         cls.get_or_create(version_number, override=True)
         cls._repository._set_development_version(version_number)
 
     @classmethod
-    def get_development_version(cls) -> str:
+    def _get_development_version(cls) -> str:
         return cls._repository._get_development_version()
 
     @classmethod
-    def replace_version_number(cls, version_number):
+    def _replace_version_number(cls, version_number):
         if version_number is None:
             version_number = cls.__DEFAULT_VERSION
 
         if version_number == cls.__CURRENT_VERSION_NUMBER:
-            return cls.get_current_version()
+            return cls._get_current_version()
         if version_number in cls.__DEVELOPMENT_VERSION_NUMBER:
-            return cls.get_development_version()
+            return cls._get_development_version()
         if version_number in cls.__ALL_VERSION_NUMBER:
             return ""
         if version := cls._get(version_number):

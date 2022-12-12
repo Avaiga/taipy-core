@@ -43,7 +43,7 @@ class MockEntity:
         if version:
             self.version = version
         else:
-            self.version = _VersionManager.get_current_version()
+            self.version = _VersionManager._get_current_version()
 
 
 class MockRepository(_AbstractRepository):  # type: ignore

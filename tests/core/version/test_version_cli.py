@@ -104,7 +104,7 @@ def test_dev_mode_clean_all_entities_of_the_current_version():
     assert len(_ScenarioManager._get_all(version_number="all")) == 1
     assert len(_CycleManager._get_all(version_number="all")) == 1
     assert len(_JobManager._get_all(version_number="all")) == 1
-    print(_VersionManager.get_current_version())
+    print(_VersionManager._get_current_version())
 
     # Create a new scenario in experiment mode
     core.run(parameters=["--experiment"])
@@ -173,41 +173,41 @@ def test_version_number_when_switching_mode():
     core = CoreForTest()
 
     core.run(parameters=["--development"])
-    ver_1 = _VersionManager.get_current_version()
+    ver_1 = _VersionManager._get_current_version()
     assert len(_VersionManager._get_all()) == 1
 
     # Run with dev mode, the version number is the same
     core.run(parameters=["--development"])
-    ver_2 = _VersionManager.get_current_version()
+    ver_2 = _VersionManager._get_current_version()
     assert ver_1 == ver_2
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
     core.run(parameters=["--experiment"])
-    ver_3 = _VersionManager.get_current_version()
+    ver_3 = _VersionManager._get_current_version()
     assert ver_1 != ver_3
     assert len(_VersionManager._get_all()) == 2
 
     core.run(parameters=["--experiment"])
-    ver_4 = _VersionManager.get_current_version()
+    ver_4 = _VersionManager._get_current_version()
     assert ver_1 != ver_4
     assert ver_3 != ver_4
     assert len(_VersionManager._get_all()) == 3
 
     core.run(parameters=["--experiment", "--version-number", "2.1"])
-    ver_5 = _VersionManager.get_current_version()
+    ver_5 = _VersionManager._get_current_version()
     assert ver_5 == "2.1"
     assert len(_VersionManager._get_all()) == 4
 
     # When run with production mode, "production" version is created
     core.run(parameters=["--production"])
-    ver_6 = _VersionManager.get_current_version()
+    ver_6 = _VersionManager._get_current_version()
     assert ver_6 == "production"
     assert len(_VersionManager._get_all()) == 5
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
     core.run(parameters=["--development"])
-    ver_7 = _VersionManager.get_current_version()
+    ver_7 = _VersionManager._get_current_version()
     assert ver_1 == ver_7
     assert len(_VersionManager._get_all()) == 5
 
@@ -216,7 +216,7 @@ def test_production_mode_save_all_entities():
     core = CoreForTest()
 
     core.run(parameters=["--production"])
-    ver = _VersionManager.get_current_version()
+    ver = _VersionManager._get_current_version()
     assert ver == "production"
     assert len(_VersionManager._get_all()) == 1
 
@@ -229,7 +229,7 @@ def test_production_mode_save_all_entities():
     assert len(_JobManager._get_all()) == 1
 
     core.run(parameters=["--production"])
-    ver = _VersionManager.get_current_version()
+    ver = _VersionManager._get_current_version()
     assert ver == "production"
     assert len(_VersionManager._get_all()) == 1
 
@@ -247,7 +247,7 @@ def test_override_experiment_version():
     core = CoreForTest()
 
     core.run(parameters=["--experiment", "--version-number", "2.1"])
-    ver_1 = _VersionManager.get_current_version()
+    ver_1 = _VersionManager._get_current_version()
     assert ver_1 == "2.1"
     assert len(_VersionManager._get_all()) == 1
 
@@ -266,7 +266,7 @@ def test_override_experiment_version():
 
     # With --override parameter
     core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])
-    ver_2 = _VersionManager.get_current_version()
+    ver_2 = _VersionManager._get_current_version()
     assert ver_2 == "2.1"
     assert len(_VersionManager._get_all()) == 1
 
