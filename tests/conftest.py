@@ -138,18 +138,15 @@ def default_multi_sheet_data_frame():
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_files():
+    if os.path.exists("None"):
+        os.remove("None")
+
     yield
-
-    from time import sleep
-
-    sleep(1)
 
     if os.path.exists(".data"):
         shutil.rmtree(".data", ignore_errors=True)
     if os.path.exists(".my_data"):
         shutil.rmtree(".my_data", ignore_errors=True)
-    if os.path.exists("None"):
-        os.remove("None")
 
 
 @pytest.fixture(scope="function")
