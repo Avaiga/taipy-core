@@ -12,15 +12,6 @@
 
 import click
 
-
-def skip_run(ctx, param, value):
-    if not value or ctx.resilient_parsing:
-        return
-
-    # TODO: Copy the latest version to the new version
-    ctx.exit()
-
-
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
@@ -68,15 +59,6 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "-o",
     is_flag=True,
     help='Override the version specified by "--version-number" if existed. Default to False.',
-)
-@click.option(
-    "--skip-run",
-    "-s",
-    is_flag=True,
-    callback=skip_run,
-    expose_value=False,
-    is_eager=True,
-    help='Save the development version if existed to a new version specified by "--version-number" without running the application. Default to False.',
 )
 def version_cli(mode, version_number, override):
     return mode, version_number, override
