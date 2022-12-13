@@ -22,7 +22,7 @@ from ._version_model import _VersionModel
 
 
 class _VersionFSRepository(_FileSystemRepository):
-    _CURRENT_VERSION_KEY = "current_version"
+    _LATEST_VERSION_KEY = "latest_version"
     _DEVELOPMENT_VERSION_KEY = "development_version"
 
     def __init__(self):
@@ -52,7 +52,7 @@ class _VersionFSRepository(_FileSystemRepository):
     def _load_all_by(self, by, version_number: Optional[str] = "all"):
         return super()._load_all_by(by, version_number)
 
-    def _set_current_version(self, version_number):
+    def _set_latest_version(self, version_number):
         if self._version_file_path.exists():
             development_version = self._get_development_version()
         else:
@@ -61,34 +61,35 @@ class _VersionFSRepository(_FileSystemRepository):
 
         self._version_file_path.write_text(
             json.dumps(
-                {self._CURRENT_VERSION_KEY: version_number, self._DEVELOPMENT_VERSION_KEY: development_version},
+                {self._LATEST_VERSION_KEY: version_number, self._DEVELOPMENT_VERSION_KEY: development_version},
                 ensure_ascii=False,
                 indent=0,
             )
         )
 
-    def _get_current_version(self):
+    def _get_latest_version(self):
         try:
             with open(self._version_file_path, "r") as f:
                 file_content = json.load(f)
 
-            return file_content[self._CURRENT_VERSION_KEY]
+            return file_content[self._LATEST_VERSION_KEY]
 
         except FileNotFoundError:
+            # If not found, create new version to become the latest
             version_number = str(uuid.uuid4())
-            self._set_current_version(version_number)
+            self._set_latest_version(version_number)
             return version_number
 
     def _set_development_version(self, version_number):
         if self._version_file_path.exists():
-            current_version = self._get_current_version()
+            latest_version = self._get_latest_version()
         else:
             self.dir_path.mkdir(parents=True, exist_ok=True)
-            current_version = version_number
+            latest_version = version_number
 
         self._version_file_path.write_text(
             json.dumps(
-                {self._CURRENT_VERSION_KEY: current_version, self._DEVELOPMENT_VERSION_KEY: version_number},
+                {self._LATEST_VERSION_KEY: latest_version, self._DEVELOPMENT_VERSION_KEY: version_number},
                 ensure_ascii=False,
                 indent=0,
             )
@@ -103,6 +104,7 @@ class _VersionFSRepository(_FileSystemRepository):
             return str(uuid.uuid4())
 
         except FileNotFoundError:
+            # If not found, create new development version
             version_number = str(uuid.uuid4())
             self._set_development_version(version_number)
             return version_number

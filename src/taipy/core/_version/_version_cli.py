@@ -17,7 +17,7 @@ def skip_run(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
 
-    # TODO: Copy the current latest version to the new version
+    # TODO: Copy the latest version to the new version
     ctx.exit()
 
 

@@ -135,7 +135,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         return next(self.__search(attribute, value, version_number), None)
 
     def _get_by_config_and_owner_id(self, config_id: str, owner_id: Optional[str]) -> Optional[Entity]:
-        # Only get the entity from the current version
+        # Only get the entity from the latest version
         from .._version._version_manager_factory import _VersionManagerFactory
 
         version_number = _VersionManagerFactory._build_manager()._replace_version_number(None)
@@ -219,7 +219,7 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
         self.dir_path.mkdir(parents=True, exist_ok=True)
 
     def __match_file_and_get_entity(self, filepath, config_and_owner_ids, retry: Optional[int] = 0):
-        # Only get the entity from the current version
+        # Only get the entity from the latest version
         from .._version._version_manager_factory import _VersionManagerFactory
 
         version_number = _VersionManagerFactory._build_manager()._replace_version_number(None)

@@ -23,10 +23,10 @@ class _VersionManager(_Manager[_Version]):
     _ENTITY_NAME = _Version.__name__
 
     __DEVELOPMENT_VERSION_NUMBER = ["development", "dev"]
-    __CURRENT_VERSION_NUMBER = "current"
+    __LATEST_VERSION_NUMBER = "latest"
     __ALL_VERSION_NUMBER = ["all", ""]
 
-    __DEFAULT_VERSION = __CURRENT_VERSION_NUMBER
+    __DEFAULT_VERSION = __LATEST_VERSION_NUMBER
 
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
 
@@ -58,13 +58,13 @@ class _VersionManager(_Manager[_Version]):
         return cls._repository._load_all_by(by, version_number)
 
     @classmethod
-    def _set_current_version(cls, version_number: str, override: bool):
+    def _set_latest_version(cls, version_number: str, override: bool):
         cls.get_or_create(version_number, override)
-        cls._repository._set_current_version(version_number)
+        cls._repository._set_latest_version(version_number)
 
     @classmethod
-    def _get_current_version(cls) -> str:
-        return cls._repository._get_current_version()
+    def _get_latest_version(cls) -> str:
+        return cls._repository._get_latest_version()
 
     @classmethod
     def _set_development_version(cls, version_number: str):
@@ -80,8 +80,8 @@ class _VersionManager(_Manager[_Version]):
         if version_number is None:
             version_number = cls.__DEFAULT_VERSION
 
-        if version_number == cls.__CURRENT_VERSION_NUMBER:
-            return cls._get_current_version()
+        if version_number == cls.__LATEST_VERSION_NUMBER:
+            return cls._get_latest_version()
         if version_number in cls.__DEVELOPMENT_VERSION_NUMBER:
             return cls._get_development_version()
         if version_number in cls.__ALL_VERSION_NUMBER:

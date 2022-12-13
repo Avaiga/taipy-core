@@ -80,6 +80,6 @@ class Core:
             return
 
         try:
-            _VersionManagerFactory._build_manager()._set_current_version(curren_version_number, override)
+            _VersionManagerFactory._build_manager()._set_latest_version(curren_version_number, override)
         except VersionAlreadyExists as e:
             raise SystemExit(e)
