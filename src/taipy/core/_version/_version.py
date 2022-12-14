@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from taipy.config import Config
 

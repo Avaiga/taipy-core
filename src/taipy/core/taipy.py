@@ -26,7 +26,7 @@ from .cycle._cycle_manager_factory import _CycleManagerFactory
 from .cycle.cycle import Cycle
 from .data._data_manager_factory import _DataManagerFactory
 from .data.data_node import DataNode
-from .exceptions.exceptions import ModelNotFound
+from .exceptions.exceptions import ModelNotFound, VersionIsNotProductionVersion
 from .job._job_manager_factory import _JobManagerFactory
 from .job.job import Job
 from .pipeline._pipeline_manager_factory import _PipelineManagerFactory
@@ -474,7 +474,13 @@ def clean_all_entities_by_version(version_number):
     _PipelineManagerFactory._build_manager()._delete_by_version(version_number)
     _TaskManagerFactory._build_manager()._delete_by_version(version_number)
     _DataManagerFactory._build_manager()._delete_by_version(version_number)
-    _VersionManagerFactory._build_manager()._delete(version_number)
+
+    version_manager = _VersionManagerFactory._build_manager()
+    version_manager._delete(version_number)
+    try:
+        version_manager._delete_production_version(version_number)
+    except VersionIsNotProductionVersion:
+        pass
 
 
 def export_scenario(

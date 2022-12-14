@@ -240,8 +240,8 @@ class InvalidExportPath(Exception):
     """Raised if the export path is not valid."""
 
 
-class VersionAlreadyExists(Exception):
-    """Raised if it is trying to create a Version that has already exists."""
+class VersionConflictWithPythonConfig(Exception):
+    """Raised if the Config of the requested version is conflict with the current Python Config."""
 
 
 class NonExistingVersion(Exception):
@@ -249,3 +249,7 @@ class NonExistingVersion(Exception):
 
     def __init__(self, version_number: str):
         self.message = f"Version: {version_number} does not exist."
+
+
+class VersionIsNotProductionVersion(Exception):
+    """Raised if the version is not a production version."""
