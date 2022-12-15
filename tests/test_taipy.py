@@ -354,13 +354,13 @@ class TestTaipy:
         Config.configure_global_app(clean_entities_enabled=True)
         success = tp.clean_all_entities()
         # File should not exist after clean_all_entities since clean_entities_enabled is True
+        assert len(_VersionManager._get_all()) == 0
         assert len(_DataManager._get_all()) == 0
         assert len(_TaskManager._get_all()) == 0
         assert len(_PipelineManager._get_all()) == 0
         assert len(_ScenarioManager._get_all()) == 0
         assert len(_CycleManager._get_all()) == 0
         assert len(_JobManager._get_all()) == 0
-        assert len(_VersionManager._get_all()) == 0
         assert success
 
     def test_export_scenario_filesystem(self):
