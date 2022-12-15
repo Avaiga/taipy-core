@@ -198,19 +198,21 @@ class _FileSystemRepository(_AbstractRepository[ModelType, Entity]):
     ) -> Optional[Entity]:
         if not isinstance(by, List):
             by = [by] if by else []
+
         if not isinstance(version_number, List):
             version_number = [version_number] if version_number else []
 
-        for version in version_number:
-            by.append(f'"version": "{version}"')
-        version_number = []
+        by_version = list(map(lambda version: f'"version": "{version}"', version_number) if version_number else [""])
 
         try:
             with open(filepath, "r") as f:
                 file_content = f.read()
 
-            if by:
-                if all(condition in file_content for condition in by if condition):
+            if by or by_version:
+                if (
+                    all(criteria in file_content for criteria in by if criteria) and
+                    any(version in file_content for version in by_version)
+                ):
                     return self.__model_to_entity(file_content)
                 else:
                     return None
