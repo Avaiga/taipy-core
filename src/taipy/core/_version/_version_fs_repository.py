@@ -16,7 +16,7 @@ from typing import List, Optional
 from taipy.config.config import Config
 
 from .._repository._filesystem_repository import _FileSystemRepository
-from ..exceptions.exceptions import VersionConflictWithPythonConfig, VersionIsNotProductionVersion
+from ..exceptions.exceptions import VersionIsNotProductionVersion
 from ._version import _Version
 from ._version_model import _VersionModel
 
@@ -57,7 +57,9 @@ class _VersionFSRepository(_FileSystemRepository):
         if self._version_file_path.exists():
             with open(self._version_file_path, "r") as f:
                 file_content = json.load(f)
-                file_content[self._LATEST_VERSION_KEY] = version_number
+
+            file_content[self._LATEST_VERSION_KEY] = version_number
+
         else:
             self.dir_path.mkdir(parents=True, exist_ok=True)
             file_content = {
@@ -84,7 +86,10 @@ class _VersionFSRepository(_FileSystemRepository):
         if self._version_file_path.exists():
             with open(self._version_file_path, "r") as f:
                 file_content = json.load(f)
-                file_content[self._DEVELOPMENT_VERSION_KEY] = version_number
+
+            file_content[self._DEVELOPMENT_VERSION_KEY] = version_number
+            file_content[self._LATEST_VERSION_KEY] = version_number
+
         else:
             self.dir_path.mkdir(parents=True, exist_ok=True)
             file_content = {
@@ -112,7 +117,10 @@ class _VersionFSRepository(_FileSystemRepository):
             with open(self._version_file_path, "r") as f:
                 file_content = json.load(f)
 
-            file_content[self._PRODUCTION_VERSION_KEY].append(version_number)
+            file_content[self._LATEST_VERSION_KEY] = version_number
+            if version_number not in file_content[self._PRODUCTION_VERSION_KEY]:
+                file_content[self._PRODUCTION_VERSION_KEY].append(version_number)
+
         else:
             self.dir_path.mkdir(parents=True, exist_ok=True)
             file_content = {

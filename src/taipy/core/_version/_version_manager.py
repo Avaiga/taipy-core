@@ -13,6 +13,7 @@ import uuid
 from typing import List, Optional
 
 from taipy.config import Config
+from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._manager._manager import _Manager
 from ..exceptions.exceptions import NonExistingVersion, VersionConflictWithPythonConfig
@@ -36,12 +37,13 @@ class _VersionManager(_Manager[_Version]):
     def get_or_create(cls, id: str, override: bool) -> _Version:
         if version := cls._get(id):
             if not Config._check_config_compatibility(Config._applied_config, version.config):
-                if override:
-                    version.config = Config._applied_config
+                error_message = f"The Configuration of version {id} is conflict with the current Python Config."
 
-                raise VersionConflictWithPythonConfig(
-                    f"The Configuration of version {id} is conflict with the current Python Config."
-                )
+                if override:
+                    _TaipyLogger._get_logger().warning(error_message)
+                    version.config = Config._applied_config
+                else:
+                    raise VersionConflictWithPythonConfig(error_message)
 
         else:
             version = _Version(id=id, config=Config._applied_config)
@@ -87,7 +89,7 @@ class _VersionManager(_Manager[_Version]):
         try:
             return cls._repository._get_latest_version()
         except FileNotFoundError:
-            return cls._set_latest_version(str(uuid.uuid4()))
+            return cls._set_latest_version(str(uuid.uuid4()), override=False)
 
     @classmethod
     def _set_production_version(cls, version_number: str, override: bool) -> str:
@@ -121,12 +123,20 @@ class _VersionManager(_Manager[_Version]):
     @classmethod
     def _replace_version_number(cls, version_number):
         if version_number is None:
-            version_number = cls.__DEFAULT_VERSION
+            version_number = cls._replace_version_number(cls.__DEFAULT_VERSION)
+
+            production_versions = cls._get_production_version()
+
+            if version_number not in production_versions:
+                return version_number
+            return production_versions
 
         if version_number == cls.__LATEST_VERSION:
             return cls._get_latest_version()
         if version_number in cls.__DEVELOPMENT_VERSION:
             return cls._get_development_version()
+        if version_number in cls.__PRODUCTION_VERSION:
+            return cls._get_production_version()
         if version_number in cls.__ALL_VERSION:
             return ""
         if version := cls._get(version_number):
