@@ -21,6 +21,7 @@ from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from src.taipy.core.task._task_manager import _TaskManager
+from taipy.config._config import _Config
 from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
@@ -91,11 +92,14 @@ def test_version_cli_return_value():
 
 
 def test_dev_mode_clean_all_entities_of_the_latest_version():
+    scenario_config = config_scenario()
+
     core = CoreForTest()
 
     # Create a scenario in development mode
     core.run(parameters=["--development"])
-    submit_scenario()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
 
     # Initial assertion
     assert len(_DataManager._get_all(version_number="all")) == 2
@@ -104,11 +108,11 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_ScenarioManager._get_all(version_number="all")) == 1
     assert len(_CycleManager._get_all(version_number="all")) == 1
     assert len(_JobManager._get_all(version_number="all")) == 1
-    print(_VersionManager._get_latest_version())
 
     # Create a new scenario in experiment mode
     core.run(parameters=["--experiment"])
-    submit_scenario()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
 
     # Assert number of entities in 2nd version
     assert len(_DataManager._get_all(version_number="all")) == 4
@@ -132,7 +136,8 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_JobManager._get_all(version_number="all")) == 1
 
     # Submit new dev version
-    submit_scenario()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
 
     # Assert number of entities with 1 dev version and 1 exp version
     assert len(_DataManager._get_all(version_number="all")) == 4
@@ -174,53 +179,70 @@ def test_version_number_when_switching_mode():
 
     core.run(parameters=["--development"])
     ver_1 = _VersionManager._get_latest_version()
+    ver_dev = _VersionManager._get_development_version()
+    assert ver_1 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # Run with dev mode, the version number is the same
     core.run(parameters=["--development"])
     ver_2 = _VersionManager._get_latest_version()
-    assert ver_1 == ver_2
+    assert ver_2 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
     core.run(parameters=["--experiment"])
     ver_3 = _VersionManager._get_latest_version()
-    assert ver_1 != ver_3
+    assert ver_3 != ver_dev
     assert len(_VersionManager._get_all()) == 2
 
-    core.run(parameters=["--experiment"])
+    core.run(parameters=["--experiment", "--version-number", "2.1"])
     ver_4 = _VersionManager._get_latest_version()
-    assert ver_1 != ver_4
-    assert ver_3 != ver_4
+    assert ver_4 == "2.1"
     assert len(_VersionManager._get_all()) == 3
 
-    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    core.run(parameters=["--experiment"])
     ver_5 = _VersionManager._get_latest_version()
-    assert ver_5 == "2.1"
+    assert ver_5 != ver_3
+    assert ver_5 != ver_4
+    assert ver_5 != ver_dev
     assert len(_VersionManager._get_all()) == 4
 
-    # When run with production mode, "production" version is created
+    # When run with production mode, the latest version is used as production
     core.run(parameters=["--production"])
     ver_6 = _VersionManager._get_latest_version()
-    assert ver_6 == "production"
-    assert len(_VersionManager._get_all()) == 5
+    production_versions = _VersionManager._get_production_version()
+    assert ver_6 == ver_5
+    assert production_versions == [ver_6]
+    assert len(_VersionManager._get_all()) == 4
+
+    # When run with production mode, the "2.1" version is used as production
+    core.run(parameters=["--production", "--version-number", "2.1"])
+    ver_7 = _VersionManager._get_latest_version()
+    production_versions = _VersionManager._get_production_version()
+    assert ver_7 == "2.1"
+    assert production_versions == [ver_6, ver_7]
+    assert len(_VersionManager._get_all()) == 4
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
     core.run(parameters=["--development"])
     ver_7 = _VersionManager._get_latest_version()
     assert ver_1 == ver_7
-    assert len(_VersionManager._get_all()) == 5
+    assert len(_VersionManager._get_all()) == 4
 
 
-def test_production_mode_save_all_entities():
+def test_production_mode_load_all_entities_from_previous_production_version():
+    scenario_config = config_scenario()
+
     core = CoreForTest()
 
     core.run(parameters=["--production"])
-    ver = _VersionManager._get_latest_version()
-    assert ver == "production"
+    production_ver_1 = _VersionManager._get_latest_version()
+    assert _VersionManager._get_production_version() == [production_ver_1]
     assert len(_VersionManager._get_all()) == 1
 
-    submit_scenario()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
     assert len(_DataManager._get_all()) == 2
     assert len(_TaskManager._get_all()) == 1
     assert len(_PipelineManager._get_all()) == 1
@@ -228,13 +250,15 @@ def test_production_mode_save_all_entities():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
-    core.run(parameters=["--production"])
-    ver = _VersionManager._get_latest_version()
-    assert ver == "production"
-    assert len(_VersionManager._get_all()) == 1
+    core.run(parameters=["--production", "--version-number", "2.0"])
+    production_ver_2 = _VersionManager._get_latest_version()
+    assert _VersionManager._get_production_version() == [production_ver_1, production_ver_2]
+    assert len(_VersionManager._get_all()) == 2
 
-    # All entities from previous submit should be saved
-    submit_scenario()
+    # All entities from previous production version should be saved
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
     assert len(_DataManager._get_all()) == 4
     assert len(_TaskManager._get_all()) == 2
     assert len(_PipelineManager._get_all()) == 2
@@ -244,6 +268,8 @@ def test_production_mode_save_all_entities():
 
 
 def test_override_experiment_version():
+    scenario_config = config_scenario()
+
     core = CoreForTest()
 
     core.run(parameters=["--experiment", "--version-number", "2.1"])
@@ -251,7 +277,9 @@ def test_override_experiment_version():
     assert ver_1 == "2.1"
     assert len(_VersionManager._get_all()) == 1
 
-    submit_scenario()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
     assert len(_DataManager._get_all()) == 2
     assert len(_TaskManager._get_all()) == 1
     assert len(_PipelineManager._get_all()) == 1
@@ -259,10 +287,14 @@ def test_override_experiment_version():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
+    # Update Config singleton to simulate conflict Config between versions
+    Config.unblock_update()
+    Config.configure_global_app(clean_entities_enabled=True)
+
     # Without --override parameter
     with pytest.raises(SystemExit) as e:
         core.run(parameters=["--experiment", "--version-number", "2.1"])
-    assert str(e.value) == "Version 2.1 already exists."
+    assert str(e.value) == "The Configuration of version 2.1 is conflict with the current Python Config."
 
     # With --override parameter
     core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])
@@ -270,34 +302,29 @@ def test_override_experiment_version():
     assert ver_2 == "2.1"
     assert len(_VersionManager._get_all()) == 1
 
-    # The number of entities should not change
-    submit_scenario()
-    assert len(_DataManager._get_all()) == 2
-    assert len(_TaskManager._get_all()) == 1
-    assert len(_PipelineManager._get_all()) == 1
-    assert len(_ScenarioManager._get_all()) == 1
+    # All entities from previous submit should be saved
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 4
+    assert len(_TaskManager._get_all()) == 2
+    assert len(_PipelineManager._get_all()) == 2
+    assert len(_ScenarioManager._get_all()) == 2
     assert len(_CycleManager._get_all()) == 1
-    assert len(_JobManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 2
 
 
 def task_test(a):
     return a
 
 
-def submit_scenario():
-    # Unblock for test
-    Config.unblock_update()
-
+def config_scenario():
     data_node_1_config = Config.configure_data_node(id="d1", storage_type="in_memory", scope=Scope.SCENARIO)
     data_node_2_config = Config.configure_data_node(
         id="d2", storage_type="pickle", default_data="abc", scope=Scope.SCENARIO
     )
-    task_config = Config.configure_task(
-        "my_task", task_test, data_node_1_config, data_node_2_config, scope=Scope.SCENARIO
-    )
+    task_config = Config.configure_task("my_task", task_test, data_node_1_config, data_node_2_config)
     pipeline_config = Config.configure_pipeline("my_pipeline", task_config)
     scenario_config = Config.configure_scenario("my_scenario", pipeline_config, frequency=Frequency.DAILY)
 
-    scenario = _ScenarioManager._create(scenario_config)
-
-    _ScenarioManager._submit(scenario)
+    return scenario_config
