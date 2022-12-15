@@ -105,6 +105,8 @@ class TestManager:
         assert MockManager._get(m.id) == m
 
     def test_get_all(self):
+        MockManager._delete_all()
+
         objs = []
         for i in range(5):
             m = MockEntity(f"uuid-{i}", f"Foo{i}")
