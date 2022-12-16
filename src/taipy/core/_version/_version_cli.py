@@ -36,7 +36,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     flag_value="experiment",
     help="""
         When execute Taipy application in `experiment` mode, the current Taipy application is saved to a new version
-        defined by "--version-number".
+        defined by "--version-number". If version already exists, check for compatibility with current Python Config
+        and run the application.
     """,
 )
 @click.option(
@@ -45,14 +46,15 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "mode",
     flag_value="production",
     help="""
-        When execute Taipy application in `production` mode, all entities of Taipy application are saved.
+        When execute in `production` mode, the current version or the version defined by "--version-number" is used in
+        production. All production versions should have the same configuration and share all entities.
     """,
 )
 @click.option(
     "--version-number",
     type=str,
     default=None,
-    help="The version number when execute in `experiment` mode. If not provided, a random version name is used.",
+    help="The version number when execute in `experiment` mode. If not provided, a random version number is used.",
 )
 @click.option(
     "--override",
