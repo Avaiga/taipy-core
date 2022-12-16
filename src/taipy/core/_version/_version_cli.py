@@ -12,6 +12,18 @@
 
 import click
 
+from ._version_manager_factory import _VersionManagerFactory
+
+
+class bcolors:
+    PURPLE = "\033[95m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+
+
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
@@ -62,5 +74,35 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     is_flag=True,
     help='Override the version specified by "--version-number" if existed. Default to False.',
 )
-def version_cli(mode, version_number, override):
+@click.option("--list_version", "-l", is_flag=True, help="List all existing versions of the Taipy application.")
+def version_cli(mode, version_number, override, list_version):
+    if list_version:
+        list_version_message = f"\n{'Version number':<36}   {'Mode':<20}   {'Creation date':<20}\n"
+
+        latest_version_number = _VersionManagerFactory._build_manager()._get_latest_version()
+        development_version_number = _VersionManagerFactory._build_manager()._get_development_version()
+        production_version_numbers = _VersionManagerFactory._build_manager()._get_production_version()
+        versions = _VersionManagerFactory._build_manager()._get_all()
+        versions.sort(key=lambda x: x.creation_date)
+        for version in versions:
+            if version.id == development_version_number:
+                list_version_message += bcolors.GREEN
+                mode = "Development"
+            elif version.id in production_version_numbers:
+                list_version_message += bcolors.PURPLE
+                mode = "Production"
+            else:
+                list_version_message += bcolors.BLUE
+                mode = "Experiment"
+
+            if version.id == latest_version_number:
+                list_version_message += bcolors.BOLD
+                mode += " (latest)"
+
+            list_version_message += (
+                f"{(version.id):<36}   {mode:<20}   {version.creation_date.strftime('%Y-%m-%d %H:%M:%S'):<20}\n"
+            )
+
+        raise SystemExit(list_version_message)
+
     return mode, version_number, override
