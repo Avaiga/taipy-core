@@ -10,13 +10,13 @@
 # specific language governing permissions and limitations under the License.
 
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from taipy.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._manager._manager import _Manager
-from ..exceptions.exceptions import NonExistingVersion, VersionConflictWithPythonConfig
+from ..exceptions.exceptions import ModelNotFound, NonExistingVersion, VersionConflictWithPythonConfig
 from ._version import _Version
 from ._version_repository_factory import _VersionRepositoryFactory
 
@@ -32,6 +32,17 @@ class _VersionManager(_Manager[_Version]):
     __DEFAULT_VERSION = __LATEST_VERSION
 
     _repository = _VersionRepositoryFactory._build_repository()  # type: ignore
+
+    @classmethod
+    def _get(cls, entity: Union[str, _Version], default=None) -> _Version:
+        """
+        Returns the version entity by id or reference.
+        """
+        entity_id = entity if isinstance(entity, str) else entity.id  # type: ignore
+        try:
+            return cls._repository.load(entity_id)
+        except ModelNotFound:
+            return default
 
     @classmethod
     def get_or_create(cls, id: str, override: bool) -> _Version:
