@@ -80,6 +80,18 @@ class _VersionManager(_Manager[_Version]):
 
     @classmethod
     def _set_latest_version(cls, version_number: str, override: bool) -> str:
+        development_version_number = cls._get_development_version()
+        if version_number == development_version_number:
+            raise SystemExit(
+                f"Version number {version_number} is already a development version. Please choose a different version number for experiment mode."
+            )
+
+        production_version_numbers = cls._get_production_version()
+        if version_number in production_version_numbers:
+            raise SystemExit(
+                f"Version number {version_number} is already a production version. Please choose a different version number for experiment mode."
+            )
+
         cls.get_or_create(version_number, override)
         cls._repository._set_latest_version(version_number)
         return version_number
@@ -89,7 +101,9 @@ class _VersionManager(_Manager[_Version]):
         try:
             return cls._repository._get_latest_version()
         except FileNotFoundError:
-            return cls._set_latest_version(str(uuid.uuid4()), override=False)
+            # If there is no version in the system yet, create a new version as development version
+            # This set the default versioning behavior on Jupyter notebook to Development mode
+            return cls._set_development_version(str(uuid.uuid4()))
 
     @classmethod
     def _set_production_version(cls, version_number: str, override: bool) -> str:

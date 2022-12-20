@@ -13,7 +13,8 @@ import json
 from datetime import datetime
 from typing import List, Optional
 
-from taipy.config.config import Config
+from taipy.config import Config
+from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._repository._filesystem_repository import _FileSystemRepository
 from ..exceptions.exceptions import VersionIsNotProductionVersion
@@ -120,6 +121,8 @@ class _VersionFSRepository(_FileSystemRepository):
             file_content[self._LATEST_VERSION_KEY] = version_number
             if version_number not in file_content[self._PRODUCTION_VERSION_KEY]:
                 file_content[self._PRODUCTION_VERSION_KEY].append(version_number)
+            else:
+                _TaipyLogger._get_logger().info(f"Version {version_number} is already a production version.")
 
         else:
             self.dir_path.mkdir(parents=True, exist_ok=True)
