@@ -79,7 +79,7 @@ class _VersionManager(_Manager[_Version]):
             return cls._set_development_version(str(uuid.uuid4()))
 
     @classmethod
-    def _set_latest_version(cls, version_number: str, override: bool) -> str:
+    def _set_experiment_version(cls, version_number: str, override: bool) -> str:
         development_version_number = cls._get_development_version()
         if version_number == development_version_number:
             raise SystemExit(

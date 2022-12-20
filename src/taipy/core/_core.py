@@ -69,7 +69,7 @@ class Core:
             override = _override
 
             try:
-                _VersionManagerFactory._build_manager()._set_latest_version(curren_version_number, override)
+                _VersionManagerFactory._build_manager()._set_experiment_version(curren_version_number, override)
             except VersionConflictWithPythonConfig as e:
                 raise SystemExit(e)
 
