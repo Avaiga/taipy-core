@@ -12,6 +12,8 @@
 
 import click
 
+from ..exceptions.exceptions import VersionIsNotProductionVersion
+from ..taipy import clean_all_entities_by_version
 from ._version_manager_factory import _VersionManagerFactory
 
 
@@ -30,8 +32,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option(
     "--development",
-    "--dev",
-    "-d",
+    "-dev",
     "mode",
     flag_value="development",
     default=True,
@@ -74,16 +75,26 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     is_flag=True,
     help='Override the version specified by "--version-number" if existed. Default to False.',
 )
-@click.option("--list_version", "-l", is_flag=True, help="List all existing versions of the Taipy application.")
-def version_cli(mode, version_number, override, list_version):
+@click.option("--list-version", "-l", is_flag=True, help="List all existing versions of the Taipy application.")
+@click.option("--delete-version", "-d", "version_to_delete", default=None, help="Delete a version by version number.")
+@click.option(
+    "--delete-production-version",
+    "-dp",
+    "production_version_to_delete",
+    default=None,
+    help="Delete a version from production by version number. The version is still kept as an experiment version.",
+)
+def version_cli(mode, version_number, override, list_version, version_to_delete, production_version_to_delete):
     if list_version:
         list_version_message = f"\n{'Version number':<36}   {'Mode':<20}   {'Creation date':<20}\n"
 
         latest_version_number = _VersionManagerFactory._build_manager()._get_latest_version()
         development_version_number = _VersionManagerFactory._build_manager()._get_development_version()
         production_version_numbers = _VersionManagerFactory._build_manager()._get_production_version()
+
         versions = _VersionManagerFactory._build_manager()._get_all()
-        versions.sort(key=lambda x: x.creation_date)
+        versions.sort(key=lambda x: x.creation_date, reverse=True)
+
         for version in versions:
             if version.id == development_version_number:
                 list_version_message += bcolors.GREEN
@@ -104,5 +115,18 @@ def version_cli(mode, version_number, override, list_version):
             )
 
         raise SystemExit(list_version_message)
+
+    if production_version_to_delete:
+        try:
+            _VersionManagerFactory._build_manager()._delete_production_version(production_version_to_delete)
+            raise SystemExit(
+                f"Successfully delete version {production_version_to_delete} from production version list."
+            )
+        except VersionIsNotProductionVersion as e:
+            raise SystemExit(e)
+
+    if version_to_delete:
+        clean_all_entities_by_version(version_to_delete)
+        raise SystemExit(f"Successfully delete version {version_to_delete}.")
 
     return mode, version_number, override
