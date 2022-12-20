@@ -21,7 +21,6 @@ from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from src.taipy.core.task._task_manager import _TaskManager
-from taipy.config._config import _Config
 from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
@@ -44,11 +43,7 @@ def test_version_cli_return_value():
     mode, _, _ = result.return_value
     assert mode == "development"
 
-    result = runner.invoke(version_cli, ["--dev"], standalone_mode=False)
-    mode, _, _ = result.return_value
-    assert mode == "development"
-
-    result = runner.invoke(version_cli, ["-d"], standalone_mode=False)
+    result = runner.invoke(version_cli, ["-dev"], standalone_mode=False)
     mode, _, _ = result.return_value
     assert mode == "development"
 
@@ -275,7 +270,8 @@ def test_override_experiment_version():
     core.run(parameters=["--experiment", "--version-number", "2.1"])
     ver_1 = _VersionManager._get_latest_version()
     assert ver_1 == "2.1"
-    assert len(_VersionManager._get_all()) == 1
+    # When create new experiment version, a development version entity is also created as a placeholder
+    assert len(_VersionManager._get_all()) == 2  # 2 version include 1 experiment 1 development
 
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
@@ -300,7 +296,7 @@ def test_override_experiment_version():
     core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "2.1"
-    assert len(_VersionManager._get_all()) == 1
+    assert len(_VersionManager._get_all()) == 2  # 2 version include 1 experiment 1 development
 
     # All entities from previous submit should be saved
     scenario = _ScenarioManager._create(scenario_config)
@@ -312,6 +308,57 @@ def test_override_experiment_version():
     assert len(_ScenarioManager._get_all()) == 2
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 2
+
+
+def test_delete_version():
+    scenario_config = config_scenario()
+
+    core = CoreForTest()
+
+    core.run(parameters=["--development"])
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    core.run(parameters=["--experiment", "--version-number", "1.0"])
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    core.run(parameters=["--experiment", "--version-number", "1.1"])
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    core.run(parameters=["--production", "--version-number", "1.1"])
+
+    core.run(parameters=["--experiment", "--version-number", "2.0"])
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    core.run(parameters=["--production", "--version-number", "2.1"])
+
+    all_versions = [version.id for version in _VersionManager._get_all()]
+    production_version = _VersionManager._get_production_version()
+    assert len(all_versions) == 5
+    assert len(production_version) == 2
+    assert "1.0" in all_versions
+    assert "1.1" in all_versions and "1.1" in production_version
+    assert "2.0" in all_versions
+    assert "2.1" in all_versions and "2.1" in production_version
+
+    core.run(parameters=["--delete-version", "1.0"])
+    all_versions = [version.id for version in _VersionManager._get_all()]
+    assert len(all_versions) == 4
+    assert "1.0" not in all_versions
+
+    # Test delete production version will change the version from production to experiment
+    core.run(parameters=["--delete-production-version", "1.1"])
+    all_versions = [version.id for version in _VersionManager._get_all()]
+    production_version = _VersionManager._get_production_version()
+    assert len(all_versions) == 4
+    assert "1.1" in all_versions and "1.1" not in production_version
 
 
 def task_test(a):

@@ -22,13 +22,11 @@ class CoreForTest(Core):
         super().__init__()
 
     def run(self, parameters=[], force_restart=False):
-        """
-        Start a Core service. This method is blocking.
-        """
         result = self.runner.invoke(version_cli, parameters, standalone_mode=False)
         cli_args = result.return_value
 
-        self._Core__setup_versioning_module(*cli_args)
+        if cli_args:
+            self._Core__setup_versioning_module(*cli_args)
 
         if dispatcher := _SchedulerFactory._build_dispatcher(force_restart=force_restart):
             self._dispatcher = dispatcher
