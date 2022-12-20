@@ -12,7 +12,7 @@
 import pytest
 
 from taipy.config import Config
-from taipy.core.config import DataNodeConfig, JobConfig, PipelineConfig, ScenarioConfig, TaskConfig
+from src.taipy.core.config import DataNodeConfig, JobConfig, PipelineConfig, ScenarioConfig, TaskConfig
 
 
 def test_intelicense_match_documentation():
