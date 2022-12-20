@@ -108,3 +108,8 @@ class _DataManager(_Manager[DataNode]):
     def _delete_all(cls):
         cls._clean_pickle_files(cls._get_all())
         super()._delete_all()
+
+    @classmethod
+    def _delete_by_version(cls, version_number: str):
+        cls._clean_pickle_files(cls._get_all(version_number))
+        cls._repository._delete_by(attribute="version", value=version_number, version_number="all")  # type: ignore
