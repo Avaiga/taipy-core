@@ -26,7 +26,11 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = dict(
+    help_option_names=["-h", "--help"],
+    ignore_unknown_options=True,
+    allow_extra_args=True,
+)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
