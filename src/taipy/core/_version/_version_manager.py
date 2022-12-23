@@ -91,14 +91,12 @@ class _VersionManager(_Manager[_Version]):
 
     @classmethod
     def _set_experiment_version(cls, version_number: str, override: bool) -> str:
-        development_version_number = cls._get_development_version()
-        if version_number == development_version_number:
+        if version_number == cls._get_development_version():
             raise SystemExit(
                 f"Version number {version_number} is already a development version. Please choose a different version number for experiment mode."
             )
 
-        production_version_numbers = cls._get_production_version()
-        if version_number in production_version_numbers:
+        if version_number in cls._get_production_version():
             raise SystemExit(
                 f"Version number {version_number} is already a production version. Please choose a different version number for experiment mode."
             )
@@ -129,6 +127,9 @@ class _VersionManager(_Manager[_Version]):
                     )
             else:
                 raise NonExistingVersion(production_version)
+
+        if version_number == cls._get_development_version():
+            cls._set_development_version(str(uuid.uuid4()))
 
         cls._get_or_create(version_number, override)
         cls._repository._set_production_version(version_number)

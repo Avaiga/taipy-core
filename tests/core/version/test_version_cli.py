@@ -233,7 +233,9 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     core.run(parameters=["--production"])
     production_ver_1 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1]
-    assert len(_VersionManager._get_all()) == 1
+    # When run production mode on a new app, a dev version is created alongside
+    assert _VersionManager._get_development_version() not in _VersionManager._get_production_version()
+    assert len(_VersionManager._get_all()) == 2
 
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
@@ -248,7 +250,7 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     core.run(parameters=["--production", "--version-number", "2.0"])
     production_ver_2 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1, production_ver_2]
-    assert len(_VersionManager._get_all()) == 2
+    assert len(_VersionManager._get_all()) == 3
 
     # All entities from previous production version should be saved
     scenario = _ScenarioManager._create(scenario_config)
