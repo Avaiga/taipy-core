@@ -45,7 +45,7 @@ class _VersionManager(_Manager[_Version]):
             return default
 
     @classmethod
-    def get_or_create(cls, id: str, override: bool) -> _Version:
+    def _get_or_create(cls, id: str, override: bool) -> _Version:
         if version := cls._get(id):
             if not Config._check_config_compatibility(Config._applied_config, version.config):
                 error_message = f"The Configuration of version {id} is conflict with the current Python Config."
@@ -78,7 +78,7 @@ class _VersionManager(_Manager[_Version]):
 
     @classmethod
     def _set_development_version(cls, version_number: str) -> str:
-        cls.get_or_create(version_number, override=True)
+        cls._get_or_create(version_number, override=True)
         cls._repository._set_development_version(version_number)
         return version_number
 
@@ -103,7 +103,7 @@ class _VersionManager(_Manager[_Version]):
                 f"Version number {version_number} is already a production version. Please choose a different version number for experiment mode."
             )
 
-        cls.get_or_create(version_number, override)
+        cls._get_or_create(version_number, override)
         cls._repository._set_latest_version(version_number)
         return version_number
 
@@ -130,7 +130,7 @@ class _VersionManager(_Manager[_Version]):
             else:
                 raise NonExistingVersion(production_version)
 
-        cls.get_or_create(version_number, override)
+        cls._get_or_create(version_number, override)
         cls._repository._set_production_version(version_number)
         return version_number
 
