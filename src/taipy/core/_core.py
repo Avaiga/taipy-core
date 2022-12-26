@@ -41,7 +41,7 @@ class Core:
         """
         Start a Core service. This method is blocking.
         """
-        cli_args = version_cli(standalone_mode=False)
+        cli_args = version_cli()
         if cli_args == 0:  # run --help command
             exit()
 
