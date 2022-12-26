@@ -9,9 +9,11 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import pytest
-from click.testing import CliRunner
+from unittest.mock import patch
 
+import pytest
+
+from src.taipy.core import Core
 from src.taipy.core._version._version_cli import version_cli
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
@@ -25,62 +27,45 @@ from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 
-from ..utils.core_service_for_test import CoreForTest
-
 
 def test_version_cli_return_value():
-    runner = CliRunner()
-
     # Test default cli values
-    result = runner.invoke(version_cli, standalone_mode=False)
-    mode, version_number, override = result.return_value
+    mode, version_number, override = version_cli()
     assert mode == "development"
     assert version_number is None
     assert not override
 
     # Test Dev mode
-    result = runner.invoke(version_cli, ["--development"], standalone_mode=False)
-    mode, _, _ = result.return_value
+    with patch("sys.argv", ["prog", "--development"]):
+        mode, _, _ = version_cli()
     assert mode == "development"
 
-    result = runner.invoke(version_cli, ["-dev"], standalone_mode=False)
-    mode, _, _ = result.return_value
+    with patch("sys.argv", ["prog", "-dev"]):
+        mode, _, _ = version_cli()
     assert mode == "development"
 
     # Test Experiment mode
-    result = runner.invoke(version_cli, ["--experiment"], standalone_mode=False)
-    mode, version_number, override = result.return_value
+    with patch("sys.argv", ["prog", "--experiment"]):
+        mode, version_number, override = version_cli()
     assert mode == "experiment"
     assert version_number is None
     assert not override
 
-    result = runner.invoke(version_cli, ["-e"], standalone_mode=False)
-    mode, version_number, override = result.return_value
-    assert mode == "experiment"
-    assert version_number is None
-    assert not override
-
-    result = runner.invoke(version_cli, ["-e", "--version-number", "2.1"], standalone_mode=False)
-    mode, version_number, override = result.return_value
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+        mode, version_number, override = version_cli()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert not override
 
-    result = runner.invoke(version_cli, ["-e", "--version-number", "2.1", "--override"], standalone_mode=False)
-    mode, version_number, override = result.return_value
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1", "--override"]):
+        mode, version_number, override = version_cli()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert override
 
     # Test Production mode
-    result = runner.invoke(version_cli, ["--production"], standalone_mode=False)
-    mode, version_number, override = result.return_value
-    assert mode == "production"
-    assert version_number is None
-    assert not override
-
-    result = runner.invoke(version_cli, ["-p"], standalone_mode=False)
-    mode, version_number, override = result.return_value
+    with patch("sys.argv", ["prog", "--production"]):
+        mode, version_number, override = version_cli()
     assert mode == "production"
     assert version_number is None
     assert not override
@@ -89,10 +74,10 @@ def test_version_cli_return_value():
 def test_dev_mode_clean_all_entities_of_the_latest_version():
     scenario_config = config_scenario()
 
-    core = CoreForTest()
+    core = Core()
 
     # Create a scenario in development mode
-    core.run(parameters=["--development"])
+    core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
@@ -105,7 +90,8 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_JobManager._get_all(version_number="all")) == 1
 
     # Create a new scenario in experiment mode
-    core.run(parameters=["--experiment"])
+    with patch("sys.argv", ["prog", "--experiment"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
@@ -120,7 +106,8 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_JobManager._get_all(version_number="all")) == 2
 
     # Run development mode again
-    core.run(parameters=["--development"])
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
 
     # The 1st dev version should be deleted run with development mode
     assert len(_DataManager._get_all(version_number="all")) == 2
@@ -170,32 +157,37 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
 
 
 def test_version_number_when_switching_mode():
-    core = CoreForTest()
+    core = Core()
 
-    core.run(parameters=["--development"])
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
     ver_1 = _VersionManager._get_latest_version()
     ver_dev = _VersionManager._get_development_version()
     assert ver_1 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # Run with dev mode, the version number is the same
-    core.run(parameters=["--development"])
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
-    core.run(parameters=["--experiment"])
+    with patch("sys.argv", ["prog", "--experiment"]):
+        core.run()
     ver_3 = _VersionManager._get_latest_version()
     assert ver_3 != ver_dev
     assert len(_VersionManager._get_all()) == 2
 
-    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+        core.run()
     ver_4 = _VersionManager._get_latest_version()
     assert ver_4 == "2.1"
     assert len(_VersionManager._get_all()) == 3
 
-    core.run(parameters=["--experiment"])
+    with patch("sys.argv", ["prog", "--experiment"]):
+        core.run()
     ver_5 = _VersionManager._get_latest_version()
     assert ver_5 != ver_3
     assert ver_5 != ver_4
@@ -203,7 +195,8 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # When run with production mode, the latest version is used as production
-    core.run(parameters=["--production"])
+    with patch("sys.argv", ["prog", "--production"]):
+        core.run()
     ver_6 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_version()
     assert ver_6 == ver_5
@@ -211,7 +204,8 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # When run with production mode, the "2.1" version is used as production
-    core.run(parameters=["--production", "--version-number", "2.1"])
+    with patch("sys.argv", ["prog", "--production", "--version-number", "2.1"]):
+        core.run()
     ver_7 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_version()
     assert ver_7 == "2.1"
@@ -219,7 +213,8 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
-    core.run(parameters=["--development"])
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
     ver_7 = _VersionManager._get_latest_version()
     assert ver_1 == ver_7
     assert len(_VersionManager._get_all()) == 4
@@ -228,9 +223,10 @@ def test_version_number_when_switching_mode():
 def test_production_mode_load_all_entities_from_previous_production_version():
     scenario_config = config_scenario()
 
-    core = CoreForTest()
+    core = Core()
 
-    core.run(parameters=["--production"])
+    with patch("sys.argv", ["prog", "--production"]):
+        core.run()
     production_ver_1 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1]
     # When run production mode on a new app, a dev version is created alongside
@@ -247,7 +243,8 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
-    core.run(parameters=["--production", "--version-number", "2.0"])
+    with patch("sys.argv", ["prog", "--production", "--version-number", "2.0"]):
+        core.run()
     production_ver_2 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1, production_ver_2]
     assert len(_VersionManager._get_all()) == 3
@@ -267,9 +264,10 @@ def test_production_mode_load_all_entities_from_previous_production_version():
 def test_override_experiment_version():
     scenario_config = config_scenario()
 
-    core = CoreForTest()
+    core = Core()
 
-    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+        core.run()
     ver_1 = _VersionManager._get_latest_version()
     assert ver_1 == "2.1"
     # When create new experiment version, a development version entity is also created as a placeholder
@@ -291,11 +289,13 @@ def test_override_experiment_version():
 
     # Without --override parameter
     with pytest.raises(SystemExit) as e:
-        core.run(parameters=["--experiment", "--version-number", "2.1"])
+        with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+            core.run()
     assert str(e.value) == "The Configuration of version 2.1 is conflict with the current Python Config."
 
     # With --override parameter
-    core.run(parameters=["--experiment", "--version-number", "2.1", "--override"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1", "--override"]):
+        core.run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "2.1"
     assert len(_VersionManager._get_all()) == 2  # 2 version include 1 experiment 1 development
@@ -315,31 +315,38 @@ def test_override_experiment_version():
 def test_delete_version():
     scenario_config = config_scenario()
 
-    core = CoreForTest()
+    core = Core()
 
-    core.run(parameters=["--development"])
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    core.run(parameters=["--experiment", "--version-number", "1.0"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.0"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    core.run(parameters=["--experiment", "--version-number", "1.1"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.1"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    core.run(parameters=["--production", "--version-number", "1.1"])
+    with patch("sys.argv", ["prog", "--production", "--version-number", "1.1"]):
+        core.run()
 
-    core.run(parameters=["--experiment", "--version-number", "2.0"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.0"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    core.run(parameters=["--experiment", "--version-number", "2.1"])
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+        core.run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    core.run(parameters=["--production", "--version-number", "2.1"])
+    with patch("sys.argv", ["prog", "--production", "--version-number", "2.1"]):
+        core.run()
 
     all_versions = [version.id for version in _VersionManager._get_all()]
     production_version = _VersionManager._get_production_version()
@@ -350,13 +357,19 @@ def test_delete_version():
     assert "2.0" in all_versions
     assert "2.1" in all_versions and "2.1" in production_version
 
-    core.run(parameters=["--delete-version", "1.0"])
+    with pytest.raises(SystemExit) as e:
+        with patch("sys.argv", ["prog", "--delete-version", "1.0"]):
+            core.run()
+    assert str(e.value) == "Successfully delete version 1.0."
     all_versions = [version.id for version in _VersionManager._get_all()]
     assert len(all_versions) == 4
     assert "1.0" not in all_versions
 
     # Test delete production version will change the version from production to experiment
-    core.run(parameters=["--delete-production-version", "1.1"])
+    with pytest.raises(SystemExit) as e:
+        with patch("sys.argv", ["prog", "--delete-production-version", "1.1"]):
+            core.run()
+    assert str(e.value) == "Successfully delete version 1.1 from production version list."
     all_versions = [version.id for version in _VersionManager._get_all()]
     production_version = _VersionManager._get_production_version()
     assert len(all_versions) == 4
