@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from taipy.config.common._argparser import _Argparser
+import argparse
 
 from ..exceptions.exceptions import VersionIsNotProductionVersion
 from ..taipy import clean_all_entities_by_version
@@ -26,7 +26,7 @@ class bcolors:
 
 
 def version_cli():
-    core_parser = _Argparser._add_groupparser("Core", "Optional arguments for Core service")
+    core_parser = argparse.ArgumentParser()
 
     mode_group = core_parser.add_mutually_exclusive_group()
     mode_group.add_argument(
@@ -80,7 +80,7 @@ def version_cli():
         help="Delete a version from production by version number. The version is still kept as an experiment version.",
     )
 
-    core_args = _Argparser._parse()
+    core_args, unknown_args = core_parser.parse_known_args()
 
     if core_args.list_version:
         list_version_message = f"\n{'Version number':<36}   {'Mode':<20}   {'Creation date':<20}\n"
