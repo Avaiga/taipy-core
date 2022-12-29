@@ -71,7 +71,7 @@ class Core:
             try:
                 _VersionManagerFactory._build_manager()._set_experiment_version(curren_version_number, override)
             except VersionConflictWithPythonConfig as e:
-                raise SystemExit(e)
+                raise SystemExit(e.message)
 
         elif mode == "production":
             if _version_number:
@@ -83,7 +83,7 @@ class Core:
             try:
                 _VersionManagerFactory._build_manager()._set_production_version(curren_version_number, override)
             except VersionConflictWithPythonConfig as e:
-                raise SystemExit(e)
+                raise SystemExit(e.message)
 
         else:
             _TaipyLogger._get_logger().error("Undefined execution mode.")
