@@ -23,9 +23,19 @@ from src.taipy.core.job._job_manager import _JobManager
 from src.taipy.core.pipeline._pipeline_manager import _PipelineManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from src.taipy.core.task._task_manager import _TaskManager
+from taipy.config._config import _Config
 from taipy.config.common.frequency import Frequency
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
+
+
+def reset_configuration_singleton():
+    Config.unblock_update()
+    Config._default_config = _Config._default_config()
+    Config._python_config = _Config()
+    Config._file_config = None
+    Config._env_file_config = None
+    Config._applied_config = _Config._default_config()
 
 
 def test_version_cli_return_value():
@@ -287,11 +297,10 @@ def test_override_experiment_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --override parameter
-    with pytest.raises(SystemExit) as e:
+    # Without --override parameter, a SystemExit will be raised
+    with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
             core.run()
-    assert str(e.value) == "The Configuration of version 2.1 is conflict with the current Python Config."
 
     # With --override parameter
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1", "--override"]):
@@ -376,16 +385,82 @@ def test_delete_version():
     assert "1.1" in all_versions and "1.1" not in production_version
 
 
-def task_test(a):
-    return a
+def test_compare_config_between_versions():
+    scenario_config = config_scenario()
+
+    core = Core()
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.0"]):
+        core.run()
+        scenario = _ScenarioManager._create(scenario_config)
+        _ScenarioManager._submit(scenario)
+
+    reset_configuration_singleton()
+
+    scenario_config_2 = config_scenario_2()
+
+    with pytest.raises(SystemExit) as e:
+        with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.0"]):
+            core.run()
+            scenario = _ScenarioManager._create(scenario_config_2)
+            _ScenarioManager._submit(scenario)
+    error_message = str(e.value)
+    assert 'DATA_NODE "d3" was added' in error_message
+    assert 'DATA_NODE "d1" was removed' in error_message
+    assert 'PIPELINE "my_pipeline_2" was removed' in error_message
+    assert 'DATA_NODE "d2" has attribute "default_path" modified' in error_message
+    assert 'Global Configuration "root_folder" was modified' in error_message
+    assert 'Global Configuration "clean_entities_enabled" was modified' in error_message
+    assert 'Global Configuration "repository_type" was modified' in error_message
+    assert 'JOB "mode" was modified' in error_message
+    assert 'JOB "max_nb_of_workers" was modified' in error_message
+    assert 'TASK "my_task" has attribute "inputs" modified' in error_message
+    assert 'TASK "my_task" has attribute "function" modified' in error_message
+    assert 'TASK "my_task" has attribute "outputs" modified' in error_message
+
+    # TODO: These should not in ["added_items"] since it is a default value that was changed. It should be fixed soon.
+    assert 'DATA_NODE "d2" has attribute "has_header" added' in error_message
+    assert 'DATA_NODE "d2" has attribute "exposed_type" added' in error_message
+    assert 'Global Configuration "repository_properties" was added' in error_message
+
+
+def twice(a):
+    return a * 2
 
 
 def config_scenario():
-    data_node_1_config = Config.configure_data_node(id="d1", storage_type="in_memory", scope=Scope.SCENARIO)
-    data_node_2_config = Config.configure_data_node(
-        id="d2", storage_type="pickle", default_data="abc", scope=Scope.SCENARIO
+    data_node_1_config = Config.configure_data_node(
+        id="d1", storage_type="in_memory", default_data="abc", scope=Scope.SCENARIO
     )
-    task_config = Config.configure_task("my_task", task_test, data_node_1_config, data_node_2_config)
+    data_node_2_config = Config.configure_data_node(id="d2", storage_type="csv", default_path="foo.csv")
+    task_config = Config.configure_task("my_task", twice, data_node_1_config, data_node_2_config)
+    pipeline_config = Config.configure_pipeline("my_pipeline", task_config)
+    pipeline_config_2 = Config.configure_pipeline("my_pipeline_2", task_config)
+    scenario_config = Config.configure_scenario("my_scenario", pipeline_config, frequency=Frequency.DAILY)
+
+    return scenario_config
+
+
+def triple(a):
+    return a * 3
+
+
+def config_scenario_2():
+    Config.configure_global_app(
+        root_folder="foo_root",
+        # Chaging the "storage_folder" will fail since older versions are stored in older folder
+        # storage_folder="foo_storage",
+        clean_entities_enabled=True,
+        repository_type="bar",
+        repository_properties={"foo": "bar"},
+    )
+    Config.configure_job_executions(mode="standalone", max_nb_of_workers=5)
+    data_node_2_config = Config.configure_data_node(
+        id="d2", storage_type="csv", default_path="bar.csv", has_header=False, exposed_type="numpy"
+    )
+    data_node_3_config = Config.configure_data_node(
+        id="d3", storage_type="csv", default_path="baz.csv", has_header=False, exposed_type="numpy"
+    )
+    task_config = Config.configure_task("my_task", triple, data_node_2_config, data_node_3_config)
     pipeline_config = Config.configure_pipeline("my_pipeline", task_config)
     scenario_config = Config.configure_scenario("my_scenario", pipeline_config, frequency=Frequency.DAILY)
 
