@@ -14,7 +14,7 @@ from unittest.mock import patch
 import pytest
 
 from src.taipy.core import Core
-from src.taipy.core._version._version_cli import version_cli
+from src.taipy.core._version._version_cli import _VersioningCLI
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
@@ -40,42 +40,43 @@ def reset_configuration_singleton():
 
 def test_version_cli_return_value():
     # Test default cli values
-    mode, version_number, override = version_cli()
+    _VersioningCLI._create_parser()
+    mode, version_number, override = _VersioningCLI._parse_arguments()
     assert mode == "development"
     assert version_number is None
     assert not override
 
     # Test Dev mode
     with patch("sys.argv", ["prog", "--development"]):
-        mode, _, _ = version_cli()
+        mode, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     with patch("sys.argv", ["prog", "-dev"]):
-        mode, _, _ = version_cli()
+        mode, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     # Test Experiment mode
     with patch("sys.argv", ["prog", "--experiment"]):
-        mode, version_number, override = version_cli()
+        mode, version_number, override = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number is None
     assert not override
 
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
-        mode, version_number, override = version_cli()
+        mode, version_number, override = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert not override
 
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1", "--override"]):
-        mode, version_number, override = version_cli()
+        mode, version_number, override = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert override
 
     # Test Production mode
     with patch("sys.argv", ["prog", "--production"]):
-        mode, version_number, override = version_cli()
+        mode, version_number, override = _VersioningCLI._parse_arguments()
     assert mode == "production"
     assert version_number is None
     assert not override

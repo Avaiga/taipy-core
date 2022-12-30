@@ -17,7 +17,7 @@ from taipy.logger._taipy_logger import _TaipyLogger
 from ._scheduler._dispatcher._job_dispatcher import _JobDispatcher
 from ._scheduler._scheduler import _Scheduler
 from ._scheduler._scheduler_factory import _SchedulerFactory
-from ._version._version_cli import version_cli
+from ._version._version_cli import _VersioningCLI
 from ._version._version_manager_factory import _VersionManagerFactory
 from .exceptions.exceptions import VersionConflictWithPythonConfig
 from .taipy import clean_all_entities_by_version
@@ -41,9 +41,8 @@ class Core:
         """
         Start a Core service. This method is blocking.
         """
-        cli_args = version_cli()
-        if cli_args == 0:  # run --help command
-            exit()
+        _VersioningCLI._create_parser()
+        cli_args = _VersioningCLI._parse_arguments()
 
         self.__setup_versioning_module(*cli_args)
 
