@@ -42,8 +42,6 @@ class Core:
         """
         Start a Core service. This method is blocking.
         """
-        Config.block_update()
-
         _VersioningCLI._create_parser()
         cli_args = _VersioningCLI._parse_arguments()
 
