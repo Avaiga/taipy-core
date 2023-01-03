@@ -385,6 +385,44 @@ def test_delete_version():
     assert len(all_versions) == 4
     assert "1.1" in all_versions and "1.1" not in production_version
 
+    # Test delete a wrong production version
+    with pytest.raises(SystemExit) as e:
+        with patch("sys.argv", ["prog", "--delete-production-version", "non_exist_version"]):
+            core.run()
+    assert str(e.value) == "Version non_exist_version is not a production version."
+
+
+def test_list_version():
+    core = Core()
+
+    with patch("sys.argv", ["prog", "--development"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.0"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.1"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--production", "--version-number", "1.1"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.0"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
+        core.run()
+    with patch("sys.argv", ["prog", "--production", "--version-number", "2.1"]):
+        core.run()
+
+    with pytest.raises(SystemExit) as e:
+        with patch("sys.argv", ["prog", "--list-version"]):
+            core.run()
+
+    version_list = str(e.value).strip().split("\n")
+    assert len(version_list) == 6  # 5 versions with the header
+    assert all(column in version_list[0] for column in ["Version number", "Mode", "Creation date"])
+    assert all(column in version_list[1] for column in ["2.1", "Production", "latest"])
+    assert all(column in version_list[2] for column in ["2.0", "Experiment"]) and "latest" not in version_list[2]
+    assert all(column in version_list[3] for column in ["1.1", "Production"]) and "latest" not in version_list[3]
+    assert all(column in version_list[4] for column in ["1.0", "Experiment"]) and "latest" not in version_list[4]
+    assert "Development" in version_list[5] and "latest" not in version_list[5]
+
 
 def test_compare_config_between_versions():
     scenario_config = config_scenario()
