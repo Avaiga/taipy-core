@@ -42,7 +42,6 @@ class _JobDispatcher(threading.Thread):
         threading.Thread.__init__(self, name="Thread-Taipy-JobDispatcher")
         self.daemon = True
         self.scheduler = scheduler
-        Config.block_update()
 
     def start(self):
         """Start the dispatcher"""
@@ -138,7 +137,6 @@ class _JobDispatcher(threading.Thread):
         try:
             if mode != JobConfig._DEVELOPMENT_MODE:
                 Config._applied_config = _TomlSerializer()._deserialize(config_as_string)
-                Config.block_update()
             inputs: List[DataNode] = list(task.input.values())
             outputs: List[DataNode] = list(task.output.values())
 
