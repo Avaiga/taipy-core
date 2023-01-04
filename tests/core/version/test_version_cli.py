@@ -9,6 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from time import sleep
 from unittest.mock import patch
 
 import pytest
@@ -397,16 +398,22 @@ def test_list_version():
 
     with patch("sys.argv", ["prog", "--development"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.0"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "1.1"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--production", "--version-number", "1.1"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.0"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "--version-number", "2.1"]):
         core.run()
+    sleep(0.05)
     with patch("sys.argv", ["prog", "--production", "--version-number", "2.1"]):
         core.run()
 
