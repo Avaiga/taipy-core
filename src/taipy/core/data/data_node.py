@@ -287,7 +287,7 @@ class DataNode(_Entity):
     @classmethod
     @abstractmethod
     def storage_type(cls) -> str:
-        return NotImplementedError
+        raise NotImplementedError()
 
     def read_or_raise(self) -> Any:
         """Read the data referenced by this data node.
