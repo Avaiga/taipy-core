@@ -108,7 +108,7 @@ class PickleDataNode(DataNode):
             self.write(default_value)
 
     @classmethod
-    def storage_type(cls) -> str:
+    def storage_type(cls) -> Optional[str]:
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore

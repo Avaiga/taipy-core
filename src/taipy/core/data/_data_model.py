@@ -24,7 +24,7 @@ class _DataNodeModel:
     id: str
     config_id: str
     scope: Scope
-    storage_type: str
+    storage_type: Optional[str]
     name: str
     owner_id: Optional[str]
     parent_ids: List[str]

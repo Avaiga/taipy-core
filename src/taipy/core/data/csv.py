@@ -121,7 +121,7 @@ class CSVDataNode(DataNode):
             self.last_edit_date = datetime.now()  # type: ignore
 
     @classmethod
-    def storage_type(cls) -> str:
+    def storage_type(cls) -> Optional[str]:
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore

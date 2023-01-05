@@ -102,7 +102,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
         )
 
     @classmethod
-    def storage_type(cls) -> str:
+    def storage_type(cls) -> Optional[str]:
         return cls.__STORAGE_TYPE
 
     def _get_read_query(self):
