@@ -17,7 +17,6 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 from taipy.config.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
 
-from ._scheduler._scheduler_factory import _SchedulerFactory
 from ._version._version_manager_factory import _VersionManagerFactory
 from .common._entity import _Entity
 from .common._warnings import _warn_no_core_service
@@ -60,6 +59,7 @@ def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):
         return _DataManagerFactory._build_manager()._set(entity)
 
 
+@_warn_no_core_service()
 def submit(
     entity: Union[Scenario, Pipeline, Task],
     force: bool = False,
@@ -78,8 +78,6 @@ def submit(
         timeout (Union[float, int]): The optional maximum number of seconds to wait for the jobs to be finished before returning.
 
     """
-    if _SchedulerFactory._dispatcher is None:
-        _warn_no_core_service()
     if isinstance(entity, Scenario):
         return _ScenarioManagerFactory._build_manager()._submit(entity, force=force, wait=wait, timeout=timeout)
     if isinstance(entity, Pipeline):

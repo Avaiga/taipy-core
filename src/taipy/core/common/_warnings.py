@@ -9,6 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import functools
 import warnings
 
 warnings.simplefilter("once", ResourceWarning)
@@ -22,7 +23,18 @@ def _warn_deprecated(deprecated: str, suggest: str = None, stacklevel: int = 3) 
     warnings.warn(message=message, category=category, stacklevel=stacklevel)
 
 
-def _warn_no_core_service(stacklevel: int = 3) -> None:
-    category = ResourceWarning
-    message = "The Core service is NOT running"
-    warnings.warn(message=message, category=category, stacklevel=stacklevel)
+def _warn_no_core_service(stacklevel: int = 3):
+    def inner(f):
+        @functools.wraps(f)
+        def _check_if_core_service_is_running(*args, **kwargs):
+            from .._scheduler._scheduler_factory import _SchedulerFactory
+
+            if not _SchedulerFactory._dispatcher:
+                message = "The Core service is NOT running"
+                warnings.warn(message=message, category=ResourceWarning, stacklevel=stacklevel)
+
+            return f(*args, **kwargs)
+
+        return _check_if_core_service_is_running
+
+    return inner
