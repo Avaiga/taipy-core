@@ -30,6 +30,7 @@ class _DataNodeModel:
     parent_ids: List[str]
     last_edit_date: Optional[str]
     job_ids: List[JobId]
+    edits: List[Dict[str, Any]]
     version: str
     cacheable: bool
     validity_days: Optional[float]
@@ -52,6 +53,7 @@ class _DataNodeModel:
             parent_ids=data["parent_ids"],
             last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
             job_ids=data["job_ids"],
+            edits=data["edits"],
             version=data["version"],
             cacheable=data["cacheable"],
             validity_days=data["validity_days"],

@@ -22,6 +22,7 @@ from src.taipy.core.config.job_config import JobConfig
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data._filter import _FilterDataNode
 from src.taipy.core.data.data_node import DataNode
+from src.taipy.core.data.edit import Edit
 from src.taipy.core.data.in_memory import InMemoryDataNode
 from src.taipy.core.data.operator import JoinOperator, Operator
 from src.taipy.core.exceptions.exceptions import NoData
@@ -123,7 +124,7 @@ class TestDataNode:
             "a_scenario_id",
             {"a_parent_id"},
             a_date,
-            [JobId("a_job_id")],
+            [Edit(job_id="a_job_id")],
             edit_in_progress=False,
             prop="erty",
         )
@@ -152,6 +153,7 @@ class TestDataNode:
         assert not dn.is_ready_for_reading
         assert dn.last_edition_date is None
         assert dn.job_ids == []
+        assert dn.edits == []
 
         dn.write("Any data")
         assert dn.write_has_been_called == 1
@@ -160,6 +162,9 @@ class TestDataNode:
         first_edition = dn.last_edition_date
         assert dn.is_ready_for_reading
         assert dn.job_ids == []
+        assert len(dn.edits) == 1
+        assert dn.get_last_edit()["timestamp"] == dn.last_edit_date
+
         sleep(0.1)
 
         dn.write("Any other data", job_id := JobId("a_job_id"))
@@ -169,6 +174,8 @@ class TestDataNode:
         assert first_edition < second_edition
         assert dn.is_ready_for_reading
         assert dn.job_ids == [job_id]
+        assert len(dn.edits) == 2
+        assert dn.get_last_edit()["timestamp"] == dn.last_edit_date
 
         dn.read()
         assert dn.write_has_been_called == 2
@@ -474,7 +481,7 @@ class TestDataNode:
             owner_id=None,
             parent_ids=None,
             last_edit_date=current_datetime,
-            job_ids=[JobId("a_job_id")],
+            edits=[Edit(job_id="a_job_id")],
             cacheable=False,
             edit_in_progress=False,
             validity_period=None,
@@ -539,13 +546,7 @@ class TestDataNode:
         dn_1.last_edition_date = new_datetime
 
         assert len(dn_1.job_ids) == 1
-        dn_1.job_ids.append("a_job_id_2")
-        assert len(dn_1.job_ids) == 2
-        assert len(dn_2.job_ids) == 2
-
-        dn_1.job_ids = []
-        assert len(dn_1.job_ids) == 0
-        assert len(dn_2.job_ids) == 0
+        assert len(dn_2.job_ids) == 1
 
         with dn_1 as dn:
             assert dn.config_id == "foo"
@@ -556,7 +557,7 @@ class TestDataNode:
             assert dn.edition_in_progress
             assert dn.cacheable
             assert dn.validity_period == time_period
-            assert len(dn.job_ids) == 0
+            assert len(dn.job_ids) == 1
             assert dn._is_in_context
 
             new_datetime_2 = new_datetime + timedelta(1)
@@ -567,7 +568,6 @@ class TestDataNode:
             dn.edition_in_progress = False
             dn.cacheable = False
             dn.validity_period = None
-            dn.job_ids = ["a_job_id"]
 
             assert dn.config_id == "foo"
             assert dn.owner_id is None
@@ -577,7 +577,7 @@ class TestDataNode:
             assert dn.edition_in_progress
             assert dn.cacheable
             assert dn.validity_period == time_period
-            assert len(dn.job_ids) == 0
+            assert len(dn.job_ids) == 1
 
         assert dn_1.config_id == "foo"
         assert dn_1.owner_id is None
