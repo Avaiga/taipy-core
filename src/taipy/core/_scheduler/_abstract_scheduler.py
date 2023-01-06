@@ -22,7 +22,7 @@ class _AbstractScheduler:
     @classmethod
     @abstractmethod
     def initialize(cls):
-        return NotImplementedError
+        raise NotImplementedError()
 
     @classmethod
     @abstractmethod

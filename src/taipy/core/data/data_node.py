@@ -469,11 +469,11 @@ class DataNode(_Entity):
 
     @abstractmethod
     def _read(self):
-        return NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def _write(self, data):
-        return NotImplementedError
+        raise NotImplementedError()
 
     def __getitem__(self, items):
         return _FilterDataNode(self.id, self._read())[items]
