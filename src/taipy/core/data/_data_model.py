@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Set
 from taipy.config.common.scope import Scope
 
 from ..common.alias import JobId
+from .edit import Edit
 
 
 @dataclass
@@ -30,7 +31,7 @@ class _DataNodeModel:
     parent_ids: List[str]
     last_edit_date: Optional[str]
     job_ids: List[JobId]
-    edits: List[Dict[str, Any]]
+    edits: List[Edit]
     version: str
     cacheable: bool
     validity_days: Optional[float]
