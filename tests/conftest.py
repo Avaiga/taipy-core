@@ -264,7 +264,6 @@ def clean_repository():
     init_managers()
     init_config()
 
-
 def init_config():
     Config.unblock_update()
     Config._default_config = _Config()._default_config()
