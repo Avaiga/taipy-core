@@ -112,7 +112,6 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             data_node.owner_id,
             list(data_node._parent_ids),
             data_node._last_edit_date.isoformat() if data_node._last_edit_date else None,
-            [],  # DEPRECATED _job_ids (using _edits now)
             data_node._edits,
             data_node._version,
             data_node._cacheable,

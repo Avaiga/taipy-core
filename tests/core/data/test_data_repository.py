@@ -24,7 +24,6 @@ from taipy.config.config import Config
 
 
 class TestDataRepository:
-
     data_node = CSVDataNode(
         "test_data_node",
         Scope.PIPELINE,
@@ -50,7 +49,6 @@ class TestDataRepository:
         "owner_id",
         list({"parent_id_1", "parent_id_2"}),
         datetime.datetime(1985, 10, 14, 2, 30, 0).isoformat(),
-        [],
         [Edit(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
         "latest",
         False,
