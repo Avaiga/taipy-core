@@ -11,7 +11,6 @@
 import os
 from datetime import datetime, timedelta
 from time import sleep
-from typing import Optional
 from unittest import mock
 
 import pytest
@@ -46,7 +45,7 @@ class FakeDataNode(InMemoryDataNode):
         self.write_has_been_called += 1
 
     @classmethod
-    def storage_type(cls) -> Optional[str]:
+    def storage_type(cls) -> str:
         return "fake_inmemory"
 
     write = DataNode.write  # Make sure that the writing behavior comes from DataNode
@@ -64,7 +63,7 @@ class FakeDataframeDataNode(DataNode):
         return self.data
 
     @classmethod
-    def storage_type(cls) -> Optional[str]:
+    def storage_type(cls) -> str:
         return "fake_df_dn"
 
 
@@ -81,7 +80,7 @@ class FakeListDataNode(DataNode):
         return self.data
 
     @classmethod
-    def storage_type(cls) -> Optional[str]:
+    def storage_type(cls) -> str:
         return "fake_list_dn"
 
 

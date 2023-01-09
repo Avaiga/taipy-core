@@ -20,11 +20,10 @@ from ..common.alias import JobId
 
 @dataclass
 class _DataNodeModel:
-
     id: str
     config_id: str
     scope: Scope
-    storage_type: Optional[str]
+    storage_type: str
     name: str
     owner_id: Optional[str]
     parent_ids: List[str]

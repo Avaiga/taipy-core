@@ -138,7 +138,7 @@ class MongoCollectionDataNode(DataNode):
             )
 
     @classmethod
-    def storage_type(cls) -> Optional[str]:
+    def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
     def _read(self):

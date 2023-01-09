@@ -108,7 +108,7 @@ class PickleDataNode(DataNode):
             self.write(default_value)
 
     @classmethod
-    def storage_type(cls) -> Optional[str]:
+    def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
     @property  # type: ignore
@@ -139,7 +139,6 @@ class PickleDataNode(DataNode):
             pickle.dump(data, pf)
 
     def __build_path(self):
-
         from taipy.config.config import Config
 
         dir_path = pathlib.Path(Config.global_config.storage_folder) / "pickles"
