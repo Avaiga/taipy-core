@@ -323,7 +323,7 @@ class DataNode(_Entity):
             )
             return None
 
-    def write(self, data, job_id: Optional[JobId] = None, edit: Optional[Edit] = None):
+    def write(self, data, job_id: Optional[JobId] = None, **kwargs):
         """Write some data to this data node.
 
         Parameters:
@@ -333,17 +333,19 @@ class DataNode(_Entity):
         from ._data_manager_factory import _DataManagerFactory
 
         self._write(data)
-        if not edit:
-            edit = Edit(timestamp=datetime.now())
-        if job_id:
-            edit["job_id"] = job_id
-        self._track_edit(edit)
+        self._track_edit(job_id=job_id, **kwargs)
         self.unlock_edit()
         _DataManagerFactory._build_manager()._set(self)
 
-    def _track_edit(self, edit: Edit):
+    def _track_edit(self, **options):
         """Add Edit tracking information to this data node."""
-        self.last_edit_date = edit.get("timestamp", datetime.now())
+        edit = {}
+        for k, v in options.items():
+            if v is not None:
+                edit[k] = v
+        if "timestamp" not in edit:
+            edit["timestamp"] = datetime.now()
+        self.last_edit_date = edit.get("timestamp")
         self._edits.append(edit)
 
     def lock_edit(self):

@@ -659,3 +659,26 @@ class TestDataNode:
         assert data_node.path == "foo.p"
         data_node.path = "baz.p"
         assert data_node.path == "baz.p"
+
+    def test_track_edit(self):
+        dn_config = Config.configure_data_node("A")
+        data_node = _DataManager._bulk_get_or_create([dn_config])[dn_config]
+
+        data_node.write(data="1", job_id="job_1")
+        data_node.write(data="2", job_id="job_1")
+        data_node.write(data="3", job_id="job_1")
+
+        assert len(data_node.edits) == 3
+        assert len(data_node.job_ids) == 3
+        assert data_node.edits[-1] == data_node.get_last_edit()
+        assert data_node.last_edit_date == data_node.get_last_edit().get("timestamp")
+
+        data_node.write(data="4", message="This is a comment on this edit", env="staging")
+
+        assert len(data_node.edits) == 4
+        assert len(data_node.job_ids) == 3
+        assert data_node.edits[-1] == data_node.get_last_edit()
+
+        last_edit = data_node.get_last_edit()
+        assert last_edit["message"] == "This is a comment on this edit"
+        assert last_edit["env"] == "staging"

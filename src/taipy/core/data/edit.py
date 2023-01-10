@@ -10,6 +10,6 @@
 # specific language governing permissions and limitations under the License.
 
 import datetime
-from typing import Any, Dict
+from typing import Any
 
 Edit = dict[str, Any]

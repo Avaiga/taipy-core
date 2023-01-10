@@ -218,6 +218,4 @@ class CSVDataNode(DataNode):
         else:
             df = pd.DataFrame(data, columns=columns)
         df.to_csv(self._path, index=False)
-        self._last_edit_date = datetime.now()
-        if job_id:
-            self.job_ids.append(job_id)
+        self._track_edit(timestamp=datetime.now(), job_id=job_id)

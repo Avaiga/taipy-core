@@ -218,10 +218,7 @@ class ParquetDataNode(DataNode):
             data.to_parquet(self._path, **kwargs)
         else:
             pd.DataFrame(data).to_parquet(self._path, **kwargs)
-
-        self._last_edit_date = datetime.now()
-        if job_id:
-            self.job_ids.append(job_id)
+        self._track_edit(timestamp=datetime.now(), job_id=job_id)
 
     def read_with_kwargs(self, **read_kwargs):
         """Read data node, with keyword arguments passed to `pandas.read_parquet`.
