@@ -673,7 +673,8 @@ class TestDataNode:
         assert data_node.edits[-1] == data_node.get_last_edit()
         assert data_node.last_edit_date == data_node.get_last_edit().get("timestamp")
 
-        data_node.write(data="4", message="This is a comment on this edit", env="staging")
+        date = datetime(2050, 1, 1, 12, 12)
+        data_node.write(data="4", timestamp=date, message="This is a comment on this edit", env="staging")
 
         assert len(data_node.edits) == 4
         assert len(data_node.job_ids) == 3
@@ -682,3 +683,4 @@ class TestDataNode:
         last_edit = data_node.get_last_edit()
         assert last_edit["message"] == "This is a comment on this edit"
         assert last_edit["env"] == "staging"
+        assert last_edit["timestamp"] == date
