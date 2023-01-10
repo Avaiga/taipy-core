@@ -141,6 +141,8 @@ def cleanup_files():
     if os.path.exists("None"):
         os.remove("None")
 
+    yield
+
     if os.path.exists(".data"):
         shutil.rmtree(".data", ignore_errors=True)
     if os.path.exists(".my_data"):
@@ -263,6 +265,9 @@ def clean_repository():
     init_scheduler()
     init_managers()
     init_config()
+
+    yield
+
 
 def init_config():
     Config.unblock_update()
