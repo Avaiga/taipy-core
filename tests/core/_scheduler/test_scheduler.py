@@ -500,10 +500,9 @@ def test_can_exec_task_with_modified_config():
     pipeline = _PipelineManager._get_or_create(pipeline_config)
 
     jobs = pipeline.submit()
-    assert_true_after_time(jobs[0].is_finished)
-    assert_true_after_time(
-        jobs[0].is_completed
-    )  # If the job is completed, that means the asserts in the task are successful
+    assert_true_after_time(jobs[0].is_finished, time=180)
+    assert_true_after_time(jobs[0].is_completed)
+    # If the job is completed, that means the asserts in the task are successful
     taipy.clean_all_entities()
 
 
@@ -573,21 +572,23 @@ def test_need_to_run_no_output():
     assert _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_not_cacheable():
+def test_need_to_run_task_not_skippable():
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=False)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=False
+    )
     task = _create_task_from_config(task_cfg)
 
     assert _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_no_input():
+def test_need_to_run_skippable_task_no_input():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg], skippable=True)
 
     _SchedulerFactory._build_dispatcher()
 
@@ -598,13 +599,15 @@ def test_need_to_run_output_cacheable_no_input():
     assert not _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_no_validity_period():
+def test_need_to_run_skippable_task_no_validity_period_on_output():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
 
     _SchedulerFactory._build_dispatcher()
 
@@ -615,13 +618,15 @@ def test_need_to_run_output_cacheable_no_validity_period():
     assert not _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
+def test_need_to_run_skippable_task_with_validity_period_up_to_date_on_output():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world", validity_days=1)
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
     _SchedulerFactory._build_dispatcher()
 
     task = _create_task_from_config(task_cfg)
@@ -638,11 +643,13 @@ def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
     assert job_skipped.is_finished()
 
 
-def test_need_to_run_output_cacheable_with_validity_period_obsolete():
+def test_need_to_run_skippable_task_with_validity_period_obsolete_on_output():
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world", validity_days=1)
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
     task = _create_task_from_config(task_cfg)
 
     assert _SchedulerFactory._dispatcher._needs_to_run(task)

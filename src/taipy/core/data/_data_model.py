@@ -11,7 +11,7 @@
 
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from taipy.config.common.scope import Scope
 
@@ -31,7 +31,6 @@ class _DataNodeModel:
     last_edit_date: Optional[str]
     job_ids: List[JobId]
     version: str
-    cacheable: bool
     validity_days: Optional[float]
     validity_seconds: Optional[float]
     edit_in_progress: bool
@@ -53,7 +52,6 @@ class _DataNodeModel:
             last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
             job_ids=data["job_ids"],
             version=data["version"],
-            cacheable=data["cacheable"],
             validity_days=data["validity_days"],
             validity_seconds=data["validity_seconds"],
             edit_in_progress=bool(data.get("edit_in_progress", data.get("edition_in_progress", False))),

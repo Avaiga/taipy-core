@@ -26,6 +26,8 @@ class _TaskModel:
     function_module: str
     output_ids: List[str]
     version: str
+    skippable: bool
+    properties: Dict[str, Any]
 
     def to_dict(self) -> Dict[str, Any]:
         return dataclasses.asdict(self)
@@ -42,4 +44,6 @@ class _TaskModel:
             function_module=data["function_module"],
             output_ids=data["output_ids"],
             version=data["version"],
+            skippable=data.get("skippable", False),
+            properties=data.get("properties", {}),
         )
