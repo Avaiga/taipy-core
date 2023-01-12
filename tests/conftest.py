@@ -17,6 +17,7 @@ from queue import Queue
 
 import pandas as pd
 import pytest
+from sqlalchemy import create_engine
 
 from src.taipy.core._scheduler._scheduler_factory import _SchedulerFactory
 from src.taipy.core._version._version_manager_factory import _VersionManagerFactory
@@ -351,3 +352,8 @@ def init_scheduler():
     _SchedulerFactory._build_dispatcher()
     _SchedulerFactory._scheduler.jobs_to_run = Queue()
     _SchedulerFactory._scheduler.blocked_jobs = []
+
+
+@pytest.fixture
+def sql_engine():
+    return create_engine("sqlite:///:memory:")
