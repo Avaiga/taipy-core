@@ -178,7 +178,7 @@ class _TaipyModelTable(_BaseSQLRepository):
 
         return res
 
-    def __get_entities_by_config_and_owner(self, config_id: str, owner_id: Optional[str] = "") -> _TaipyModel:
+    def __get_entities_by_config_and_owner(self, config_id: str, owner_id: Optional[str] = "", version_number: Optional[str] = None) -> _TaipyModel:
         if owner_id:
             query = (
                 self.session.query(self._table)
