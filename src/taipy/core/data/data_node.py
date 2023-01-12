@@ -60,7 +60,7 @@ class DataNode(_Entity):
             `None`.
         parent_ids (Optional[Set[str]]): The set of identifiers of the parent tasks.
         last_edit_date (datetime): The date and time of the last modification.
-        edits (List[Edit^]): The ordered list of medata of each edition of that job.
+        edits (List[Edit^]): The list of Edits (an alias for dict) containing medata about each edition of that node.
         version (str): The string indicates the application version of the data node to instantiate. If not provided, the current version is used.
         cacheable (bool): True if this data node is cacheable. False otherwise.
         validity_period (Optional[timedelta]): The validity period of a cacheable data node.
@@ -330,6 +330,7 @@ class DataNode(_Entity):
         Parameters:
             data (Any): The data to write to this data node.
             job_id (JobId^): An optional identifier of the writer.
+            **kwargs: Extra information to attach to the edit document corresponding to this write. 
         """
         from ._data_manager_factory import _DataManagerFactory
 
