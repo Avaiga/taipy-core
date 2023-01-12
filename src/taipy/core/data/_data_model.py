@@ -16,8 +16,7 @@ from typing import Any, Dict, List, Optional, Set
 
 from taipy.config.common.scope import Scope
 
-from ..common.alias import JobId
-from .edit import Edit
+from ..common.alias import Edit
 
 
 def _to_edits(job_ids: Optional[List[str]]) -> List[Edit]:
@@ -27,7 +26,7 @@ def _to_edits(job_ids: Optional[List[str]]) -> List[Edit]:
     # We can't guess what is the timestamp corresponding to a modification from its job_id...
     # So let's use the current time...
     timestamp = datetime.now()
-    return [Edit(timestamp=timestamp, job_id=job_id) for job_id in job_ids]
+    return [dict(timestamp=timestamp, job_id=job_id) for job_id in job_ids]
 
 
 @dataclass

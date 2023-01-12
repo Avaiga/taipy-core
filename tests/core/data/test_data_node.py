@@ -17,12 +17,11 @@ import pytest
 
 import src.taipy.core as tp
 from src.taipy.core._scheduler._scheduler_factory import _SchedulerFactory
-from src.taipy.core.common.alias import DataNodeId, JobId
+from src.taipy.core.common.alias import DataNodeId, JobId, Edit
 from src.taipy.core.config.job_config import JobConfig
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data._filter import _FilterDataNode
 from src.taipy.core.data.data_node import DataNode
-from src.taipy.core.data.edit import Edit
 from src.taipy.core.data.in_memory import InMemoryDataNode
 from src.taipy.core.data.operator import JoinOperator, Operator
 from src.taipy.core.exceptions.exceptions import NoData
@@ -124,7 +123,7 @@ class TestDataNode:
             "a_scenario_id",
             {"a_parent_id"},
             a_date,
-            [Edit(job_id="a_job_id")],
+            [dict(job_id="a_job_id")],
             edit_in_progress=False,
             prop="erty",
         )
@@ -481,7 +480,7 @@ class TestDataNode:
             owner_id=None,
             parent_ids=None,
             last_edit_date=current_datetime,
-            edits=[Edit(job_id="a_job_id")],
+            edits=[dict(job_id="a_job_id")],
             cacheable=False,
             edit_in_progress=False,
             validity_period=None,

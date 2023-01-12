@@ -18,7 +18,6 @@ from src.taipy.core.common.alias import DataNodeId, JobId, TaskId
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data._data_manager_factory import _DataManagerFactory
 from src.taipy.core.data.csv import CSVDataNode
-from src.taipy.core.data.edit import Edit
 from src.taipy.core.exceptions.exceptions import ModelNotFound
 from src.taipy.core.job._job_model import _JobModel
 from src.taipy.core.job._job_repository import _JobRepository
@@ -39,7 +38,7 @@ data_node = CSVDataNode(
     "owner_id",
     "task_id",
     datetime.datetime(1985, 10, 14, 2, 30, 0),
-    [Edit(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
+    [dict(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
     "latest",
     False,
     None,

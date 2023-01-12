@@ -13,12 +13,11 @@ import datetime
 import os
 from unittest import mock
 
-from src.taipy.core.common.alias import DataNodeId, JobId
+from src.taipy.core.common.alias import DataNodeId
 from src.taipy.core.data._data_model import _DataNodeModel
 from src.taipy.core.data._data_repository_factory import _DataRepositoryFactory
 from src.taipy.core.data.csv import CSVDataNode
 from src.taipy.core.data.data_node import DataNode
-from src.taipy.core.data.edit import Edit
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 
@@ -32,7 +31,7 @@ class TestDataRepository:
         "owner_id",
         set(["parent_id_1", "parent_id_2"]),
         datetime.datetime(1985, 10, 14, 2, 30, 0),
-        [Edit(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
+        [dict(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
         "latest",
         False,
         None,
@@ -49,7 +48,7 @@ class TestDataRepository:
         "owner_id",
         list({"parent_id_1", "parent_id_2"}),
         datetime.datetime(1985, 10, 14, 2, 30, 0).isoformat(),
-        [Edit(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
+        [dict(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
         "latest",
         False,
         None,

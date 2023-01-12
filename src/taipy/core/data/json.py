@@ -21,10 +21,9 @@ from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._reload import _self_reload
-from ..common.alias import DataNodeId, JobId
+from ..common.alias import DataNodeId, Edit
 from ..exceptions.exceptions import MissingRequiredProperty
 from .data_node import DataNode
-from .edit import Edit
 
 
 class JSONDataNode(DataNode):
