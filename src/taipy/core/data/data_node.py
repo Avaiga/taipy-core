@@ -295,7 +295,7 @@ class DataNode(_Entity):
     @classmethod
     @abstractmethod
     def storage_type(cls) -> str:
-        return NotImplementedError
+        return NotImplementedError  # type: ignore
 
     def read_or_raise(self) -> Any:
         """Read the data referenced by this data node.
@@ -487,11 +487,11 @@ class DataNode(_Entity):
 
     @abstractmethod
     def _read(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     @abstractmethod
     def _write(self, data):
-        return NotImplementedError
+        raise NotImplementedError
 
     def __getitem__(self, items):
         return _FilterDataNode(self.id, self._read())[items]
