@@ -20,6 +20,7 @@ from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 from taipy.config.section import Section
 
+from ..common._warnings import _warn_deprecated
 from ..common.default_custom_document import DefaultCustomDocument
 
 
@@ -38,7 +39,6 @@ class DataNodeConfig(Section):
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Scope^):  The `Scope^` of the data nodes instantiated from the data node config. The default value is
             SCENARIO.
-        cacheable (bool): If True, indicates that the data node is cacheable. The default value is _False_.
         **properties (dict[str, Any]): A dictionary of additional properties.
     """
 
@@ -198,17 +198,13 @@ class DataNodeConfig(Section):
     _SCOPE_KEY = "scope"
     _DEFAULT_SCOPE = Scope.SCENARIO
 
-    _IS_CACHEABLE_KEY = "cacheable"
-    _DEFAULT_IS_CACHEABLE_VALUE = False
-
-    def __init__(self, id: str, storage_type: str = None, scope: Scope = None, cacheable: bool = False, **properties):
+    def __init__(self, id: str, storage_type: str = None, scope: Scope = None, **properties):
         self._storage_type = storage_type
         self._scope = scope
-        self._cacheable = cacheable
         super().__init__(id, **properties)
 
     def __copy__(self):
-        return DataNodeConfig(self.id, self._storage_type, self._scope, self._cacheable, **copy(self._properties))
+        return DataNodeConfig(self.id, self._storage_type, self._scope, **copy(self._properties))
 
     def __getattr__(self, item: str) -> Optional[Any]:
         return _tpl._replace_templates(self._properties.get(item))
@@ -233,18 +229,22 @@ class DataNodeConfig(Section):
 
     @property
     def cacheable(self):
-        return _tpl._replace_templates(self._cacheable)
+        _warn_deprecated("cacheable", suggest="the skippable feature")
+        cacheable = self._properties.get("cacheable")
+        if cacheable is not None:
+            return _tpl._replace_templates(cacheable)
+        else:
+            return True
 
     @cacheable.setter  # type: ignore
     @_ConfigBlocker._check()
     def cacheable(self, val):
-        self._cacheable = val
+        _warn_deprecated("cacheable", suggest="the skippable feature")
+        self._properties["cacheable"] = val
 
     @classmethod
     def default_config(cls):
-        return DataNodeConfig(
-            cls._DEFAULT_KEY, cls._DEFAULT_STORAGE_TYPE, cls._DEFAULT_SCOPE, cls._DEFAULT_IS_CACHEABLE_VALUE
-        )
+        return DataNodeConfig(cls._DEFAULT_KEY, cls._DEFAULT_STORAGE_TYPE, cls._DEFAULT_SCOPE)
 
     def _to_dict(self):
         as_dict = {}
@@ -252,7 +252,6 @@ class DataNodeConfig(Section):
             as_dict[self._STORAGE_TYPE_KEY] = self._storage_type
         if self._scope is not None:
             as_dict[self._SCOPE_KEY] = self._scope
-        as_dict[self._IS_CACHEABLE_KEY] = self._cacheable
         as_dict.update(self._properties)
         return as_dict
 
@@ -261,8 +260,7 @@ class DataNodeConfig(Section):
         as_dict.pop(cls._ID_KEY, id)
         storage_type = as_dict.pop(cls._STORAGE_TYPE_KEY, None)
         scope = as_dict.pop(cls._SCOPE_KEY, None)
-        cacheable = as_dict.pop(cls._IS_CACHEABLE_KEY, False)
-        return DataNodeConfig(id=id, storage_type=storage_type, scope=scope, cacheable=cacheable, **as_dict)
+        return DataNodeConfig(id=id, storage_type=storage_type, scope=scope, **as_dict)
 
     def _update(self, as_dict, default_section=None):
         self._storage_type = as_dict.pop(self._STORAGE_TYPE_KEY, self._storage_type)
@@ -271,13 +269,12 @@ class DataNodeConfig(Section):
         self._scope = as_dict.pop(self._SCOPE_KEY, self._scope)
         if self._scope is None and default_section:
             self._scope = default_section.scope
-        self._cacheable = as_dict.pop(self._IS_CACHEABLE_KEY, self._cacheable)
         self._properties.update(as_dict)
         if default_section:
             self._properties = {**default_section.properties, **self._properties}
 
     @staticmethod
-    def _configure_default(storage_type: str, scope: Scope = _DEFAULT_SCOPE, cacheable: bool = False, **properties):
+    def _configure_default(storage_type: str, scope: Scope = _DEFAULT_SCOPE, **properties):
         """Configure the default values for data node configurations.
         This function creates the _default data node configuration_ object,
         where all data node configuration objects will find their default
@@ -288,13 +285,12 @@ class DataNodeConfig(Section):
                 _"sql"_, _"mongo_collection"_, _"in_memory"_, _"json"_, _"parquet"_ or _"generic"_.
             scope (Scope^): The default scope for all data node configurations.
                 The default value is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
             `DataNodeConfig^`: The default data node configuration.
         """
-        section = DataNodeConfig(_Config.DEFAULT_KEY, storage_type, scope, cacheable, **properties)
+        section = DataNodeConfig(_Config.DEFAULT_KEY, storage_type, scope, **properties)
         Config._register(section)
         return Config.sections[DataNodeConfig.name][_Config.DEFAULT_KEY]
 
@@ -303,7 +299,6 @@ class DataNodeConfig(Section):
         id: str,
         storage_type: str = _DEFAULT_STORAGE_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new data node configuration.
@@ -317,13 +312,12 @@ class DataNodeConfig(Section):
             scope (Scope^): The scope of the data node configuration. The default value is
                 `Scope.SCENARIO` (or the one specified in
                 `(Config.)configure_default_data_node()^`).
-            cacheable (bool): If True, indicates that the data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
             `DataNodeConfig^`: The new data node configuration.
         """
-        section = DataNodeConfig(id, storage_type, scope, cacheable, **properties)
+        section = DataNodeConfig(id, storage_type, scope, **properties)
         Config._register(section)
         return Config.sections[DataNodeConfig.name][id]
 
@@ -334,7 +328,6 @@ class DataNodeConfig(Section):
         has_header: bool = True,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope=_DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new CSV data node configuration.
@@ -346,7 +339,6 @@ class DataNodeConfig(Section):
             exposed_type: The exposed type of the data read from CSV file. The default value is `pandas`.
             scope (Scope^): The scope of the CSV data node configuration. The default value
                 is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the CSV data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -356,7 +348,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_CSV,
             scope=scope,
-            cacheable=cacheable,
             default_path=default_path,
             has_header=has_header,
             exposed_type=exposed_type,
@@ -372,7 +363,6 @@ class DataNodeConfig(Section):
         encoder: json.JSONEncoder = None,
         decoder: json.JSONDecoder = None,
         scope=_DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new JSON data node configuration.
@@ -384,7 +374,6 @@ class DataNodeConfig(Section):
             decoder (json.JSONDecoder): The JSON decoder used to read data from the JSON file.
             scope (Scope^): The scope of the JSON data node configuration. The default value
                 is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the JSON data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -394,7 +383,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_JSON,
             scope=scope,
-            cacheable=cacheable,
             default_path=default_path,
             encoder=encoder,
             decoder=decoder,
@@ -413,7 +401,6 @@ class DataNodeConfig(Section):
         read_kwargs: Dict = dict(),
         write_kwargs: Dict = dict(),
         scope=_DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new Parquet data node configuration.
@@ -432,7 +419,6 @@ class DataNodeConfig(Section):
                 passed to Pandas.
             scope (Scope^): The scope of the Parquet data node configuration. The default value
                 is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the Parquet data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -442,7 +428,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_PARQUET,
             scope=scope,
-            cacheable=cacheable,
             default_path=default_path,
             engine=engine,
             compression=compression,
@@ -462,7 +447,6 @@ class DataNodeConfig(Section):
         sheet_name: Union[List[str], str] = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new Excel data node configuration.
@@ -476,7 +460,6 @@ class DataNodeConfig(Section):
             exposed_type: The exposed type of the data read from Excel file. The default value is `pandas`.
             scope (Scope^): The scope of the Excel data node configuration. The default
                 value is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the Excel data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -486,7 +469,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_EXCEL,
             scope=scope,
-            cacheable=cacheable,
             default_path=default_path,
             has_header=has_header,
             sheet_name=sheet_name,
@@ -504,7 +486,6 @@ class DataNodeConfig(Section):
         read_fct_params: List = None,
         write_fct_params: List = None,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new generic data node configuration.
@@ -521,7 +502,6 @@ class DataNodeConfig(Section):
                 to write the data.
             scope (Optional[Scope^]): The scope of the Generic data node configuration.
                 The default value is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the generic data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -531,7 +511,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_GENERIC,
             scope=scope,
-            cacheable=cacheable,
             read_fct=read_fct,
             write_fct=write_fct,
             read_fct_params=read_fct_params,
@@ -546,7 +525,6 @@ class DataNodeConfig(Section):
         id: str,
         default_data: Optional[Any] = None,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new _in_memory_ data node configuration.
@@ -557,7 +535,6 @@ class DataNodeConfig(Section):
                 this in_memory data node configuration.
             scope (Scope^): The scope of the in_memory data node configuration. The default
                 value is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the in_memory data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -567,7 +544,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_IN_MEMORY,
             scope=scope,
-            cacheable=cacheable,
             default_data=default_data,
             **properties,
         )
@@ -579,7 +555,6 @@ class DataNodeConfig(Section):
         id: str,
         default_data: Optional[Any] = None,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new pickle data node configuration.
@@ -590,7 +565,6 @@ class DataNodeConfig(Section):
                 this pickle data node configuration.
             scope (Scope^): The scope of the pickle data node configuration. The default value
                 is `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the pickle data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -600,7 +574,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_PICKLE,
             scope=scope,
-            cacheable=cacheable,
             default_data=default_data,
             **properties,
         )
@@ -621,7 +594,6 @@ class DataNodeConfig(Section):
         db_extra_args: Dict[str, Any] = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new SQL table data node configuration.
@@ -642,7 +614,6 @@ class DataNodeConfig(Section):
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the SQL table data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -652,7 +623,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_SQL_TABLE,
             scope=scope,
-            cacheable=cacheable,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
@@ -683,7 +653,6 @@ class DataNodeConfig(Section):
         write_query_builder: Callable = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new SQL data node configuration.
@@ -705,7 +674,6 @@ class DataNodeConfig(Section):
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the SQL data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -715,7 +683,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_SQL,
             scope=scope,
-            cacheable=cacheable,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,
@@ -744,7 +711,6 @@ class DataNodeConfig(Section):
         db_port: int = 27017,
         db_extra_args: Dict[str, Any] = {},
         scope: Scope = _DEFAULT_SCOPE,
-        cacheable: bool = False,
         **properties,
     ):
         """Configure a new Mongo collection data node configuration.
@@ -763,7 +729,6 @@ class DataNodeConfig(Section):
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database connection string.
             scope (Scope^): The scope of the Mongo collection data node configuration. The default value is
                 `Scope.SCENARIO`.
-            cacheable (bool): If True, indicates that the SQL data node is cacheable. The default value is _False_.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
@@ -773,7 +738,6 @@ class DataNodeConfig(Section):
             id,
             DataNodeConfig._STORAGE_TYPE_VALUE_MONGO_COLLECTION,
             scope=scope,
-            cacheable=cacheable,
             db_username=db_username,
             db_password=db_password,
             db_name=db_name,

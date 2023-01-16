@@ -142,8 +142,8 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].cacheable == False
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].cacheable is False
+    assert Config.data_nodes[data_node_id].properties == {"cacheable": False, "default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -163,8 +163,8 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].cacheable == False
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].cacheable is False
+    assert Config.data_nodes[data_node_id].properties == {"cacheable": False, "default_path": "foo.p"}
 
 
 def test_block_datanode_config_update_in_standalone_mode():
@@ -182,8 +182,8 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].cacheable == False
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].cacheable is False
+    assert Config.data_nodes[data_node_id].properties == {"cacheable": False, "default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -203,5 +203,5 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].cacheable == False
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].cacheable is False
+    assert Config.data_nodes[data_node_id].properties == {"cacheable": False, "default_path": "foo.p"}

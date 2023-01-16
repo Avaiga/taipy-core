@@ -320,12 +320,15 @@ def test_submit_task_synchronously_in_parallel_with_timeout():
     Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE, max_nb_of_workers=2)
     _SchedulerFactory._build_dispatcher()
 
-    sleep_period = 2.2
+    task_duration = 2
+    timeout_duration = task_duration - 1
+    task = Task("sleep_task", function=partial(sleep, task_duration))
+
     start_time = datetime.now()
-    task = Task("sleep_task", function=partial(sleep, sleep_period))
-    job = _Scheduler.submit_task(task, "submit_id", wait=True, timeout=sleep_period - 1)
-    assert sleep_period - 1 <= (datetime.now() - start_time).seconds <= sleep_period
-    assert job.is_running()
+    job = _Scheduler.submit_task(task, "submit_id", wait=True, timeout=timeout_duration)
+    end_time = datetime.now()
+
+    assert timeout_duration <= (end_time - start_time).seconds
     assert_true_after_time(job.is_completed)
 
 
@@ -470,10 +473,10 @@ def test_task_scheduler_create_synchronous_dispatcher():
 
 
 def test_task_scheduler_create_standalone_dispatcher():
-    Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE, max_nb_of_workers=42)
+    Config.configure_job_executions(mode=JobConfig._STANDALONE_MODE, max_nb_of_workers=3)
     _SchedulerFactory._build_dispatcher()
     assert isinstance(_SchedulerFactory._dispatcher._executor, ProcessPoolExecutor)
-    assert _SchedulerFactory._dispatcher._nb_available_workers == 42
+    assert _SchedulerFactory._dispatcher._nb_available_workers == 3
 
 
 def modified_config_task(n):

@@ -11,7 +11,6 @@
 
 import threading
 from abc import abstractmethod
-from multiprocessing import Lock
 from typing import Any, Dict, List
 
 from taipy.config._toml_serializer import _TomlSerializer
@@ -35,13 +34,13 @@ class _JobDispatcher(threading.Thread):
     _STOP_FLAG = False
     _dispatched_processes: Dict = {}
     __logger = _TaipyLogger._get_logger()
-    lock = Lock()
     _nb_available_workers: int = 1
 
     def __init__(self, scheduler: _AbstractScheduler):
         threading.Thread.__init__(self, name="Thread-Taipy-JobDispatcher")
         self.daemon = True
         self.scheduler = scheduler
+        self.lock = self.scheduler.lock  # type: ignore
         Config.block_update()
 
     def start(self):

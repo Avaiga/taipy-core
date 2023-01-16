@@ -21,7 +21,7 @@ from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._reload import _self_reload
-from ..common.alias import DataNodeId, JobId
+from ..common.alias import DataNodeId, Edit
 from ..exceptions.exceptions import MissingRequiredProperty
 from .data_node import DataNode
 
@@ -38,9 +38,9 @@ class JSONDataNode(DataNode):
         owner_id (str): The identifier of the owner (pipeline_id, scenario_id, cycle_id) or `None`.
         parent_ids (Optional[Set[str]]): The identifiers of the parent tasks or `None`.
         last_edit_date (datetime): The date and time of the last modification.
-        job_ids (List[str]): The ordered list of jobs that have written this data node.
+        edits (List[Edit^]): The ordered list of edits for that job.
         version (str): The string indicates the application version of the data node to instantiate. If not provided,
-            the latest version is used.
+            the current version is used.
         validity_period (Optional[timedelta]): The validity period of a data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
             always up-to-date.
@@ -69,7 +69,7 @@ class JSONDataNode(DataNode):
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
-        job_ids: List[JobId] = None,
+        edits: List[Edit] = None,
         version: str = None,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
@@ -96,7 +96,7 @@ class JSONDataNode(DataNode):
             owner_id,
             parent_ids,
             last_edit_date,
-            job_ids,
+            edits,
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,

@@ -109,12 +109,10 @@ max_nb_of_workers = "1:int"
 [DATA_NODE.default]
 storage_type = "pickle"
 scope = "SCENARIO:SCOPE"
-cacheable = "False:bool"
 
 [DATA_NODE.test_csv_dn]
 storage_type = "csv"
 scope = "GLOBAL:SCOPE"
-cacheable = "False:bool"
 has_header = "True:bool"
 exposed_type = "tests.core.config.test_config_serialization.CustomClass:class"
 path = "./test.csv"
@@ -122,7 +120,6 @@ path = "./test.csv"
 [DATA_NODE.test_json_dn]
 storage_type = "json"
 scope = "SCENARIO:SCOPE"
-cacheable = "False:bool"
 default_path = "./test.json"
 encoder = "tests.core.config.test_config_serialization.CustomEncoder:class"
 decoder = "tests.core.config.test_config_serialization.CustomDecoder:class"
@@ -244,13 +241,11 @@ def test_read_write_json_configuration_file():
 "DATA_NODE": {
 "default": {
 "storage_type": "pickle",
-"scope": "SCENARIO:SCOPE",
-"cacheable": "False:bool"
+"scope": "SCENARIO:SCOPE"
 },
 "test_csv_dn": {
 "storage_type": "csv",
 "scope": "GLOBAL:SCOPE",
-"cacheable": "False:bool",
 "default_path": null,
 "has_header": "True:bool",
 "exposed_type": "tests.core.config.test_config_serialization.CustomClass:class",
@@ -259,7 +254,6 @@ def test_read_write_json_configuration_file():
 "test_json_dn": {
 "storage_type": "json",
 "scope": "SCENARIO:SCOPE",
-"cacheable": "False:bool",
 "default_path": "./test.json",
 "encoder": "tests.core.config.test_config_serialization.CustomEncoder:class",
 "decoder": "tests.core.config.test_config_serialization.CustomDecoder:class"
