@@ -55,11 +55,13 @@ corge = [ "grault", "ENV[GARPLY]", "ENV[WALDO]:int", "3.0:float",]
 [TASK.default]
 inputs = []
 outputs = []
+skippable = "False:bool"
 
 [TASK.t1]
 inputs = [ "dn1:SECTION",]
 function = "builtins.print:function"
 outputs = [ "dn2:SECTION",]
+skippable = "False:bool"
 description = "t1 description"
 
 [PIPELINE.default]

@@ -234,7 +234,7 @@ class DataNodeConfig(Section):
         if cacheable is not None:
             return _tpl._replace_templates(cacheable)
         else:
-            return True
+            return False
 
     @cacheable.setter  # type: ignore
     @_ConfigBlocker._check()

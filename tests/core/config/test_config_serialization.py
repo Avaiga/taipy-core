@@ -127,11 +127,13 @@ decoder = "tests.core.config.test_config_serialization.CustomDecoder:class"
 [TASK.default]
 inputs = []
 outputs = []
+skippable = "False:bool"
 
 [TASK.test_task]
 inputs = [ "test_csv_dn:SECTION",]
 function = "tests.core.config.test_config_serialization.multiply:function"
 outputs = [ "test_json_dn:SECTION",]
+skippable = "False:bool"
 
 [PIPELINE.default]
 tasks = []
@@ -196,12 +198,14 @@ test_json_dn = [ "tests.core.config.test_config_serialization.compare_function:f
     assert Config.sections[TaskConfig.name]["default"].inputs == []
     assert Config.sections[TaskConfig.name]["default"].outputs == []
     assert Config.sections[TaskConfig.name]["default"].function is None
+    assert not Config.sections[TaskConfig.name]["default"].skippable
     assert [inp.id for inp in Config.sections[TaskConfig.name]["test_task"].inputs] == [
         Config.sections[DataNodeConfig.name]["test_csv_dn"].id
     ]
     assert [outp.id for outp in Config.sections[TaskConfig.name]["test_task"].outputs] == [
         Config.sections[DataNodeConfig.name]["test_json_dn"].id
     ]
+    assert Config.sections[TaskConfig.name]["test_task"].function == multiply
     assert Config.sections[TaskConfig.name]["test_task"].function == multiply
 
     assert Config.sections[PipelineConfig.name] is not None
@@ -263,7 +267,8 @@ def test_read_write_json_configuration_file():
 "default": {
 "inputs": [],
 "function": null,
-"outputs": []
+"outputs": [],
+"skippable": "False:bool"
 },
 "test_task": {
 "inputs": [
@@ -272,7 +277,8 @@ def test_read_write_json_configuration_file():
 "function": "tests.core.config.test_config_serialization.multiply:function",
 "outputs": [
 "test_json_dn:SECTION"
-]
+],
+"skippable": "False:bool"
 }
 },
 "PIPELINE": {

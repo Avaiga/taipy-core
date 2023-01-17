@@ -87,7 +87,7 @@ class _TaskManager(_Manager[Task]):
                 props = task_config._properties.copy()
                 inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
                 outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
-                skippable = props.pop("skippable", False)
+                skippable = task_config.skippable
                 task = Task(
                     str(task_config.id),  # type: ignore
                     task_config.function,
