@@ -470,7 +470,7 @@ def test_list_version():
         core.run()
 
     with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "--list-version"]):
+        with patch("sys.argv", ["prog", "--list-versions"]):
             core.run()
 
     version_list = str(e.value).strip().split("\n")
