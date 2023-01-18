@@ -13,7 +13,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from src.taipy.core._version._utils import _version_migration
+from .._version._utils import _version_migration
 
 
 @dataclass
