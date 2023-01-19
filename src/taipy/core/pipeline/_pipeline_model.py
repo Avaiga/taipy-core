@@ -19,7 +19,6 @@ from ..common.alias import PipelineId, TaskId
 
 @dataclass
 class _PipelineModel:
-
     id: PipelineId
     owner_id: Optional[str]
     parent_ids: List[str]

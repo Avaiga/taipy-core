@@ -15,6 +15,7 @@ import shutil
 from unittest.mock import patch
 
 from src.taipy.core import Core, taipy
+from src.taipy.core._version._version_manager import _VersionManager
 from taipy import Config, Frequency
 
 
