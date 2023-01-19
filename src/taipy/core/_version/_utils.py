@@ -12,8 +12,8 @@
 
 def _version_migration() -> str:
     "Add version attribute on old entities. Used to migrate from <=2.0 to >=2.1 version." ""
-    from src.taipy.core._version._version_cli import _VersioningCLI
-    from src.taipy.core._version._version_manager import _VersionManager
+    from ._version_cli import _VersioningCLI
+    from ._version_manager import _VersionManager
 
     _VersioningCLI._create_parser()
     mode = _VersioningCLI._parse_arguments()[0]
