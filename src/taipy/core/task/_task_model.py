@@ -13,6 +13,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from .._version._utils import _version_migration
+
 
 @dataclass
 class _TaskModel:
@@ -42,7 +44,7 @@ class _TaskModel:
             function_name=data["function_name"],
             function_module=data["function_module"],
             output_ids=data["output_ids"],
-            version=data["version"],
+            version=data["version"] if "version" in data.keys() else _version_migration(),
             skippable=data.get("skippable", False),
             properties=data.get("properties", {}),
         )

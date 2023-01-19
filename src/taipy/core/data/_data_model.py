@@ -16,11 +16,14 @@ from typing import Any, Dict, List, Optional, cast
 
 from taipy.config.common.scope import Scope
 
+from .._version._utils import _version_migration
+from ..common._warnings import _warn_deprecated
 from ..common.alias import Edit
 
 
-def _to_edits(job_ids: Optional[List[str]]) -> List[Dict[str, Any]]:
-    """Migrate a list of job IDs to a list of Edits."""
+def _to_edits_migration(job_ids: Optional[List[str]]) -> List[Edit]:
+    "Migrate a list of job IDs to a list of Edits. Used to migrate data model from <=2.0 to >=2.1 version." ""
+    _warn_deprecated("job_ids", suggest="edits")
     if not job_ids:
         return []
     # We can't guess what is the timestamp corresponding to a modification from its job_id...
@@ -60,8 +63,8 @@ class _DataNodeModel:
             owner_id=data.get("owner_id", data.get("parent_id")),
             parent_ids=data["parent_ids"],
             last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
-            edits=data.get("edits", _to_edits(data.get("job_ids"))),
-            version=data["version"],
+            edits=data.get("edits", _to_edits_migration(data.get("job_ids"))),
+            version=data["version"] if "version" in data.keys() else _version_migration(),
             validity_days=data["validity_days"],
             validity_seconds=data["validity_seconds"],
             edit_in_progress=bool(data.get("edit_in_progress", data.get("edition_in_progress", False))),
