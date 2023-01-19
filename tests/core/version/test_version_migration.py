@@ -27,6 +27,8 @@ def test_experiment_mode_converts_old_entities_to_latest_version():
 
         Core().run()
         scenario = taipy.get("SCENARIO_my_scenario_c4307ae8-d2ce-4802-8b16-8307baa7cff1")
+        assert _VersionManager._get_development_version() != "1.0"
+        assert "1.0" not in _VersionManager._get_production_version()
         assert scenario.version == "1.0"
         taipy.set(scenario)
         assert scenario.my_pipeline.version == "1.0"
