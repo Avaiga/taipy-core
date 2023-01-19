@@ -74,6 +74,8 @@ def test_development_mode_converts_old_entities_to_latest_version():
         Core().run()
         scenario = taipy.get("SCENARIO_my_scenario_c4307ae8-d2ce-4802-8b16-8307baa7cff1")
         version = "legacy-version"
+        assert _VersionManager._get_development_version() != version
+        assert version not in _VersionManager._get_production_version()
         assert scenario.version == version
         taipy.set(scenario)
         assert scenario.my_pipeline.version == version
