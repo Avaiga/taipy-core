@@ -42,42 +42,52 @@ def reset_configuration_singleton():
 def test_version_cli_return_value():
     # Test default cli values
     _VersioningCLI._create_parser()
-    mode, version_number, force = _VersioningCLI._parse_arguments()
+    mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "development"
     assert version_number == ""
     assert not force
 
     # Test Dev mode
     with patch("sys.argv", ["prog", "--development"]):
-        mode, _, _ = _VersioningCLI._parse_arguments()
+        mode, _, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     with patch("sys.argv", ["prog", "-dev"]):
-        mode, _, _ = _VersioningCLI._parse_arguments()
+        mode, _, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     # Test Experiment mode
     with patch("sys.argv", ["prog", "--experiment"]):
-        mode, version_number, force = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == ""
     assert not force
+    assert not clean_entities
 
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        mode, version_number, force = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert not force
+    assert not clean_entities
 
     with patch("sys.argv", ["prog", "--experiment", "2.1", "--force"]):
-        mode, version_number, force = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
     assert force
+    assert not clean_entities
+
+    with patch("sys.argv", ["prog", "--experiment", "2.1", "--clean-entities"]):
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+    assert mode == "experiment"
+    assert version_number == "2.1"
+    assert not force
+    assert clean_entities
 
     # Test Production mode
     with patch("sys.argv", ["prog", "--production"]):
-        mode, version_number, force = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "production"
     assert version_number == ""
     assert not force
@@ -373,6 +383,72 @@ def test_force_override_production_version():
     assert len(_ScenarioManager._get_all()) == 2
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 2
+
+
+def test_clean_experiment_version():
+    scenario_config = config_scenario()
+
+    core = Core()
+
+    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+        core.run()
+
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+    with patch("sys.argv", ["prog", "--experiment", "1.0", "--clean-entities"]):
+        core.run()
+
+    # All entities from previous submit should be cleaned and re-created
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+
+def test_clean_production_version():
+    scenario_config = config_scenario()
+
+    core = Core()
+
+    with patch("sys.argv", ["prog", "--production", "1.0"]):
+        core.run()
+
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+    with patch("sys.argv", ["prog", "--production", "1.0", "--clean-entities"]):
+        core.run()
+
+    # All entities from previous submit should be cleaned and re-created
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
 
 
 def test_delete_version():

@@ -74,6 +74,12 @@ class _VersioningCLI:
         )
 
         core_parser.add_argument(
+            "--clean-entities",
+            action="store_true",
+            help="Clean all entities before running the application. Default to False.",
+        )
+
+        core_parser.add_argument(
             "--list-versions", "-l", action="store_true", help="List all existing versions of the Taipy application."
         )
 
@@ -147,4 +153,4 @@ class _VersioningCLI:
             version_number = args.production
             mode = "production"
 
-        return mode, version_number, args.force
+        return mode, version_number, args.force, args.clean_entities
