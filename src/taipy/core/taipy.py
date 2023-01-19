@@ -12,7 +12,7 @@
 import pathlib
 import shutil
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union, overload
 
 from taipy.config.config import Config
 from taipy.logger._taipy_logger import _TaipyLogger
@@ -86,7 +86,34 @@ def submit(
     if isinstance(entity, Task):
         return _TaskManagerFactory._build_manager()._submit(entity, force=force, wait=wait, timeout=timeout)
 
+@overload
+def get(entity_id: TaskId) -> Task:
+    ...
 
+
+@overload
+def get(entity_id: DataNodeId) -> DataNode:
+    ...
+
+
+@overload
+def get(entity_id: PipelineId) -> Pipeline:
+    ...
+
+
+@overload
+def get(entity_id: ScenarioId) -> Scenario:
+    ...
+
+
+@overload
+def get(entity_id: TaskId) -> Task:
+    ...
+
+
+@overload
+def get(entity_id: CycleId) -> Cycle:
+    ...
 def get(
     entity_id: Union[TaskId, DataNodeId, PipelineId, ScenarioId, JobId, CycleId]
 ) -> Union[Task, DataNode, Pipeline, Scenario, Job, Cycle]:
