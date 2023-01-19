@@ -11,7 +11,7 @@
 
 
 def _version_migration() -> str:
-    "Add version attribute on old entities. Used to migrate from <=2.0 to >=2.1 version." ""
+    """Add version attribute on old entities. Used to migrate from <=2.0 to >=2.1 version."""
     from ._version_cli import _VersioningCLI
     from ._version_manager import _VersionManager
 
@@ -20,8 +20,5 @@ def _version_migration() -> str:
     if mode != "development":
         return _VersionManager._get_latest_version()
     else:
-        from taipy.logger._taipy_logger import _TaipyLogger
-
-        _TaipyLogger._get_logger().warning("we did create a new version with old entities -  TODO make it explicit!!!")
-        _VersionManager._get_or_create("legacy-version", True)
-        return "legacy-version"
+        _VersionManager._get_or_create("LEGACY-VERSION", True)
+        return "LEGACY-VERSION"
