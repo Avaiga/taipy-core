@@ -65,7 +65,7 @@ class Core:
             self._dispatcher = _SchedulerFactory._remove_dispatcher()
             _TaipyLogger._get_logger().info("Core service has been stopped.")
 
-    def __setup_versioning_module(self, mode, _version_number, _override):
+    def __setup_versioning_module(self, mode, _version_number, _force):
         if mode == "development":
             curren_version_number = _VersionManagerFactory._build_manager()._get_development_version()
 
@@ -81,10 +81,10 @@ class Core:
                 curren_version_number = _version_number
             else:
                 curren_version_number = str(uuid.uuid4())
-            override = _override
+            force = _force
 
             try:
-                _VersionManagerFactory._build_manager()._set_experiment_version(curren_version_number, override)
+                _VersionManagerFactory._build_manager()._set_experiment_version(curren_version_number, force)
             except VersionConflictWithPythonConfig as e:
                 raise SystemExit(e.message)
 
@@ -93,10 +93,10 @@ class Core:
                 curren_version_number = _version_number
             else:
                 curren_version_number = _VersionManagerFactory._build_manager()._get_latest_version()
-            override = _override
+            force = _force
 
             try:
-                _VersionManagerFactory._build_manager()._set_production_version(curren_version_number, override)
+                _VersionManagerFactory._build_manager()._set_production_version(curren_version_number, force)
             except VersionConflictWithPythonConfig as e:
                 raise SystemExit(e.message)
 
