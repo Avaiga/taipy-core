@@ -61,9 +61,10 @@ class ParquetDataNode(DataNode):
             - _"compression"_ `(Optional[str])`: Name of the compression to use. Use None for no compression.
                 `{'snappy', 'gzip', 'brotli', None}`, default `'snappy'`.\n
             - _"read_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.read_parquet_ method.\n
-            - _"write_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.DataFrame.write_parquet_ method.
-                The parameters in _"read_kwargs"_ and _"write_kwargs"_ have a **higher precedence** than the top-level parameters which
-                are also passed to Pandas.\n
+            - _"write_kwargs"_ `(Optional[Dict])`: Additional parameters passed to the _pandas.DataFrame.write_parquet_
+                method.
+                The parameters in _"read_kwargs"_ and _"write_kwargs"_ have a **higher precedence** than the top-level
+                parameters which are also passed to Pandas.\n
     """
 
     __STORAGE_TYPE = "parquet"
@@ -108,7 +109,8 @@ class ParquetDataNode(DataNode):
             properties[self.__ENGINE_PROPERTY] = "pyarrow"
         if properties[self.__ENGINE_PROPERTY] not in self.__VALID_PARQUET_ENGINES:
             raise UnknownParquetEngine(
-                f"Invalid parquet engine: {properties[self.__ENGINE_PROPERTY]}. Supported engines are {', '.join(self.__VALID_PARQUET_ENGINES)}"
+                f"Invalid parquet engine: {properties[self.__ENGINE_PROPERTY]}. "
+                f"Supported engines are {', '.join(self.__VALID_PARQUET_ENGINES)}"
             )
 
         if self.__COMPRESSION_PROPERTY not in properties.keys():
@@ -118,7 +120,8 @@ class ParquetDataNode(DataNode):
             and properties[self.__COMPRESSION_PROPERTY] not in self.__VALID_COMPRESSION_ALGORITHMS
         ):
             raise UnknownCompressionAlgorithm(
-                f"Unsupported compression algorithm: {properties[self.__COMPRESSION_PROPERTY]}. Supported algorithms are {', '.join(self.__VALID_COMPRESSION_ALGORITHMS)}"
+                f"Unsupported compression algorithm: {properties[self.__COMPRESSION_PROPERTY]}. "
+                f"Supported algorithms are {', '.join(self.__VALID_COMPRESSION_ALGORITHMS)}"
             )
 
         if self.__READ_KWARGS_PROPERTY not in properties.keys():
@@ -171,7 +174,8 @@ class ParquetDataNode(DataNode):
     def _check_exposed_type(self, exposed_type):
         if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
             raise InvalidExposedType(
-                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+                f"Invalid string exposed type {exposed_type}. Supported values are "
+                f"{', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
     def _read(self):

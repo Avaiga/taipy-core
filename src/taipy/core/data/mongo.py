@@ -49,12 +49,14 @@ class MongoCollectionDataNode(DataNode):
 
             - _"db_name"_ `(str)`: The database name.\n
             - _"collection_name"_ `(str)`: The collection in the database to read from and to write the data to.\n
-            - _"custom_document"_ `(Any)`: The custom document class to store, encode, and decode data when reading and writing to a Mongo collection.\n
+            - _"custom_document"_ `(Any)`: The custom document class to store, encode, and decode data when reading and
+                writing to a Mongo collection.\n
             - _"db_username"_ `(str)`: The database username.\n
             - _"db_password"_ `(str)`: The database password.\n
             - _"db_host"_ `(str)`: The database host. The default value is _"localhost"_.\n
             - _"db_port"_ `(int)`: The database port. The default value is 27017.\n
-            - _"db_extra_args"_ `(Dict[str, Any])`: A dictionary of additional arguments to be passed into database connection string.\n
+            - _"db_extra_args"_ `(Dict[str, Any])`: A dictionary of additional arguments to be passed into database
+                connection string.\n
     """
 
     __STORAGE_TYPE = "mongo_collection"
@@ -112,7 +114,7 @@ class MongoCollectionDataNode(DataNode):
             db_password=properties.get("db_password", ""),
             db_extra_args=properties.get(self.__DB_EXTRA_ARGS_KEY, {}),
         )
-        self.collection = mongo_client[properties.get("db_name")][properties.get("collection_name")]
+        self.collection = mongo_client[properties.get("db_name", "")][properties.get("collection_name", "")]
 
         self.custom_document = properties[self.__CUSTOM_DOCUMENT_PROPERTY]
 
@@ -206,7 +208,8 @@ def _connect_mongodb(
         db_port (int): the database port.
         db_username (str): the database username.
         db_password (str): the database password.
-        db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database connection string.
+        db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database connection
+            string.
 
     Returns:
         pymongo.MongoClient

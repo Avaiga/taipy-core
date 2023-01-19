@@ -135,7 +135,8 @@ class CSVDataNode(DataNode):
     def _check_exposed_type(self, exposed_type):
         if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
             raise InvalidExposedType(
-                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+                f"Invalid string exposed type {exposed_type}. Supported values are "
+                f"{', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
 
     def _read(self):

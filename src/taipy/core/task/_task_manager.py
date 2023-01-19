@@ -28,7 +28,6 @@ from ..task.task import Task
 
 
 class _TaskManager(_Manager[Task]):
-
     _repository = _TaskRepositoryFactory._build_repository()  # type: ignore
     _ENTITY_NAME = Task.__name__
 

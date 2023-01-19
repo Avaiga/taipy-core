@@ -150,7 +150,8 @@ class ExcelDataNode(DataNode):
     def _check_exposed_type(self, exposed_type):
         if isinstance(exposed_type, str) and exposed_type not in self.__VALID_STRING_EXPOSED_TYPES:
             raise InvalidExposedType(
-                f"Invalid string exposed type {exposed_type}. Supported values are {', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
+                f"Invalid string exposed type {exposed_type}. Supported values are "
+                f"{', '.join(self.__VALID_STRING_EXPOSED_TYPES)}"
             )
         elif isinstance(exposed_type, list):
             for t in exposed_type:
@@ -191,7 +192,8 @@ class ExcelDataNode(DataNode):
         if isinstance(exposed_type, List):
             if len(provided_sheet_names) != len(self.properties[self.__EXPOSED_TYPE_PROPERTY]):
                 raise ExposedTypeLengthMismatch(
-                    f"Expected {len(provided_sheet_names)} exposed types, got {len(self.properties[self.__EXPOSED_TYPE_PROPERTY])}"
+                    f"Expected {len(provided_sheet_names)} exposed types, got "
+                    f"{len(self.properties[self.__EXPOSED_TYPE_PROPERTY])}"
                 )
 
         for i, sheet_name in enumerate(provided_sheet_names):
