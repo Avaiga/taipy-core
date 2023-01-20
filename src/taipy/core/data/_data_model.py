@@ -61,7 +61,7 @@ class _DataNodeModel:
             storage_type=data["storage_type"],
             name=data["name"],
             owner_id=data.get("owner_id", data.get("parent_id")),
-            parent_ids=data["parent_ids"],
+            parent_ids=data.get("parent_ids", []),
             last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
             edits=data.get("edits", _to_edits_migration(data.get("job_ids"))),
             version=data["version"] if "version" in data.keys() else _version_migration(),
