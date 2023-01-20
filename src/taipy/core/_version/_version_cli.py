@@ -76,7 +76,7 @@ class _VersioningCLI:
         core_parser.add_argument(
             "--clean-entities",
             action="store_true",
-            help="Clean all entities before running the application. Default to False.",
+            help="Clean all current version entities before running the application. Default to False.",
         )
 
         core_parser.add_argument(
