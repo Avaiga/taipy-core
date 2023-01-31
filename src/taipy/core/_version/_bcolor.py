@@ -13,7 +13,7 @@ import os
 import sys
 
 
-def vt_codes_enabled_in_windows_registry():
+def _vt_codes_enabled_in_windows_registry():
     """
     Check the Windows Registry to see if VT code handling has been enabled
     by default, see https://superuser.com/a/1300251/447564.
@@ -33,7 +33,7 @@ def vt_codes_enabled_in_windows_registry():
             return reg_key_value == 1
 
 
-def supports_color():
+def _is_color_supported():
     """
     Return True if the running system's terminal supports color,
     and False otherwise.
@@ -46,15 +46,15 @@ def supports_color():
         or "ANSICON" in os.environ
         or "WT_SESSION" in os.environ  # Windows Terminal supports VT codes.
         or os.environ.get("TERM_PROGRAM") == "vscode"  # VSCode's built-in terminal supports colors.
-        or vt_codes_enabled_in_windows_registry()
+        or _vt_codes_enabled_in_windows_registry()
     )
 
 
-class Bcolors:
-    PURPLE = "\033[95m" if supports_color() else ""
-    BLUE = "\033[94m" if supports_color() else ""
-    CYAN = "\033[96m" if supports_color() else ""
-    GREEN = "\033[92m" if supports_color() else ""
-    BOLD = "\033[1m" if supports_color() else ""
-    UNDERLINE = "\033[4m" if supports_color() else ""
-    END = "\033[0m" if supports_color() else ""
+class _Bcolors:
+    PURPLE = "\033[95m" if _is_color_supported() else ""
+    BLUE = "\033[94m" if _is_color_supported() else ""
+    CYAN = "\033[96m" if _is_color_supported() else ""
+    GREEN = "\033[92m" if _is_color_supported() else ""
+    BOLD = "\033[1m" if _is_color_supported() else ""
+    UNDERLINE = "\033[4m" if _is_color_supported() else ""
+    END = "\033[0m" if _is_color_supported() else ""
