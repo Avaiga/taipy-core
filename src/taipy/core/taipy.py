@@ -108,12 +108,12 @@ def get(entity_id: ScenarioId) -> Scenario:
 
 
 @overload
-def get(entity_id: TaskId) -> Task:
+def get(entity_id: CycleId) -> Cycle:
     ...
 
 
 @overload
-def get(entity_id: CycleId) -> Cycle:
+def get(entity_id: JobId) -> Job:
     ...
 
 
