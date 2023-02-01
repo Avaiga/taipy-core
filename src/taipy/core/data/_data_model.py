@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -16,11 +16,14 @@ from typing import Any, Dict, List, Optional, cast
 
 from taipy.config.common.scope import Scope
 
+from .._version._utils import _version_migration
+from ..common._warnings import _warn_deprecated
 from ..common.alias import Edit
 
 
-def _to_edits(job_ids: Optional[List[str]]) -> List[Edit]:
-    """Migrate a list of job IDs to a list of Edits."""
+def _to_edits_migration(job_ids: Optional[List[str]]) -> List[Edit]:
+    "Migrate a list of job IDs to a list of Edits. Used to migrate data model from <=2.0 to >=2.1 version." ""
+    _warn_deprecated("job_ids", suggest="edits")
     if not job_ids:
         return []
     # We can't guess what is the timestamp corresponding to a modification from its job_id...
@@ -41,7 +44,6 @@ class _DataNodeModel:
     last_edit_date: Optional[str]
     edits: List[Edit]
     version: str
-    cacheable: bool
     validity_days: Optional[float]
     validity_seconds: Optional[float]
     edit_in_progress: bool
@@ -52,6 +54,10 @@ class _DataNodeModel:
 
     @staticmethod
     def from_dict(data: Dict[str, Any]):
+        dn_properties = data["data_node_properties"]
+        # Used for compatibility between <=2.0 to >=2.1 versions.
+        if data.get("cacheable"):
+            dn_properties["cacheable"] = True
         return _DataNodeModel(
             id=data["id"],
             config_id=data["config_id"],
@@ -59,13 +65,12 @@ class _DataNodeModel:
             storage_type=data["storage_type"],
             name=data["name"],
             owner_id=data.get("owner_id", data.get("parent_id")),
-            parent_ids=data["parent_ids"],
+            parent_ids=data.get("parent_ids", []),
             last_edit_date=data.get("last_edit_date", data.get("last_edition_date")),
-            edits=data.get("edits", _to_edits(data.get("job_ids"))),
-            version=data["version"],
-            cacheable=data["cacheable"],
+            edits=data.get("edits", _to_edits_migration(data.get("job_ids"))),
+            version=data["version"] if "version" in data.keys() else _version_migration(),
             validity_days=data["validity_days"],
             validity_seconds=data["validity_seconds"],
             edit_in_progress=bool(data.get("edit_in_progress", data.get("edition_in_progress", False))),
-            data_node_properties=data["data_node_properties"],
+            data_node_properties=dn_properties,
         )

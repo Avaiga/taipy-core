@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -42,6 +42,8 @@ class _TaskRepository(_AbstractRepository[_TaskModel, Task]):  # type: ignore
             function_module=task._function.__module__,
             output_ids=self.__to_ids(task.output.values()),
             version=task.version,
+            skippable=task._skippable,
+            properties=task._properties.data.copy(),
         )
 
     def _from_model(self, model: _TaskModel) -> Task:
@@ -54,6 +56,8 @@ class _TaskRepository(_AbstractRepository[_TaskModel, Task]):  # type: ignore
             input=self.__to_data_nodes(model.input_ids),
             output=self.__to_data_nodes(model.output_ids),
             version=model.version,
+            skippable=model.skippable,
+            properties=model.properties,
         )
 
     def load(self, model_id: str) -> Task:

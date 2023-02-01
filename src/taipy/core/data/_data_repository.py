@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -116,7 +116,6 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             data_node._last_edit_date.isoformat() if data_node._last_edit_date else None,
             data_node._edits,
             data_node._version,
-            data_node._cacheable,
             data_node._validity_period.days if data_node._validity_period else None,
             data_node._validity_period.seconds if data_node._validity_period else None,
             data_node._edit_in_progress,
@@ -216,7 +215,6 @@ class _DataRepository(_AbstractRepository[_DataNodeModel, DataNode]):  # type: i
             last_edit_date=datetime.fromisoformat(model.last_edit_date) if model.last_edit_date else None,
             edits=model.edits,
             version=model.version,
-            cacheable=model.cacheable,
             validity_period=validity_period,
             edit_in_progress=model.edit_in_progress,
             properties=model.data_node_properties,

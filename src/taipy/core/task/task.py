@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -10,14 +10,16 @@
 # specific language governing permissions and limitations under the License.
 
 import uuid
-from typing import Callable, Dict, Iterable, List, Optional, Set, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Union
 
+from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
-from ..common._reload import _self_reload, _self_setter
+from ..common._properties import _Properties
+from ..common._reload import _reload, _self_reload, _self_setter
 from ..common._warnings import _warn_deprecated
 from ..common.alias import TaskId
 from ..data.data_node import DataNode
@@ -31,6 +33,7 @@ class Task(_Entity):
 
     Attributes:
         config_id (str): The identifier of the `TaskConfig^`.
+        properties (dict[str, Any]): A dictionary of additional properties.
         function (callable): The python function to execute. The _function_ must take as parameter the
             data referenced by inputs data nodes, and must return the data referenced by outputs data nodes.
         input (Union[DataNode^, List[DataNode^]]): The list of inputs.
@@ -40,6 +43,9 @@ class Task(_Entity):
         parent_ids (Optional[Set[str]]): The set of identifiers of the parent pipelines.
         version (str): The string indicates the application version of the task to instantiate. If not provided, the
             latest version is used.
+        skippable (bool): If True, indicates that the task can be skipped if no change has been made on inputs. The
+            default value is _False_.
+
     """
 
     _ID_PREFIX = "TASK"
@@ -49,6 +55,7 @@ class Task(_Entity):
     def __init__(
         self,
         config_id: str,
+        properties: Dict[str, Any],
         function,
         input: Optional[Iterable[DataNode]] = None,
         output: Optional[Iterable[DataNode]] = None,
@@ -56,6 +63,7 @@ class Task(_Entity):
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
         version: str = None,
+        skippable: bool = False,
     ):
         self.config_id = _validate_id(config_id)
         self.id = id or TaskId(self.__ID_SEPARATOR.join([self._ID_PREFIX, self.config_id, str(uuid.uuid4())]))
@@ -65,25 +73,38 @@ class Task(_Entity):
         self.__output = {dn.config_id: dn for dn in output or []}
         self._function = function
         self._version = version or _VersionManagerFactory._build_manager()._get_latest_version()
+        self._skippable = skippable
+        self._properties = _Properties(self, **properties)
+
+    @property  # type: ignore
+    @_self_reload(_MANAGER_NAME)
+    def skippable(self):
+        return self._skippable
+
+    @skippable.setter  # type: ignore
+    @_self_setter(_MANAGER_NAME)
+    def skippable(self, val):
+        self._skippable = val
+
+    @property  # type: ignore
+    def properties(self):
+        self._properties = _reload(self._MANAGER_NAME, self)._properties
+        return self._properties
 
     @property  # type: ignore
     def parent_id(self):
-        """
-        Deprecated. Use owner_id instead.
-        """
+        """Deprecated. Use owner_id instead."""
         _warn_deprecated("parent_id", suggest="owner_id")
         return self.owner_id
 
     @parent_id.setter  # type: ignore
     def parent_id(self, val):
-        """
-        Deprecated. Use owner_id instead.
-        """
+        """Deprecated. Use owner_id instead."""
         _warn_deprecated("parent_id", suggest="owner_id")
         self.owner_id = val
 
     def get_parents(self):
-        """Get parents of the task entity"""
+        """Get parents of the task."""
         from ... import core as tp
 
         return tp.get_parents(self)
@@ -126,6 +147,8 @@ class Task(_Entity):
 
     def __getattr__(self, attribute_name):
         protected_attribute_name = _validate_id(attribute_name)
+        if protected_attribute_name in self._properties:
+            return _tpl._replace_templates(self._properties[protected_attribute_name])
         if protected_attribute_name in self.input:
             return self.input[protected_attribute_name]
         if protected_attribute_name in self.output:

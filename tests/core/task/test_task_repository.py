@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -34,14 +34,21 @@ data_node = CSVDataNode(
     datetime.datetime(1985, 10, 14, 2, 30, 0),
     [dict(timestamp=datetime.datetime(1985, 10, 14, 2, 30, 0), job_id="job_id")],
     "latest",
-    False,
     None,
     False,
     {"path": "/path", "has_header": True},
 )
 
 task = Task(
-    "config_id", print, [data_node], [], TaskId("id"), owner_id="owner_id", parent_ids={"parent_id"}, version="latest"
+    "config_id",
+    {},
+    print,
+    [data_node],
+    [],
+    TaskId("id"),
+    owner_id="owner_id",
+    parent_ids={"parent_id"},
+    version="latest",
 )
 
 task_model = _TaskModel(
@@ -54,6 +61,8 @@ task_model = _TaskModel(
     function_module=print.__module__,
     output_ids=[],
     version="latest",
+    skippable=False,
+    properties={},
 )
 
 

@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -96,8 +96,8 @@ def test_submit_task():
 def test_submit_pipeline_generate_unique_submit_id(pipeline, task):
     dn_1 = InMemoryDataNode("dn_config_id_1", Scope.PIPELINE)
     dn_2 = InMemoryDataNode("dn_config_id_2", Scope.PIPELINE)
-    task_1 = Task("task_config_id_1", print, [dn_1])
-    task_2 = Task("task_config_id_2", print, [dn_2])
+    task_1 = Task("task_config_id_1", {}, print, [dn_1])
+    task_2 = Task("task_config_id_2", {}, print, [dn_2])
     pipeline.tasks = [task_1, task_2]
 
     _DataManager._set(dn_1)
@@ -157,7 +157,7 @@ def test_submit_task_with_input_dn_wrong_file_path(caplog):
 
     _SchedulerFactory._build_dispatcher()
     input_dns = [_DataManager._bulk_get_or_create([input_dn_cfg])[input_dn_cfg] for input_dn_cfg in input_dn_cfgs]
-    tasks = [Task(f"task_cfg_{i}", print, input=[input_dn]) for i, input_dn in enumerate(input_dns)]
+    tasks = [Task(f"task_cfg_{i}", {}, print, input=[input_dn]) for i, input_dn in enumerate(input_dns)]
 
     jobs = [_Scheduler.submit_task(task) for task in tasks]
     assert all(job.is_blocked() for job in jobs)
@@ -216,10 +216,10 @@ def test_update_status_fail_job():
     dn_0 = InMemoryDataNode("dn_config_0", Scope.PIPELINE, properties={"default_data": 0})
     dn_1 = InMemoryDataNode("dn_config_1", Scope.PIPELINE, properties={"default_data": 1})
     dn_2 = InMemoryDataNode("dn_config_2", Scope.PIPELINE, properties={"default_data": 2})
-    task_0 = Task("task_config_0", _error, output=[dn_0], id="task_0")
-    task_1 = Task("task_config_1", print, input=[dn_0], output=[dn_1], id="task_1")
-    task_2 = Task("task_config_2", print, input=[dn_1], id="task_2")
-    task_3 = Task("task_config_3", print, input=[dn_2], id="task_3")
+    task_0 = Task("task_config_0", {}, _error, output=[dn_0], id="task_0")
+    task_1 = Task("task_config_1", {}, print, input=[dn_0], output=[dn_1], id="task_1")
+    task_2 = Task("task_config_2", {}, print, input=[dn_1], id="task_2")
+    task_3 = Task("task_config_3", {}, print, input=[dn_2], id="task_3")
     pipeline = Pipeline("pipeline", {}, [task_0, task_1, task_2, task_3], pipeline_id="pipeline")
 
     _DataManager._set(dn_0)
@@ -243,10 +243,10 @@ def test_update_status_fail_job_in_parallel():
     dn_0 = InMemoryDataNode("dn_config_0", Scope.PIPELINE, properties={"default_data": 0})
     dn_1 = InMemoryDataNode("dn_config_1", Scope.PIPELINE, properties={"default_data": 1})
     dn_2 = InMemoryDataNode("dn_config_2", Scope.PIPELINE, properties={"default_data": 2})
-    task_0 = Task("task_config_0", _error, output=[dn_0], id="task_0")
-    task_1 = Task("task_config_1", print, input=[dn_0], output=[dn_1], id="task_1")
-    task_2 = Task("task_config_2", print, input=[dn_1], id="task_2")
-    task_3 = Task("task_config_3", print, input=[dn_2], id="task_3")
+    task_0 = Task("task_config_0", {}, _error, output=[dn_0], id="task_0")
+    task_1 = Task("task_config_1", {}, print, input=[dn_0], output=[dn_1], id="task_1")
+    task_2 = Task("task_config_2", {}, print, input=[dn_1], id="task_2")
+    task_3 = Task("task_config_3", {}, print, input=[dn_2], id="task_3")
     pipeline = Pipeline("pipeline", {}, [task_0, task_1, task_2, task_3], pipeline_id="pipeline")
 
     _DataManager._set(dn_0)
@@ -299,7 +299,7 @@ def test_submit_task_synchronously_in_parallel():
 
     sleep_period = 1
     start_time = datetime.now()
-    task = Task("sleep_task", function=partial(sleep, sleep_period))
+    task = Task("sleep_task", {}, function=partial(sleep, sleep_period))
     job = _Scheduler.submit_task(task, "submit_id", wait=True)
     assert (datetime.now() - start_time).seconds >= sleep_period
     assert_true_after_time(job.is_completed)
@@ -311,7 +311,7 @@ def test_submit_fail_task_synchronously_in_parallel():
 
     sleep_period = 1.0
     start_time = datetime.now()
-    task = Task("sleep_task", function=partial(sleep_and_raise_error_fct, sleep_period))
+    task = Task("sleep_task", {}, function=partial(sleep_and_raise_error_fct, sleep_period))
     job = _Scheduler.submit_task(task, "submit_id", wait=True)
     assert (datetime.now() - start_time).seconds >= sleep_period
     assert_true_after_time(job.is_failed)
@@ -323,7 +323,7 @@ def test_submit_task_synchronously_in_parallel_with_timeout():
 
     task_duration = 2
     timeout_duration = task_duration - 1
-    task = Task("sleep_task", function=partial(sleep, task_duration))
+    task = Task("sleep_task", {}, function=partial(sleep, task_duration))
 
     start_time = datetime.now()
     job = _Scheduler.submit_task(task, "submit_id", wait=True, timeout=timeout_duration)
@@ -435,8 +435,8 @@ def test_blocked_task():
     foo = dns[foo_cfg]
     bar = dns[bar_cfg]
     baz = dns[baz_cfg]
-    task_1 = Task("by_2", partial(lock_multiply, lock_1, 2), [foo], [bar])
-    task_2 = Task("by_3", partial(lock_multiply, lock_2, 3), [bar], [baz])
+    task_1 = Task("by_2", {}, partial(lock_multiply, lock_1, 2), [foo], [bar])
+    task_2 = Task("by_3", {}, partial(lock_multiply, lock_2, 3), [bar], [baz])
 
     assert task_1.foo.is_ready_for_reading  # foo is ready
     assert not task_1.bar.is_ready_for_reading  # But bar is not ready
@@ -577,21 +577,23 @@ def test_need_to_run_no_output():
     assert _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_not_cacheable():
+def test_need_to_run_task_not_skippable():
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=False)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=False
+    )
     task = _create_task_from_config(task_cfg)
 
     assert _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_no_input():
+def test_need_to_run_skippable_task_no_input():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task("name", input=[], function=nothing, output=[hello_world_cfg], skippable=True)
 
     _SchedulerFactory._build_dispatcher()
 
@@ -602,13 +604,15 @@ def test_need_to_run_output_cacheable_no_input():
     assert not _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_no_validity_period():
+def test_need_to_run_skippable_task_no_validity_period_on_output():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world")
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
 
     _SchedulerFactory._build_dispatcher()
 
@@ -619,13 +623,15 @@ def test_need_to_run_output_cacheable_no_validity_period():
     assert not _SchedulerFactory._dispatcher._needs_to_run(task)
 
 
-def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
+def test_need_to_run_skippable_task_with_validity_period_up_to_date_on_output():
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world", validity_days=1)
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
     _SchedulerFactory._build_dispatcher()
 
     task = _create_task_from_config(task_cfg)
@@ -642,11 +648,13 @@ def test_need_to_run_output_cacheable_with_validity_period_up_to_date():
     assert job_skipped.is_finished()
 
 
-def test_need_to_run_output_cacheable_with_validity_period_obsolete():
+def test_need_to_run_skippable_task_with_validity_period_obsolete_on_output():
     hello_cfg = Config.configure_data_node("hello", default_data="Hello ")
     world_cfg = Config.configure_data_node("world", default_data="world !")
-    hello_world_cfg = Config.configure_data_node("hello_world", cacheable=True, validity_days=1)
-    task_cfg = Config.configure_task("name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg])
+    hello_world_cfg = Config.configure_data_node("hello_world", validity_days=1)
+    task_cfg = Config.configure_task(
+        "name", input=[hello_cfg, world_cfg], function=concat, output=[hello_world_cfg], skippable=True
+    )
     task = _create_task_from_config(task_cfg)
 
     assert _SchedulerFactory._dispatcher._needs_to_run(task)
@@ -676,6 +684,7 @@ def _create_task(function, nb_outputs=1):
 
     return Task(
         output_dn_config_id,
+        {},
         function=function,
         input=input_dn,
         output=output_dn,

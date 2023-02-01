@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -172,7 +172,7 @@ def data_node():
 @pytest.fixture(scope="function")
 def task(data_node):
     dn = InMemoryDataNode("dn_config_id", Scope.PIPELINE, version="random_version_number")
-    return Task("task_config_id", print, [data_node], [dn])
+    return Task("task_config_id", {}, print, [data_node], [dn])
 
 
 @pytest.fixture(scope="function")

@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -10,7 +10,6 @@
 # specific language governing permissions and limitations under the License.
 
 from datetime import datetime, timedelta
-from unittest.mock import ANY
 
 import pytest
 
@@ -58,7 +57,7 @@ def test_set_and_get_scenario(cycle):
     input_2 = InMemoryDataNode("foo", Scope.PIPELINE)
     output_2 = InMemoryDataNode("foo", Scope.PIPELINE)
     task_name = "task"
-    task_2 = Task(task_name, print, [input_2], [output_2], TaskId("task_id_2"))
+    task_2 = Task(task_name, {}, print, [input_2], [output_2], TaskId("task_id_2"))
     pipeline_name_2 = "pipeline_name_2"
     pipeline_2 = Pipeline(pipeline_name_2, {}, [task_2], PipelineId("pipeline_id_2"))
     scenario_id_2 = ScenarioId("scenario_id_2")

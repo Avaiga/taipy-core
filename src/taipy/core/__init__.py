@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -37,7 +37,8 @@ in the following [function](./#functions) section. In particular, the most used 
     [running services](../../../manuals/running_services/) page of the user manual for more details.
 
 """
-
+import json
+import os
 
 from ._core import Core
 from .common.alias import CycleId, DataNodeId, JobId, PipelineId, ScenarioId, TaskId
@@ -82,3 +83,11 @@ from .taipy import (
     untag,
 )
 from .task.task import Task
+
+with open(f"{os.path.dirname(os.path.abspath(__file__))}{os.sep}version.json") as version_file:
+    version = json.load(version_file)
+    version_string = f'{version.get("major", 0)}.{version.get("minor", 0)}.{version.get("patch", 0)}'
+    if vext := version.get("ext"):
+        version_string = f"{version_string}.{vext}"
+
+__version__ = version_string

@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -13,6 +13,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from .._version._utils import _version_migration
 from ..common.alias import PipelineId, TaskId
 
 
@@ -36,9 +37,9 @@ class _PipelineModel:
             id=data["id"],
             config_id=data["config_id"],
             owner_id=data.get("owner_id", data.get("parent_id")),
-            parent_ids=data["parent_ids"],
+            parent_ids=data.get("parent_ids", []),
             properties=data["properties"],
             tasks=data["tasks"],
             subscribers=data["subscribers"],
-            version=data["version"],
+            version=data["version"] if "version" in data.keys() else _version_migration(),
         )

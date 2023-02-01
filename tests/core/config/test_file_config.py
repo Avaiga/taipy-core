@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -34,20 +34,17 @@ max_nb_of_workers = "2:int"
 [DATA_NODE.default]
 storage_type = "in_memory"
 scope = "SCENARIO:SCOPE"
-cacheable = "False:bool"
 custom = "default_custom_prop"
 
 [DATA_NODE.dn1]
 storage_type = "pickle"
 scope = "PIPELINE:SCOPE"
-cacheable = "False:bool"
 custom = "custom property"
 default_data = "dn1"
 
 [DATA_NODE.dn2]
 storage_type = "ENV[FOO]"
 scope = "SCENARIO:SCOPE"
-cacheable = "False:bool"
 custom = "default_custom_prop"
 foo = "bar"
 default_data = "dn2"
@@ -58,11 +55,13 @@ corge = [ "grault", "ENV[GARPLY]", "ENV[WALDO]:int", "3.0:float",]
 [TASK.default]
 inputs = []
 outputs = []
+skippable = "False:bool"
 
 [TASK.t1]
 inputs = [ "dn1:SECTION",]
 function = "builtins.print:function"
 outputs = [ "dn2:SECTION",]
+skippable = "False:bool"
 description = "t1 description"
 
 [PIPELINE.default]

@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -26,7 +26,6 @@ from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
-from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
 from ..common._reload import _reload, _self_reload, _self_setter
 from ..common._warnings import _warn_deprecated
@@ -62,12 +61,10 @@ class DataNode(_Entity):
         edits (List[Edit^]): The list of Edits (an alias for dict) containing medata about each edition of that node.
         version (str): The string indicates the application version of the data node to instantiate. If not provided,
             the current version is used.
-        cacheable (bool): True if this data node is cacheable. False otherwise.
-        validity_period (Optional[timedelta]): The validity period of a cacheable data node.
+        validity_period (Optional[timedelta]): The validity period of a data node.
             Implemented as a timedelta. If _validity_period_ is set to None, the data_node is
             always up-to-date.
-        edit_in_progress (bool): True if a task computing the data node has been submitted
-            and not completed yet. False otherwise.
+        edit_in_progress (bool): True if the data node is locked for modification. False otherwise.
         kwargs: A dictionary of additional properties.
     """
 
@@ -89,7 +86,6 @@ class DataNode(_Entity):
         last_edit_date: Optional[datetime] = None,
         edits: List[Edit] = None,
         version: str = None,
-        cacheable: bool = False,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
         **kwargs,
@@ -103,8 +99,6 @@ class DataNode(_Entity):
         self._name = name or self.id
         self._edit_in_progress = edit_in_progress
         self._version = version or _VersionManagerFactory._build_manager()._get_latest_version()
-
-        self._cacheable = cacheable
         self._validity_period = validity_period
 
         # Track edits
@@ -129,7 +123,7 @@ class DataNode(_Entity):
         self.owner_id = val
 
     def get_parents(self):
-        """Get parents of the Data Node entity"""
+        """Get all parents of the data node."""
         from ... import core as tp
 
         return tp.get_parents(self)
@@ -137,15 +131,17 @@ class DataNode(_Entity):
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def parent_ids(self):
+        """List of parent ids of the data node."""
         return self._parent_ids
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def edits(self):
+        """Get all `Edit^`s of the data node."""
         return self._edits
 
     def get_last_edit(self):
-        """Get last edit of this node, or None"""
+        """Get last `Edit^` of the data node, or None"""
         if self._edits:
             return self._edits[-1]
         return None
@@ -166,9 +162,7 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     def last_edition_date(self):
-        """
-        Deprecated. Use last_edit_date instead.
-        """
+        """Deprecated. Use last_edit_date instead."""
         _warn_deprecated("last_edition_date", suggest="last_edit_date")
         return self.last_edit_date
 
@@ -200,6 +194,7 @@ class DataNode(_Entity):
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def expiration_date(self) -> datetime:
+        """Datetime instant of the expiration date of the data node."""
         last_edit_date = self.last_edit_date
         validity_period = self._validity_period
 
@@ -223,14 +218,14 @@ class DataNode(_Entity):
         return self._version
 
     @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
     def cacheable(self):
-        return self._cacheable
+        """Deprecated. Use `skippable` attribute of a `Task^` instead."""
+        _warn_deprecated("cacheable", suggest="the skippable feature")
+        return self.properties.get("cacheable", False)
 
     @cacheable.setter  # type: ignore
-    @_self_setter(_MANAGER_NAME)
     def cacheable(self, val):
-        self._cacheable = val
+        _warn_deprecated("cacheable", suggest="the skippable feature")
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -244,24 +239,25 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     def edition_in_progress(self):
-        """
-        Deprecated. Use edit_in_progress instead.
-        """
+        """Deprecated. Use edit_in_progress instead."""
         _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
         return self.edit_in_progress
 
     @edition_in_progress.setter  # type: ignore
     def edition_in_progress(self, val):
+        """Deprecated. Use edit_in_progress instead."""
         _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
         self.edit_in_progress = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def job_ids(self):
+        """List of the jobs having edited the data node."""
         return [edit.get("job_id") for edit in self.edits if edit.get("job_id")]
 
     @property  # type: ignore
     def properties(self):
+        """Dictionary of custom properties."""
         r = _reload(self._MANAGER_NAME, self)
         self._properties = r._properties
         return self._properties
@@ -351,7 +347,7 @@ class DataNode(_Entity):
         self._edits.append(edit)
 
     def lock_edit(self):
-        """Lock the edit of this data node.
+        """Lock the data node modification.
 
         Note:
             The data node can be unlocked with the method `(DataNode.)unlock_edit()^`.
@@ -359,14 +355,12 @@ class DataNode(_Entity):
         self.edit_in_progress = True
 
     def lock_edition(self):
-        """
-        Deprecated. Use lock_edit instead.
-        """
+        """Deprecated. Use lock_edit instead."""
         _warn_deprecated("lock_edition", suggest="lock_edit")
         self.lock_edit()
 
     def unlock_edit(self, at: datetime = None, job_id: JobId = None):
-        """Unlocks the edit of the data node.
+        """Unlocks the data node modification.
 
         Parameters:
             at (datetime): Deprecated.
@@ -377,9 +371,7 @@ class DataNode(_Entity):
         self.edit_in_progress = False  # type: ignore
 
     def unlock_edition(self, at: datetime = None, job_id: JobId = None):
-        """
-        Deprecated. Use (DataNode.)unlock_edit()^` instead.
-        """
+        """Deprecated. Use `(DataNode.)unlock_edit()^` instead."""
         _warn_deprecated("unlock_edition", suggest="unlock_edit")
         self.unlock_edit()
 
@@ -515,14 +507,18 @@ class DataNode(_Entity):
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
-    def _is_in_cache(self):
-        if not self._cacheable:
-            return False
+    def is_up_to_date(self):
+        """Indicate if this data node is up-to-date.
+
+        Returns:
+            False if the data ever been written or the expiration date has passed.
+                True otherwise.
+        """
         if not self._last_edit_date:
             # Never been written so it is not up-to-date
             return False
         if not self._validity_period:
-            # No validity period and cacheable so it is up-to-date
+            # No validity period and has already been written, so it is up-to-date
             return True
         if datetime.now() > self.expiration_date:
             # expiration_date has been passed

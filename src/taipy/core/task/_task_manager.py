@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -11,7 +11,6 @@
 
 from typing import Callable, List, Optional, Type, Union
 
-from taipy.config import Config
 from taipy.config.common.scope import Scope
 
 from .._manager._manager import _Manager
@@ -86,14 +85,17 @@ class _TaskManager(_Manager[Task]):
                 version = _VersionManagerFactory._build_manager()._get_latest_version()
                 inputs = [data_nodes[input_config] for input_config in task_config.input_configs]
                 outputs = [data_nodes[output_config] for output_config in task_config.output_configs]
+                skippable = task_config.skippable
                 task = Task(
                     str(task_config.id),  # type: ignore
+                    dict(**task_config._properties),
                     task_config.function,
                     inputs,
                     outputs,
                     owner_id=owner_id,
                     parent_ids=set(),
                     version=version,
+                    skippable=skippable,
                 )
                 for dn in set(inputs + outputs):
                     dn._parent_ids.update([task.id])

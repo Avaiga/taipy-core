@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -42,54 +42,62 @@ def reset_configuration_singleton():
 def test_version_cli_return_value():
     # Test default cli values
     _VersioningCLI._create_parser()
-    mode, version_number, override = _VersioningCLI._parse_arguments()
+    mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "development"
     assert version_number == ""
-    assert not override
+    assert not force
 
     # Test Dev mode
     with patch("sys.argv", ["prog", "--development"]):
-        mode, _, _ = _VersioningCLI._parse_arguments()
+        mode, _, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     with patch("sys.argv", ["prog", "-dev"]):
-        mode, _, _ = _VersioningCLI._parse_arguments()
+        mode, _, _, _ = _VersioningCLI._parse_arguments()
     assert mode == "development"
 
     # Test Experiment mode
     with patch("sys.argv", ["prog", "--experiment"]):
-        mode, version_number, override = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == ""
-    assert not override
+    assert not force
+    assert not clean_entities
 
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        mode, version_number, override = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
-    assert not override
+    assert not force
+    assert not clean_entities
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1", "--override"]):
-        mode, version_number, override = _VersioningCLI._parse_arguments()
+    with patch("sys.argv", ["prog", "--experiment", "2.1", "--force"]):
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
-    assert override
+    assert force
+    assert not clean_entities
+
+    with patch("sys.argv", ["prog", "--experiment", "2.1", "--clean-entities"]):
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+    assert mode == "experiment"
+    assert version_number == "2.1"
+    assert not force
+    assert clean_entities
 
     # Test Production mode
     with patch("sys.argv", ["prog", "--production"]):
-        mode, version_number, override = _VersioningCLI._parse_arguments()
+        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "production"
     assert version_number == ""
-    assert not override
+    assert not force
 
 
 def test_dev_mode_clean_all_entities_of_the_latest_version():
     scenario_config = config_scenario()
 
-    core = Core()
-
     # Create a scenario in development mode
-    core.run()
+    Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
@@ -103,7 +111,7 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
 
     # Create a new scenario in experiment mode
     with patch("sys.argv", ["prog", "--experiment"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
@@ -119,7 +127,7 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
 
     # Run development mode again
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
 
     # The 1st dev version should be deleted run with development mode
     assert len(_DataManager._get_all(version_number="all")) == 2
@@ -169,10 +177,8 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
 
 
 def test_version_number_when_switching_mode():
-    core = Core()
-
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
     ver_1 = _VersionManager._get_latest_version()
     ver_dev = _VersionManager._get_development_version()
     assert ver_1 == ver_dev
@@ -180,26 +186,26 @@ def test_version_number_when_switching_mode():
 
     # Run with dev mode, the version number is the same
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
     with patch("sys.argv", ["prog", "--experiment"]):
-        core.run()
+        Core().run()
     ver_3 = _VersionManager._get_latest_version()
     assert ver_3 != ver_dev
     assert len(_VersionManager._get_all()) == 2
 
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        core.run()
+        Core().run()
     ver_4 = _VersionManager._get_latest_version()
     assert ver_4 == "2.1"
     assert len(_VersionManager._get_all()) == 3
 
     with patch("sys.argv", ["prog", "--experiment"]):
-        core.run()
+        Core().run()
     ver_5 = _VersionManager._get_latest_version()
     assert ver_5 != ver_3
     assert ver_5 != ver_4
@@ -208,7 +214,7 @@ def test_version_number_when_switching_mode():
 
     # When run with production mode, the latest version is used as production
     with patch("sys.argv", ["prog", "--production"]):
-        core.run()
+        Core().run()
     ver_6 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_version()
     assert ver_6 == ver_5
@@ -217,7 +223,7 @@ def test_version_number_when_switching_mode():
 
     # When run with production mode, the "2.1" version is used as production
     with patch("sys.argv", ["prog", "--production", "2.1"]):
-        core.run()
+        Core().run()
     ver_7 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_version()
     assert ver_7 == "2.1"
@@ -226,7 +232,7 @@ def test_version_number_when_switching_mode():
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
     ver_7 = _VersionManager._get_latest_version()
     assert ver_1 == ver_7
     assert len(_VersionManager._get_all()) == 4
@@ -235,10 +241,8 @@ def test_version_number_when_switching_mode():
 def test_production_mode_load_all_entities_from_previous_production_version():
     scenario_config = config_scenario()
 
-    core = Core()
-
     with patch("sys.argv", ["prog", "--production"]):
-        core.run()
+        Core().run()
     production_ver_1 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1]
     # When run production mode on a new app, a dev version is created alongside
@@ -256,7 +260,7 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     assert len(_JobManager._get_all()) == 1
 
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        core.run()
+        Core().run()
     production_ver_2 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_version() == [production_ver_1, production_ver_2]
     assert len(_VersionManager._get_all()) == 3
@@ -273,13 +277,11 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     assert len(_JobManager._get_all()) == 2
 
 
-def test_override_experiment_version():
+def test_force_override_experiment_version():
     scenario_config = config_scenario()
 
-    core = Core()
-
     with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-        core.run()
+        Core().run()
     ver_1 = _VersionManager._get_latest_version()
     assert ver_1 == "1.0"
     # When create new experiment version, a development version entity is also created as a placeholder
@@ -299,14 +301,14 @@ def test_override_experiment_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --override parameter, a SystemExit will be raised
+    # Without --force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-            core.run()
+            Core().run()
 
-    # With --override parameter
-    with patch("sys.argv", ["prog", "--experiment", "1.0", "--override"]):
-        core.run()
+    # With --force parameter
+    with patch("sys.argv", ["prog", "--experiment", "1.0", "--force"]):
+        Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
     assert len(_VersionManager._get_all()) == 2  # 2 version include 1 experiment 1 development
@@ -323,13 +325,11 @@ def test_override_experiment_version():
     assert len(_JobManager._get_all()) == 2
 
 
-def test_override_production_version():
+def test_force_override_production_version():
     scenario_config = config_scenario()
 
-    core = Core()
-
     with patch("sys.argv", ["prog", "--production", "1.0"]):
-        core.run()
+        Core().run()
     ver_1 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_version()
     assert ver_1 == "1.0"
@@ -351,14 +351,14 @@ def test_override_production_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --override parameter, a SystemExit will be raised
+    # Without --force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--production", "1.0"]):
-            core.run()
+            Core().run()
 
-    # With --override parameter
-    with patch("sys.argv", ["prog", "--production", "1.0", "--override"]):
-        core.run()
+    # With --force parameter
+    with patch("sys.argv", ["prog", "--production", "1.0", "--force"]):
+        Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
     assert len(_VersionManager._get_all()) == 2  # 2 version include 1 production 1 development
@@ -375,41 +375,101 @@ def test_override_production_version():
     assert len(_JobManager._get_all()) == 2
 
 
+def test_clean_experiment_version():
+    scenario_config = config_scenario()
+
+    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+        Core().run()
+
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+    with patch("sys.argv", ["prog", "--experiment", "1.0", "--clean-entities"]):
+        Core().run()
+
+    # All entities from previous submit should be cleaned and re-created
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+
+def test_clean_production_version():
+    scenario_config = config_scenario()
+
+    with patch("sys.argv", ["prog", "--production", "1.0"]):
+        Core().run()
+
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+    with patch("sys.argv", ["prog", "--production", "1.0", "--clean-entities"]):
+        Core().run()
+
+    # All entities from previous submit should be cleaned and re-created
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    assert len(_DataManager._get_all()) == 2
+    assert len(_TaskManager._get_all()) == 1
+    assert len(_PipelineManager._get_all()) == 1
+    assert len(_ScenarioManager._get_all()) == 1
+    assert len(_CycleManager._get_all()) == 1
+    assert len(_JobManager._get_all()) == 1
+
+
 def test_delete_version():
     scenario_config = config_scenario()
 
-    core = Core()
-
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
     with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
     with patch("sys.argv", ["prog", "--experiment", "1.1"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
     with patch("sys.argv", ["prog", "--production", "1.1"]):
-        core.run()
+        Core().run()
 
     with patch("sys.argv", ["prog", "--experiment", "2.0"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        core.run()
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
     with patch("sys.argv", ["prog", "--production", "2.1"]):
-        core.run()
+        Core().run()
 
     all_versions = [version.id for version in _VersionManager._get_all()]
     production_version = _VersionManager._get_production_version()
@@ -422,7 +482,7 @@ def test_delete_version():
 
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "--delete-version", "1.0"]):
-            core.run()
+            Core().run()
     assert str(e.value) == "Successfully delete version 1.0."
     all_versions = [version.id for version in _VersionManager._get_all()]
     assert len(all_versions) == 4
@@ -431,7 +491,7 @@ def test_delete_version():
     # Test delete production version will change the version from production to experiment
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "--delete-production-version", "1.1"]):
-            core.run()
+            Core().run()
     assert str(e.value) == "Successfully delete version 1.1 from production version list."
     all_versions = [version.id for version in _VersionManager._get_all()]
     production_version = _VersionManager._get_production_version()
@@ -441,37 +501,35 @@ def test_delete_version():
     # Test delete a wrong production version
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "--delete-production-version", "non_exist_version"]):
-            core.run()
+            Core().run()
     assert str(e.value) == "Version non_exist_version is not a production version."
 
 
 def test_list_version():
-    core = Core()
-
     with patch("sys.argv", ["prog", "--development"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "1.1"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--production", "1.1"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "2.0"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        core.run()
+        Core().run()
     sleep(0.05)
     with patch("sys.argv", ["prog", "--production", "2.1"]):
-        core.run()
+        Core().run()
 
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "--list-versions"]):
-            core.run()
+            Core().run()
 
     version_list = str(e.value).strip().split("\n")
     assert len(version_list) == 6  # 5 versions with the header
@@ -483,12 +541,11 @@ def test_list_version():
     assert "Development" in version_list[5] and "latest" not in version_list[5]
 
 
-def test_modify_config_properties_without_override():
+def test_modify_config_properties_without_force():
     scenario_config = config_scenario()
 
-    core = Core()
     with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-        core.run()
+        Core().run()
         scenario = _ScenarioManager._create(scenario_config)
         _ScenarioManager._submit(scenario)
 
@@ -498,7 +555,7 @@ def test_modify_config_properties_without_override():
 
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "--experiment", "1.0"]):
-            core.run()
+            Core().run()
             scenario = _ScenarioManager._create(scenario_config_2)
             _ScenarioManager._submit(scenario)
     error_message = str(e.value)
@@ -550,7 +607,7 @@ def double_twice(a):
 def config_scenario_2():
     Config.configure_global_app(
         root_folder="foo_root",
-        # Chaging the "storage_folder" will fail since older versions are stored in older folder
+        # Changing the "storage_folder" will fail since older versions are stored in older folder
         # storage_folder="foo_storage",
         clean_entities_enabled=True,
         repository_type="bar",
@@ -558,7 +615,7 @@ def config_scenario_2():
     )
     Config.configure_job_executions(mode="standalone", max_nb_of_workers=5)
     data_node_1_config = Config.configure_data_node(
-        id="d1", storage_type="in_memory", default_data="abc", scope=Scope.SCENARIO
+        id="d1", storage_type="pickle", default_data="abc", scope=Scope.SCENARIO
     )
     # Modify properties of "d2"
     data_node_2_config = Config.configure_data_node(

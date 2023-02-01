@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -81,7 +81,6 @@ class _DataManager(_Manager[DataNode]):
                 owner_id=owner_id,
                 parent_ids=parent_ids,
                 version=version,
-                cacheable=data_node_config.cacheable,
                 validity_period=validity_period,
                 properties=props,
             )

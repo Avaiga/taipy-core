@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -10,7 +10,6 @@
 # specific language governing permissions and limitations under the License.
 
 
-from datetime import datetime
 from typing import Union
 
 from sqlalchemy import Boolean, Column, Integer, Text

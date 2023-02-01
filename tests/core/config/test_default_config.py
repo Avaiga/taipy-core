@@ -1,4 +1,4 @@
-# Copyright 2022 Avaiga Private Limited
+# Copyright 2023 Avaiga Private Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
 # the License. You may obtain a copy of the License at
@@ -29,7 +29,6 @@ def _test_default_data_node_config(dn_config: DataNodeConfig):
     assert dn_config.id is not None
     assert dn_config.storage_type == "pickle"
     assert dn_config.scope == Scope.SCENARIO
-    assert not dn_config.cacheable
     assert len(dn_config.properties) == 0
 
 
@@ -39,6 +38,7 @@ def _test_default_task_config(task_config: TaskConfig):
     assert task_config.input_configs == []
     assert task_config.output_configs == []
     assert task_config.function is None
+    assert not task_config.skippable
     assert len(task_config.properties) == 0
 
 
@@ -104,3 +104,13 @@ def test_default_configuration():
     _test_default_scenario_config(ScenarioConfig.default_config())
     assert len(default_config._sections[ScenarioConfig.name]) == 1
     assert len(Config.scenarios) == 1
+
+
+def test_configure_default_data_node():
+    data_node1 = Config.configure_data_node(id="input_data1")
+    assert data_node1.storage_type == "pickle"
+
+    Config.configure_default_data_node("in_memory")
+
+    data_node2 = Config.configure_data_node(id="input_data2")
+    assert data_node2.storage_type == "in_memory"
