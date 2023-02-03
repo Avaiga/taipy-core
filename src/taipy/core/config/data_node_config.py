@@ -295,8 +295,9 @@ class DataNodeConfig(Section):
         Config._register(section)
         return Config.sections[DataNodeConfig.name][_Config.DEFAULT_KEY]
 
-    @staticmethod
+    @classmethod
     def _configure(
+        cls,
         id: str,
         storage_type: Optional[str] = None,
         scope: Scope = _DEFAULT_SCOPE,
@@ -318,6 +319,31 @@ class DataNodeConfig(Section):
         Returns:
             `DataNodeConfig^`: The new data node configuration.
         """
+        configuration_map: Dict[str, Callable] = {
+            cls._STORAGE_TYPE_VALUE_PICKLE: cls._configure_pickle,
+            cls._STORAGE_TYPE_VALUE_SQL_TABLE: cls._configure_sql_table,
+            cls._STORAGE_TYPE_VALUE_SQL: cls._configure_sql,
+            cls._STORAGE_TYPE_VALUE_MONGO_COLLECTION: cls._configure_mongo_collection,
+            cls._STORAGE_TYPE_VALUE_CSV: cls._configure_csv,
+            cls._STORAGE_TYPE_VALUE_EXCEL: cls._configure_excel,
+            cls._STORAGE_TYPE_VALUE_IN_MEMORY: cls._configure_in_memory,
+            cls._STORAGE_TYPE_VALUE_GENERIC: cls._configure_generic,
+            cls._STORAGE_TYPE_VALUE_JSON: cls._configure_csv,
+            cls._STORAGE_TYPE_VALUE_PARQUET: cls._configure_parquet,
+        }
+
+        if storage_type in cls._ALL_STORAGE_TYPES:
+            return configuration_map[storage_type](id=id, scope=scope, **properties)
+
+        return cls.__configure(id, storage_type, scope, **properties)
+
+    @staticmethod
+    def __configure(
+        id: str,
+        storage_type: Optional[str] = None,
+        scope: Scope = _DEFAULT_SCOPE,
+        **properties,
+    ):
         section = DataNodeConfig(id, storage_type, scope, **properties)
         Config._register(section)
         return Config.sections[DataNodeConfig.name][id]
