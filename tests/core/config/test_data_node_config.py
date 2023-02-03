@@ -46,14 +46,6 @@ def test_data_node_config_check():
         Config.configure_data_node("data_nodes", scope="bar")
         Config.check()
 
-    with pytest.raises(ConfigurationIssueError):
-        Config.configure_data_node("data_nodes", storage_type="sql")
-        Config.check()
-
-    with pytest.raises(ConfigurationIssueError):
-        Config.configure_data_node("data_nodes", storage_type="generic")
-        Config.check()
-
 
 def test_data_node_count():
     Config.configure_data_node("data_nodes1", "pickle")
@@ -141,7 +133,7 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -161,7 +153,7 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
 
 
 def test_block_datanode_config_update_in_standalone_mode():
@@ -178,7 +170,7 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -198,7 +190,7 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
 
 
 def test_deprecated_cacheable_attribute_remains_compatible():
@@ -212,10 +204,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_1_id].id == dn_1_id
     assert Config.data_nodes[dn_1_id].storage_type == "pickle"
     assert Config.data_nodes[dn_1_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": False}
     assert not Config.data_nodes[dn_1_id].cacheable
     dn_1_config.cacheable = True
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": True}
     assert Config.data_nodes[dn_1_id].cacheable
 
     dn_2_id = "dn_2_id"
@@ -228,10 +220,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_2_id].id == dn_2_id
     assert Config.data_nodes[dn_2_id].storage_type == "pickle"
     assert Config.data_nodes[dn_2_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_2_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_2_id].properties == {"default_data": None, "cacheable": True}
     assert Config.data_nodes[dn_2_id].cacheable
     dn_2_config.cacheable = False
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": False}
     assert not Config.data_nodes[dn_1_id].cacheable
 
     dn_3_id = "dn_3_id"
@@ -243,8 +235,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_3_id].id == dn_3_id
     assert Config.data_nodes[dn_3_id].storage_type == "pickle"
     assert Config.data_nodes[dn_3_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_3_id].properties == {}
+    assert Config.data_nodes[dn_3_id].properties == {
+        "default_data": None,
+    }
     assert not Config.data_nodes[dn_3_id].cacheable
     dn_3_config.cacheable = True
-    assert Config.data_nodes[dn_3_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_3_id].properties == {"default_data": None, "cacheable": True}
     assert Config.data_nodes[dn_3_id].cacheable

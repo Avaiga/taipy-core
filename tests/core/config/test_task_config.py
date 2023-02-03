@@ -89,10 +89,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_1_id].id == dn_1_id
     assert Config.data_nodes[dn_1_id].storage_type == "pickle"
     assert Config.data_nodes[dn_1_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False, "default_data": None}
     assert not Config.data_nodes[dn_1_id].cacheable
     dn_1_config.cacheable = True
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": True, "default_data": None}
     assert Config.data_nodes[dn_1_id].cacheable
 
     dn_2_id = "dn_2_id"
@@ -105,10 +105,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_2_id].id == dn_2_id
     assert Config.data_nodes[dn_2_id].storage_type == "pickle"
     assert Config.data_nodes[dn_2_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_2_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_2_id].properties == {"cacheable": True, "default_data": None}
     assert Config.data_nodes[dn_2_id].cacheable
     dn_2_config.cacheable = False
-    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False, "default_data": None}
     assert not Config.data_nodes[dn_1_id].cacheable
 
     dn_3_id = "dn_3_id"
@@ -120,8 +120,8 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_3_id].id == dn_3_id
     assert Config.data_nodes[dn_3_id].storage_type == "pickle"
     assert Config.data_nodes[dn_3_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_3_id].properties == {}
+    assert Config.data_nodes[dn_3_id].properties == {"default_data": None}
     assert not Config.data_nodes[dn_3_id].cacheable
     dn_3_config.cacheable = True
-    assert Config.data_nodes[dn_3_id].properties == {"cacheable": True}
+    assert Config.data_nodes[dn_3_id].properties == {"cacheable": True, "default_data": None}
     assert Config.data_nodes[dn_3_id].cacheable

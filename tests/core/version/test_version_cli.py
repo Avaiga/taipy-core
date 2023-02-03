@@ -576,10 +576,9 @@ def test_modify_config_properties_without_force():
     assert 'TASK "my_task" has attribute "inputs" modified' in error_message
     assert 'TASK "my_task" has attribute "function" modified' in error_message
     assert 'TASK "my_task" has attribute "outputs" modified' in error_message
+    assert 'DATA_NODE "d2" has attribute "has_header" modified' in error_message
+    assert 'DATA_NODE "d2" has attribute "exposed_type" modified' in error_message
 
-    # TODO: These should not in ["added_items"] since it is a default value that was changed. It should be fixed soon.
-    assert 'DATA_NODE "d2" has attribute "has_header" added' in error_message
-    assert 'DATA_NODE "d2" has attribute "exposed_type" added' in error_message
     assert 'Global Configuration "repository_properties" was added' in error_message
 
 
