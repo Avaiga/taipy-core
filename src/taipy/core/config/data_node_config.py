@@ -199,7 +199,7 @@ class DataNodeConfig(Section):
     _SCOPE_KEY = "scope"
     _DEFAULT_SCOPE = Scope.SCENARIO
 
-    def __init__(self, id: str, storage_type: str = None, scope: Scope = None, **properties):
+    def __init__(self, id: str, storage_type: Optional[str] = None, scope: Scope = None, **properties):
         self._storage_type = storage_type
         self._scope = scope
         super().__init__(id, **properties)
@@ -351,7 +351,7 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_csv(
         id: str,
-        default_path: str = None,
+        default_path: Optional[str] = None,
         has_header: bool = True,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope=_DEFAULT_SCOPE,
@@ -361,7 +361,7 @@ class DataNodeConfig(Section):
 
         Parameters:
             id (str): The unique identifier of the new CSV data node configuration.
-            default_path (str): The default path of the CSV file.
+            default_path (Optional[str]): The default path of the CSV file.
             has_header (bool): If True, indicates that the CSV file has a header.
             exposed_type: The exposed type of the data read from CSV file. The default value is `pandas`.
             scope (Scope^): The scope of the CSV data node configuration. The default value
@@ -386,9 +386,9 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_json(
         id: str,
-        default_path: str = None,
-        encoder: json.JSONEncoder = None,
-        decoder: json.JSONDecoder = None,
+        default_path: Optional[str] = None,
+        encoder: Optional[json.JSONEncoder] = None,
+        decoder: Optional[json.JSONDecoder] = None,
         scope=_DEFAULT_SCOPE,
         **properties,
     ):
@@ -396,9 +396,9 @@ class DataNodeConfig(Section):
 
         Parameters:
             id (str): The unique identifier of the new JSON data node configuration.
-            default_path (str): The default path of the JSON file.
-            encoder (json.JSONEncoder): The JSON encoder used to write data into the JSON file.
-            decoder (json.JSONDecoder): The JSON decoder used to read data from the JSON file.
+            default_path (Optional[str]): The default path of the JSON file.
+            encoder (Optional[json.JSONEncoder]): The JSON encoder used to write data into the JSON file.
+            decoder (Optional[json.JSONDecoder]): The JSON decoder used to read data from the JSON file.
             scope (Scope^): The scope of the JSON data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -421,7 +421,7 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_parquet(
         id: str,
-        default_path: str = None,
+        default_path: Optional[str] = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         engine: Optional[str] = "pyarrow",
         compression: Optional[str] = "snappy",
@@ -434,7 +434,7 @@ class DataNodeConfig(Section):
 
         Parameters:
             id (str): The unique identifier of the new Parquet data node configuration.
-            default_path (str): The default path of the Parquet file.
+            default_path (Optional[str]): The default path of the Parquet file.
             exposed_type: The exposed type of the data read from Parquet file. The default value is `pandas`.
             engine (Optional[str]): Parquet library to use. Possible values are _"fastparquet"_ or _"pyarrow"_.
                 The default value is _"pyarrow"_.
@@ -469,9 +469,9 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_excel(
         id: str,
-        default_path: str = None,
+        default_path: Optional[str] = None,
         has_header: bool = True,
-        sheet_name: Union[List[str], str] = None,
+        sheet_name: Optional[Union[List[str], str]] = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
@@ -480,9 +480,9 @@ class DataNodeConfig(Section):
 
         Parameters:
             id (str): The unique identifier of the new Excel data node configuration.
-            default_path (str): The path of the Excel file.
+            default_path (Optional[str]): The path of the Excel file.
             has_header (bool): If True, indicates that the Excel file has a header.
-            sheet_name (Union[List[str], str]): The list of sheet names to be used. This
+            sheet_name (Optional[Union[List[str], str]]): The list of sheet names to be used. This
                 can be a unique name.
             exposed_type: The exposed type of the data read from Excel file. The default value is `pandas`.
             scope (Scope^): The scope of the Excel data node configuration. The default
@@ -508,10 +508,10 @@ class DataNodeConfig(Section):
     @staticmethod
     def _configure_generic(
         id: str,
-        read_fct: Callable = None,
-        write_fct: Callable = None,
-        read_fct_params: List = None,
-        write_fct_params: List = None,
+        read_fct: Optional[Callable] = None,
+        write_fct: Optional[Callable] = None,
+        read_fct_params: Optional[List] = None,
+        write_fct_params: Optional[List] = None,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
     ):
@@ -614,11 +614,11 @@ class DataNodeConfig(Section):
         db_password: str,
         db_name: str,
         db_engine: str,
-        table_name: str = None,
+        table_name: Optional[str] = None,
         db_port: int = 1433,
         db_host: str = "localhost",
         db_driver: str = "ODBC Driver 17 for SQL Server",
-        db_extra_args: Dict[str, Any] = None,
+        db_extra_args: Optional[Dict[str, Any]] = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
@@ -636,9 +636,9 @@ class DataNodeConfig(Section):
             db_driver (str): The database driver. The default value is
                 _"ODBC Driver 17 for SQL Server"_.
             db_port (int): The database port. The default value is 1433.
-            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
+            db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
-            table_name (str): The name of the SQL table.
+            table_name (Optional[str]): The name of the SQL table.
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
@@ -676,9 +676,9 @@ class DataNodeConfig(Section):
         db_port: int = 1433,
         db_host: str = "localhost",
         db_driver: str = "ODBC Driver 17 for SQL Server",
-        db_extra_args: Dict[str, Any] = None,
-        read_query: str = None,
-        write_query_builder: Callable = None,
+        db_extra_args: Optional[Dict[str, Any]] = None,
+        read_query: Optional[str] = None,
+        write_query_builder: Optional[Callable] = None,
         exposed_type=_DEFAULT_EXPOSED_TYPE,
         scope: Scope = _DEFAULT_SCOPE,
         **properties,
@@ -696,10 +696,10 @@ class DataNodeConfig(Section):
             db_host (str): The database host. The default value is _"localhost"_.
             db_driver (str): The database driver. The default value is
                 _"ODBC Driver 17 for SQL Server"_.
-            db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
+            db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
-            read_query (str): The SQL query string used to read the data from the database.
-            write_query_builder (Callable): A callback function that takes the data as an input parameter and returns a
+            read_query (Optional[str]): The SQL query string used to read the data from the database.
+            write_query_builder (Optional[Callable]): A callback function that takes the data as an input parameter and returns a
                 list of SQL queries.
             exposed_type: The exposed type of the data read from SQL query. The default value is `pandas`.
             scope (Scope^): The scope of the SQL data node configuration. The default value is
