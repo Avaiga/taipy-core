@@ -46,6 +46,12 @@ def test_data_node_config_check():
         Config.configure_data_node("data_nodes", scope="bar")
         Config.check()
 
+    with pytest.raises(TypeError):
+        Config.configure_data_node("data_nodes", storage_type="sql")
+
+    with pytest.raises(TypeError):
+        Config.configure_data_node("data_nodes", storage_type="generic")
+
 
 def test_data_node_count():
     Config.configure_data_node("data_nodes1", "pickle")
