@@ -71,3 +71,25 @@ def test_warn_inputs_one_ready(caplog):
 
     assert all([expected_output in stdout for expected_output in expected_outputs])
     assert all([expected_output not in stdout for expected_output in not_expected_outputs])
+
+
+def test_submit_task_with_input_dn_wrong_file_path(caplog):
+    csv_dn_cfg = Config.configure_csv_data_node("wrong_csv_file_path", default_path="wrong_path.csv")
+    excel_dn_cfg = Config.configure_excel_data_node("wrong_excel_file_path", default_path="wrong_path.xlsx")
+    json_dn_cfg = Config.configure_json_data_node("wrong_json_file_path", default_path="wrong_path.json")
+    pickle_dn_cfg = Config.configure_pickle_data_node("wrong_pickle_file_path", default_path="wrong_path.pickle")
+    parquet_dn_cfg = Config.configure_parquet_data_node("wrong_parquet_file_path", default_path="wrong_path.parquet")
+    input_dn_cfgs = [csv_dn_cfg, excel_dn_cfg, json_dn_cfg, pickle_dn_cfg, parquet_dn_cfg]
+
+    dn_manager = _DataManagerFactory._build_manager()
+    dns = [dn_manager._bulk_get_or_create([input_dn_cfg])[input_dn_cfg] for input_dn_cfg in input_dn_cfgs]
+
+    _warn_if_inputs_not_ready(dns)
+
+    stdout = caplog.text
+    expected_outputs = [
+        f"{input_dn.id} cannot be read because it has never been written. Hint: The data node may refer to a wrong "
+        f"path : {input_dn.path} "
+        for input_dn in dns
+    ]
+    assert all([expected_output in stdout for expected_output in expected_outputs])
