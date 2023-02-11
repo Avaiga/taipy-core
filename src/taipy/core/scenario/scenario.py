@@ -16,6 +16,8 @@ import uuid
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
+import networkx as nx
+
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 
@@ -32,6 +34,7 @@ from ..exceptions.exceptions import NonExistingPipeline
 from ..job.job import Job
 from ..pipeline._pipeline_manager_factory import _PipelineManagerFactory
 from ..pipeline.pipeline import Pipeline
+from ..task.task import Task
 
 
 class Scenario(_Entity):
@@ -113,6 +116,15 @@ class Scenario(_Entity):
             for k, v in data_node.items():
                 data_nodes[k] = v
         return data_nodes
+
+    @property
+    def tasks(self) -> Dict[str, Task]:
+        tasks = {}
+        list_tasks = [pipeline.tasks for pipeline in self.pipelines.values()]
+        for task in list_tasks:
+            for k, v in task.items():
+                tasks[k] = v
+        return tasks
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
@@ -336,6 +348,24 @@ class Scenario(_Entity):
         from ... import core as tp
 
         return tp.untag(self, tag)
+
+    def _get_inputs(self) -> Set[DataNode]:
+        dag = self.__build_dag()
+        return {node for node, degree in dict(dag.in_degree).items() if degree == 0 and isinstance(node, DataNode)}
+
+    def __build_dag(self):
+        graph = nx.DiGraph()
+        tasks = self.tasks
+        for task in tasks.values():
+            if has_input := task.input:
+                for predecessor in task.input.values():
+                    graph.add_edges_from([(predecessor, task)])
+            if has_output := task.output:
+                for successor in task.output.values():
+                    graph.add_edges_from([(task, successor)])
+            if not has_input and not has_output:
+                graph.add_node(task)
+        return graph
 
     def __get_pipelines(self):
         pipelines = {}
