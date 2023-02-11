@@ -236,6 +236,10 @@ class Pipeline(_Entity):
         dag.remove_nodes_from(remove)
         return list(nodes for nodes in nx.topological_generations(dag) if (Task in (type(node) for node in nodes)))
 
+    def _get_inputs(self) -> Set[DataNode]:
+        dag = self.__build_dag()
+        return {node for node, degree in dict(dag.in_degree).items() if degree == 0 and isinstance(node, DataNode)}
+
     def get_parents(self):
         """Get parents of the pipeline entity"""
         from ... import core as tp
