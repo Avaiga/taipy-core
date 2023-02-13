@@ -137,6 +137,7 @@ class _ScenarioManager(_Manager[Scenario]):
     def _submit(
         cls,
         scenario: Union[Scenario, ScenarioId],
+        callbacks: Optional[List[Callable]] = None,
         force: bool = False,
         wait: bool = False,
         timeout: Optional[Union[float, int]] = None,
@@ -146,7 +147,8 @@ class _ScenarioManager(_Manager[Scenario]):
         scenario = cls._get(scenario_id)
         if scenario is None:
             raise NonExistingScenario(scenario_id)
-        callbacks = cls.__get_status_notifier_callbacks(scenario)
+        callbacks = callbacks or []
+        callbacks = cls.__get_status_notifier_callbacks(scenario) + callbacks
         if check_inputs_are_ready:
             _warn_if_inputs_not_ready(scenario._get_inputs())
         jobs_in_pipelines = {}
