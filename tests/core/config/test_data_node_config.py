@@ -110,17 +110,37 @@ def test_data_node_with_env_variable_value():
 
 
 def test_data_node_with_env_variable_in_write_fct_params():
+    def read_fct():
+        ...
+
+    def write_fct():
+        ...
+
     with mock.patch.dict(os.environ, {"FOO": "bar", "BAZ": "qux"}):
         Config.configure_data_node(
-            "data_node", storage_type="generic", write_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"]
+            "data_node",
+            storage_type="generic",
+            read_fct=read_fct,
+            write_fct=write_fct,
+            write_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"],
         )
         assert Config.data_nodes["data_node"].write_fct_params == ["bar", "my_param", "qux"]
 
 
 def test_data_node_with_env_variable_in_read_fct_params():
+    def read_fct():
+        ...
+
+    def write_fct():
+        ...
+
     with mock.patch.dict(os.environ, {"FOO": "bar", "BAZ": "qux"}):
         Config.configure_data_node(
-            "data_node", storage_type="generic", read_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"]
+            "data_node",
+            storage_type="generic",
+            read_fct=read_fct,
+            write_fct=write_fct,
+            read_fct_params=["ENV[FOO]", "my_param", "ENV[BAZ]"],
         )
         assert Config.data_nodes["data_node"].read_fct_params == ["bar", "my_param", "qux"]
 
@@ -139,7 +159,7 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -159,7 +179,7 @@ def test_block_datanode_config_update_in_development_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
 
 
 def test_block_datanode_config_update_in_standalone_mode():
@@ -176,7 +196,7 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
 
     _SchedulerFactory._build_dispatcher()
 
@@ -196,7 +216,7 @@ def test_block_datanode_config_update_in_standalone_mode():
     assert Config.data_nodes[data_node_id].default_path == "foo.p"
     assert Config.data_nodes[data_node_id].storage_type == "pickle"
     assert Config.data_nodes[data_node_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[data_node_id].properties == {"default_data": None, "default_path": "foo.p"}
+    assert Config.data_nodes[data_node_id].properties == {"default_path": "foo.p"}
 
 
 def test_deprecated_cacheable_attribute_remains_compatible():
@@ -210,10 +230,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_1_id].id == dn_1_id
     assert Config.data_nodes[dn_1_id].storage_type == "pickle"
     assert Config.data_nodes[dn_1_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
     assert not Config.data_nodes[dn_1_id].cacheable
     dn_1_config.cacheable = True
-    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": True}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": True}
     assert Config.data_nodes[dn_1_id].cacheable
 
     dn_2_id = "dn_2_id"
@@ -226,10 +246,10 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_2_id].id == dn_2_id
     assert Config.data_nodes[dn_2_id].storage_type == "pickle"
     assert Config.data_nodes[dn_2_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_2_id].properties == {"default_data": None, "cacheable": True}
+    assert Config.data_nodes[dn_2_id].properties == {"cacheable": True}
     assert Config.data_nodes[dn_2_id].cacheable
     dn_2_config.cacheable = False
-    assert Config.data_nodes[dn_1_id].properties == {"default_data": None, "cacheable": False}
+    assert Config.data_nodes[dn_1_id].properties == {"cacheable": False}
     assert not Config.data_nodes[dn_1_id].cacheable
 
     dn_3_id = "dn_3_id"
@@ -241,10 +261,8 @@ def test_deprecated_cacheable_attribute_remains_compatible():
     assert Config.data_nodes[dn_3_id].id == dn_3_id
     assert Config.data_nodes[dn_3_id].storage_type == "pickle"
     assert Config.data_nodes[dn_3_id].scope == Scope.SCENARIO
-    assert Config.data_nodes[dn_3_id].properties == {
-        "default_data": None,
-    }
+    assert Config.data_nodes[dn_3_id].properties == {}
     assert not Config.data_nodes[dn_3_id].cacheable
     dn_3_config.cacheable = True
-    assert Config.data_nodes[dn_3_id].properties == {"default_data": None, "cacheable": True}
+    assert Config.data_nodes[dn_3_id].properties == {"cacheable": True}
     assert Config.data_nodes[dn_3_id].cacheable
