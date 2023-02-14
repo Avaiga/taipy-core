@@ -38,8 +38,8 @@ class DataNodeConfig(Section):
             "in_memory".
             The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
-        scope (Optional[Scope^]):  The `Optional[Scope^]` of the data nodes instantiated from the data node config. The default value is
-            SCENARIO.
+        scope (Optional[Scope^]):  The `Optional[Scope^]` of the data nodes instantiated from the data node config.
+            The default value is SCENARIO.
         **properties (dict[str, Any]): A dictionary of additional properties.
     """
 
@@ -393,7 +393,8 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new CSV data node configuration.
             default_path (Optional[str]): The default path of the CSV file.
             has_header (Optional[bool]): If True, indicates that the CSV file has a header.
-            exposed_type (Optional[str]): The exposed type of the data read from CSV file. The default value is `pandas`.
+            exposed_type (Optional[str]): The exposed type of the data read from CSV file.
+                The default value is `pandas`.
             scope (Optional[Scope^]): The scope of the CSV data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -469,7 +470,8 @@ class DataNodeConfig(Section):
             write_kwargs (Optional[Dict]): Additional parameters passed to the `pandas.DataFrame.write_parquet` method.
                 The parameters in "read_kwargs" and "write_kwargs" have a **higher precedence** than the top-level
                 parameters which are also passed to Pandas.
-            exposed_type (Optional[str]): The exposed type of the data read from Parquet file. The default value is `pandas`.
+            exposed_type (Optional[str]): The exposed type of the data read from Parquet file.
+                The default value is `pandas`.
             scope (Optional[Scope^]): The scope of the Parquet data node configuration. The default value
                 is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
@@ -510,8 +512,10 @@ class DataNodeConfig(Section):
             has_header (Optional[bool]): If True, indicates that the Excel file has a header.
             sheet_name (Optional[Union[List[str], str]]): The list of sheet names to be used.
                 This can be a unique name.
-            exposed_type (Optional[str]): The exposed type of the data read from Excel file. The default value is `pandas`.
-            scope (Optional[Scope^]): The scope of the Excel data node configuration. The default value is `Scope.SCENARIO`.
+            exposed_type (Optional[str]): The exposed type of the data read from Excel file.
+                The default value is `pandas`.
+            scope (Optional[Scope^]): The scope of the Excel data node configuration.
+                The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
         Returns:
             `DataNodeConfig^`: The new Excel data node configuration.
@@ -654,7 +658,8 @@ class DataNodeConfig(Section):
                 _"ODBC Driver 17 for SQL Server"_.
             db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
-            exposed_type (Optional[str]): The exposed type of the data read from SQL query. The default value is `pandas`.
+            exposed_type (Optional[str]): The exposed type of the data read from SQL table.
+                The default value is `pandas`.
             scope (Optional[Scope^]): The scope of the SQL data node configuration. The default value is
                 `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
@@ -720,8 +725,10 @@ class DataNodeConfig(Section):
             db_driver (str): The database driver. The default value is _"ODBC Driver 17 for SQL Server"_.
             db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
-            exposed_type (Optional[str]): The exposed type of the data read from SQL query. The default value is `pandas`.
-            scope (Optional[Scope^]): The scope of the SQL data node configuration. The default value is `Scope.SCENARIO`.
+            exposed_type (Optional[str]): The exposed type of the data read from SQL query.
+                The default value is `pandas`.
+            scope (Optional[Scope^]): The scope of the SQL data node configuration.
+                The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
         Returns:
             `DataNodeConfig^`: The new SQL data node configuration.
@@ -771,18 +778,18 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new Mongo collection data node configuration.
             db_name (str): The database name.
             collection_name (str): The collection in the database to read from and to write the data to.
-            custom_document (Optional[Any]): The custom document class to store, encode, and decode data when reading and writing
-                to a Mongo collection. The custom_document can have optional `decode` method to decode data in the
-                Mongo collection to a custom object, and `encode` method to encode the object's properties to the
-                Mongo collection when writing.
+            custom_document (Optional[Any]): The custom document class to store, encode, and decode data when reading
+                and writing to a Mongo collection. The custom_document can have optional `decode` method to decode data
+                in the Mongo collection to a custom object, and `encode` method to encode the object's properties to
+                the Mongo collection when writing.
             db_username (Optional[str]): The database username.
             db_password (Optional[str]): The database password.
             db_host (Optional[str]): The database host. The default value is _"localhost"_.
             db_port (Optional[int]): The database port. The default value is 27017.
-            db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database connection
-                string.
-            scope (Optional[Scope^]): The scope of the Mongo collection data node configuration. The default value is
-                `Scope.SCENARIO`.
+            db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into
+                database connection string.
+            scope (Optional[Scope^]): The scope of the Mongo collection data node configuration.
+                The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional
                 arguments.
         Returns:
