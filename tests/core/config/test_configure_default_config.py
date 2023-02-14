@@ -71,7 +71,7 @@ def test_config_storage_type_different_from_default_data_node():
     csv_dn = Config.configure_data_node(id="csv_dn", storage_type="csv")
     assert len(csv_dn.properties) == 2
     assert csv_dn.properties.get("custom_property") is None
-    assert csv_dn.scope == Scope.GLOBAL  # Except from the scope
+    assert csv_dn.scope == Scope.SCENARIO
 
 
 def test_configure_default_csv_data_node():

@@ -299,7 +299,7 @@ class DataNodeConfig(Section):
 
         self._scope = as_dict.pop(self._SCOPE_KEY, self._scope)
         if self._scope is None and default_section:
-            if default_section.scope:
+            if default_section.scope and self._storage_type == default_section.storage_type:
                 self._scope = default_section.scope
             else:
                 self._scope = self._DEFAULT_SCOPE
