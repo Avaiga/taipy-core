@@ -23,7 +23,7 @@ from ._listattributes import _ListAttributes
 
 
 class _Submittable:
-    def __init__(self, subscribers):
+    def __init__(self, subscribers=None):
         self._subscribers = _ListAttributes(self, subscribers or list())
 
     @abc.abstractmethod
