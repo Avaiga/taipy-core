@@ -38,7 +38,7 @@ class DataNodeConfig(Section):
             "in_memory".
             The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
-        scope (Optional[Scope^]):  The optional `Scope^` of the data nodes instantiated from the data node config.
+        scope (Optional[Scope^]): The optional `Scope^` of the data nodes instantiated from the data node config.
             The default value is SCENARIO.
         **properties (dict[str, Any]): A dictionary of additional properties.
     """
@@ -204,7 +204,7 @@ class DataNodeConfig(Section):
             _OPTIONAL_PASSWORD_MONGO_PROPERTY: "",
             _OPTIONAL_HOST_MONGO_PROPERTY: "localhost",
             _OPTIONAL_PORT_MONGO_PROPERTY: 27017,
-            _OPTIONAL_DB_EXTRA_ARGS_MONGO_PROPERTY: {},
+            _OPTIONAL_DB_EXTRA_ARGS_MONGO_PROPERTY: None,
         },
         _STORAGE_TYPE_VALUE_PICKLE: {
             _OPTIONAL_DEFAULT_PATH_PICKLE_PROPERTY: None,
@@ -219,8 +219,8 @@ class DataNodeConfig(Section):
             _OPTIONAL_DEFAULT_PATH_PARQUET_PROPERTY: None,
             _OPTIONAL_ENGINE_PARQUET_PROPERTY: "pyarrow",
             _OPTIONAL_COMPRESSION_PARQUET_PROPERTY: "snappy",
-            _OPTIONAL_READ_KWARGS_PARQUET_PROPERTY: {},
-            _OPTIONAL_WRITE_KWARGS_PARQUET_PROPERTY: {},
+            _OPTIONAL_READ_KWARGS_PARQUET_PROPERTY: None,
+            _OPTIONAL_WRITE_KWARGS_PARQUET_PROPERTY: None,
             _OPTIONAL_EXPOSED_TYPE_PARQUET_PROPERTY: _DEFAULT_EXPOSED_TYPE,
         },
     }

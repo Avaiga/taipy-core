@@ -179,8 +179,8 @@ def test_configure_default_parquet_data_node():
     assert dn1.default_path == "default.parquet"
     assert dn1.engine == "pyarrow"
     assert dn1.compression == "gzip"
-    assert dn1.read_kwargs == {}
-    assert dn1.write_kwargs == {}
+    assert dn1.read_kwargs is None
+    assert dn1.write_kwargs is None
     assert dn1.exposed_type == "numpy"
     assert dn1.scope == Scope.GLOBAL
 
@@ -195,8 +195,8 @@ def test_configure_default_parquet_data_node():
     assert dn2.default_path == "dn2.parquet"
     assert dn2.engine == "fastparquet"
     assert dn2.compression == "gzip"
-    assert dn2.read_kwargs == {}
-    assert dn2.write_kwargs == {}
+    assert dn2.read_kwargs is None
+    assert dn2.write_kwargs is None
     assert dn2.exposed_type == "numpy"
     assert dn2.scope == Scope.GLOBAL
 
@@ -214,7 +214,7 @@ def test_configure_default_parquet_data_node():
     assert dn3.engine == "pyarrow"
     assert dn3.compression == "gzip"
     assert dn3.read_kwargs == {"filter": "foo"}
-    assert dn3.write_kwargs == {}
+    assert dn3.write_kwargs is None
     assert dn3.exposed_type == "numpy"
     assert dn3.scope == Scope.PIPELINE
 
