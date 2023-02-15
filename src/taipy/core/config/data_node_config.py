@@ -38,7 +38,7 @@ class DataNodeConfig(Section):
             "in_memory".
             The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
-        scope (Optional[Scope^]):  The `Optional[Scope^]` of the data nodes instantiated from the data node config.
+        scope (Optional[Scope^]):  The optional `Scope^` of the data nodes instantiated from the data node config.
             The default value is SCENARIO.
         **properties (dict[str, Any]): A dictionary of additional properties.
     """
