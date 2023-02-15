@@ -579,7 +579,7 @@ def twice(a):
 
 
 def config_scenario():
-    Config.configure_data_node(id="d0", default_path="temp.csv")
+    Config.configure_data_node(id="d0")
     data_node_1_config = Config.configure_data_node(
         id="d1", storage_type="in_memory", default_data="abc", scope=Scope.SCENARIO
     )
