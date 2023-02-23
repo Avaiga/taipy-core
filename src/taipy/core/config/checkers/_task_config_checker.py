@@ -54,5 +54,6 @@ class _TaskConfigChecker(_ConfigChecker):
                 self._error(
                     task_config._FUNCTION,
                     task_config.function,
-                    f"{task_config._FUNCTION} field of TaskConfig `{task_config_id}` must be populated with Callable value.",
+                    f"{task_config._FUNCTION} field of TaskConfig `{task_config_id}` must be"
+                    f" populated with Callable value.",
                 )

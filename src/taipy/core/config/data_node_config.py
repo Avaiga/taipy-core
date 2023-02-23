@@ -549,8 +549,10 @@ class DataNodeConfig(Section):
             read_fct (Callable): The Python function called to read the data.
             write_fct (Callable): The Python function called to write the data.
                 The provided function must have at least one parameter that receives the data to be written.
-            read_fct_params (Optional[Union[List, Tuple]]): The parameters that are passed to _read_fct_ to read the data.
-            write_fct_params (Optional[Union[List, Tuple]]): The parameters that are passed to _write_fct_ to write the data.
+            read_fct_params (Optional[Union[List, Tuple]]): The list of parameters that are passed to the _read_fct_
+                to read data.
+            write_fct_params (Optional[Union[List, Tuple]]): The list of parameters that are passed to the _write_fct_
+                to write the data.
             scope (Optional[Scope^]): The scope of the Generic data node configuration.
                 The default value is `Scope.SCENARIO`.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.

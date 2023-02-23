@@ -41,8 +41,8 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._STORAGE_TYPE_KEY,
                 data_node_config.storage_type,
-                f"`{data_node_config._STORAGE_TYPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be either csv, "
-                f"sql_table, sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory.",
+                f"`{data_node_config._STORAGE_TYPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be"
+                f" either csv, sql_table, sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory.",
             )
 
     def _check_scope(self, data_node_config_id: str, data_node_config: DataNodeConfig):
@@ -50,8 +50,8 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._SCOPE_KEY,
                 data_node_config.scope,
-                f"`{data_node_config._SCOPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be populated with a "
-                f"Scope value.",
+                f"`{data_node_config._SCOPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be"
+                f" populated with a Scope value.",
             )
 
     def _check_required_properties(self, data_node_config_id: str, data_node_config: DataNodeConfig):
@@ -115,7 +115,8 @@ class _DataNodeConfigChecker(_ConfigChecker):
                     self._error(
                         prop_key,
                         prop_value,
-                        f"`{prop_key}` of DataNodeConfig `{data_node_config_id}` must be populated with a Callable function.",
+                        f"`{prop_key}` of DataNodeConfig `{data_node_config_id}` must be"
+                        f" populated with a Callable function.",
                     )
 
     def _check_exposed_type(self, data_node_config_id: str, data_node_config: DataNodeConfig):

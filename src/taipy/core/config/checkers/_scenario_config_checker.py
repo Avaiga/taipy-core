@@ -47,8 +47,8 @@ class _ScenarioConfigChecker(_ConfigChecker):
             self._error(
                 scenario_config._FREQUENCY_KEY,
                 scenario_config.frequency,
-                f"{scenario_config._FREQUENCY_KEY} field of ScenarioConfig `{scenario_config_id}` must be populated with a "
-                f"Frequency value.",
+                f"{scenario_config._FREQUENCY_KEY} field of ScenarioConfig `{scenario_config_id}` must be"
+                f" populated with a Frequency value.",
             )
 
     def _check_comparators(self, scenario_config_id: str, scenario_config: ScenarioConfig):
