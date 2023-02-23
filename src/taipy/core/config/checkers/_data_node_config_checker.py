@@ -79,12 +79,20 @@ class _DataNodeConfigChecker(_ConfigChecker):
                                 ]
                 for required_property in required_properties:
                     if not data_node_config.properties or required_property not in data_node_config.properties:
-                        self._error(
-                            required_property,
-                            None,
-                            f"DataNodeConfig `{data_node_config_id}` is missing the required "
-                            f"property `{required_property}` for type `{storage_type}`.",
-                        )
+                        if data_node_config_id == DataNodeConfig._DEFAULT_KEY:
+                            self._warning(
+                                required_property,
+                                None,
+                                f"DataNodeConfig `{data_node_config_id}` is missing the required "
+                                f"property `{required_property}` for type `{storage_type}`.",
+                            )
+                        else:
+                            self._error(
+                                required_property,
+                                None,
+                                f"DataNodeConfig `{data_node_config_id}` is missing the required "
+                                f"property `{required_property}` for type `{storage_type}`.",
+                            )
 
     def _check_generic_read_write_fct_params(self, data_node_config_id: str, data_node_config: DataNodeConfig):
         if data_node_config.storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_GENERIC:

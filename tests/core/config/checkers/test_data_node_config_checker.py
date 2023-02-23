@@ -75,96 +75,98 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "bar"
+        config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
+
+        config._sections[DataNodeConfig.name]["new"].storage_type = "bar"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
         expected_error_message = (
-            "`storage_type` field of DataNodeConfig `default` must be either csv, sql_table,"
+            "`storage_type` field of DataNodeConfig `new` must be either csv, sql_table,"
             " sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory."
             ' Current value of property `storage_type` is "bar".'
         )
         assert expected_error_message in caplog.text
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "csv"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "csv"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "excel"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "excel"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "pickle"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "pickle"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "json"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "json"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "parquet"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "parquet"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "in_memory"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "in_memory"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `read_fct` for type `generic`.",
-            "DataNodeConfig `default` is missing the required property `write_fct` for type `generic`.",
+            "DataNodeConfig `new` is missing the required property `read_fct` for type `generic`.",
+            "DataNodeConfig `new` is missing the required property `write_fct` for type `generic`.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql_table"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "sql_table"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 5
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `db_username` for type `sql_table`.",
-            "DataNodeConfig `default` is missing the required property `db_password` for type `sql_table`.",
-            "DataNodeConfig `default` is missing the required property `db_name` for type `sql_table`.",
-            "DataNodeConfig `default` is missing the required property `db_engine` for type `sql_table`.",
-            "DataNodeConfig `default` is missing the required property `table_name` for type `sql_table`.",
+            "DataNodeConfig `new` is missing the required property `db_username` for type `sql_table`.",
+            "DataNodeConfig `new` is missing the required property `db_password` for type `sql_table`.",
+            "DataNodeConfig `new` is missing the required property `db_name` for type `sql_table`.",
+            "DataNodeConfig `new` is missing the required property `db_engine` for type `sql_table`.",
+            "DataNodeConfig `new` is missing the required property `table_name` for type `sql_table`.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "sql"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 6
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `db_username` for type `sql`.",
-            "DataNodeConfig `default` is missing the required property `db_password` for type `sql`.",
-            "DataNodeConfig `default` is missing the required property `db_name` for type `sql`.",
-            "DataNodeConfig `default` is missing the required property `db_engine` for type `sql`.",
-            "DataNodeConfig `default` is missing the required property `read_query` for type `sql`.",
-            "DataNodeConfig `default` is missing the required property `write_query_builder` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `db_username` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `db_password` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `db_name` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `db_engine` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `read_query` for type `sql`.",
+            "DataNodeConfig `new` is missing the required property `write_query_builder` for type `sql`.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "mongo_collection"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "mongo_collection"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `db_name` for type `mongo_collection`.",
-            "DataNodeConfig `default` is missing the required property `collection_name` for type `mongo_collection`.",
+            "DataNodeConfig `new` is missing the required property `db_name` for type `mongo_collection`.",
+            "DataNodeConfig `new` is missing the required property `collection_name` for type `mongo_collection`.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
@@ -215,33 +217,34 @@ class TestDataNodeConfigChecker:
 
     def test_check_required_properties(self, caplog):
         config = Config._default_config
+        config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "csv"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "csv"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "csv"
-        config._sections[DataNodeConfig.name]["default"].properties = {"has_header": True}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "csv"
+        config._sections[DataNodeConfig.name]["new"].properties = {"has_header": True}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "csv"
-        config._sections[DataNodeConfig.name]["default"].properties = {"path": "bar"}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "csv"
+        config._sections[DataNodeConfig.name]["new"].properties = {"path": "bar"}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
         required_properties = ["db_username", "db_password", "db_name", "db_engine", "table_name"]
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql_table"
-        config._sections[DataNodeConfig.name]["default"].properties = {key: f"the_{key}" for key in required_properties}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "sql_table"
+        config._sections[DataNodeConfig.name]["new"].properties = {key: f"the_{key}" for key in required_properties}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
-        config._sections[DataNodeConfig.name]["default"].properties = {
+        config._sections[DataNodeConfig.name]["new"].storage_type = "sql"
+        config._sections[DataNodeConfig.name]["new"].properties = {
             "db_username": "foo",
             "db_password": "foo",
             "db_name": "foo",
@@ -253,31 +256,31 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "mongo_collection"
-        config._sections[DataNodeConfig.name]["default"].properties = {"db_name": "foo", "collection_name": "bar"}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "mongo_collection"
+        config._sections[DataNodeConfig.name]["new"].properties = {"db_name": "foo", "collection_name": "bar"}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "excel"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "excel"
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "excel"
-        config._sections[DataNodeConfig.name]["default"].properties = {"has_header": True}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "excel"
+        config._sections[DataNodeConfig.name]["new"].properties = {"has_header": True}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "excel"
-        config._sections[DataNodeConfig.name]["default"].properties = {"path": "bar"}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "excel"
+        config._sections[DataNodeConfig.name]["new"].properties = {"path": "bar"}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "excel"
-        config._sections[DataNodeConfig.name]["default"].properties = {
+        config._sections[DataNodeConfig.name]["new"].storage_type = "excel"
+        config._sections[DataNodeConfig.name]["new"].properties = {
             "has_header": True,
             "path": "bar",
             "sheet_name": ["sheet_name_1", "sheet_name_2"],
@@ -286,43 +289,60 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"read_fct": print}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"read_fct": print}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": print}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": print}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": print, "read_fct": print}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": print, "read_fct": print}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "json"
-        config._sections[DataNodeConfig.name]["default"].properties = {"default_path": "bar"}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "json"
+        config._sections[DataNodeConfig.name]["new"].properties = {"default_path": "bar"}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
+
+    def test_required_properties_on_default_only_raise_warning(self):
+        config = Config._default_config
+        config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
+
+        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
+        Config._collector = IssueCollector()
+        Config.check()
+        assert len(Config._collector.errors) == 0
+        assert len(Config._collector.warnings) == 2
+
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        with pytest.raises(SystemExit):
+            Config._collector = IssueCollector()
+            Config.check()
+        assert len(Config._collector.errors) == 2
 
     def test_check_callable_properties(self, caplog):
         config = Config._default_config
+        config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
-        config._sections[DataNodeConfig.name]["default"].properties = {
+        config._sections[DataNodeConfig.name]["new"].storage_type = "sql"
+        config._sections[DataNodeConfig.name]["new"].properties = {
             "db_username": "foo",
             "db_password": "foo",
             "db_name": "foo",
@@ -335,67 +355,67 @@ class TestDataNodeConfigChecker:
             Config.check()
         assert len(Config._collector.errors) == 1
         expected_error_message = (
-            "`write_query_builder` of DataNodeConfig `default` must be populated with a Callable function."
+            "`write_query_builder` of DataNodeConfig `new` must be populated with a Callable function."
             " Current value of property `write_query_builder` is 1."
         )
         assert expected_error_message in caplog.text
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": 12}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": 12}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `read_fct` for type `generic`.",
-            "`write_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
+            "DataNodeConfig `new` is missing the required property `read_fct` for type `generic`.",
+            "`write_fct` of DataNodeConfig `new` must be populated with a Callable function. Current value"
             " of property `write_fct` is 12.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"read_fct": 5}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"read_fct": 5}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
         expected_error_messages = [
-            "DataNodeConfig `default` is missing the required property `write_fct` for type `generic`.",
-            "`read_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
+            "DataNodeConfig `new` is missing the required property `write_fct` for type `generic`.",
+            "`read_fct` of DataNodeConfig `new` must be populated with a Callable function. Current value"
             " of property `read_fct` is 5.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": 9, "read_fct": 5}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": 9, "read_fct": 5}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 2
         expected_error_messages = [
-            "`write_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
+            "`write_fct` of DataNodeConfig `new` must be populated with a Callable function. Current value"
             " of property `write_fct` is 9.",
-            "`read_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
+            "`read_fct` of DataNodeConfig `new` must be populated with a Callable function. Current value"
             " of property `read_fct` is 5.",
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": print, "read_fct": 5}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": print, "read_fct": 5}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": 5, "read_fct": print}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": 5, "read_fct": print}
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
 
-        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
-        config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": print, "read_fct": print}
+        config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["new"].properties = {"write_fct": print, "read_fct": print}
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
