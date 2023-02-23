@@ -31,7 +31,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._check_storage_type(data_node_config_id, data_node_config)
             self._check_scope(data_node_config_id, data_node_config)
             self._check_required_properties(data_node_config_id, data_node_config)
-            self._check_generic_read_write_fct(data_node_config_id, data_node_config)
+            self._check_callable(data_node_config_id, data_node_config)
             self._check_generic_read_write_fct_params(data_node_config_id, data_node_config)
             self._check_exposed_type(data_node_config_id, data_node_config)
         return self._collector
@@ -103,13 +103,19 @@ class _DataNodeConfigChecker(_ConfigChecker):
                             f" `{data_node_config_id}` must be populated with a List or a Tuple.",
                         )
 
-    def _check_generic_read_write_fct(self, data_node_config_id: str, data_node_config: DataNodeConfig):
-        if data_node_config.storage_type == DataNodeConfig._STORAGE_TYPE_VALUE_GENERIC:
-            properties_to_check = [
+    def _check_callable(self, data_node_config_id: str, data_node_config: DataNodeConfig):
+        properties_to_check = {
+            DataNodeConfig._STORAGE_TYPE_VALUE_GENERIC: [
                 DataNodeConfig._REQUIRED_READ_FUNCTION_GENERIC_PROPERTY,
                 DataNodeConfig._REQUIRED_WRITE_FUNCTION_GENERIC_PROPERTY,
-            ]
-            for prop_key in properties_to_check:
+            ],
+            DataNodeConfig._STORAGE_TYPE_VALUE_SQL: [
+                DataNodeConfig._REQUIRED_WRITE_QUERY_BUILDER_SQL_PROPERTY,
+            ],
+        }
+
+        if data_node_config.storage_type in properties_to_check.keys():
+            for prop_key in properties_to_check[data_node_config.storage_type]:
                 prop_value = data_node_config.properties.get(prop_key) if data_node_config.properties else None
                 if prop_value and not callable(prop_value):
                     self._error(

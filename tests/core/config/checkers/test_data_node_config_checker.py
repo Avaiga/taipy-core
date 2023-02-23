@@ -240,16 +240,15 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
-        required_properties = [
-            "db_username",
-            "db_password",
-            "db_name",
-            "db_engine",
-            "read_query",
-            "write_query_builder",
-        ]
         config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
-        config._sections[DataNodeConfig.name]["default"].properties = {key: f"the_{key}" for key in required_properties}
+        config._sections[DataNodeConfig.name]["default"].properties = {
+            "db_username": "foo",
+            "db_password": "foo",
+            "db_name": "foo",
+            "db_engine": "foo",
+            "read_query": "foo",
+            "write_query_builder": print,
+        }
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
@@ -319,8 +318,27 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
-    def test_check_read_write_fct(self, caplog):
+    def test_check_callable_properties(self, caplog):
         config = Config._default_config
+
+        config._sections[DataNodeConfig.name]["default"].storage_type = "sql"
+        config._sections[DataNodeConfig.name]["default"].properties = {
+            "db_username": "foo",
+            "db_password": "foo",
+            "db_name": "foo",
+            "db_engine": "foo",
+            "read_query": "foo",
+            "write_query_builder": 1,
+        }
+        with pytest.raises(SystemExit):
+            Config._collector = IssueCollector()
+            Config.check()
+        assert len(Config._collector.errors) == 1
+        expected_error_message = (
+            "`write_query_builder` of DataNodeConfig `default` must be populated with a Callable function."
+            " Current value of property `write_query_builder` is 1."
+        )
+        assert expected_error_message in caplog.text
 
         config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
         config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": 12}
@@ -346,6 +364,7 @@ class TestDataNodeConfigChecker:
             "`read_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
             " of property `read_fct` is 5.",
         ]
+        assert all(message in caplog.text for message in expected_error_messages)
 
         config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
         config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": 9, "read_fct": 5}
@@ -359,6 +378,7 @@ class TestDataNodeConfigChecker:
             "`read_fct` of DataNodeConfig `default` must be populated with a Callable function. Current value"
             " of property `read_fct` is 5.",
         ]
+        assert all(message in caplog.text for message in expected_error_messages)
 
         config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
         config._sections[DataNodeConfig.name]["default"].properties = {"write_fct": print, "read_fct": 5}
