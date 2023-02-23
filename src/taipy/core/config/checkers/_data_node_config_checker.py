@@ -41,8 +41,8 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._STORAGE_TYPE_KEY,
                 data_node_config.storage_type,
-                f"`{data_node_config._STORAGE_TYPE_KEY}` field of DataNode `{data_node_config_id}` must be either csv, "
-                f"sql_table, sql, mongo_collection, pickle, excel, generic, json, parquet or in_memory.",
+                f"`{data_node_config._STORAGE_TYPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be either csv, "
+                f"sql_table, sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory.",
             )
 
     def _check_scope(self, data_node_config_id: str, data_node_config: DataNodeConfig):
@@ -50,7 +50,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._SCOPE_KEY,
                 data_node_config.scope,
-                f"`{data_node_config._SCOPE_KEY}` field of DataNode `{data_node_config_id}` must be populated with a "
+                f"`{data_node_config._SCOPE_KEY}` field of DataNodeConfig `{data_node_config_id}` must be populated with a "
                 f"Scope value.",
             )
 
@@ -80,10 +80,10 @@ class _DataNodeConfigChecker(_ConfigChecker):
                 for required_property in required_properties:
                     if not data_node_config.properties or required_property not in data_node_config.properties:
                         self._error(
-                            "properties",
                             required_property,
-                            f"`{data_node_config_id}` DataNode is missing the required "
-                            f"property `{required_property}` for type `{storage_type}`",
+                            None,
+                            f"DataNodeConfig `{data_node_config_id}` is missing the required "
+                            f"property `{required_property}` for type `{storage_type}`.",
                         )
 
     def _check_generic_read_write_fct_params(self, data_node_config_id: str, data_node_config: DataNodeConfig):
@@ -99,7 +99,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
                         self._error(
                             prop_key,
                             prop_value,
-                            f"`{prop_key}` field of DataNode"
+                            f"`{prop_key}` field of DataNodeConfig"
                             f" `{data_node_config_id}` must be populated with a Tuple value.",
                         )
 
@@ -115,7 +115,7 @@ class _DataNodeConfigChecker(_ConfigChecker):
                     self._error(
                         prop_key,
                         prop_value,
-                        f"`{prop_key}` of DataNode `{data_node_config_id}` must be populated with a Callable function.",
+                        f"`{prop_key}` of DataNodeConfig `{data_node_config_id}` must be populated with a Callable function.",
                     )
 
     def _check_exposed_type(self, data_node_config_id: str, data_node_config: DataNodeConfig):
@@ -125,6 +125,6 @@ class _DataNodeConfigChecker(_ConfigChecker):
             self._error(
                 data_node_config._EXPOSED_TYPE_KEY,
                 data_node_config.exposed_type,
-                f"The `{data_node_config._EXPOSED_TYPE_KEY}` of the DataNodeConfig `{data_node_config_id}` "
-                f'must be either "pandas", "modin", "numpy" or a custom type.',
+                f"The `{data_node_config._EXPOSED_TYPE_KEY}` of DataNodeConfig `{data_node_config_id}` "
+                f'must be either "pandas", "modin", "numpy", or a custom type.',
             )
