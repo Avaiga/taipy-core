@@ -393,14 +393,15 @@ class TestDataNodeConfigChecker:
         config._sections[DataNodeConfig.name]["default"].properties = {
             "write_fct": print,
             "read_fct": print,
-            "write_fct_params": [],
+            "write_fct_params": "foo",
         }
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
         expected_error_message = (
-            "`write_fct_params` field of DataNodeConfig `default` must be populated with a" " Tuple value."
+            "`write_fct_params` field of DataNodeConfig `default` must be populated with a List or a Tuple."
+            ' Current value of property `write_fct_params` is "foo".'
         )
         assert expected_error_message in caplog.text
         config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
@@ -417,14 +418,15 @@ class TestDataNodeConfigChecker:
         config._sections[DataNodeConfig.name]["default"].properties = {
             "write_fct": print,
             "read_fct": print,
-            "read_fct_params": [],
+            "read_fct_params": 1,
         }
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
             Config.check()
         assert len(Config._collector.errors) == 1
         expected_error_message = (
-            "`read_fct_params` field of DataNodeConfig `default` must be populated with a" " Tuple value."
+            "`read_fct_params` field of DataNodeConfig `default` must be populated with a List or a Tuple."
+            " Current value of property `read_fct_params` is 1."
         )
         assert expected_error_message in caplog.text
 
@@ -444,6 +446,17 @@ class TestDataNodeConfigChecker:
             "read_fct": print,
             "write_fct_params": tuple("foo"),
             "read_fct_params": tuple("foo"),
+        }
+        Config._collector = IssueCollector()
+        Config.check()
+        assert len(Config._collector.errors) == 0
+
+        config._sections[DataNodeConfig.name]["default"].storage_type = "generic"
+        config._sections[DataNodeConfig.name]["default"].properties = {
+            "write_fct": print,
+            "read_fct": print,
+            "write_fct_params": ["foo"],
+            "read_fct_params": ["foo"],
         }
         Config._collector = IssueCollector()
         Config.check()
