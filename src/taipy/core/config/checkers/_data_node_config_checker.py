@@ -103,12 +103,12 @@ class _DataNodeConfigChecker(_ConfigChecker):
             for prop_key in properties_to_check:
                 if data_node_config.properties and prop_key in data_node_config.properties:
                     prop_value = data_node_config.properties[prop_key]
-                    if not isinstance(prop_value, (list, tuple)):
+                    if not isinstance(prop_value, list):
                         self._error(
                             prop_key,
                             prop_value,
                             f"`{prop_key}` field of DataNodeConfig"
-                            f" `{data_node_config_id}` must be populated with a List or a Tuple.",
+                            f" `{data_node_config_id}` must be populated with a List value.",
                         )
 
     def _check_callable(self, data_node_config_id: str, data_node_config: DataNodeConfig):

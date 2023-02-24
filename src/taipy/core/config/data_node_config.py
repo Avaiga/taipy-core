@@ -11,7 +11,7 @@
 
 import json
 from copy import copy
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from taipy.config._config import _Config
 from taipy.config.common._config_blocker import _ConfigBlocker
@@ -537,8 +537,8 @@ class DataNodeConfig(Section):
         id: str,
         read_fct: Callable,
         write_fct: Callable,
-        read_fct_params: Optional[Union[List, Tuple]] = None,
-        write_fct_params: Optional[Union[List, Tuple]] = None,
+        read_fct_params: Optional[List] = None,
+        write_fct_params: Optional[List] = None,
         scope: Optional[Scope] = None,
         **properties,
     ):
@@ -549,9 +549,9 @@ class DataNodeConfig(Section):
             read_fct (Callable): The Python function called to read the data.
             write_fct (Callable): The Python function called to write the data.
                 The provided function must have at least one parameter that receives the data to be written.
-            read_fct_params (Optional[Union[List, Tuple]]): The list of parameters that are passed to the _read_fct_
+            read_fct_params (Optional[List]): The list of parameters that are passed to the _read_fct_
                 to read data.
-            write_fct_params (Optional[Union[List, Tuple]]): The list of parameters that are passed to the _write_fct_
+            write_fct_params (Optional[List]): The list of parameters that are passed to the _write_fct_
                 to write the data.
             scope (Optional[Scope^]): The scope of the Generic data node configuration.
                 The default value is `Scope.SCENARIO`.
