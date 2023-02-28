@@ -100,12 +100,6 @@ class TestParquetDataNode:
         ready_dn = _DataManager._bulk_get_or_create([ready_dn_cfg])[ready_dn_cfg]
         assert ready_dn.is_ready_for_reading
 
-    def test_create_with_missing_parameters(self):
-        with pytest.raises(MissingRequiredProperty):
-            ParquetDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"))
-        with pytest.raises(MissingRequiredProperty):
-            ParquetDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties={})
-
     @pytest.mark.parametrize("engine", __engine)
     def test_read(self, engine, parquet_file_path):
         not_existing_parquet = ParquetDataNode(

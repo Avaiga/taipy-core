@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import csv
+import os
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional, Set
@@ -23,10 +24,11 @@ from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._reload import _self_reload
 from ..common.alias import DataNodeId, Edit, JobId
 from ..exceptions.exceptions import InvalidExposedType, MissingRequiredProperty
+from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 
 
-class CSVDataNode(DataNode):
+class CSVDataNode(_AbstractFileDataNode):
     """Data Node stored as a CSV file.
 
     Attributes:
@@ -83,19 +85,9 @@ class CSVDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
-        if missing := set(self._REQUIRED_PROPERTIES) - set(properties.keys()):
-            raise MissingRequiredProperty(
-                f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
-            )
 
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
-
-        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
-        if self._path is None:
-            raise MissingRequiredProperty("default_path is required in a CSV data node config")
-        else:
-            properties[self.__PATH_KEY] = self._path
 
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
@@ -113,8 +105,13 @@ class CSVDataNode(DataNode):
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,
-            **properties,
+            properties=properties,
         )
+        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
+        if not self._path:
+            self._path = self._build_path(self.storage_type())
+        properties[self.__PATH_KEY] = self._path
+
         if not self._last_edit_date and isfile(self._path):
             self.last_edit_date = datetime.now()  # type: ignore
 

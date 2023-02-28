@@ -27,10 +27,11 @@ from ..exceptions.exceptions import (
     UnknownCompressionAlgorithm,
     UnknownParquetEngine,
 )
+from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 
 
-class ParquetDataNode(DataNode):
+class ParquetDataNode(_AbstractFileDataNode):
     """Data Node stored as a Parquet file.
 
     Attributes:
@@ -100,10 +101,6 @@ class ParquetDataNode(DataNode):
     ):
         if properties is None:
             properties = {}
-        if missing := set(self._REQUIRED_PROPERTIES) - set(properties.keys()):
-            raise MissingRequiredProperty(
-                f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required"
-            )
 
         if self.__ENGINE_PROPERTY not in properties.keys():
             properties[self.__ENGINE_PROPERTY] = "pyarrow"
@@ -132,12 +129,6 @@ class ParquetDataNode(DataNode):
         if self.__WRITE_KWARGS_PROPERTY not in properties.keys():
             properties[self.__WRITE_KWARGS_PROPERTY] = {}
 
-        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
-        if self._path is None:
-            raise MissingRequiredProperty("default_path is required in a Parquet data node config")
-        else:
-            properties[self.__PATH_KEY] = self._path
-
         if self.__EXPOSED_TYPE_PROPERTY not in properties.keys():
             properties[self.__EXPOSED_TYPE_PROPERTY] = self.__EXPOSED_TYPE_PANDAS
         self._check_exposed_type(properties[self.__EXPOSED_TYPE_PROPERTY])
@@ -154,8 +145,13 @@ class ParquetDataNode(DataNode):
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,
-            **properties,
+            properties=properties,
         )
+        self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
+        if not self._path:
+            self._path = self._build_path(self.storage_type())
+        properties[self.__PATH_KEY] = self._path
+
         if not self._last_edit_date and isfile(self._path):
             self.last_edit_date = datetime.now()  # type: ignore
 
