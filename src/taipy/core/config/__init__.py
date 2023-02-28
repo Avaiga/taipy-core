@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+
 from taipy.config import _inject_section
 from taipy.config.checker._checker import _Checker
 from taipy.config.common.frequency import Frequency  # type: ignore
@@ -20,11 +21,13 @@ from .checkers._job_config_checker import _JobConfigChecker
 from .checkers._pipeline_config_checker import _PipelineConfigChecker
 from .checkers._scenario_config_checker import _ScenarioConfigChecker
 from .checkers._task_config_checker import _TaskConfigChecker
+from .checkers._version_migration_config_checker import _VersionMigrationConfigChecker
 from .data_node_config import DataNodeConfig
 from .job_config import JobConfig
 from .pipeline_config import PipelineConfig
 from .scenario_config import ScenarioConfig
 from .task_config import TaskConfig
+from .version_migration_config import VersionMigrationConfig
 
 _inject_section(JobConfig, "job_config", JobConfig("development"), [("configure_job_executions", JobConfig._configure)])
 _inject_section(
@@ -71,9 +74,16 @@ _inject_section(
         ("configure_scenario_from_tasks", ScenarioConfig._configure_from_tasks),
     ],
 )
+_inject_section(
+    VersionMigrationConfig,
+    "version_migrations",
+    VersionMigrationConfig.default_config(),
+    [("set_version_migration", VersionMigrationConfig._set)],
+)
 
 _Checker.add_checker(_JobConfigChecker)
 _Checker.add_checker(_DataNodeConfigChecker)
 _Checker.add_checker(_TaskConfigChecker)
 _Checker.add_checker(_PipelineConfigChecker)
 _Checker.add_checker(_ScenarioConfigChecker)
+_Checker.add_checker(_VersionMigrationConfigChecker)
