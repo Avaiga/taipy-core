@@ -8,7 +8,9 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+
 from taipy.config import _inject_section
+from taipy.config._config_comparator import _ConfigComparator
 from taipy.config.checker._checker import _Checker
 from taipy.config.common.frequency import Frequency  # type: ignore
 from taipy.config.common.scope import Scope  # type: ignore
@@ -77,3 +79,5 @@ _Checker.add_checker(_DataNodeConfigChecker)
 _Checker.add_checker(_TaskConfigChecker)
 _Checker.add_checker(_PipelineConfigChecker)
 _Checker.add_checker(_ScenarioConfigChecker)
+
+_ConfigComparator._unblock_section(JobConfig.name)
