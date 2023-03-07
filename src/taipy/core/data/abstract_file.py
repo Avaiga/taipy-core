@@ -31,8 +31,8 @@ from .data_node import DataNode
 
 
 class _AbstractFileDataNode(DataNode):
-    """Abstract base class for data node implementations (CSVDataNode, ParquetDataNode, ExcelDataNode and
-    PickleDataNode) that are file based."""
+    """Abstract base class for data node implementations (CSVDataNode, ParquetDataNode, ExcelDataNode,
+    PickleDataNode and JSONDataNode) that are file based."""
 
     __STORAGE_TYPE = "NOT_IMPLEMENTED"
 
