@@ -92,7 +92,6 @@ class ExcelDataNode(_AbstractFileDataNode):
     ):
         if properties is None:
             properties = {}
-        self._check_required_properties(self._REQUIRED_PROPERTIES, properties)
 
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         properties[self.__PATH_KEY] = self._path
