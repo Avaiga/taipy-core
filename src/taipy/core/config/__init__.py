@@ -10,7 +10,6 @@
 # specific language governing permissions and limitations under the License.
 
 from taipy.config import _inject_section
-from taipy.config._config_comparator import _ConfigComparator
 from taipy.config.checker._checker import _Checker
 from taipy.config.common.frequency import Frequency  # type: ignore
 from taipy.config.common.scope import Scope  # type: ignore
@@ -28,7 +27,13 @@ from .pipeline_config import PipelineConfig
 from .scenario_config import ScenarioConfig
 from .task_config import TaskConfig
 
-_inject_section(JobConfig, "job_config", JobConfig("development"), [("configure_job_executions", JobConfig._configure)])
+_inject_section(
+    JobConfig,
+    "job_config",
+    JobConfig("development"),
+    [("configure_job_executions", JobConfig._configure)],
+    add_to_unconlicted_section=True,
+)
 _inject_section(
     DataNodeConfig,
     "data_nodes",
@@ -79,5 +84,3 @@ _Checker.add_checker(_DataNodeConfigChecker)
 _Checker.add_checker(_TaskConfigChecker)
 _Checker.add_checker(_PipelineConfigChecker)
 _Checker.add_checker(_ScenarioConfigChecker)
-
-_ConfigComparator._unblock_section(JobConfig.name)

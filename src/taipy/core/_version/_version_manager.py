@@ -13,7 +13,7 @@ import uuid
 from typing import List, Optional, Union
 
 from taipy.config import Config
-from taipy.config._config_comparator import _ConfigComparator
+from taipy.config.exceptions import ConflictedConfigurationError
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._manager._manager import _Manager
@@ -48,27 +48,14 @@ class _VersionManager(_Manager[_Version]):
     @classmethod
     def _get_or_create(cls, id: str, force: bool) -> _Version:
         if version := cls._get(id):
-            config_diff = _ConfigComparator(version.config, Config._applied_config)
-            if config_diff:
-                override_message = "To override these changes, run your application with --force option."
-
-                if config_diff.get(_ConfigComparator._UNBLOCKED_SECTION_KEY):
-                    _TaipyLogger._get_logger().info(
-                        f"There are unblocking changes between the current Configuration" f" and version {id}."
-                    )
-                    config_diff._log_unblocked_sections()
-                    _TaipyLogger._get_logger().info(override_message)
-
-                if config_diff.get(_ConfigComparator._BLOCKED_SECTION_KEY):
-                    _TaipyLogger._get_logger().error(f"The current Configuration is conflicted with version {id}.")
-                    config_diff._log_blocked_sections()
-                    _TaipyLogger._get_logger().error(override_message)
-
-                    if force:
-                        _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
-                        version.config = Config._applied_config
-                    else:
-                        raise SystemExit()
+            try:
+                Config._comparator._compare(version.config, Config._applied_config, id)
+            except ConflictedConfigurationError:
+                if force:
+                    _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
+                    version.config = Config._applied_config
+                else:
+                    raise SystemExit("The application is stopped. Please check the error log for more information.")
 
         else:
             version = _Version(id=id, config=Config._applied_config)
@@ -140,25 +127,10 @@ class _VersionManager(_Manager[_Version]):
                 continue
 
             if version := cls._get(production_version):
-                config_diff = _ConfigComparator(version.config, Config._applied_config)
-                if config_diff:
-                    override_message = "To override these changes, run your application with --force option."
-
-                    if config_diff.get(_ConfigComparator._UNBLOCKED_SECTION_KEY):
-                        _TaipyLogger._get_logger().info(
-                            f"There are unblocking changes between the current Configuration"
-                            f" and version {production_version}."
-                        )
-                        config_diff._log_unblocked_sections()
-                        _TaipyLogger._get_logger().info(override_message)
-
-                    if config_diff.get(_ConfigComparator._BLOCKED_SECTION_KEY):
-                        _TaipyLogger._get_logger().error(
-                            f"The current Configuration is conflicted with version {production_version}."
-                        )
-                        config_diff._log_blocked_sections()
-                        _TaipyLogger._get_logger().error(override_message)
-                        raise SystemExit()
+                try:
+                    Config._comparator._compare(version.config, Config._applied_config, production_version)
+                except ConflictedConfigurationError:
+                    raise SystemExit("The application is stopped. Please check the error log for more information.")
 
             else:
                 raise NonExistingVersion(production_version)

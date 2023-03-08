@@ -278,7 +278,7 @@ def init_config():
     from src.taipy.core.config import _inject_section
 
     _inject_section(
-        JobConfig, "job_config", JobConfig("development"), [("configure_job_executions", JobConfig._configure)]
+        JobConfig, "job_config", JobConfig("development"), [("configure_job_executions", JobConfig._configure)], True
     )
     _inject_section(
         DataNodeConfig,
