@@ -346,6 +346,11 @@ class TestDataNodeConfigChecker:
         _DataNodeConfigChecker(config, collector)._check()
         assert len(collector.errors) == 0
 
+        config._sections[DataNodeConfig.name]["default"].properties = {"exposed_type": "modin"}
+        Config._collector = IssueCollector()
+        Config.check()
+        assert len(Config._collector.errors) == 0
+
         config._sections[DataNodeConfig.name]["default"].properties = {"exposed_type": "numpy"}
         collector = IssueCollector()
         _DataNodeConfigChecker(config, collector)._check()
