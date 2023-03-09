@@ -605,7 +605,7 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new SQL data node configuration.
             db_username (str): The database username.
             db_password (str): The database password.
-            db_name (str): The database name.
+            db_name (str): The database name, or the name of the SQLite database file.
             db_host (str): The database host. The default value is _"localhost"_.
             db_engine (str): The database engine. Possible values are _"sqlite"_, _"mssql"_, _"mysql"_, or
                 _"postgresql"_.
@@ -665,7 +665,7 @@ class DataNodeConfig(Section):
             id (str): The unique identifier of the new SQL data node configuration.
             db_username (str): The database username.
             db_password (str): The database password.
-            db_name (str): The database name.
+            db_name (str): The database name, or the name of the SQLite database file.
             db_engine (str): The database engine. Possible values are _"sqlite"_, _"mssql"_, _"mysql"_, or
                 _"postgresql"_.
             db_port (int): The database port. The default value is 1433.
