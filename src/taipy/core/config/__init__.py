@@ -32,7 +32,7 @@ _inject_section(
     "job_config",
     JobConfig("development"),
     [("configure_job_executions", JobConfig._configure)],
-    add_to_unconlicted_section=True,
+    add_to_unconflicted_sections=True,
 )
 _inject_section(
     DataNodeConfig,
