@@ -214,6 +214,17 @@ class TestJSONDataNode:
         assert read_data[0].text == "abc"
         assert read_data[1] == 100
 
+    @pytest.mark.parametrize(
+        ["properties", "exists"],
+        [
+            ({}, False),
+            ({"default_data": {"foo": "bar"}}, True),
+        ],
+    )
+    def test_create_with_default_data(self, properties, exists):
+        dn = JSONDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
+        assert os.path.exists(dn.path) is exists
+
     def test_set_path(self):
         dn = JSONDataNode("foo", Scope.PIPELINE, properties={"default_path": "foo.json"})
         assert dn.path == "foo.json"

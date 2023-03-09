@@ -8,7 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-
+import os
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional, Set
@@ -70,6 +70,7 @@ class ParquetDataNode(DataNode, _AbstractFileDataNode):
     __EXPOSED_TYPE_MODIN = "modin"
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
+    __DEFAULT_DATA_KEY = "default_data"
     __DEFAULT_PATH_KEY = "default_path"
     __ENGINE_PROPERTY = "engine"
     __VALID_PARQUET_ENGINES = ["pyarrow", "fastparquet"]
@@ -96,6 +97,8 @@ class ParquetDataNode(DataNode, _AbstractFileDataNode):
     ):
         if properties is None:
             properties = {}
+
+        default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
 
         if self.__ENGINE_PROPERTY not in properties.keys():
             properties[self.__ENGINE_PROPERTY] = "pyarrow"
@@ -146,6 +149,9 @@ class ParquetDataNode(DataNode, _AbstractFileDataNode):
         if not self._path:
             self._path = self._build_path(self.storage_type())
         properties[self.__PATH_KEY] = self._path
+
+        if default_value is not None and not os.path.exists(self._path):
+            self.write(default_value)
 
         if not self._last_edit_date and isfile(self._path):
             self.last_edit_date = datetime.now()  # type: ignore

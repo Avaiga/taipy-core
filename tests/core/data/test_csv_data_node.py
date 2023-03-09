@@ -76,6 +76,17 @@ class TestCSVDataNode:
         ready_dn = _DataManager._bulk_get_or_create([ready_dn_cfg])[ready_dn_cfg]
         assert ready_dn.is_ready_for_reading
 
+    @pytest.mark.parametrize(
+        ["properties", "exists"],
+        [
+            ({}, False),
+            ({"default_data": ["foo", "bar"]}, True),
+        ],
+    )
+    def test_create_with_default_data(self, properties, exists):
+        dn = CSVDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
+        assert os.path.exists(dn.path) is exists
+
     def test_read_with_header(self):
         not_existing_csv = CSVDataNode("foo", Scope.PIPELINE, properties={"path": "WRONG.csv", "has_header": True})
         with pytest.raises(NoData):

@@ -8,7 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-
+import os
 from collections import defaultdict
 from datetime import datetime, timedelta
 from os.path import isfile
@@ -70,6 +70,7 @@ class ExcelDataNode(DataNode, _AbstractFileDataNode):
     __EXPOSED_TYPE_MODIN = "modin"
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
+    __DEFAULT_DATA_KEY = "default_data"
     __DEFAULT_PATH_KEY = "default_path"
     __HAS_HEADER_PROPERTY = "has_header"
     __SHEET_NAME_PROPERTY = "sheet_name"
@@ -93,6 +94,7 @@ class ExcelDataNode(DataNode, _AbstractFileDataNode):
         if properties is None:
             properties = {}
 
+        default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         properties[self.__PATH_KEY] = self._path
 
@@ -121,6 +123,9 @@ class ExcelDataNode(DataNode, _AbstractFileDataNode):
         if not self._path:
             self._path = self._build_path(self.storage_type())
             properties[self.__PATH_KEY] = self._path
+
+        if default_value is not None and not os.path.exists(self._path):
+            self.write(default_value)
 
         if not self._last_edit_date and isfile(self._path):
             self.last_edit_date = datetime.now()  # type: ignore

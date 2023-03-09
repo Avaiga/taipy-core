@@ -819,6 +819,17 @@ class TestExcelDataNode:
         dn.path = "bar.xlsx"
         assert dn.path == "bar.xlsx"
 
+    @pytest.mark.parametrize(
+        ["properties", "exists"],
+        [
+            ({}, False),
+            ({"default_data": {"a": ["foo", "bar"]}}, True),
+        ],
+    )
+    def test_create_with_default_data(self, properties, exists):
+        dn = ExcelDataNode("foo", Scope.PIPELINE, DataNodeId("dn_id"), properties=properties)
+        assert os.path.exists(dn.path) is exists
+
     def test_read_write_after_modify_path(self):
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
         new_path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/temp.xlsx")

@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import csv
+import os
 from datetime import datetime, timedelta
 from os.path import isfile
 from typing import Any, Dict, List, Optional, Set
@@ -64,6 +65,7 @@ class CSVDataNode(DataNode, _AbstractFileDataNode):
     __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_MODIN, __EXPOSED_TYPE_NUMPY]
     __PATH_KEY = "path"
     __DEFAULT_PATH_KEY = "default_path"
+    __DEFAULT_DATA_KEY = "default_data"
     __HAS_HEADER_PROPERTY = "has_header"
     _REQUIRED_PROPERTIES: List[str] = []
 
@@ -84,6 +86,8 @@ class CSVDataNode(DataNode, _AbstractFileDataNode):
     ):
         if properties is None:
             properties = {}
+
+        default_value = properties.pop(self.__DEFAULT_DATA_KEY, None)
 
         if self.__HAS_HEADER_PROPERTY not in properties.keys():
             properties[self.__HAS_HEADER_PROPERTY] = True
@@ -113,6 +117,8 @@ class CSVDataNode(DataNode, _AbstractFileDataNode):
 
         if not self._last_edit_date and isfile(self._path):
             self.last_edit_date = datetime.now()  # type: ignore
+        if default_value is not None and not os.path.exists(self._path):
+            self.write(default_value)
 
     @classmethod
     def storage_type(cls) -> str:
