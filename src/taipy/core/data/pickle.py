@@ -25,7 +25,7 @@ from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 
 
-class PickleDataNode(_AbstractFileDataNode):
+class PickleDataNode(DataNode, _AbstractFileDataNode):
     """Data Node stored as a pickle file.
 
     Attributes:
@@ -96,7 +96,7 @@ class PickleDataNode(_AbstractFileDataNode):
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,
-            properties=properties,
+            **properties,
         )
         if self._path is None:
             self._path = self._build_path(self.storage_type())

@@ -29,7 +29,7 @@ from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 
 
-class ExcelDataNode(_AbstractFileDataNode):
+class ExcelDataNode(DataNode, _AbstractFileDataNode):
     """Data Node stored as an Excel file.
 
     The Excel file format is _xlsx_.
@@ -116,7 +116,7 @@ class ExcelDataNode(_AbstractFileDataNode):
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,
-            properties=properties,
+            **properties,
         )
         if not self._path:
             self._path = self._build_path(self.storage_type())

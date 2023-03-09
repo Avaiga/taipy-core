@@ -20,62 +20,16 @@ from ..common.alias import DataNodeId, Edit
 from .data_node import DataNode
 
 
-class _AbstractFileDataNode(DataNode):
+class _AbstractFileDataNode(object):
     """Abstract base class for data node implementations (CSVDataNode, ParquetDataNode, ExcelDataNode,
     PickleDataNode and JSONDataNode) that are file based."""
 
-    __STORAGE_TYPE = "NOT_IMPLEMENTED"
-
-    __EXPOSED_TYPE_PROPERTY = "exposed_type"
-    __EXPOSED_TYPE_NUMPY = "numpy"
-    __EXPOSED_TYPE_PANDAS = "pandas"
-    __EXPOSED_TYPE_MODIN = "modin"
-    __VALID_STRING_EXPOSED_TYPES = [__EXPOSED_TYPE_PANDAS, __EXPOSED_TYPE_NUMPY, __EXPOSED_TYPE_MODIN]
-
-    __PATH_KEY = "path"
-    __DEFAULT_PATH_KEY = "default_path"
-    __HAS_HEADER_PROPERTY = "has_header"
-
-    _REQUIRED_PROPERTIES: List[str] = []
     __EXTENSION_MAP = {"csv": "csv", "excel": "xlsx", "parquet": "parquet", "pickle": "p", "json": "json"}
-
-    def __init__(
-        self,
-        config_id: str,
-        scope: Scope,
-        id: Optional[DataNodeId] = None,
-        name: Optional[str] = None,
-        owner_id: Optional[str] = None,
-        parent_ids: Optional[Set[str]] = None,
-        last_edit_date: Optional[datetime] = None,
-        edits: List[Edit] = None,
-        version: str = None,
-        validity_period: Optional[timedelta] = None,
-        edit_in_progress: bool = False,
-        properties: Dict = None,
-    ):
-        if properties is None:
-            properties = {}
-
-        super().__init__(
-            config_id,
-            scope,
-            id,
-            name,
-            owner_id,
-            parent_ids,
-            last_edit_date,
-            edits,
-            version or _VersionManagerFactory._build_manager()._get_latest_version(),
-            validity_period,
-            edit_in_progress,
-            **properties,
-        )
 
     def _build_path(self, storage_type):
         from taipy.config.config import Config
 
-        folder = "pickles" if storage_type == "pickle" else "data_nodes"
+        folder = f"{storage_type}s"
         dir_path = pathlib.Path(Config.global_config.storage_folder) / folder
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)

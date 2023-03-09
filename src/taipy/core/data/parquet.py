@@ -26,7 +26,7 @@ from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 
 
-class ParquetDataNode(_AbstractFileDataNode):
+class ParquetDataNode(DataNode, _AbstractFileDataNode):
     """Data Node stored as a Parquet file.
 
     Attributes:
@@ -140,7 +140,7 @@ class ParquetDataNode(_AbstractFileDataNode):
             version or _VersionManagerFactory._build_manager()._get_latest_version(),
             validity_period,
             edit_in_progress,
-            properties=properties,
+            **properties,
         )
         self._path = properties.get(self.__PATH_KEY, properties.get(self.__DEFAULT_PATH_KEY))
         if not self._path:
