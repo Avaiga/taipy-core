@@ -13,7 +13,7 @@ import uuid
 from typing import List, Optional, Union
 
 from taipy.config import Config
-from taipy.config.exceptions import ConflictedConfigurationError
+from taipy.config._config_comparator._comparator_result import _ComparatorResult
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._manager._manager import _Manager
@@ -48,9 +48,9 @@ class _VersionManager(_Manager[_Version]):
     @classmethod
     def _get_or_create(cls, id: str, force: bool) -> _Version:
         if version := cls._get(id):
-            try:
-                Config._comparator._compare(version.config, Config._applied_config, id)
-            except ConflictedConfigurationError:
+            comparator_result = Config._comparator._compare(version.config, Config._applied_config, id)
+
+            if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
                 if force:
                     _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
                     version.config = Config._applied_config
@@ -127,9 +127,10 @@ class _VersionManager(_Manager[_Version]):
                 continue
 
             if version := cls._get(production_version):
-                try:
-                    Config._comparator._compare(version.config, Config._applied_config, production_version)
-                except ConflictedConfigurationError:
+                comparator_result = Config._comparator._compare(
+                    version.config, Config._applied_config, production_version
+                )
+                if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
                     raise SystemExit("The application is stopped. Please check the error log for more information.")
 
             else:
