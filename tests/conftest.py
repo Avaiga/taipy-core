@@ -32,6 +32,7 @@ from src.taipy.core.config import (
     TaskConfig,
     _DataNodeConfigChecker,
     _JobConfigChecker,
+    _MigrationConfigChecker,
     _PipelineConfigChecker,
     _ScenarioConfigChecker,
     _TaskConfigChecker,
@@ -348,6 +349,7 @@ def init_config():
     _Checker.add_checker(_TaskConfigChecker)
     _Checker.add_checker(_PipelineConfigChecker)
     _Checker.add_checker(_ScenarioConfigChecker)
+    _Checker.add_checker(_MigrationConfigChecker)
 
 
 def init_managers():

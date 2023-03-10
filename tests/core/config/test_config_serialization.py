@@ -112,6 +112,8 @@ repository_type = "filesystem"
 mode = "development"
 max_nb_of_workers = "1:int"
 
+[VERSION_MIGRATION.migration_fcts]
+
 [DATA_NODE.default]
 storage_type = "pickle"
 scope = "SCENARIO:SCOPE"

@@ -22,14 +22,12 @@ from .checkers._migration_config_checker import _MigrationConfigChecker
 from .checkers._pipeline_config_checker import _PipelineConfigChecker
 from .checkers._scenario_config_checker import _ScenarioConfigChecker
 from .checkers._task_config_checker import _TaskConfigChecker
-from .checkers._version_migration_config_checker import _VersionMigrationConfigChecker
 from .data_node_config import DataNodeConfig
 from .job_config import JobConfig
 from .migration_config import MigrationConfig
 from .pipeline_config import PipelineConfig
 from .scenario_config import ScenarioConfig
 from .task_config import TaskConfig
-from .version_migration_config import VersionMigrationConfig
 
 _inject_section(
     JobConfig,
@@ -95,4 +93,4 @@ _Checker.add_checker(_DataNodeConfigChecker)
 _Checker.add_checker(_TaskConfigChecker)
 _Checker.add_checker(_PipelineConfigChecker)
 _Checker.add_checker(_ScenarioConfigChecker)
-_Checker.add_checker(_VersionMigrationConfigChecker)
+_Checker.add_checker(_MigrationConfigChecker)
