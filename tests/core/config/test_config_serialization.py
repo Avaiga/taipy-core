@@ -12,7 +12,8 @@
 import datetime
 import json
 
-from src.taipy.core.config import DataNodeConfig, JobConfig, PipelineConfig, ScenarioConfig, TaskConfig
+from src.taipy.core._version._version_manager import _VersionManager
+from src.taipy.core.config import DataNodeConfig, JobConfig, MigrationConfig, PipelineConfig, ScenarioConfig, TaskConfig
 from taipy.config import Config
 from taipy.config._json_serializer import _JsonSerializer
 from taipy.config.common.frequency import Frequency
@@ -22,6 +23,10 @@ from tests.core.utils.named_temporary_file import NamedTemporaryFile
 
 def multiply(a):
     return a * 2
+
+
+def migrate_csv_path(dn):
+    dn.path = "foo.csv"
 
 
 def compare_function(*data_node_results):
@@ -91,11 +96,15 @@ def config_test_scenario():
         frequency=Frequency.DAILY,
     )
 
+    Config.add_data_node_migration_function("latest", test_csv_dn_cfg, migrate_csv_path)
+
     return test_scenario_cfg
 
 
 def test_read_write_toml_configuration_file():
-    expected_toml_config = """
+    latest_version = _VersionManager._get_latest_version()
+
+    expected_toml_config = f"""
 [TAIPY]
 root_folder = "./taipy/"
 storage_folder = ".data/"
@@ -105,8 +114,6 @@ repository_type = "filesystem"
 [JOB]
 mode = "development"
 max_nb_of_workers = "1:int"
-
-[VERSION_MIGRATION.migration_fcts]
 
 [DATA_NODE.default]
 storage_type = "pickle"
@@ -150,6 +157,9 @@ pipelines = []
 pipelines = [ "test_pipeline:SECTION",]
 frequency = "DAILY:FREQUENCY"
 
+[VERSION_MIGRATION.migration_fcts.{latest_version}]
+test_csv_dn = "tests.core.config.test_config_serialization.migrate_csv_path:function"
+
 [SCENARIO.default.comparators]
 
 [SCENARIO.test_scenario.comparators]
@@ -172,8 +182,14 @@ test_json_dn = [ "tests.core.config.test_config_serialization.compare_function:f
     assert actual_config_2 == expected_toml_config
 
     assert Config.unique_sections is not None
+    assert len(Config.unique_sections) == 2
+
     assert Config.unique_sections[JobConfig.name].mode == "development"
     assert Config.unique_sections[JobConfig.name].max_nb_of_workers == 1
+
+    assert Config.unique_sections[MigrationConfig.name].migration_fcts[latest_version] == {
+        "test_csv_dn": migrate_csv_path
+    }
 
     assert Config.sections is not None
     assert len(Config.sections) == 4
@@ -232,49 +248,55 @@ test_json_dn = [ "tests.core.config.test_config_serialization.compare_function:f
 
 
 def test_read_write_json_configuration_file():
-    expected_json_config = """
-{
-"TAIPY": {
+    latest_version = _VersionManager._get_latest_version()
+
+    expected_json_config = f"""
+{{
+"TAIPY": {{
 "root_folder": "./taipy/",
 "storage_folder": ".data/",
 "clean_entities_enabled": "True:bool",
 "repository_type": "filesystem"
-},
-"JOB": {
+}},
+"JOB": {{
 "mode": "development",
 "max_nb_of_workers": "1:int"
-},
-"VERSION_MIGRATION": {
-"migration_fcts": {}
-},
-"DATA_NODE": {
-"default": {
+}},
+"VERSION_MIGRATION": {{
+"migration_fcts": {{
+"{latest_version}": {{
+"test_csv_dn": "tests.core.config.test_config_serialization.migrate_csv_path:function"
+}}
+}}
+}},
+"DATA_NODE": {{
+"default": {{
 "storage_type": "pickle",
 "scope": "SCENARIO:SCOPE"
-},
-"test_csv_dn": {
+}},
+"test_csv_dn": {{
 "storage_type": "csv",
 "scope": "GLOBAL:SCOPE",
 "path": "./test.csv",
 "exposed_type": "tests.core.config.test_config_serialization.CustomClass:class",
 "has_header": "True:bool"
-},
-"test_json_dn": {
+}},
+"test_json_dn": {{
 "storage_type": "json",
 "scope": "SCENARIO:SCOPE",
 "default_path": "./test.json",
 "encoder": "tests.core.config.test_config_serialization.CustomEncoder:class",
 "decoder": "tests.core.config.test_config_serialization.CustomDecoder:class"
-}
-},
-"TASK": {
-"default": {
+}}
+}},
+"TASK": {{
+"default": {{
 "inputs": [],
 "function": null,
 "outputs": [],
 "skippable": "False:bool"
-},
-"test_task": {
+}},
+"test_task": {{
 "inputs": [
 "test_csv_dn:SECTION"
 ],
@@ -283,37 +305,37 @@ def test_read_write_json_configuration_file():
 "test_json_dn:SECTION"
 ],
 "skippable": "False:bool"
-}
-},
-"PIPELINE": {
-"default": {
+}}
+}},
+"PIPELINE": {{
+"default": {{
 "tasks": []
-},
-"test_pipeline": {
+}},
+"test_pipeline": {{
 "tasks": [
 "test_task:SECTION"
 ]
-}
-},
-"SCENARIO": {
-"default": {
-"comparators": {},
+}}
+}},
+"SCENARIO": {{
+"default": {{
+"comparators": {{}},
 "pipelines": [],
 "frequency": null
-},
-"test_scenario": {
-"comparators": {
+}},
+"test_scenario": {{
+"comparators": {{
 "test_json_dn": [
 "tests.core.config.test_config_serialization.compare_function:function"
 ]
-},
+}},
 "pipelines": [
 "test_pipeline:SECTION"
 ],
 "frequency": "DAILY:FREQUENCY"
-}
-}
-}
+}}
+}}
+}}
     """.strip()
 
     Config._serializer = _JsonSerializer()
@@ -333,8 +355,14 @@ def test_read_write_json_configuration_file():
     assert actual_config_2 == expected_json_config
 
     assert Config.unique_sections is not None
+    assert len(Config.unique_sections) == 2
+
     assert Config.unique_sections[JobConfig.name].mode == "development"
     assert Config.unique_sections[JobConfig.name].max_nb_of_workers == 1
+
+    assert Config.unique_sections[MigrationConfig.name].migration_fcts[latest_version] == {
+        "test_csv_dn": migrate_csv_path
+    }
 
     assert Config.sections is not None
     assert len(Config.sections) == 4
