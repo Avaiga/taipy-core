@@ -29,7 +29,13 @@ from .pipeline_config import PipelineConfig
 from .scenario_config import ScenarioConfig
 from .task_config import TaskConfig
 
-_inject_section(JobConfig, "job_config", JobConfig("development"), [("configure_job_executions", JobConfig._configure)])
+_inject_section(
+    JobConfig,
+    "job_config",
+    JobConfig("development"),
+    [("configure_job_executions", JobConfig._configure)],
+    add_to_unconflicted_sections=True,
+)
 _inject_section(
     DataNodeConfig,
     "data_nodes",
