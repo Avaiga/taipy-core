@@ -49,9 +49,50 @@ def test_check_if_entity_property_key_used_is_predefined(caplog):
     assert expected_error_message in caplog.text
 
 
-def test_check_callable_function(caplog):
+def test_check_valid_version(caplog):
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
     latest_version = _VersionManager._get_latest_version()
+
+    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
+    with pytest.raises(SystemExit):
+        Config._collector = IssueCollector()
+        Config.check()
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.errors) == 1
+    assert "The source version for a migration function must be a production version." in caplog.text
+
+    caplog.clear()
+
+    _VersionManager._set_production_version(latest_version, True)
+
+    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
+    Config._collector = IssueCollector()
+    Config.check()
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.errors) == 0
+
+    Config.add_data_node_migration_function("dev", data_nodes1, mock_func)
+    with pytest.raises(SystemExit):
+        Config._collector = IssueCollector()
+        Config.check()
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.errors) == 1
+    assert "The source version for a migration function must be a production version." in caplog.text
+
+    Config.unique_sections[MigrationConfig.name].migration_fcts = {"foo": {"data_nodes1": mock_func}}
+    with pytest.raises(SystemExit):
+        Config._collector = IssueCollector()
+        Config.check()
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.errors) == 1
+    assert "The source version for a migration function must be a valid version number." in caplog.text
+
+
+def test_check_callable_function(caplog):
+    latest_version = _VersionManager._get_latest_version()
+    _VersionManager._set_production_version(latest_version, True)
+
+    data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
 
     Config._collector = IssueCollector()
     Config.check()
@@ -87,38 +128,3 @@ def test_check_callable_function(caplog):
     Config.check()
     assert len(Config._collector.errors) == 0
     assert len(Config._collector.warnings) == 0
-
-
-def test_check_valid_version(caplog):
-    data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
-    latest_version = _VersionManager._get_latest_version()
-
-    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
-    Config._collector = IssueCollector()
-    Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 0
-
-    Config.add_data_node_migration_function("dev", data_nodes1, mock_func)
-    Config._collector = IssueCollector()
-    Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 0
-
-    Config.add_data_node_migration_function(latest_version, data_nodes1, mock_func)
-    Config._collector = IssueCollector()
-    Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 0
-
-    Config.unique_sections[MigrationConfig.name].migration_fcts = {"foo": {"data_nodes1": mock_func}}
-    with pytest.raises(SystemExit):
-        Config._collector = IssueCollector()
-        Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 1
-    expected_error_message = (
-        "The source version for a migration function must be a valid version number."
-        ' Current value of property `migration_fcts` is "foo".'
-    )
-    assert expected_error_message in caplog.text

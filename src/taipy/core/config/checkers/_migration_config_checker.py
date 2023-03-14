@@ -26,7 +26,7 @@ class _MigrationConfigChecker(_ConfigChecker):
         if migration_config := self._config._unique_sections.get(MigrationConfig.name):
             self._check_if_entity_property_key_used_is_predefined(migration_config)
             for source_version, migration_functions in migration_config.migration_fcts.items():
-                self._check_valid_version(source_version)
+                self._check_valid_production_version(source_version)
                 for config_id, migration_function in migration_functions.items():
                     self._check_callable(source_version, config_id, migration_function)
         return self._collector
@@ -40,9 +40,15 @@ class _MigrationConfigChecker(_ConfigChecker):
                 f" must be populated with Callable value.",
             )
 
-    def _check_valid_version(self, source_version):
+    def _check_valid_production_version(self, source_version):
         try:
-            _VersionManager._replace_version_number(source_version)
+            version_number = _VersionManager._replace_version_number(source_version)
+            if not _VersionManager._is_production_version(version_number):
+                self._error(
+                    MigrationConfig._MIGRATION_FCTS_KEY,
+                    version_number,
+                    "The source version for a migration function must be a production version.",
+                )
         except NonExistingVersion:
             self._error(
                 MigrationConfig._MIGRATION_FCTS_KEY,

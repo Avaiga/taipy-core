@@ -79,10 +79,10 @@ _inject_section(
     "migration_functions",
     MigrationConfig.default_config(),
     [
-        ("add_data_node_migration_function", MigrationConfig._add_data_node_migration_function),
-        ("add_task_migration_function", MigrationConfig._add_task_migration_function),
-        ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),
-        ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),
+        ("add_data_node_migration_function", MigrationConfig._add_data_node_migration_function),  # type: ignore
+        ("add_task_migration_function", MigrationConfig._add_task_migration_function),  # type: ignore
+        ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),  # type: ignore
+        ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),  # type: ignore
     ],
 )
 
