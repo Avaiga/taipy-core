@@ -155,6 +155,12 @@ class _VersionManager(_Manager[_Version]):
         return cls._repository._delete_production_version(version_number)
 
     @classmethod
+    def _is_production_version(cls, version_number: str) -> bool:
+        if version_number not in cls._get_production_version():
+            return False
+        return True
+
+    @classmethod
     def _replace_version_number(cls, version_number):
         if version_number is None:
             version_number = cls._replace_version_number(cls._DEFAULT_VERSION)
