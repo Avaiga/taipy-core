@@ -90,6 +90,7 @@ _inject_section(
         ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),  # type: ignore
         ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),  # type: ignore
     ],
+    add_to_unconflicted_sections=True,
 )
 
 _Checker.add_checker(_JobConfigChecker)

@@ -59,7 +59,7 @@ def test_check_valid_version(caplog):
         Config.check()
     assert len(Config._collector.warnings) == 0
     assert len(Config._collector.errors) == 1
-    assert "The source version for a migration function must be a production version." in caplog.text
+    assert "The target version for a migration function must be a production version." in caplog.text
 
     caplog.clear()
 
@@ -77,7 +77,7 @@ def test_check_valid_version(caplog):
         Config.check()
     assert len(Config._collector.warnings) == 0
     assert len(Config._collector.errors) == 1
-    assert "The source version for a migration function must be a production version." in caplog.text
+    assert "The target version for a migration function must be a production version." in caplog.text
 
     Config.unique_sections[MigrationConfig.name].migration_fcts = {"foo": {"data_nodes1": mock_func}}
     with pytest.raises(SystemExit):
@@ -85,7 +85,7 @@ def test_check_valid_version(caplog):
         Config.check()
     assert len(Config._collector.warnings) == 0
     assert len(Config._collector.errors) == 1
-    assert "The source version for a migration function must be a valid version number." in caplog.text
+    assert "The target version for a migration function must be a valid version number." in caplog.text
 
 
 def test_check_callable_function(caplog):

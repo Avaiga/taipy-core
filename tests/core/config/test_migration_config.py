@@ -32,7 +32,7 @@ def test_migration_config():
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
 
     migration_cfg = Config.add_data_node_migration_function(
-        source_version="latest",
+        target_version="latest",
         data_node_config=data_nodes1,
         migration_fct=migrate_pickle_path,
     )
@@ -43,7 +43,7 @@ def test_migration_config():
     data_nodes2 = Config.configure_data_node("data_nodes2", "pickle")
 
     migration_cfg = Config.add_data_node_migration_function(
-        source_version="latest",
+        target_version="latest",
         data_node_config=data_nodes2,
         migration_fct=migrate_pickle_path,
     )

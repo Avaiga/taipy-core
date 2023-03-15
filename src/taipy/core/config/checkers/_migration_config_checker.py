@@ -25,33 +25,51 @@ class _MigrationConfigChecker(_ConfigChecker):
     def _check(self) -> IssueCollector:
         if migration_config := self._config._unique_sections.get(MigrationConfig.name):
             self._check_if_entity_property_key_used_is_predefined(migration_config)
-            for source_version, migration_functions in migration_config.migration_fcts.items():
-                self._check_valid_production_version(source_version)
+
+            migration_fcts = migration_config.migration_fcts
+
+            for target_version, migration_functions in migration_config.migration_fcts.items():
                 for config_id, migration_function in migration_functions.items():
-                    self._check_callable(source_version, config_id, migration_function)
+                    self._check_callable(target_version, config_id, migration_function)
+
+            self._check_valid_production_version(migration_fcts)
+            self._check_migration_from_productions_to_productions_exist(migration_fcts)
+
         return self._collector
 
-    def _check_callable(self, source_version, config_id, migration_function):
+    def _check_callable(self, target_version, config_id, migration_function):
         if not callable(migration_function):
             self._error(
                 MigrationConfig._MIGRATION_FCTS_KEY,
                 migration_function,
-                f"The migration function of config `{config_id}` from version {source_version}"
+                f"The migration function of config `{config_id}` from version {target_version}"
                 f" must be populated with Callable value.",
             )
 
-    def _check_valid_production_version(self, source_version):
-        try:
-            version_number = _VersionManager._replace_version_number(source_version)
-            if not _VersionManager._is_production_version(version_number):
+    def _check_valid_production_version(self, migration_fcts):
+        for target_version in migration_fcts.keys():
+            production_versions = _VersionManager._get_production_version()
+            try:
+                if target_version not in production_versions:
+                    self._error(
+                        MigrationConfig._MIGRATION_FCTS_KEY,
+                        target_version,
+                        "The target version for a migration function must be a production version.",
+                    )
+            except NonExistingVersion:
                 self._error(
                     MigrationConfig._MIGRATION_FCTS_KEY,
-                    version_number,
-                    "The source version for a migration function must be a production version.",
+                    target_version,
+                    "The target version for a migration function must be a valid version number.",
                 )
-        except NonExistingVersion:
-            self._error(
-                MigrationConfig._MIGRATION_FCTS_KEY,
-                source_version,
-                "The source version for a migration function must be a valid version number.",
-            )
+
+    def _check_migration_from_productions_to_productions_exist(self, migration_fcts):
+        production_versions = _VersionManager._get_production_version()
+        for target_version, target_version in zip(production_versions[:-1], production_versions[1:]):
+            if not migration_fcts.get(target_version):
+                self._info(
+                    "target_version",
+                    None,
+                    f'There is no migration functions from production version "{target_version}"'
+                    f' to version "{target_version}".',
+                )
