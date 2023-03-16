@@ -51,9 +51,8 @@ def test_check_if_entity_property_key_used_is_predefined(caplog):
 
 def test_check_valid_version(caplog):
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
-    latest_version = _VersionManager._get_latest_version()
 
-    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
+    Config.add_data_node_migration_function("1.0", data_nodes1, mock_func)
     with pytest.raises(SystemExit):
         Config._collector = IssueCollector()
         Config.check()
@@ -63,34 +62,17 @@ def test_check_valid_version(caplog):
 
     caplog.clear()
 
-    _VersionManager._set_production_version(latest_version, True)
+    _VersionManager._set_production_version("1.0", True)
 
-    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
+    Config.add_data_node_migration_function("1.0", data_nodes1, mock_func)
     Config._collector = IssueCollector()
     Config.check()
     assert len(Config._collector.warnings) == 0
     assert len(Config._collector.errors) == 0
 
-    Config.add_data_node_migration_function("dev", data_nodes1, mock_func)
-    with pytest.raises(SystemExit):
-        Config._collector = IssueCollector()
-        Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 1
-    assert "The target version for a migration function must be a production version." in caplog.text
-
-    Config.unique_sections[MigrationConfig.name].migration_fcts = {"foo": {"data_nodes1": mock_func}}
-    with pytest.raises(SystemExit):
-        Config._collector = IssueCollector()
-        Config.check()
-    assert len(Config._collector.warnings) == 0
-    assert len(Config._collector.errors) == 1
-    assert "The target version for a migration function must be a valid version number." in caplog.text
-
 
 def test_check_callable_function(caplog):
-    latest_version = _VersionManager._get_latest_version()
-    _VersionManager._set_production_version(latest_version, True)
+    _VersionManager._set_production_version("1.0", True)
 
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
 
@@ -99,32 +81,56 @@ def test_check_callable_function(caplog):
     assert len(Config._collector.errors) == 0
     assert len(Config._collector.warnings) == 0
 
-    Config.add_data_node_migration_function("latest", data_nodes1, 1)
+    Config.add_data_node_migration_function("1.0", data_nodes1, 1)
     with pytest.raises(SystemExit):
         Config._collector = IssueCollector()
         Config.check()
     assert len(Config._collector.errors) == 1
     expected_error_message = (
-        f"The migration function of config `data_nodes1` from version {latest_version} must be populated with"
+        "The migration function of config `data_nodes1` from version 1.0 must be populated with"
         " Callable value. Current value of property `migration_fcts` is 1."
     )
     assert expected_error_message in caplog.text
     assert len(Config._collector.warnings) == 0
 
-    Config.add_data_node_migration_function("latest", data_nodes1, "bar")
+    Config.add_data_node_migration_function("1.0", data_nodes1, "bar")
     with pytest.raises(SystemExit):
         Config._collector = IssueCollector()
         Config.check()
     assert len(Config._collector.errors) == 1
     expected_error_message = (
-        f"The migration function of config `data_nodes1` from version {latest_version} must be populated with"
+        "The migration function of config `data_nodes1` from version 1.0 must be populated with"
         ' Callable value. Current value of property `migration_fcts` is "bar".'
     )
     assert expected_error_message in caplog.text
     assert len(Config._collector.warnings) == 0
 
-    Config.add_data_node_migration_function("latest", data_nodes1, mock_func)
+    Config.add_data_node_migration_function("1.0", data_nodes1, mock_func)
     Config._collector = IssueCollector()
     Config.check()
     assert len(Config._collector.errors) == 0
     assert len(Config._collector.warnings) == 0
+
+
+def test_check_migration_from_productions_to_productions_exist(caplog):
+    _VersionManager._set_production_version("1.0", True)
+    _VersionManager._set_production_version("1.1", True)
+    _VersionManager._set_production_version("1.2", True)
+
+    Config._collector = IssueCollector()
+    Config.check()
+    assert len(Config._collector.errors) == 0
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.infos) == 2
+    assert 'There is no migration functions from production version "1.0" to version "1.1".' in caplog.text
+    assert 'There is no migration functions from production version "1.1" to version "1.2".' in caplog.text
+
+    caplog.clear()
+
+    Config.add_data_node_migration_function("1.2", "data_nodes1", mock_func)
+    Config._collector = IssueCollector()
+    Config.check()
+    assert len(Config._collector.errors) == 0
+    assert len(Config._collector.warnings) == 0
+    assert len(Config._collector.infos) == 1
+    assert 'There is no migration functions from production version "1.0" to version "1.1".' in caplog.text

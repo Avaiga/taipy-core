@@ -96,7 +96,7 @@ class MigrationConfig(UniqueSection):
         """Add a data node migration function to the configuration.
 
         Parameters:
-            target_version (str): The version that entities are migrated from.
+            target_version (str): The version that entities are migrated to.
             data_node_config (Union[DataNodeConfig, DataNodeId]): The data node configuration or the `id` of
                 the data node config that need to migrate.
             migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
@@ -117,7 +117,7 @@ class MigrationConfig(UniqueSection):
         """Add a task migration function to the configuration.
 
         Parameters:
-            target_version (str): The version that entities are migrated from.
+            target_version (str): The version that entities are migrated to.
             task_config (Union[TaskConfig, TaskId]): The task configuration or the `id` of
                 the task config that need to migrate.
             migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
@@ -138,7 +138,7 @@ class MigrationConfig(UniqueSection):
         """Add a pipeline migration function to the configuration.
 
         Parameters:
-            target_version (str): The version that entities are migrated from.
+            target_version (str): The version that entities are migrated to.
             pipeline_config (Union[PipelineConfig, PipelineId]): The pipeline configuration or the `id` of
                 the pipeline config that need to migrate.
             migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
@@ -159,7 +159,7 @@ class MigrationConfig(UniqueSection):
         """Add a scenario migration function to the configuration.
 
         Parameters:
-            target_version (str): The version that entities are migrated from.
+            target_version (str): The version that entities are migrated to.
             scenario_config (Union[ScenarioConfig, ScenarioId]): The scenario configuration or the `id` of
                 the scenario config that need to migrate.
             migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input

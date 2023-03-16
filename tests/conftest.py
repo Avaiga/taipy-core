@@ -335,6 +335,7 @@ def init_config():
             ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),
             ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),
         ],
+        True,
     )
     _Checker.add_checker(_JobConfigChecker)
     _Checker.add_checker(_DataNodeConfigChecker)
