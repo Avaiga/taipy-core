@@ -48,8 +48,8 @@ class Core:
 
         This function check the configuration, start a dispatcher and lock the Config.
         """
-        self.__manage_version(*self.cli_args)
         self.__check_config()
+        self.__manage_version(*self.cli_args)
         self.__start_dispatcher(force_restart)
 
     def stop(self):

@@ -349,7 +349,6 @@ def init_config():
     _Checker.add_checker(_TaskConfigChecker)
     _Checker.add_checker(_PipelineConfigChecker)
     _Checker.add_checker(_ScenarioConfigChecker)
-    _Checker.add_checker(_MigrationConfigChecker)
 
 
 def init_managers():
