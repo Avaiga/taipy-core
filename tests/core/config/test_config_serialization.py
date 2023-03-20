@@ -101,9 +101,7 @@ def config_test_scenario():
 
 
 def test_read_write_toml_configuration_file():
-    latest_version = _VersionManager._get_latest_version()
-
-    expected_toml_config = f"""
+    expected_toml_config = """
 [TAIPY]
 root_folder = "./taipy/"
 storage_folder = ".data/"
@@ -245,17 +243,15 @@ test_json_dn = [ "tests.core.config.test_config_serialization.compare_function:f
 
 
 def test_read_write_json_configuration_file():
-    latest_version = _VersionManager._get_latest_version()
-
-    expected_json_config = f"""
-{{
-"TAIPY": {{
+    expected_json_config = """
+{
+"TAIPY": {
 "root_folder": "./taipy/",
 "storage_folder": ".data/",
 "clean_entities_enabled": "True:bool",
 "repository_type": "filesystem"
-}},
-"JOB": {{
+},
+"JOB": {
 "mode": "development",
 "max_nb_of_workers": "1:int"
 },
@@ -270,30 +266,30 @@ def test_read_write_json_configuration_file():
 "default": {
 "storage_type": "pickle",
 "scope": "SCENARIO:SCOPE"
-}},
-"test_csv_dn": {{
+},
+"test_csv_dn": {
 "storage_type": "csv",
 "scope": "GLOBAL:SCOPE",
 "path": "./test.csv",
 "exposed_type": "tests.core.config.test_config_serialization.CustomClass:class",
 "has_header": "True:bool"
-}},
-"test_json_dn": {{
+},
+"test_json_dn": {
 "storage_type": "json",
 "scope": "SCENARIO:SCOPE",
 "default_path": "./test.json",
 "encoder": "tests.core.config.test_config_serialization.CustomEncoder:class",
 "decoder": "tests.core.config.test_config_serialization.CustomDecoder:class"
-}}
-}},
-"TASK": {{
-"default": {{
+}
+},
+"TASK": {
+"default": {
 "inputs": [],
 "function": null,
 "outputs": [],
 "skippable": "False:bool"
-}},
-"test_task": {{
+},
+"test_task": {
 "inputs": [
 "test_csv_dn:SECTION"
 ],
@@ -302,37 +298,37 @@ def test_read_write_json_configuration_file():
 "test_json_dn:SECTION"
 ],
 "skippable": "False:bool"
-}}
-}},
-"PIPELINE": {{
-"default": {{
+}
+},
+"PIPELINE": {
+"default": {
 "tasks": []
-}},
-"test_pipeline": {{
+},
+"test_pipeline": {
 "tasks": [
 "test_task:SECTION"
 ]
-}}
-}},
-"SCENARIO": {{
-"default": {{
-"comparators": {{}},
+}
+},
+"SCENARIO": {
+"default": {
+"comparators": {},
 "pipelines": [],
 "frequency": null
-}},
-"test_scenario": {{
-"comparators": {{
+},
+"test_scenario": {
+"comparators": {
 "test_json_dn": [
 "tests.core.config.test_config_serialization.compare_function:function"
 ]
-}},
+},
 "pipelines": [
 "test_pipeline:SECTION"
 ],
 "frequency": "DAILY:FREQUENCY"
-}}
-}}
-}}
+}
+}
+}
     """.strip()
 
     Config._serializer = _JsonSerializer()
