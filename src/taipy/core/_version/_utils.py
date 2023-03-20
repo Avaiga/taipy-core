@@ -9,6 +9,9 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from .._version._version_manager import _VersionManager
+from ..config import MigrationConfig
+
 
 def _version_migration() -> str:
     """Add version attribute on old entities. Used to migrate from <=2.0 to >=2.1 version."""
@@ -22,3 +25,11 @@ def _version_migration() -> str:
     else:
         _VersionManager._get_or_create("LEGACY-VERSION", True)
         return "LEGACY-VERSION"
+
+
+def _migrate_model(model):
+    if (latest_version := _VersionManager._get_latest_version()) in _VersionManager._get_production_version():
+        if migration_fcts := MigrationConfig._get_migration_fcts_to_latest(model.version, model.config_id):
+            for fct in migration_fcts:
+                model = fct(model)
+            model.version = latest_version

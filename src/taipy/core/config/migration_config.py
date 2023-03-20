@@ -107,3 +107,25 @@ class MigrationConfig(UniqueSection):
         )
         Config._register(section)
         return Config.unique_sections[MigrationConfig.name]
+
+    @classmethod
+    def _get_migration_fcts_to_latest(cls, source_version: str, config_id: str) -> List[Callable]:
+        migration_fcts_to_latest: List[Callable] = []
+
+        production_versions = _VersionManager._get_production_version()
+        try:
+            source_index = production_versions.index(source_version)
+        except ValueError:
+            return migration_fcts_to_latest
+
+        versions_to_migrate = production_versions[source_index + 1 :]
+
+        for version in versions_to_migrate:
+            if (
+                migration_fct := Config.unique_sections[MigrationConfig.name]
+                .migration_fcts.get(version, {})
+                .get(config_id)
+            ):
+                migration_fcts_to_latest.append(migration_fct)
+
+        return migration_fcts_to_latest

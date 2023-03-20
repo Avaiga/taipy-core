@@ -136,7 +136,7 @@ class Pipeline(_Entity, _Submittable):
         _warn_deprecated("parent_id", suggest="owner_id")
         return self.owner_id
 
-    @parent_id.setter  # type: ignore
+    @parent_id.setter
     def parent_id(self, val):
         """
         Deprecated. Use owner_id instead.

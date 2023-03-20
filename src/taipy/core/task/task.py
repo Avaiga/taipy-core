@@ -101,7 +101,7 @@ class Task(_Entity):
         _warn_deprecated("parent_id", suggest="owner_id")
         return self.owner_id
 
-    @parent_id.setter  # type: ignore
+    @parent_id.setter
     def parent_id(self, val):
         """Deprecated. Use owner_id instead."""
         _warn_deprecated("parent_id", suggest="owner_id")
@@ -171,7 +171,7 @@ class Task(_Entity):
         scope = min(dn.scope for dn in data_nodes) if len(data_nodes) != 0 else Scope.GLOBAL
         return Scope(scope)
 
-    @property  # type: ignore
+    @property
     def version(self):
         return self._version
 
