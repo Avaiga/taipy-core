@@ -59,8 +59,8 @@ class _Orchestrator(_AbstractOrchestrator):
              callbacks: The optional list of functions that should be executed on jobs status change.
              force (bool) : Enforce execution of the scenario's or pipeline's tasks even if their output data
                 nodes are cached.
-             wait (bool): Wait for the orchestrated jobs created from the scenario or pipeline submission to be finished in
-                asynchronous mode.
+             wait (bool): Wait for the orchestrated jobs created from the scenario or pipeline submission to be
+                finished in asynchronous mode.
              timeout (Union[float, int]): The optional maximum number of seconds to wait for the jobs to be finished
                 before returning.
         Returns:

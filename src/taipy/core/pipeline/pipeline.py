@@ -256,8 +256,8 @@ class Pipeline(_Entity, _Submittable):
             callbacks (List[Callable]): The list of callable functions to be called on status
                 change.
             force (bool): Force execution even if the data nodes are in cache.
-            wait (bool): Wait for the orchestrated jobs created from the pipeline submission to be finished in asynchronous
-                mode.
+            wait (bool): Wait for the orchestrated jobs created from the pipeline submission to be finished
+                in asynchronous mode.
             timeout (Union[float, int]): The maximum number of seconds to wait for the jobs to be finished before
                 returning.
         Returns:
