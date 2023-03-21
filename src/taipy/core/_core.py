@@ -13,6 +13,7 @@ import uuid
 from typing import Optional
 
 from taipy.config import Config
+from taipy.config.checker.issue_collector import IssueCollector
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from ._scheduler._dispatcher._job_dispatcher import _JobDispatcher
@@ -98,7 +99,9 @@ class Core:
             version_setter[mode](current_version_number, force)
 
             if mode == "production":
-                Config._check_one(_MigrationConfigChecker)
+                collector = _MigrationConfigChecker(Config._applied_config, IssueCollector())._check()
+                if len(collector._errors) != 0:
+                    raise SystemExit("Configuration errors found. Please check the error log for more information.")
 
         else:
             raise SystemExit(f"Undefined execution mode: {mode}.")

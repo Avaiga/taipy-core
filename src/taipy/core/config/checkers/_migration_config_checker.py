@@ -14,7 +14,6 @@ from taipy.config.checker._checkers._config_checker import _ConfigChecker
 from taipy.config.checker.issue_collector import IssueCollector
 
 from ..._version._version_manager import _VersionManager
-from ...exceptions import NonExistingVersion
 from ..migration_config import MigrationConfig
 
 
