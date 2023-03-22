@@ -95,7 +95,7 @@ def config_test_scenario():
         frequency=Frequency.DAILY,
     )
 
-    Config.add_data_node_migration_function("1.0", test_csv_dn_cfg, migrate_csv_path)
+    Config.add_migration_function("1.0", test_csv_dn_cfg, migrate_csv_path)
 
     return test_scenario_cfg
 

@@ -31,7 +31,6 @@ from src.taipy.core.config import (
     TaskConfig,
     _DataNodeConfigChecker,
     _JobConfigChecker,
-    _MigrationConfigChecker,
     _PipelineConfigChecker,
     _ScenarioConfigChecker,
     _TaskConfigChecker,
@@ -329,12 +328,7 @@ def init_config():
         MigrationConfig,
         "migration_functions",
         MigrationConfig.default_config(),
-        [
-            ("add_data_node_migration_function", MigrationConfig._add_data_node_migration_function),
-            ("add_task_migration_function", MigrationConfig._add_task_migration_function),
-            ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),
-            ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),
-        ],
+        [("add_migration_function", MigrationConfig._add_migration_function)],
         True,
     )
     _Checker.add_checker(_JobConfigChecker)

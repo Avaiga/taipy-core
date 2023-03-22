@@ -55,7 +55,7 @@ def test_check_if_entity_property_key_used_is_predefined(caplog):
 def test_check_valid_version(caplog):
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
 
-    Config.add_data_node_migration_function("2.0", data_nodes1, mock_func)
+    Config.add_migration_function("2.0", data_nodes1, mock_func)
     with patch("sys.argv", ["prog", "--production", "1.0"]):
         with pytest.raises(SystemExit):
             Core().run()
@@ -71,7 +71,7 @@ def test_check_valid_version(caplog):
 
 def test_check_callable_function(caplog):
     data_nodes1 = Config.configure_data_node("data_nodes1", "pickle")
-    Config.add_data_node_migration_function("1.0", data_nodes1, 1)
+    Config.add_migration_function("1.0", data_nodes1, 1)
     with patch("sys.argv", ["prog", "--production", "1.0"]):
         with pytest.raises(SystemExit):
             Core().run()
@@ -84,7 +84,7 @@ def test_check_callable_function(caplog):
     caplog.clear()
     Config.unblock_update()
 
-    Config.add_data_node_migration_function("1.0", data_nodes1, "bar")
+    Config.add_migration_function("1.0", data_nodes1, "bar")
     with patch("sys.argv", ["prog", "--production", "1.0"]):
         with pytest.raises(SystemExit):
             Core().run()
@@ -97,7 +97,7 @@ def test_check_callable_function(caplog):
     caplog.clear()
     Config.unblock_update()
 
-    Config.add_data_node_migration_function("1.0", data_nodes1, mock_func)
+    Config.add_migration_function("1.0", data_nodes1, mock_func)
     with patch("sys.argv", ["prog", "--production", "1.0"]):
         Core().run()
 
@@ -115,7 +115,7 @@ def test_check_migration_from_productions_to_productions_exist(caplog):
     caplog.clear()
     Config.unblock_update()
 
-    Config.add_data_node_migration_function("1.2", "data_nodes1", mock_func)
+    Config.add_migration_function("1.2", "data_nodes1", mock_func)
     with patch("sys.argv", ["prog", "--production", "1.0"]):
         Core().run()
     assert 'There is no migration functions from production version "1.0" to version "1.1".' in caplog.text

@@ -84,12 +84,7 @@ _inject_section(
     MigrationConfig,
     "migration_functions",
     MigrationConfig.default_config(),
-    [
-        ("add_data_node_migration_function", MigrationConfig._add_data_node_migration_function),  # type: ignore
-        ("add_task_migration_function", MigrationConfig._add_task_migration_function),  # type: ignore
-        ("add_pipeline_migration_function", MigrationConfig._add_pipeline_migration_function),  # type: ignore
-        ("add_scenario_migration_function", MigrationConfig._add_scenario_migration_function),  # type: ignore
-    ],
+    [("add_migration_function", MigrationConfig._add_migration_function)],
     add_to_unconflicted_sections=True,
 )
 

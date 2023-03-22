@@ -11,19 +11,13 @@
 
 import collections.abc
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from taipy.config._config import _Config
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.config import Config
+from taipy.config.section import Section
 from taipy.config.unique_section import UniqueSection
-
-from .._version._version_manager import _VersionManager
-from ..common.alias import DataNodeId, PipelineId, ScenarioId, TaskId
-from .data_node_config import DataNodeConfig
-from .pipeline_config import PipelineConfig
-from .scenario_config import ScenarioConfig
-from .task_config import TaskConfig
 
 
 class MigrationConfig(UniqueSection):
@@ -87,96 +81,23 @@ class MigrationConfig(UniqueSection):
         self._properties.update(as_dict)
 
     @staticmethod
-    def _add_data_node_migration_function(
+    def _add_migration_function(
         target_version: str,
-        data_node_config: Union[DataNodeConfig, DataNodeId],
+        config: Union[Section, str],
         migration_fct: Callable,
         **properties,
     ):
-        """Add a data node migration function to the configuration.
+        """Add a migration function for a Configuration to migrate entities to the target version.
 
         Parameters:
-            target_version (str): The version that entities are migrated to.
-            data_node_config (Union[DataNodeConfig, DataNodeId]): The data node configuration or the `id` of
-                the data node config that need to migrate.
-            migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
-                and returns a compatible DataNode with the next production version.
+            target_version (str): The production version that entities are migrated to.
+            config (Union[Section, str]): The configuration or the `id` of the config that need to migrate.
+            migration_fct (Callable): Migration function that takes an entity as input and returns a new entity
+                that compatible with the target production version.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
         Returns:
             `MigrationConfig^`: The Migration configuration.
         """
-        return MigrationConfig.__add_migration_function(target_version, data_node_config, migration_fct, **properties)
-
-    @staticmethod
-    def _add_task_migration_function(
-        target_version: str,
-        task_config: Union[TaskConfig, TaskId],
-        migration_fct: Callable,
-        **properties,
-    ):
-        """Add a task migration function to the configuration.
-
-        Parameters:
-            target_version (str): The version that entities are migrated to.
-            task_config (Union[TaskConfig, TaskId]): The task configuration or the `id` of
-                the task config that need to migrate.
-            migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
-                and returns a compatible DataNode with the next production version.
-            **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
-        Returns:
-            `MigrationConfig^`: The Migration configuration.
-        """
-        return MigrationConfig.__add_migration_function(target_version, task_config, migration_fct, **properties)
-
-    @staticmethod
-    def _add_pipeline_migration_function(
-        target_version: str,
-        pipeline_config: Union[PipelineConfig, PipelineId],
-        migration_fct: Callable,
-        **properties,
-    ):
-        """Add a pipeline migration function to the configuration.
-
-        Parameters:
-            target_version (str): The version that entities are migrated to.
-            pipeline_config (Union[PipelineConfig, PipelineId]): The pipeline configuration or the `id` of
-                the pipeline config that need to migrate.
-            migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
-                and returns a compatible DataNode with the next production version.
-            **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
-        Returns:
-            `MigrationConfig^`: The Migration configuration.
-        """
-        return MigrationConfig.__add_migration_function(target_version, pipeline_config, migration_fct, **properties)
-
-    @staticmethod
-    def _add_scenario_migration_function(
-        target_version: str,
-        scenario_config: Union[ScenarioConfig, ScenarioId],
-        migration_fct: Callable,
-        **properties,
-    ):
-        """Add a scenario migration function to the configuration.
-
-        Parameters:
-            target_version (str): The version that entities are migrated to.
-            scenario_config (Union[ScenarioConfig, ScenarioId]): The scenario configuration or the `id` of
-                the scenario config that need to migrate.
-            migration_fct (Callable): Migration function that takes a DataNode entity from `target_version` as input
-                and returns a compatible DataNode with the next production version.
-            **properties (Dict[str, Any]): A keyworded variable length list of additional arguments.
-        Returns:
-            `MigrationConfig^`: The Migration configuration.
-        """
-        return MigrationConfig.__add_migration_function(target_version, scenario_config, migration_fct, **properties)
-
-    @staticmethod
-    def __add_migration_function(
-        target_version: str,
-        config: Any,
-        migration_fct: Callable,
-        **properties,
-    ):
         config_id = config if isinstance(config, str) else config.id
         migration_fcts = {target_version: {config_id: migration_fct}}
 
