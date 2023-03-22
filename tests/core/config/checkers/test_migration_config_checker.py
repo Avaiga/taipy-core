@@ -16,7 +16,6 @@ import pytest
 from src.taipy.core import Core
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.config import MigrationConfig
-from taipy.config.checker.issue_collector import IssueCollector
 from taipy.config.config import Config
 
 
