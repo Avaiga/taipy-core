@@ -9,6 +9,8 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import os
+import pathlib
 from importlib import util
 from unittest import mock
 
@@ -203,6 +205,10 @@ class TestSQLDataNode:
             {"db_username": "foo"},
             {"db_username": "foo", "db_password": "foo"},
             {"db_username": "foo", "db_password": "foo", "db_name": "foo"},
+            {"engine": "sqlite"},
+            {"engine": "mssql", "db_name": "foo"},
+            {"engine": "mysql", "db_username": "foo"},
+            {"engine": "postgresql", "db_username": "foo", "db_password": "foo"},
         ],
     )
     def test_create_with_missing_parameters(self, properties):
@@ -251,3 +257,30 @@ class TestSQLDataNode:
             # mock connection execute
             dn.write(modin_pd.DataFrame({"foo": [1, 2, 3], "bar": [4, 5, 6]}))
             assert engine_mock.mock_calls[4] == mock.call().__enter__().execute("DELETE FROM foo")
+
+    @pytest.mark.parametrize(
+        "properties",
+        [
+            {
+                "db_name": "example",
+                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
+            },
+            {
+                "db_name": "example",
+                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
+                "sqlite_file_extension": ".sqlite3",
+            },
+        ],
+    )
+    def test_sqlite_read_file_with_different_extension(self, properties):
+        custom_properties = {
+            "db_engine": "sqlite",
+            "read_query": "SELECT * from sales",
+            "write_query_builder": single_write_query_builder,
+        }
+        custom_properties.update(properties)
+
+        dn = SQLDataNode("sqlite_dn", Scope.PIPELINE, properties=custom_properties)
+        data = dn.read()
+
+        assert data.equals(pd.DataFrame({"date": [1, 2], "nb_sales": [10, 20]}))

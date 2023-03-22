@@ -9,6 +9,8 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import os
+import pathlib
 from importlib import util
 from unittest import mock
 
@@ -408,3 +410,29 @@ class TestSQLTableDataNode:
 
             dn.some_random_attribute_that_does_not_related_to_engine = "foo"
             assert dn._engine is not None
+
+    @pytest.mark.parametrize(
+        "properties",
+        [
+            {
+                "db_name": "example",
+                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
+            },
+            {
+                "db_name": "example",
+                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
+                "sqlite_file_extension": ".sqlite3",
+            },
+        ],
+    )
+    def test_sqlite_read_file_with_different_extension(self, properties):
+        custom_properties = {
+            "db_engine": "sqlite",
+            "table_name": "sales",
+        }
+        custom_properties.update(properties)
+
+        dn = SQLTableDataNode("sqlite_dn", Scope.PIPELINE, properties=custom_properties)
+        data = dn.read()
+
+        assert data.equals(pd.DataFrame({"date": [1, 2], "nb_sales": [10, 20]}))
