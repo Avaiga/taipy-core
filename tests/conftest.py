@@ -32,7 +32,6 @@ from src.taipy.core.config import (
     TaskConfig,
     _DataNodeConfigChecker,
     _JobConfigChecker,
-    _MigrationConfigChecker,
     _PipelineConfigChecker,
     _ScenarioConfigChecker,
     _TaskConfigChecker,
