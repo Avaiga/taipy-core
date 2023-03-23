@@ -11,13 +11,15 @@
 
 import collections.abc
 from copy import deepcopy
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from taipy.config._config import _Config
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.config import Config
 from taipy.config.section import Section
 from taipy.config.unique_section import UniqueSection
+
+from .._version._version_manager import _VersionManager
 
 
 class MigrationConfig(UniqueSection):
