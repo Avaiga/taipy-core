@@ -665,9 +665,9 @@ class DataNodeConfig(Section):
             db_host (Optional[str]): The database host. The default value is _"localhost"_.
             db_port (Optional[int]): The database port. The default value is 1433.
             db_driver (Optional[str]): The database driver. The default value is _"ODBC Driver 17 for SQL Server"_.
-            sqlite_folder_path (Optional[str]): The path to the folder that contains SQLite file. Default to
-                the current working folder.
-            sqlite_file_extension (Optional[str]): The filename extension of the SQLite file. Default to _".db"_.
+            sqlite_folder_path (Optional[str]): The path to the folder that contains SQLite file. The default value
+                is the current working folder.
+            sqlite_file_extension (Optional[str]): The file extension of the SQLite file. The default value is ".db".
             db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
             exposed_type (Optional[str]): The exposed type of the data read from SQL table.
@@ -745,9 +745,9 @@ class DataNodeConfig(Section):
             db_host (Optional[str]): The database host. The default value is _"localhost"_.
             db_port (Optional[int]): The database port. The default value is 1433.
             db_driver (Optional[str]): The database driver. The default value is _"ODBC Driver 17 for SQL Server"_.
-            sqlite_folder_path (Optional[str]): The path to the folder that contains SQLite file. Default to
-                the current working folder.
-            sqlite_file_extension (Optional[str]): The filename extension of the SQLite file. Default to _".db"_.
+            sqlite_folder_path (Optional[str]): The path to the folder that contains SQLite file. The default value
+                is the current working folder.
+            sqlite_file_extension (Optional[str]): The file extension of the SQLite file. The default value is ".db".
             db_extra_args (Optional[Dict[str, Any]]): A dictionary of additional arguments to be passed into database
                 connection string.
             exposed_type (Optional[str]): The exposed type of the data read from SQL query.
