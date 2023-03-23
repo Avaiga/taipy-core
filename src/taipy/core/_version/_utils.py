@@ -28,7 +28,7 @@ def _version_migration() -> str:
 
 
 def _migrate_model(model):
-    if (latest_version := _VersionManager._get_latest_version()) in _VersionManager._get_production_version():
+    if (latest_version := _VersionManager._get_latest_version()) in _VersionManager._get_production_versions():
         if migration_fcts := MigrationConfig._get_migration_fcts_to_latest(model.version, model.config_id):
             for fct in migration_fcts:
                 model = fct(model)

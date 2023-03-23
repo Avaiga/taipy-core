@@ -114,7 +114,7 @@ class MigrationConfig(UniqueSection):
     def _get_migration_fcts_to_latest(cls, source_version: str, config_id: str) -> List[Callable]:
         migration_fcts_to_latest: List[Callable] = []
 
-        production_versions = _VersionManager._get_production_version()
+        production_versions = _VersionManager._get_production_versions()
         try:
             source_index = production_versions.index(source_version)
         except ValueError:
