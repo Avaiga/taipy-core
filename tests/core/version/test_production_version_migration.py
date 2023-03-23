@@ -17,6 +17,7 @@ from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
+from tests.core.utils import assert_true_after_time
 
 from ...conftest import init_config
 
@@ -53,7 +54,7 @@ def test_migrate_datanode():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_data_node_migration_function("2.0", "d1", migrate_pickle_path)
+    Config.add_migration_function("2.0", "d1", migrate_pickle_path)
 
     submit_v2()
     v1 = taipy.get(scenario_v1.id)
@@ -66,26 +67,30 @@ def test_migrate_datanode_in_standalone_mode():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_data_node_migration_function("2.0", "d1", migrate_pickle_path)
+    Config.add_migration_function("2.0", "d1", migrate_pickle_path)
 
     m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
         with lock:
-            _ScenarioManager._submit(scenario_v2)
+            job_dict = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.d1.version == "2.0"
         assert v1.d1.path == "bar.pkl"
+        print(list(job_dict.values())[0])
+        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        core.stop()
 
 
 def test_migrate_task():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_task_migration_function("2.0", "my_task", migrate_skippable_task)
+    Config.add_migration_function("2.0", "my_task", migrate_skippable_task)
 
     submit_v2()
     v1 = taipy.get(scenario_v1.id)
@@ -98,26 +103,29 @@ def test_migrate_task_in_standalone_mode():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_task_migration_function("2.0", "my_task", migrate_skippable_task)
+    Config.add_migration_function("2.0", "my_task", migrate_skippable_task)
 
     m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            _ScenarioManager._submit(scenario_v2)
+            job_dict = _ScenarioManager._submit(scenario_v2)
         v1 = taipy.get(scenario_v1.id)
         assert v1.my_task.version == "2.0"
         assert v1.my_task.skippable is True
+        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        core.stop()
 
 
 def test_migrate_pipeline():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_pipeline_migration_function("2.0", "my_pipeline", migrate_foo_pipeline)
+    Config.add_migration_function("2.0", "my_pipeline", migrate_foo_pipeline)
 
     submit_v2()
     v1 = taipy.get(scenario_v1.id)
@@ -130,26 +138,29 @@ def test_migrate_pipeline_in_standalone_mode():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_pipeline_migration_function("2.0", "my_pipeline", migrate_foo_pipeline)
+    Config.add_migration_function("2.0", "my_pipeline", migrate_foo_pipeline)
 
     m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            _ScenarioManager._submit(scenario_v2)
+            job_dict = _ScenarioManager._submit(scenario_v2)
         v1 = taipy.get(scenario_v1.id)
         assert v1.my_pipeline.version == "2.0"
         assert v1.my_pipeline.properties["foo"] == "bar"
+        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        core.stop()
 
 
 def test_migrate_scenario():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_scenario_migration_function("2.0", "my_scenario", migrate_foo_scenario)
+    Config.add_migration_function("2.0", "my_scenario", migrate_foo_scenario)
 
     submit_v2()
     v1 = taipy.get(scenario_v1.id)
@@ -162,19 +173,22 @@ def test_migrate_scenario_in_standalone_mode():
     scenario_v1 = submit_v1()
 
     init_config()
-    Config.add_scenario_migration_function("2.0", "my_scenario", migrate_foo_scenario)
+    Config.add_migration_function("2.0", "my_scenario", migrate_foo_scenario)
 
     m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            _ScenarioManager._submit(scenario_v2)
+            job_dict = _ScenarioManager._submit(scenario_v2)
         v1 = taipy.get(scenario_v1.id)
         assert v1.version == "2.0"
         assert v1.properties["foo"] == "bar"
+        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        core.stop()
 
 
 def test_migrate_compatible_version():
@@ -204,9 +218,9 @@ def test_migrate_compatible_version():
     init_config()
 
     # Production 2.1
-    Config.add_data_node_migration_function(
+    Config.add_migration_function(
         target_version="2.1",
-        data_node_config="d1",
+        config="d1",
         migration_fct=migrate_pickle_path,
     )
     scenario_cfg_v2_1 = config_scenario_v2()
@@ -231,16 +245,19 @@ def test_migrate_compatible_version():
 def submit_v1():
     scenario_cfg_v1 = config_scenario_v1()
     with patch("sys.argv", ["prog", "--production", "1.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         scenario_v1 = _ScenarioManager._create(scenario_cfg_v1)
         _ScenarioManager._submit(scenario_v1)
+        core.stop()
     return scenario_v1
 
 
 def submit_v2():
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
-        Core().run()
+        core = Core()
+        core.run()
         scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
         _ScenarioManager._submit(scenario_v2)
     return scenario_v2
