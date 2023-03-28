@@ -35,10 +35,10 @@ from ...conftest import init_config
 def test_version_cli_return_value():
     # Test default cli values
     _VersioningCLI._create_parser()
-    mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+    mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "development"
     assert version_number == ""
-    assert not force
+    assert not override
 
     # Test Dev mode
     with patch("sys.argv", ["prog", "--development"]):
@@ -51,39 +51,39 @@ def test_version_cli_return_value():
 
     # Test Experiment mode
     with patch("sys.argv", ["prog", "--experiment"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+        mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == ""
-    assert not force
+    assert not override
     assert not clean_entities
 
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+        mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
-    assert not force
+    assert not override
     assert not clean_entities
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1", "--force"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+    with patch("sys.argv", ["prog", "--experiment", "2.1", "--override"]):
+        mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
-    assert force
+    assert override
     assert not clean_entities
 
     with patch("sys.argv", ["prog", "--experiment", "2.1", "--clean-entities"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+        mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "experiment"
     assert version_number == "2.1"
-    assert not force
+    assert not override
     assert clean_entities
 
     # Test Production mode
     with patch("sys.argv", ["prog", "--production"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
+        mode, version_number, override, clean_entities = _VersioningCLI._parse_arguments()
     assert mode == "production"
     assert version_number == ""
-    assert not force
+    assert not override
 
 
 def test_dev_mode_clean_all_entities_of_the_latest_version():
@@ -294,13 +294,13 @@ def test_force_override_experiment_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --force parameter, a SystemExit will be raised
+    # Without --override parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--experiment", "1.0"]):
             Core().run()
 
-    # With --force parameter
-    with patch("sys.argv", ["prog", "--experiment", "1.0", "--force"]):
+    # With --override parameter
+    with patch("sys.argv", ["prog", "--experiment", "1.0", "--override"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
@@ -344,13 +344,13 @@ def test_force_override_production_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --force parameter, a SystemExit will be raised
+    # Without --override parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--production", "1.0"]):
             Core().run()
 
-    # With --force parameter
-    with patch("sys.argv", ["prog", "--production", "1.0", "--force"]):
+    # With --override parameter
+    with patch("sys.argv", ["prog", "--production", "1.0", "--override"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"

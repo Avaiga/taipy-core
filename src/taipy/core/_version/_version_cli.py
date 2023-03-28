@@ -59,8 +59,7 @@ class _VersioningCLI:
         )
 
         core_parser.add_argument(
-            "--force",
-            "-f",
+            "--override",
             action="store_true",
             help="Force override the configuration of the version if existed. Default to False.",
         )
@@ -151,4 +150,4 @@ class _VersioningCLI:
             version_number = args.production
             mode = "production"
 
-        return mode, version_number, args.force, args.clean_entities
+        return mode, version_number, args.override, args.clean_entities
