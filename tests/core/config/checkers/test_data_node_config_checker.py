@@ -166,7 +166,7 @@ class TestDataNodeConfigChecker:
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-    def test_check_sql_engine_properties(self, caplog):
+    def test_check_properties_of_sqlite_engine(self, caplog):
         config = Config._default_config
         config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
 
@@ -183,7 +183,9 @@ class TestDataNodeConfigChecker:
         ]
         assert all(message in caplog.text for message in expected_error_messages)
 
-        caplog.clear()
+    def test_check_properties_of_not_sqlite_engine(self, caplog):
+        config = Config._default_config
+        config._sections[DataNodeConfig.name]["new"] = copy(config._sections[DataNodeConfig.name]["default"])
 
         # Test other engines
         config._sections[DataNodeConfig.name]["new"].storage_type = "sql_table"
