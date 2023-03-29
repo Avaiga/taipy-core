@@ -9,8 +9,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import os
-import pathlib
 from importlib import util
 from unittest import mock
 
@@ -259,28 +257,25 @@ class TestSQLDataNode:
             assert engine_mock.mock_calls[4] == mock.call().__enter__().execute("DELETE FROM foo")
 
     @pytest.mark.parametrize(
-        "properties",
+        "tmp_sqlite_path",
         [
-            {
-                "db_name": "example",
-                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
-            },
-            {
-                "db_name": "example",
-                "sqlite_folder_path": os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample"),
-                "sqlite_file_extension": ".sqlite3",
-            },
+            "tmp_sqlite_db_file_path",
+            "tmp_sqlite_sqlite3_file_path",
         ],
     )
-    def test_sqlite_read_file_with_different_extension(self, properties):
-        custom_properties = {
+    def test_sqlite_read_file_with_different_extension(self, tmp_sqlite_path, request):
+        tmp_sqlite_path = request.getfixturevalue(tmp_sqlite_path)
+        folder_path, db_name, file_extension = tmp_sqlite_path
+        properties = {
             "db_engine": "sqlite",
-            "read_query": "SELECT * from sales",
+            "read_query": "SELECT * from example",
             "write_query_builder": single_write_query_builder,
+            "db_name": db_name,
+            "sqlite_folder_path": folder_path,
+            "sqlite_file_extension": file_extension,
         }
-        custom_properties.update(properties)
 
-        dn = SQLDataNode("sqlite_dn", Scope.PIPELINE, properties=custom_properties)
+        dn = SQLDataNode("sqlite_dn", Scope.PIPELINE, properties=properties)
         data = dn.read()
 
-        assert data.equals(pd.DataFrame({"date": [1, 2], "nb_sales": [10, 20]}))
+        assert data.equals(pd.DataFrame([{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}]))
