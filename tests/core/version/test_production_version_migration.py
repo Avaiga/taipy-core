@@ -21,6 +21,8 @@ from tests.core.utils import assert_true_after_time
 
 from ...conftest import init_config
 
+m = multiprocessing.Manager()
+
 
 def twice(a):
     return a * 2
@@ -31,7 +33,7 @@ def triple(a):
 
 
 def migrate_pickle_path(dn):
-    dn.data_node_properties["path"] = "bar.pkl"
+    dn.path = "bar.pkl"
     return dn
 
 
@@ -63,25 +65,24 @@ def test_migrate_datanode():
 
 
 def test_migrate_datanode_in_standalone_mode():
-    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     scenario_v1 = submit_v1()
 
     init_config()
+    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     Config.add_migration_function("2.0", "d1", migrate_pickle_path)
 
-    m = multiprocessing.Manager()
     lock = m.Lock()
+
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
         core = Core()
         core.run()
-        scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
         with lock:
+            scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
             job_dict = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.d1.version == "2.0"
         assert v1.d1.path == "bar.pkl"
-        print(list(job_dict.values())[0])
         assert_true_after_time(list(job_dict.values())[0][0].is_completed)
         core.stop()
 
@@ -99,13 +100,12 @@ def test_migrate_task():
 
 
 def test_migrate_task_in_standalone_mode():
-    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     scenario_v1 = submit_v1()
 
     init_config()
+    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     Config.add_migration_function("2.0", "my_task", migrate_skippable_task)
 
-    m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
@@ -114,7 +114,7 @@ def test_migrate_task_in_standalone_mode():
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
             job_dict = _ScenarioManager._submit(scenario_v2)
-        v1 = taipy.get(scenario_v1.id)
+            v1 = taipy.get(scenario_v1.id)
         assert v1.my_task.version == "2.0"
         assert v1.my_task.skippable is True
         assert_true_after_time(list(job_dict.values())[0][0].is_completed)
@@ -134,13 +134,12 @@ def test_migrate_pipeline():
 
 
 def test_migrate_pipeline_in_standalone_mode():
-    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     scenario_v1 = submit_v1()
 
     init_config()
+    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     Config.add_migration_function("2.0", "my_pipeline", migrate_foo_pipeline)
 
-    m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
@@ -149,7 +148,7 @@ def test_migrate_pipeline_in_standalone_mode():
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
             job_dict = _ScenarioManager._submit(scenario_v2)
-        v1 = taipy.get(scenario_v1.id)
+            v1 = taipy.get(scenario_v1.id)
         assert v1.my_pipeline.version == "2.0"
         assert v1.my_pipeline.properties["foo"] == "bar"
         assert_true_after_time(list(job_dict.values())[0][0].is_completed)
@@ -169,13 +168,12 @@ def test_migrate_scenario():
 
 
 def test_migrate_scenario_in_standalone_mode():
-    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     scenario_v1 = submit_v1()
 
     init_config()
+    Config.configure_job_executions(mode="standalone", nb_of_workers=2)
     Config.add_migration_function("2.0", "my_scenario", migrate_foo_scenario)
 
-    m = multiprocessing.Manager()
     lock = m.Lock()
     scenario_cfg_v2 = config_scenario_v2()
     with patch("sys.argv", ["prog", "--production", "2.0"]):
@@ -184,7 +182,7 @@ def test_migrate_scenario_in_standalone_mode():
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
             job_dict = _ScenarioManager._submit(scenario_v2)
-        v1 = taipy.get(scenario_v1.id)
+            v1 = taipy.get(scenario_v1.id)
         assert v1.version == "2.0"
         assert v1.properties["foo"] == "bar"
         assert_true_after_time(list(job_dict.values())[0][0].is_completed)
