@@ -28,7 +28,7 @@ from taipy.logger._taipy_logger import _TaipyLogger
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
 from ..common._properties import _Properties
-from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._reload import Reloader, _self_reload, _self_setter
 from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, Edit, JobId
 from ..exceptions.exceptions import NoData
@@ -108,7 +108,7 @@ class DataNode(_Entity):
 
         self._properties = _Properties(self, **kwargs)
 
-    @property  # type: ignore
+    @property
     def parent_id(self):
         """
         Deprecated. Use owner_id instead.
@@ -116,7 +116,7 @@ class DataNode(_Entity):
         _warn_deprecated("parent_id", suggest="owner_id")
         return self.owner_id
 
-    @parent_id.setter  # type: ignore
+    @parent_id.setter
     def parent_id(self, val):
         """
         Deprecated. Use owner_id instead.
@@ -162,7 +162,7 @@ class DataNode(_Entity):
     def last_edit_date(self, val):
         self._last_edit_date = val
 
-    @property  # type: ignore
+    @property
     def last_edition_date(self):
         """Deprecated. Use last_edit_date instead."""
         _warn_deprecated("last_edition_date", suggest="last_edit_date")
@@ -215,9 +215,13 @@ class DataNode(_Entity):
     def name(self, val):
         self._name = val
 
-    @property  # type: ignore
+    @property
     def version(self):
         return self._version
+
+    @version.setter
+    def version(self, val):
+        self._version = val
 
     @property
     def cacheable(self):
@@ -239,7 +243,7 @@ class DataNode(_Entity):
     def edit_in_progress(self, val):
         self._edit_in_progress = val
 
-    @property  # type: ignore
+    @property
     def edition_in_progress(self):
         """Deprecated. Use edit_in_progress instead."""
         _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
@@ -260,7 +264,7 @@ class DataNode(_Entity):
     @property
     def properties(self):
         """Dictionary of custom properties."""
-        r = _reload(self._MANAGER_NAME, self)
+        r = Reloader()._reload(self._MANAGER_NAME, self)
         self._properties = r._properties
         return self._properties
 

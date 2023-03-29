@@ -24,7 +24,7 @@ from ..common import _utils
 from ..common._entity import _Entity
 from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
-from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._reload import Reloader, _self_reload, _self_setter
 from ..common._submittable import _Submittable
 from ..common._utils import _Subscriber
 from ..common.alias import CycleId, PipelineId, ScenarioId
@@ -74,7 +74,7 @@ class Scenario(_Entity, _Submittable):
         cycle: Optional[Cycle] = None,
         subscribers: Optional[List[_Subscriber]] = None,
         tags: Optional[Set[str]] = None,
-        version: str = None,
+        version: Optional[str] = None,
     ):
         super().__init__(subscribers)
         self.config_id = _validate_id(config_id)
@@ -215,13 +215,17 @@ class Scenario(_Entity, _Submittable):
     def tags(self, val):
         self._tags = val or set()
 
-    @property  # type: ignore
+    @property
     def version(self):
         return self._version
 
-    @property  # type: ignore
+    @version.setter
+    def version(self, val):
+        self._version = val
+
+    @property
     def properties(self):
-        self._properties = _reload(self._MANAGER_NAME, self)._properties
+        self._properties = Reloader()._reload(self._MANAGER_NAME, self)._properties
         return self._properties
 
     @property  # type: ignore
@@ -245,11 +249,11 @@ class Scenario(_Entity, _Submittable):
         return tag in self.tags
 
     def _add_tag(self, tag: str):
-        self._tags = _reload("scenario", self)._tags
+        self._tags = Reloader()._reload("scenario", self)._tags
         self._tags.add(tag)
 
     def _remove_tag(self, tag: str):
-        self._tags = _reload("scenario", self)._tags
+        self._tags = Reloader()._reload("scenario", self)._tags
         if self.has_tag(tag):
             self._tags.remove(tag)
 

@@ -25,7 +25,7 @@ from ..common import _utils
 from ..common._entity import _Entity
 from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
-from ..common._reload import _reload, _self_reload, _self_setter
+from ..common._reload import Reloader, _self_reload, _self_setter
 from ..common._submittable import _Submittable
 from ..common._utils import _Subscriber
 from ..common._warnings import _warn_deprecated
@@ -65,7 +65,7 @@ class Pipeline(_Entity, _Submittable):
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
         subscribers: Optional[List[_Subscriber]] = None,
-        version: str = None,
+        version: Optional[str] = None,
     ):
         super().__init__(subscribers)
         self.config_id = _validate_id(config_id)
@@ -128,7 +128,7 @@ class Pipeline(_Entity, _Submittable):
                 data_nodes[k] = v
         return data_nodes
 
-    @property  # type: ignore
+    @property
     def parent_id(self):
         """
         Deprecated. Use owner_id instead.
@@ -149,13 +149,17 @@ class Pipeline(_Entity, _Submittable):
     def parent_ids(self):
         return self._parent_ids
 
-    @property  # type: ignore
+    @property
     def version(self):
         return self._version
 
-    @property  # type: ignore
+    @version.setter
+    def version(self, val):
+        self._version = val
+
+    @property
     def properties(self):
-        self._properties = _reload("pipeline", self)._properties
+        self._properties = Reloader()._reload("pipeline", self)._properties
         return self._properties
 
     def _is_consistent(self) -> bool:
