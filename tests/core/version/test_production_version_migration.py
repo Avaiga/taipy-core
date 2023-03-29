@@ -79,11 +79,11 @@ def test_migrate_datanode_in_standalone_mode():
         core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            job_dict = _ScenarioManager._submit(scenario_v2)
+            jobs = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.d1.version == "2.0"
         assert v1.d1.path == "bar.pkl"
-        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        assert_true_after_time(jobs[0].is_completed)
         core.stop()
 
 
@@ -113,11 +113,11 @@ def test_migrate_task_in_standalone_mode():
         core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            job_dict = _ScenarioManager._submit(scenario_v2)
+            jobs = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.my_task.version == "2.0"
         assert v1.my_task.skippable is True
-        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        assert_true_after_time(jobs[0].is_completed)
         core.stop()
 
 
@@ -147,11 +147,11 @@ def test_migrate_pipeline_in_standalone_mode():
         core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            job_dict = _ScenarioManager._submit(scenario_v2)
+            jobs = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.my_pipeline.version == "2.0"
         assert v1.my_pipeline.properties["foo"] == "bar"
-        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        assert_true_after_time(jobs[0].is_completed)
         core.stop()
 
 
@@ -181,11 +181,11 @@ def test_migrate_scenario_in_standalone_mode():
         core.run()
         with lock:
             scenario_v2 = _ScenarioManager._create(scenario_cfg_v2)
-            job_dict = _ScenarioManager._submit(scenario_v2)
+            jobs = _ScenarioManager._submit(scenario_v2)
             v1 = taipy.get(scenario_v1.id)
         assert v1.version == "2.0"
         assert v1.properties["foo"] == "bar"
-        assert_true_after_time(list(job_dict.values())[0][0].is_completed)
+        assert_true_after_time(jobs[0].is_completed)
         core.stop()
 
 
