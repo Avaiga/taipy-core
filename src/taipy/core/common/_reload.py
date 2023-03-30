@@ -10,22 +10,19 @@
 # specific language governing permissions and limitations under the License.
 
 import functools
-from typing import Dict
 
 
-class SingletonMeta(type):
-    _instances: Dict = {}
+class _Reloader:
+    """The _Reloader singleton class"""
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
+    _instance = None
 
+    _no_reload_context = False
 
-class Reloader(metaclass=SingletonMeta):
-    def __init__(self):
-        self._no_reload_context = False
+    def __new__(class_, *args, **kwargs):
+        if not isinstance(class_._instance, class_):
+            class_._instance = object.__new__(class_, *args, **kwargs)
+        return class_._instance
 
     def _reload(self, manager: str, obj):
         if self._no_reload_context:
@@ -44,7 +41,7 @@ def _self_reload(manager):
     def __reload(fct):
         @functools.wraps(fct)
         def _do_reload(self, *args, **kwargs):
-            self = Reloader()._reload(manager, self)
+            self = _Reloader()._reload(manager, self)
             return fct(self, *args, **kwargs)
 
         return _do_reload
