@@ -116,11 +116,11 @@ class MigrationConfig(UniqueSection):
 
         production_versions = _VersionManager._get_production_versions()
         try:
-            source_index = production_versions.index(source_version)
+            start_index = production_versions.index(source_version) + 1
         except ValueError:
             return migration_fcts_to_latest
 
-        versions_to_migrate = production_versions[source_index + 1 :]
+        versions_to_migrate = production_versions[start_index:]
 
         for version in versions_to_migrate:
             if (
