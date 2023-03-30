@@ -16,6 +16,7 @@ from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 from taipy.config.common.scope import Scope
 
+from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
 from ..common._properties import _Properties
@@ -221,7 +222,7 @@ class Task(_Entity):
 
     @classmethod
     def _from_model(cls, model: _TaskModel):
-        return Task(
+        task = Task(
             id=TaskId(model.id),
             owner_id=model.owner_id,
             parent_ids=set(model.parent_ids),
@@ -233,6 +234,7 @@ class Task(_Entity):
             skippable=model.skippable,
             properties=model.properties,
         )
+        return _migrate_entity(task)
 
     @staticmethod
     def __to_ids(data_nodes):

@@ -14,7 +14,6 @@ import uuid
 from abc import abstractmethod
 from datetime import datetime, timedelta
 from functools import reduce
-from pydoc import locate
 from typing import Any, List, Optional, Set, Tuple, Union
 
 import modin.pandas as modin_pd
@@ -25,6 +24,7 @@ from taipy.config.common._validate_id import _validate_id
 from taipy.config.common.scope import Scope
 from taipy.logger._taipy_logger import _TaipyLogger
 
+from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
 from ..common._properties import _Properties
@@ -585,7 +585,7 @@ class DataNode(_Entity):
         if model.validity_seconds is not None and model.validity_days is not None:
             validity_period = timedelta(days=model.validity_days, seconds=model.validity_seconds)
 
-        return __CLASS_MAP[model.storage_type](
+        datanode = __CLASS_MAP[model.storage_type](
             config_id=model.config_id,
             scope=model.scope,
             id=model.id,
@@ -599,3 +599,4 @@ class DataNode(_Entity):
             edit_in_progress=model.edit_in_progress,
             properties=model.data_node_properties,
         )
+        return _migrate_entity(datanode)

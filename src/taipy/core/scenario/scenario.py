@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 
+from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common import _utils
 from ..common._entity import _Entity
@@ -393,10 +394,10 @@ class Scenario(_Entity, _Submittable):
 
     @classmethod
     def _from_model(cls, model: _ScenarioModel):
-        return Scenario(
+        scenario = Scenario(
             scenario_id=model.id,
             config_id=model.config_id,
-            pipelines=model.pipelines,  # type: ignore
+            pipelines=model.pipelines,
             properties=model.properties,
             creation_date=datetime.fromisoformat(model.creation_date),
             is_primary=model.primary_scenario,
@@ -408,15 +409,16 @@ class Scenario(_Entity, _Submittable):
             ],
             version=model.version,
         )
+        return _migrate_entity(scenario)
 
     @staticmethod
     def __to_pipeline_ids(pipelines) -> List[PipelineId]:
         return [p.id if isinstance(p, Pipeline) else p for p in pipelines]
 
     @staticmethod
-    def __to_cycle(cycle_id: CycleId = None) -> Optional[Cycle]:
+    def __to_cycle(cycle_id: Optional[CycleId] = None) -> Optional[Cycle]:
         return _CycleManagerFactory._build_manager()._get(cycle_id) if cycle_id else None
 
     @staticmethod
-    def __to_cycle_id(cycle: Cycle = None) -> Optional[CycleId]:
+    def __to_cycle_id(cycle: Optional[Cycle] = None) -> Optional[CycleId]:
         return cycle.id if cycle else None

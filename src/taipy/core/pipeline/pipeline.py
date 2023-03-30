@@ -20,6 +20,7 @@ import networkx as nx
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 
+from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common import _utils
 from ..common._entity import _Entity
@@ -298,7 +299,7 @@ class Pipeline(_Entity, _Submittable):
 
     @classmethod
     def _from_model(cls, model: _PipelineModel):
-        return Pipeline(
+        pipeline = Pipeline(
             model.config_id,
             model.properties,
             model.tasks,
@@ -308,9 +309,10 @@ class Pipeline(_Entity, _Submittable):
             [
                 _Subscriber(_utils._load_fct(it["fct_module"], it["fct_name"]), it["fct_params"])
                 for it in model.subscribers
-            ],  # type: ignore
+            ],
             model.version,
         )
+        return _migrate_entity(pipeline)
 
     @staticmethod
     def __to_task_ids(tasks):
