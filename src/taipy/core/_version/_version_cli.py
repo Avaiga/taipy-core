@@ -59,9 +59,9 @@ class _VersioningCLI:
         )
 
         core_parser.add_argument(
-            "--override",
+            "--force-run",
             action="store_true",
-            help="Force override the configuration of the version if existed. Default to False.",
+            help="Force override the configuration of the version if existed and run the application. Default to False.",
         )
 
         core_parser.add_argument(
@@ -150,4 +150,4 @@ class _VersioningCLI:
             version_number = args.production
             mode = "production"
 
-        return mode, version_number, args.override, args.clean_entities
+        return mode, version_number, args.force_run, args.clean_entities

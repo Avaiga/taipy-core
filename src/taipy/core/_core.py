@@ -65,7 +65,7 @@ class Core:
         Config.check()
         Config.block_update()
 
-    def __manage_version(self, mode, _version_number, override, clean_entities):
+    def __manage_version(self, mode, _version_number, force, clean_entities):
         if mode == "development":
             current_version_number = _VersionManagerFactory._build_manager()._get_development_version()
 
@@ -94,7 +94,7 @@ class Core:
                 clean_all_entities_by_version(current_version_number)
                 _TaipyLogger._get_logger().info(f"Clean all entities of version {current_version_number}")
 
-            version_setter[mode](current_version_number, override)
+            version_setter[mode](current_version_number, force)
 
         else:
             raise SystemExit(f"Undefined execution mode: {mode}.")

@@ -46,12 +46,12 @@ class _VersionManager(_Manager[_Version]):
             return default
 
     @classmethod
-    def _get_or_create(cls, id: str, override: bool) -> _Version:
+    def _get_or_create(cls, id: str, force: bool) -> _Version:
         if version := cls._get(id):
             comparator_result = Config._comparator._compare(version.config, Config._applied_config, id)
 
             if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
-                if override:
+                if force:
                     _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
                     version.config = Config._applied_config
                 else:
@@ -79,7 +79,7 @@ class _VersionManager(_Manager[_Version]):
 
     @classmethod
     def _set_development_version(cls, version_number: str) -> str:
-        cls._get_or_create(version_number, override=True)
+        cls._get_or_create(version_number, force=True)
         cls._repository._set_development_version(version_number)
         return version_number
 
@@ -91,7 +91,7 @@ class _VersionManager(_Manager[_Version]):
             return cls._set_development_version(str(uuid.uuid4()))
 
     @classmethod
-    def _set_experiment_version(cls, version_number: str, override: bool) -> str:
+    def _set_experiment_version(cls, version_number: str, force: bool) -> str:
         if version_number == cls._get_development_version():
             raise SystemExit(
                 f"Version number {version_number} is already a development version. Please choose a different version "
@@ -104,7 +104,7 @@ class _VersionManager(_Manager[_Version]):
                 f"number for experiment mode. "
             )
 
-        cls._get_or_create(version_number, override)
+        cls._get_or_create(version_number, force)
         cls._repository._set_latest_version(version_number)
         return version_number
 
@@ -118,7 +118,7 @@ class _VersionManager(_Manager[_Version]):
             return cls._set_development_version(str(uuid.uuid4()))
 
     @classmethod
-    def _set_production_version(cls, version_number: str, override: bool) -> str:
+    def _set_production_version(cls, version_number: str, force: bool) -> str:
         production_versions = cls._get_production_versions()
 
         # Check if all previous production versions are compatible with current Python Config
@@ -139,7 +139,7 @@ class _VersionManager(_Manager[_Version]):
         if version_number == cls._get_development_version():
             cls._set_development_version(str(uuid.uuid4()))
 
-        cls._get_or_create(version_number, override)
+        cls._get_or_create(version_number, force)
         cls._repository._set_production_version(version_number)
         return version_number
 
