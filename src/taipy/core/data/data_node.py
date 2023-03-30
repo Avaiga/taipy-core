@@ -28,7 +28,7 @@ from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
 from ..common._properties import _Properties
-from ..common._reload import Reloader, _self_reload, _self_setter
+from ..common._reload import _Reloader, _self_reload, _self_setter
 from ..common._warnings import _warn_deprecated
 from ..common.alias import DataNodeId, Edit, JobId
 from ..exceptions.exceptions import NoData
@@ -264,7 +264,7 @@ class DataNode(_Entity):
     @property
     def properties(self):
         """Dictionary of custom properties."""
-        r = Reloader()._reload(self._MANAGER_NAME, self)
+        r = _Reloader()._reload(self._MANAGER_NAME, self)
         self._properties = r._properties
         return self._properties
 

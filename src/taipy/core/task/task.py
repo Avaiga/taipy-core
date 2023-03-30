@@ -20,7 +20,7 @@ from .._version._utils import _migrate_entity
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._entity import _Entity
 from ..common._properties import _Properties
-from ..common._reload import Reloader, _self_reload, _self_setter
+from ..common._reload import _Reloader, _self_reload, _self_setter
 from ..common._utils import _load_fct
 from ..common._warnings import _warn_deprecated
 from ..common.alias import TaskId
@@ -93,7 +93,7 @@ class Task(_Entity):
 
     @property
     def properties(self):
-        self._properties = Reloader()._reload(self._MANAGER_NAME, self)._properties
+        self._properties = _Reloader()._reload(self._MANAGER_NAME, self)._properties
         return self._properties
 
     @property

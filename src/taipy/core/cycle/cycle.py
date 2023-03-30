@@ -18,7 +18,7 @@ from taipy.config.common.frequency import Frequency
 from ..common._entity import _Entity
 from ..common._get_valid_filename import _get_valid_filename
 from ..common._properties import _Properties
-from ..common._reload import Reloader, _self_reload, _self_setter
+from ..common._reload import _Reloader, _self_reload, _self_setter
 from ..common.alias import CycleId
 from ._cycle_model import _CycleModel
 
@@ -113,7 +113,7 @@ class Cycle(_Entity):
 
     @property
     def properties(self):
-        self._properties = Reloader()._reload(self._MANAGER_NAME, self)._properties
+        self._properties = _Reloader()._reload(self._MANAGER_NAME, self)._properties
         return self._properties
 
     @staticmethod

@@ -26,7 +26,7 @@ from ..common import _utils
 from ..common._entity import _Entity
 from ..common._listattributes import _ListAttributes
 from ..common._properties import _Properties
-from ..common._reload import Reloader, _self_reload, _self_setter
+from ..common._reload import _Reloader, _self_reload, _self_setter
 from ..common._submittable import _Submittable
 from ..common._utils import _Subscriber
 from ..common._warnings import _warn_deprecated
@@ -160,7 +160,7 @@ class Pipeline(_Entity, _Submittable):
 
     @property
     def properties(self):
-        self._properties = Reloader()._reload("pipeline", self)._properties
+        self._properties = _Reloader()._reload("pipeline", self)._properties
         return self._properties
 
     def _is_consistent(self) -> bool:

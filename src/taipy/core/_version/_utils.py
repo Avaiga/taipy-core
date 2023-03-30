@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from .._version._version_manager import _VersionManager
-from ..common._reload import Reloader
+from ..common._reload import _Reloader
 from ..config import MigrationConfig
 
 
@@ -30,7 +30,7 @@ def _version_migration() -> str:
 
 def _migrate_entity(entity):
     if (latest_version := _VersionManager._get_latest_version()) in _VersionManager._get_production_versions():
-        with Reloader():
+        with _Reloader():
             if migration_fcts := MigrationConfig._get_migration_fcts_to_latest(entity.version, entity.config_id):
                 for fct in migration_fcts:
                     entity = fct(entity)
