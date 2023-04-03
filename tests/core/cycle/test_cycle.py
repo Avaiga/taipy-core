@@ -51,6 +51,22 @@ def test_create_cycle_entity(current_datetime):
     assert cycle_5.frequency == Frequency.DAILY
 
 
+def test_cycle_label(current_datetime):
+    cycle = Cycle(
+        Frequency.DAILY,
+        {"key": "value"},
+        creation_date=current_datetime,
+        start_date=current_datetime,
+        end_date=current_datetime,
+    )
+    assert cycle.get_label() == cycle.name
+    assert cycle.get_simple_label() == cycle.name
+
+    cycle._properties["label"] = "label"
+    assert cycle.get_label() == "label"
+    assert cycle.get_simple_label() == "label"
+
+
 def test_add_property_to_scenario(current_datetime):
     cycle = Cycle(
         Frequency.WEEKLY,
