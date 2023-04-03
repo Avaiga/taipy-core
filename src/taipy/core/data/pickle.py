@@ -16,10 +16,10 @@ from typing import Any, List, Optional, Set
 
 import modin.pandas as pd
 
+from src.taipy.core._entity._reload import _self_reload
 from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
-from ..common._reload import _self_reload
 from .abstract_file import _AbstractFileDataNode
 from .data_node import DataNode
 from .data_node_id import DataNodeId, Edit

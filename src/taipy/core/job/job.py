@@ -15,11 +15,11 @@ import traceback
 from datetime import datetime
 from typing import Callable, List
 
+from src.taipy.core._entity._reload import _self_reload, _self_setter
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._entity._entity import _Entity
 from .._version._version_manager_factory import _VersionManagerFactory
-from ..common._reload import _self_reload, _self_setter
 from ..task.task import Task
 from .job_id import JobId
 from .status import Status

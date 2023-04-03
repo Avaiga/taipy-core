@@ -16,6 +16,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 import networkx as nx
 
+from src.taipy.core._entity._reload import _reload, _self_reload, _self_setter
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
 
@@ -24,7 +25,6 @@ from .._entity._properties import _Properties
 from .._entity._submittable import _Submittable
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._listattributes import _ListAttributes
-from ..common._reload import _reload, _self_reload, _self_setter
 from ..common._utils import _Subscriber
 from ..common._warnings import _warn_deprecated
 from ..data.data_node import DataNode

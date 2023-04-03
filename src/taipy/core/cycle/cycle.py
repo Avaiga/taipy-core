@@ -14,11 +14,11 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict
 
+from src.taipy.core._entity._reload import _reload, _self_reload, _self_setter
 from taipy.config.common.frequency import Frequency
 
 from .._entity._entity import _Entity
 from .._entity._properties import _Properties
-from ..common._reload import _reload, _self_reload, _self_setter
 from ..exceptions.exceptions import _SuspiciousFileOperation
 from .cycle_id import CycleId
 

@@ -377,7 +377,7 @@ def test_scenario_manager_only_creates_data_node_once():
 def test_notification_subscribe(mocker):
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
-    mocker.patch("src.taipy.core.common._reload._reload", side_effect=lambda m, o: o)
+    mocker.patch("src.taipy.core._entity._reload._reload", side_effect=lambda m, o: o)
 
     scenario_config = Config.configure_scenario(
         "awesome_scenario",
@@ -433,7 +433,7 @@ class Notify:
 def test_notification_subscribe_multiple_params(mocker):
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
-    mocker.patch("src.taipy.core.common._reload._reload", side_effect=lambda m, o: o)
+    mocker.patch("src.taipy.core._entity._reload._reload", side_effect=lambda m, o: o)
 
     scenario_config = Config.configure_scenario(
         "awesome_scenario",
@@ -479,7 +479,7 @@ def notify2(*args, **kwargs):
 def test_notification_unsubscribe(mocker):
     Config.configure_job_executions(mode=JobConfig._DEVELOPMENT_MODE)
 
-    mocker.patch("src.taipy.core.common._reload._reload", side_effect=lambda m, o: o)
+    mocker.patch("src.taipy.core._entity._reload._reload", side_effect=lambda m, o: o)
 
     scenario_config = Config.configure_scenario(
         "awesome_scenario",

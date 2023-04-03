@@ -18,10 +18,10 @@ from typing import Any, Dict, List, Optional, Set
 import modin.pandas as modin_pd
 import pandas as pd
 
+from src.taipy.core._entity._reload import _self_reload
 from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
-from ..common._reload import _self_reload
 from ..exceptions.exceptions import InvalidExposedType
 from ..job.job_id import JobId
 from .abstract_file import _AbstractFileDataNode

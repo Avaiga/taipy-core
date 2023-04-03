@@ -20,6 +20,7 @@ import modin.pandas as modin_pd
 import numpy as np
 import pandas as pd
 
+from src.taipy.core._entity._reload import _reload, _self_reload, _self_setter
 from taipy.config.common._validate_id import _validate_id
 from taipy.config.common.scope import Scope
 from taipy.logger._taipy_logger import _TaipyLogger
@@ -27,7 +28,6 @@ from taipy.logger._taipy_logger import _TaipyLogger
 from .._entity._entity import _Entity
 from .._entity._properties import _Properties
 from .._version._version_manager_factory import _VersionManagerFactory
-from ..common._reload import _reload, _self_reload, _self_setter
 from ..common._warnings import _warn_deprecated
 from ..exceptions.exceptions import NoData
 from ..job.job_id import JobId

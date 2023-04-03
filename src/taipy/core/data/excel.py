@@ -19,10 +19,10 @@ import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
 
+from src.taipy.core._entity._reload import _self_reload
 from taipy.config.common.scope import Scope
 
 from .._version._version_manager_factory import _VersionManagerFactory
-from ..common._reload import _self_reload
 from ..exceptions.exceptions import ExposedTypeLengthMismatch, InvalidExposedType, NonExistingExcelSheet
 from ..job.job_id import JobId
 from .abstract_file import _AbstractFileDataNode
