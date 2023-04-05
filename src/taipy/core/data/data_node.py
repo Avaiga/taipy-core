@@ -25,7 +25,7 @@ from taipy.config.common.scope import Scope
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._entity._entity import _Entity
-from .._entity._labelled import _Labelled
+from .._entity._labeled import _Labeled
 from .._entity._properties import _Properties
 from .._entity._reload import _reload, _self_reload, _self_setter
 from .._version._version_manager_factory import _VersionManagerFactory
@@ -37,7 +37,7 @@ from .data_node_id import DataNodeId, Edit
 from .operator import JoinOperator, Operator
 
 
-class DataNode(_Entity, _Labelled):
+class DataNode(_Entity, _Labeled):
     """Reference to a dataset.
 
     A Data Node is an abstract class that holds metadata related to the dataset it refers to.

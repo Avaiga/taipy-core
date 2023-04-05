@@ -13,7 +13,7 @@ from unittest import mock
 import pytest
 
 from src.taipy.core import taipy
-from src.taipy.core._entity._labelled import _Labelled
+from src.taipy.core._entity._labeled import _Labeled
 from taipy import Config, Frequency, Scope
 
 
@@ -25,33 +25,33 @@ class MockOwner:
 
 
 def test_get_label():
-    labelled_entity = _Labelled()
+    labeled_entity = _Labeled()
 
     with pytest.raises(AttributeError):
-        labelled_entity.get_label()
-        labelled_entity.get_simple_label()
+        labeled_entity.get_label()
+        labeled_entity.get_simple_label()
 
-    labelled_entity.id = "id"
-    assert labelled_entity.get_label() == "id"
-    assert labelled_entity.get_simple_label() == "id"
+    labeled_entity.id = "id"
+    assert labeled_entity.get_label() == "id"
+    assert labeled_entity.get_simple_label() == "id"
 
-    labelled_entity.config_id = "the config id"
-    assert labelled_entity.get_label() == "the config id"
-    assert labelled_entity.get_simple_label() == "the config id"
+    labeled_entity.config_id = "the config id"
+    assert labeled_entity.get_label() == "the config id"
+    assert labeled_entity.get_simple_label() == "the config id"
 
-    labelled_entity._properties = {"name": "a name"}
-    assert labelled_entity.get_label() == "a name"
-    assert labelled_entity.get_simple_label() == "a name"
+    labeled_entity._properties = {"name": "a name"}
+    assert labeled_entity.get_label() == "a name"
+    assert labeled_entity.get_simple_label() == "a name"
 
-    labelled_entity.owner_id = "owner_id"
+    labeled_entity.owner_id = "owner_id"
     with mock.patch("src.taipy.core.get") as get_mck:
         get_mck.return_value = MockOwner()
-        assert labelled_entity.get_label() == "owner_label>a name"
-        assert labelled_entity.get_simple_label() == "a name"
+        assert labeled_entity.get_label() == "owner_label>a name"
+        assert labeled_entity.get_simple_label() == "a name"
 
-        labelled_entity._properties["label"] = "a wonderful label"
-        assert labelled_entity.get_label() == "a wonderful label"
-        assert labelled_entity.get_simple_label() == "a wonderful label"
+        labeled_entity._properties["label"] = "a wonderful label"
+        assert labeled_entity.get_label() == "a wonderful label"
+        assert labeled_entity.get_simple_label() == "a wonderful label"
 
 
 def mult(n1, n2):

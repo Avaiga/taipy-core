@@ -11,7 +11,7 @@
 from typing import Optional
 
 
-class _Labelled:
+class _Labeled:
     __LABEL_SEPARATOR = ">"
 
     def get_label(self) -> str:

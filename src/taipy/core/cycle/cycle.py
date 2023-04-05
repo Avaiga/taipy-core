@@ -17,14 +17,14 @@ from typing import Any, Dict
 from taipy.config.common.frequency import Frequency
 
 from .._entity._entity import _Entity
-from .._entity._labelled import _Labelled
+from .._entity._labeled import _Labeled
 from .._entity._properties import _Properties
 from .._entity._reload import _reload, _self_reload, _self_setter
 from ..exceptions.exceptions import _SuspiciousFileOperation
 from .cycle_id import CycleId
 
 
-class Cycle(_Entity, _Labelled):
+class Cycle(_Entity, _Labeled):
     """An iteration of a recurrent work pattern.
 
     Attributes:
