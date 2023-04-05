@@ -15,9 +15,7 @@ class _Labelled:
     __LABEL_SEPARATOR = ">"
 
     def get_label(self) -> str:
-        if explicit_label := self._get_explicit_label():
-            return explicit_label
-        return self._generate_label()
+        return self._get_explicit_label() or self._generate_label()
 
     def get_simple_label(self) -> str:
         if explicit_label := self._get_explicit_label():
