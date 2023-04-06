@@ -19,9 +19,7 @@ class _Labeled:
         return self._get_explicit_label() or self._generate_label()
 
     def get_simple_label(self) -> str:
-        if explicit_label := self._get_explicit_label():
-            return explicit_label
-        return self._generate_label(True)
+        return self._get_explicit_label() or self._generate_label(True)
 
     def _generate_label(self, simple=False) -> str:
         ls = []
