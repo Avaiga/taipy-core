@@ -73,7 +73,7 @@ def test_create_pipeline():
                 return self.label
 
         get_mck.return_value = MockOwner()
-        assert pipeline_1.get_label() == "owner_label>" + pipeline_1.config_id
+        assert pipeline_1.get_label() == "owner_label > " + pipeline_1.config_id
         assert pipeline_1.get_simple_label() == pipeline_1.config_id
 
     with pytest.raises(InvalidConfigurationId):
@@ -102,7 +102,7 @@ def test_create_pipeline():
                 return self.label
 
         get_mck.return_value = MockOwner()
-        assert pipeline_2.get_label() == "owner_label>" + pipeline_2.name
+        assert pipeline_2.get_label() == "owner_label > " + pipeline_2.name
         assert pipeline_2.get_simple_label() == pipeline_2.name
 
 

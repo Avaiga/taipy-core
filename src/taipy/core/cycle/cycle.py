@@ -60,7 +60,24 @@ class Cycle(_Entity, _Labeled):
         self._properties = _Properties(self, **properties)
 
     def _new_name(self, name: str = None) -> str:
-        return name if name else Cycle.__SEPARATOR.join([str(self._frequency.value), self._creation_date.isoformat()])
+        if name:
+            return name
+        if self._frequency == Frequency.DAILY:
+            # Example "Monday, 2. January 2023"
+            return self._start_date.strftime("%A, %d. %B %Y")
+        if self._frequency == Frequency.WEEKLY:
+            # Example "Week 01 2023, from 2. January"
+            return self._start_date.strftime("Week %W %Y, from %d. %B")
+        if self._frequency == Frequency.MONTHLY:
+            # Example "January 2023"
+            return self._start_date.strftime("%B %Y")
+        if self._frequency == Frequency.QUARTERLY:
+            # Example "2023 Q1"
+            return f"{self._start_date.strftime('%Y')} Q{(self._start_date.month-1)//3+1}"
+        if self._frequency == Frequency.YEARLY:
+            # Example "2023"
+            return self._start_date.strftime("%Y")
+        return Cycle.__SEPARATOR.join([str(self._frequency.value), self._start_date.ctime()])
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)

@@ -13,7 +13,7 @@ from typing import Optional
 
 
 class _Labeled:
-    __LABEL_SEPARATOR = ">"
+    __LABEL_SEPARATOR = " > "
 
     def get_label(self) -> str:
         """Returns the entity label made of the simple label prefixed by the owner label.

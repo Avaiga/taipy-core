@@ -47,7 +47,7 @@ def test_get_label():
     labeled_entity.owner_id = "owner_id"
     with mock.patch("src.taipy.core.get") as get_mck:
         get_mck.return_value = MockOwner()
-        assert labeled_entity.get_label() == "owner_label>a name"
+        assert labeled_entity.get_label() == "owner_label > a name"
         assert labeled_entity.get_simple_label() == "a name"
 
         labeled_entity._properties["label"] = "a wonderful label"
@@ -87,23 +87,23 @@ def test_get_label_complex_case():
 
     assert cycle.get_label() == scenario.cycle.name
     assert cycle.get_simple_label() == scenario.cycle.name
-    assert scenario.get_label() == "Today>My Name"
+    assert scenario.get_label() == "Today > My Name"
     assert scenario.get_simple_label() == "My Name"
-    assert pipeline_C.get_label() == "Today>pipeline_C"
+    assert pipeline_C.get_label() == "Today > pipeline_C"
     assert pipeline_C.get_simple_label() == "pipeline_C"
-    assert pipeline_S.get_label() == "Today>My Name>pipeline_S"
+    assert pipeline_S.get_label() == "Today > My Name > pipeline_S"
     assert pipeline_S.get_simple_label() == "pipeline_S"
-    assert tA.get_label() == "Today>t_A_C"
+    assert tA.get_label() == "Today > t_A_C"
     assert tA.get_simple_label() == "t_A_C"
-    assert tB.get_label() == "Today>My Name>t_B_S"
+    assert tB.get_label() == "Today > My Name > t_B_S"
     assert tB.get_simple_label() == "t_B_S"
     assert dn1.get_label() == "dn1"
     assert dn1.get_simple_label() == "dn1"
-    assert dn2.get_label() == "Today>dn2"
+    assert dn2.get_label() == "Today > dn2"
     assert dn2.get_simple_label() == "dn2"
-    assert dn3.get_label() == "Today>dn3"
+    assert dn3.get_label() == "Today > dn3"
     assert dn3.get_simple_label() == "dn3"
-    assert dn4.get_label() == "Today>My Name>dn4"
+    assert dn4.get_label() == "Today > My Name > dn4"
     assert dn4.get_simple_label() == "dn4"
-    assert dn5.get_label() == "Today>My Name>dn5"
+    assert dn5.get_label() == "Today > My Name > dn5"
     assert dn5.get_simple_label() == "dn5"

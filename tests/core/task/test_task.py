@@ -90,7 +90,7 @@ def test_create_task():
                 return self.label
 
         get_mck.return_value = MockOwner()
-        assert task.get_label() == "owner_label>" + task.config_id
+        assert task.get_label() == "owner_label > " + task.config_id
         assert task.get_simple_label() == task.config_id
 
 

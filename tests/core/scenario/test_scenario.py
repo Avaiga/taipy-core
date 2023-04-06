@@ -53,7 +53,7 @@ def test_create_scenario(cycle, current_datetime):
                 return self.label
 
         get_mck.return_value = MockOwner()
-        assert scenario_1.get_label() == "owner_label>" + scenario_1.config_id
+        assert scenario_1.get_label() == "owner_label > " + scenario_1.config_id
 
     scenario_2 = Scenario("bar", [], {}, ScenarioId("baz"), creation_date=current_datetime)
     assert scenario_2.id == "baz"
