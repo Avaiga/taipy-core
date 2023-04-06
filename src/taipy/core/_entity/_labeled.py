@@ -25,7 +25,7 @@ class _Labeled:
         ls = []
         if not simple:
             if owner_id := self._get_owner_id():
-                if self.id != owner_id:  # type: ignore
+                if getattr(self, "id") != owner_id:
                     from ... import core
 
                     owner = core.get(owner_id)
@@ -34,37 +34,30 @@ class _Labeled:
         return self.__LABEL_SEPARATOR.join(ls)
 
     def _get_explicit_label(self) -> Optional[str]:
-        try:
-            return self._properties.get("label")  # type: ignore
-        except AttributeError:
-            return None
+        if hasattr(self, "_properties"):
+            return getattr(self, "_properties").get("label")
+        return None
 
     def _get_owner_id(self) -> Optional[str]:
-        try:
-            return self.owner_id  # type: ignore
-        except AttributeError:
-            return None
+        if hasattr(self, "owner_id"):
+            return getattr(self, "owner_id")
+        return None
 
     def _get_name(self) -> Optional[str]:
-        try:
-            return self.name  # type: ignore
-        except AttributeError:
-            try:
-                return self._properties.get("name")  # type: ignore
-            except AttributeError:
-                return None
+        if hasattr(self, "name"):
+            return getattr(self, "name")
+        if hasattr(self, "_properties"):
+            return getattr(self, "_properties").get("name")
+        return None
 
     def _get_config_id(self) -> Optional[str]:
-        try:
-            return self.config_id  # type: ignore
-        except AttributeError:
-            return None
+        if hasattr(self, "config_id"):
+            return getattr(self, "config_id")
+        return None
 
     def _generate_entity_label(self) -> str:
         if name := self._get_name():
             return name
-        
         if config_id := self._get_config_id():
             return config_id
-
-        return self.id  # type: ignore
+        return getattr(self, "id")
