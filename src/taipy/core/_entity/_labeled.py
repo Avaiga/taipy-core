@@ -63,7 +63,8 @@ class _Labeled:
     def _generate_entity_label(self) -> str:
         if name := self._get_name():
             return name
-        elif config_id := self._get_config_id():
+        
+        if config_id := self._get_config_id():
             return config_id
-        else:
-            return self.id  # type: ignore
+
+        return self.id  # type: ignore
