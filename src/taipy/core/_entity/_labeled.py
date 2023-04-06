@@ -16,9 +16,19 @@ class _Labeled:
     __LABEL_SEPARATOR = ">"
 
     def get_label(self) -> str:
+        """Returns the entity label made of the simple label prefixed by the owner label.
+
+        Returns:
+            The label of the entity as a string.
+        """
         return self._get_explicit_label() or self._generate_label()
 
     def get_simple_label(self) -> str:
+        """Returns the simple label.
+
+        Returns:
+            The simple label of the entity as a string.
+        """
         return self._get_explicit_label() or self._generate_label(True)
 
     def _generate_label(self, simple=False) -> str:
