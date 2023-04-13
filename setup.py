@@ -34,7 +34,7 @@ requirements = [
     "pymongo>=4.2.0,<5.0",
     "sqlalchemy>=1.4,<2.0",
     "toml>=0.10,<0.11",
-    "taipy-config>=2.1,<2.2",
+    "taipy-config>=2.2,<2.3",
 ]
 
 test_requirements = ["pytest>=3.8"]
