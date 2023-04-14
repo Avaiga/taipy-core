@@ -56,7 +56,7 @@ class SQLTableDataNode(_AbstractSQLDataNode):
             - _"db_host"_ `(str)`: The database host. The default value is _"localhost"_.
             - _"db_engine"_ `(str)`: The database engine. For now, the accepted values are _"sqlite"_, _"mssql"_,
                 _"mysql"_, or _"postgresql"_.
-            - _"db_driver"_ `(str)`: The database driver. The default value is _"ODBC Driver 17 for SQL Server"_.
+            - _"db_driver"_ `(str)`: The database driver.
             - _"db_port"_ `(int)`: The database port. The default value is 1433.
             - _"db_extra_args"_ `(Dict[str, Any])`: A dictionary of additional arguments to be passed into database
                 connection string.

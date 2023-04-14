@@ -593,7 +593,7 @@ class DataNodeConfig(Section):
         table_name: str = None,
         db_port: int = 1433,
         db_host: str = "localhost",
-        db_driver: str = "ODBC Driver 17 for SQL Server",
+        db_driver: str = "",
         db_extra_args: Dict[str, Any] = None,
         exposed_type=_EXPOSED_TYPE_PANDAS,
         scope: Scope = _DEFAULT_SCOPE,
@@ -609,8 +609,7 @@ class DataNodeConfig(Section):
             db_host (str): The database host. The default value is _"localhost"_.
             db_engine (str): The database engine. Possible values are _"sqlite"_, _"mssql"_, _"mysql"_, or
                 _"postgresql"_.
-            db_driver (str): The database driver. The default value is
-                _"ODBC Driver 17 for SQL Server"_.
+            db_driver (str): The database driver.
             db_port (int): The database port. The default value is 1433.
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
@@ -651,7 +650,7 @@ class DataNodeConfig(Section):
         db_engine: str,
         db_port: int = 1433,
         db_host: str = "localhost",
-        db_driver: str = "ODBC Driver 17 for SQL Server",
+        db_driver: str = "",
         db_extra_args: Dict[str, Any] = None,
         read_query: str = None,
         write_query_builder: Callable = None,
@@ -670,8 +669,7 @@ class DataNodeConfig(Section):
                 _"postgresql"_.
             db_port (int): The database port. The default value is 1433.
             db_host (str): The database host. The default value is _"localhost"_.
-            db_driver (str): The database driver. The default value is
-                _"ODBC Driver 17 for SQL Server"_.
+            db_driver (str): The database driver.
             db_extra_args (Dict[str, Any]): A dictionary of additional arguments to be passed into database
                 connection string.
             read_query (str): The SQL query string used to read the data from the database.
