@@ -52,7 +52,7 @@ class SQLDataNode(_AbstractSQLDataNode):
                 _"postgresql"_.
             - _"db_port"_ `(int)`: The database port. The default value is 1433.
             - _"db_host"_ `(str)`: The database host. The default value is _"localhost"_.
-            - _"db_driver"_ `(str)`: The database driver. The default value is _"ODBC Driver 17 for SQL Server"_.
+            - _"db_driver"_ `(str)`: The database driver.
             - _"db_extra_args"_ `(Dict[str, Any])`: A dictionary of additional arguments to be passed into database
                 connection string.
             - _"read_query"_ `(str)`: The SQL query string used to read the data from the database.
