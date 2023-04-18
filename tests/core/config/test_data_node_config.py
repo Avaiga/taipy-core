@@ -16,7 +16,7 @@ from unittest import mock
 import pytest
 
 from src.taipy.core._orchestrator._orchestrator_factory import _OrchestratorFactory
-from src.taipy.core.common.default_custom_document import DefaultCustomDocument
+from src.taipy.core.common.mongo_default_document import MongoDefaultDocument
 from src.taipy.core.config import DataNodeConfig
 from src.taipy.core.config.job_config import JobConfig
 from taipy.config.common.scope import Scope
@@ -80,7 +80,7 @@ def test_data_node_config_default_parameter():
     assert mongo_dn_cfg.scope == Scope.SCENARIO
     assert mongo_dn_cfg.db_host == "localhost"
     assert mongo_dn_cfg.db_port == 27017
-    assert mongo_dn_cfg.custom_document == DefaultCustomDocument
+    assert mongo_dn_cfg.custom_document == MongoDefaultDocument
     assert mongo_dn_cfg.db_username == ""
     assert mongo_dn_cfg.db_password == ""
 
