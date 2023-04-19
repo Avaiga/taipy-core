@@ -16,7 +16,7 @@ from queue import Empty, SimpleQueue
 from .event import Event
 
 
-class CoreEventConsumer(threading.Thread):
+class CoreEventConsumerBase(threading.Thread):
     """
     Abstract class showing an example on how to implement a Core event consumer.
 
