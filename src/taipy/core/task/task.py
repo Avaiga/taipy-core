@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import uuid
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Union, TYPE_CHECKING
 
 from taipy.config.common._template_handler import _TemplateHandler as _tpl
 from taipy.config.common._validate_id import _validate_id
@@ -24,6 +24,9 @@ from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._warnings import _warn_deprecated
 from ..data.data_node import DataNode
 from .task_id import TaskId
+
+if TYPE_CHECKING:
+    from ..job.job import Job
 
 
 class Task(_Entity, _Labeled):
@@ -195,4 +198,4 @@ class Task(_Entity, _Labeled):
         """
         from ._task_manager_factory import _TaskManagerFactory
 
-        _TaskManagerFactory._build_manager()._submit(self, callbacks, force, wait, timeout)
+        return _TaskManagerFactory._build_manager()._submit(self, callbacks, force, wait, timeout)

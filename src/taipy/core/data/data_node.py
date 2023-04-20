@@ -140,7 +140,7 @@ class DataNode(_Entity, _Labeled):
         """Get all `Edit^`s of this data node."""
         return self._edits
 
-    def get_last_edit(self) -> Optional[List[Edit]]:
+    def get_last_edit(self) -> Optional[Edit]:
         """Get last `Edit^` of this data node.
 
         Returns:
