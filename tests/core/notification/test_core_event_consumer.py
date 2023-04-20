@@ -76,37 +76,24 @@ def test_core_event_consumer():
     scenario_config = Config.configure_scenario("scenario_config", [pipeline_config], frequency=Frequency.DAILY)
 
     scenario = tp.create_scenario(scenario_config)
-    sleep(3)
 
-    # assert_true_after_time(lambda: len(event_processor_0.event_type_collected) == 5, time=10)
-    # assert_true_after_time(lambda: event_processor_0.event_operation_collected[EventOperation.CREATION] == 5, time=10)
-    # assert_true_after_time(lambda: event_processor_1.scenario_event_collected == 1, time=10)
-    # assert_true_after_time(lambda: event_processor_1.event_operation_collected[EventOperation.CREATION] == 1, time=10)
-    # assert_true_after_time(lambda: len(event_processor_1.event_operation_collected) == 1, time=10)
-    # assert_true_after_time(lambda: event_processor_2.pipeline_event_collected == 1, time=10)
-    # assert_true_after_time(lambda: event_processor_2.creation_event_operation_collected == 1, time=10)
-
-    assert len(event_processor_0.event_type_collected) == 5
-    assert event_processor_0.event_operation_collected[EventOperation.CREATION] == 5
-    assert event_processor_1.scenario_event_collected == 1
-    assert event_processor_1.event_operation_collected[EventOperation.CREATION] == 1
-    assert len(event_processor_1.event_operation_collected) == 1
-    assert event_processor_2.pipeline_event_collected == 1
-    assert event_processor_2.creation_event_operation_collected == 1
+    assert_true_after_time(lambda: len(event_processor_0.event_type_collected) == 5, time=10)
+    assert_true_after_time(lambda: event_processor_0.event_operation_collected[EventOperation.CREATION] == 5, time=10)
+    assert_true_after_time(lambda: event_processor_1.scenario_event_collected == 1, time=10)
+    assert_true_after_time(lambda: event_processor_1.event_operation_collected[EventOperation.CREATION] == 1, time=10)
+    assert_true_after_time(lambda: len(event_processor_1.event_operation_collected) == 1, time=10)
+    assert_true_after_time(lambda: event_processor_2.pipeline_event_collected == 1, time=10)
+    assert_true_after_time(lambda: event_processor_2.creation_event_operation_collected == 1, time=10)
 
     tp.delete(scenario.id)
-    # assert_true_after_time(lambda: len(event_processor_0.event_type_collected) == 5, time=10)
-    # assert_true_after_time(lambda: event_processor_0.event_operation_collected[EventOperation.DELETION] == 5, time=10)
-    # assert_true_after_time(lambda: event_processor_1.scenario_event_collected == 2, time=10)
-    # assert_true_after_time(lambda: event_processor_1.event_operation_collected[EventOperation.DELETION] == 1, time=10)
-    # assert_true_after_time(lambda: len(event_processor_1.event_operation_collected) == 2, time=10)
-    # assert_true_after_time(lambda: event_processor_2.pipeline_event_collected == 1, time=10)
-    # assert_true_after_time(lambda: event_processor_2.creation_event_operation_collected == 1, time=10)
+    assert_true_after_time(lambda: len(event_processor_0.event_type_collected) == 5, time=10)
+    assert_true_after_time(lambda: event_processor_0.event_operation_collected[EventOperation.DELETION] == 5, time=10)
+    assert_true_after_time(lambda: event_processor_1.scenario_event_collected == 2, time=10)
+    assert_true_after_time(lambda: event_processor_1.event_operation_collected[EventOperation.DELETION] == 1, time=10)
+    assert_true_after_time(lambda: len(event_processor_1.event_operation_collected) == 2, time=10)
+    assert_true_after_time(lambda: event_processor_2.pipeline_event_collected == 1, time=10)
+    assert_true_after_time(lambda: event_processor_2.creation_event_operation_collected == 1, time=10)
 
-    assert len(event_processor_0.event_type_collected) == 5
-    assert event_processor_0.event_operation_collected[EventOperation.DELETION] == 5
-    assert event_processor_1.scenario_event_collected == 2
-    assert event_processor_1.event_operation_collected[EventOperation.DELETION] == 1
-    assert len(event_processor_1.event_operation_collected) == 2
-    assert event_processor_2.pipeline_event_collected == 1
-    assert event_processor_2.creation_event_operation_collected == 1
+    event_processor_0.stop()
+    event_processor_1.stop()
+    event_processor_2.stop()
