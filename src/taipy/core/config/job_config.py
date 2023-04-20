@@ -74,10 +74,9 @@ class JobConfig(UniqueSection):
             self._update_config(as_dict)
 
     @staticmethod
-    def _configure(mode: str = None,
-                   nb_of_workers: Union[int, str] = None,
-                   max_nb_of_workers: Union[int, str] = None,
-                   **properties) -> "JobConfig":
+    def _configure(
+        mode: str = None, nb_of_workers: Union[int, str] = None, max_nb_of_workers: Union[int, str] = None, **properties
+    ) -> "JobConfig":
         """Configure job execution.
 
         Parameters:

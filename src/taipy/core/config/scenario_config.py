@@ -123,11 +123,13 @@ class ScenarioConfig(Section):
             del self.comparators[dn_config_id]
 
     @staticmethod
-    def _configure(id: str,
-                   pipeline_configs: List[PipelineConfig],
-                   frequency: Optional[Frequency] = None,
-                   comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
-                   **properties) -> "ScenarioConfig":
+    def _configure(
+        id: str,
+        pipeline_configs: List[PipelineConfig],
+        frequency: Optional[Frequency] = None,
+        comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
+        **properties,
+    ) -> "ScenarioConfig":
         """Configure a new scenario configuration.
 
         Parameters:
@@ -155,12 +157,14 @@ class ScenarioConfig(Section):
         return Config.sections[ScenarioConfig.name][id]
 
     @staticmethod
-    def _configure_from_tasks(id: str,
-                              task_configs: List[TaskConfig],
-                              frequency: Optional[Frequency] = None,
-                              comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
-                              pipeline_id: Optional[str] = None,
-                              **properties) -> "ScenarioConfig":
+    def _configure_from_tasks(
+        id: str,
+        task_configs: List[TaskConfig],
+        frequency: Optional[Frequency] = None,
+        comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
+        pipeline_id: Optional[str] = None,
+        **properties,
+    ) -> "ScenarioConfig":
         """Configure a new scenario configuration made of a single new pipeline configuration.
 
         A new pipeline configuration is created as well. If *pipeline_id* is not provided,
@@ -196,10 +200,12 @@ class ScenarioConfig(Section):
         return Config.sections[ScenarioConfig.name][id]
 
     @staticmethod
-    def _configure_default(pipeline_configs: List[PipelineConfig],
-                           frequency: Optional[Frequency] = None,
-                           comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
-                           **properties) -> "ScenarioConfig":
+    def _configure_default(
+        pipeline_configs: List[PipelineConfig],
+        frequency: Optional[Frequency] = None,
+        comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
+        **properties,
+    ) -> "ScenarioConfig":
         """Configure the default values for scenario configurations.
 
         This function creates the *default scenario configuration* object,

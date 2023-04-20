@@ -322,9 +322,7 @@ class DataNodeConfig(Section):
                     self._properties[optional_property] = default_value
 
     @staticmethod
-    def _configure_default(storage_type: str,
-                           scope: Optional[Scope] = None,
-                           **properties) -> "DataNodeConfig":
+    def _configure_default(storage_type: str, scope: Optional[Scope] = None, **properties) -> "DataNodeConfig":
         """Configure the default values for data node configurations.
 
         This function creates the _default data node configuration_ object,
@@ -348,11 +346,9 @@ class DataNodeConfig(Section):
         return Config.sections[DataNodeConfig.name][_Config.DEFAULT_KEY]
 
     @classmethod
-    def _configure(cls,
-                   id: str,
-                   storage_type: Optional[str] = None,
-                   scope: Optional[Scope] = None,
-                   **properties) -> "DataNodeConfig":
+    def _configure(
+        cls, id: str, storage_type: Optional[str] = None, scope: Optional[Scope] = None, **properties
+    ) -> "DataNodeConfig":
         """Configure a new data node configuration.
 
         Parameters:
@@ -390,13 +386,15 @@ class DataNodeConfig(Section):
         return cls.__configure(id, storage_type, scope, **properties)
 
     @classmethod
-    def _configure_csv(cls,
-                       id: str,
-                       default_path: Optional[str] = None,
-                       has_header: Optional[bool] = None,
-                       exposed_type: Optional[str] = None,
-                       scope: Optional[Scope] = None,
-                       **properties) -> "DataNodeConfig":
+    def _configure_csv(
+        cls,
+        id: str,
+        default_path: Optional[str] = None,
+        has_header: Optional[bool] = None,
+        exposed_type: Optional[str] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new CSV data node configuration.
 
         Parameters:
@@ -422,13 +420,15 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_CSV, scope, **properties)
 
     @classmethod
-    def _configure_json(cls,
-                        id: str,
-                        default_path: Optional[str] = None,
-                        encoder: Optional[json.JSONEncoder] = None,
-                        decoder: Optional[json.JSONDecoder] = None,
-                        scope: Optional[Scope] = None,
-                        **properties) -> "DataNodeConfig":
+    def _configure_json(
+        cls,
+        id: str,
+        default_path: Optional[str] = None,
+        encoder: Optional[json.JSONEncoder] = None,
+        decoder: Optional[json.JSONDecoder] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new JSON data node configuration.
 
         Parameters:
@@ -452,16 +452,18 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_JSON, scope, **properties)
 
     @classmethod
-    def _configure_parquet(cls,
-                           id: str,
-                           default_path: Optional[str] = None,
-                           engine: Optional[str] = None,
-                           compression: Optional[str] = None,
-                           read_kwargs: Optional[Dict] = None,
-                           write_kwargs: Optional[Dict] = None,
-                           exposed_type: Optional[str] = None,
-                           scope: Optional[Scope] = None,
-                           **properties) -> "DataNodeConfig":
+    def _configure_parquet(
+        cls,
+        id: str,
+        default_path: Optional[str] = None,
+        engine: Optional[str] = None,
+        compression: Optional[str] = None,
+        read_kwargs: Optional[Dict] = None,
+        write_kwargs: Optional[Dict] = None,
+        exposed_type: Optional[str] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new Parquet data node configuration.
 
         Parameters:
@@ -503,14 +505,16 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_PARQUET, scope, **properties)
 
     @classmethod
-    def _configure_excel(cls,
-                         id: str,
-                         default_path: Optional[str] = None,
-                         has_header: Optional[bool] = None,
-                         sheet_name: Optional[Union[List[str], str]] = None,
-                         exposed_type: Optional[str] = None,
-                         scope: Optional[Scope] = None,
-                         **properties) -> "DataNodeConfig":
+    def _configure_excel(
+        cls,
+        id: str,
+        default_path: Optional[str] = None,
+        has_header: Optional[bool] = None,
+        sheet_name: Optional[Union[List[str], str]] = None,
+        exposed_type: Optional[str] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new Excel data node configuration.
 
         Parameters:
@@ -540,14 +544,16 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_EXCEL, scope, **properties)
 
     @classmethod
-    def _configure_generic(cls,
-                           id: str,
-                           read_fct: Optional[Callable] = None,
-                           write_fct: Optional[Callable] = None,
-                           read_fct_args: Optional[List] = None,
-                           write_fct_args: Optional[List] = None,
-                           scope: Optional[Scope] = None,
-                           **properties) -> "DataNodeConfig":
+    def _configure_generic(
+        cls,
+        id: str,
+        read_fct: Optional[Callable] = None,
+        write_fct: Optional[Callable] = None,
+        read_fct_args: Optional[List] = None,
+        write_fct_args: Optional[List] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new generic data node configuration.
 
         Parameters:
@@ -577,11 +583,9 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_GENERIC, scope, **properties)
 
     @classmethod
-    def _configure_in_memory(cls,
-                             id: str,
-                             default_data: Optional[Any] = None,
-                             scope: Optional[Scope] = None,
-                             **properties) -> "DataNodeConfig":
+    def _configure_in_memory(
+        cls, id: str, default_data: Optional[Any] = None, scope: Optional[Scope] = None, **properties
+    ) -> "DataNodeConfig":
         """Configure a new *in-memory* data node configuration.
 
         Parameters:
@@ -601,12 +605,14 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_IN_MEMORY, scope, **properties)
 
     @classmethod
-    def _configure_pickle(cls,
-                          id: str,
-                          default_path: Optional[str] = None,
-                          default_data: Optional[Any] = None,
-                          scope: Optional[Scope] = None,
-                          **properties) -> "DataNodeConfig":
+    def _configure_pickle(
+        cls,
+        id: str,
+        default_path: Optional[str] = None,
+        default_data: Optional[Any] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new pickle data node configuration.
 
         Parameters:
@@ -629,22 +635,24 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_PICKLE, scope, **properties)
 
     @classmethod
-    def _configure_sql_table(cls,
-                             id: str,
-                             db_name: str,
-                             db_engine: str,
-                             table_name: str,
-                             db_username: Optional[str] = None,
-                             db_password: Optional[str] = None,
-                             db_host: Optional[str] = None,
-                             db_port: Optional[int] = None,
-                             db_driver: Optional[str] = None,
-                             sqlite_folder_path: Optional[str] = None,
-                             sqlite_file_extension: Optional[str] = None,
-                             db_extra_args: Optional[Dict[str, Any]] = None,
-                             exposed_type: Optional[str] = None,
-                             scope: Optional[Scope] = None,
-                             **properties) -> "DataNodeConfig":
+    def _configure_sql_table(
+        cls,
+        id: str,
+        db_name: str,
+        db_engine: str,
+        table_name: str,
+        db_username: Optional[str] = None,
+        db_password: Optional[str] = None,
+        db_host: Optional[str] = None,
+        db_port: Optional[int] = None,
+        db_driver: Optional[str] = None,
+        sqlite_folder_path: Optional[str] = None,
+        sqlite_file_extension: Optional[str] = None,
+        db_extra_args: Optional[Dict[str, Any]] = None,
+        exposed_type: Optional[str] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new SQL table data node configuration.
 
         Parameters:
@@ -707,23 +715,25 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_SQL_TABLE, scope, **properties)
 
     @classmethod
-    def _configure_sql(cls,
-                       id: str,
-                       db_name: str,
-                       db_engine: str,
-                       read_query: str,
-                       write_query_builder: Callable,
-                       db_username: Optional[str] = None,
-                       db_password: Optional[str] = None,
-                       db_host: Optional[str] = None,
-                       db_port: Optional[int] = None,
-                       db_driver: Optional[str] = None,
-                       sqlite_folder_path: Optional[str] = None,
-                       sqlite_file_extension: Optional[str] = None,
-                       db_extra_args: Optional[Dict[str, Any]] = None,
-                       exposed_type: Optional[str] = None,
-                       scope: Optional[Scope] = None,
-                       **properties) -> "DataNodeConfig":
+    def _configure_sql(
+        cls,
+        id: str,
+        db_name: str,
+        db_engine: str,
+        read_query: str,
+        write_query_builder: Callable,
+        db_username: Optional[str] = None,
+        db_password: Optional[str] = None,
+        db_host: Optional[str] = None,
+        db_port: Optional[int] = None,
+        db_driver: Optional[str] = None,
+        sqlite_folder_path: Optional[str] = None,
+        sqlite_file_extension: Optional[str] = None,
+        db_extra_args: Optional[Dict[str, Any]] = None,
+        exposed_type: Optional[str] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new SQL data node configuration.
 
         Parameters:
@@ -788,18 +798,20 @@ class DataNodeConfig(Section):
         return cls.__configure(id, DataNodeConfig._STORAGE_TYPE_VALUE_SQL, scope, **properties)
 
     @classmethod
-    def _configure_mongo_collection(cls,
-                                    id: str,
-                                    db_name: str,
-                                    collection_name: str,
-                                    custom_document: Optional[Any] = None,
-                                    db_username: Optional[str] = None,
-                                    db_password: Optional[str] = None,
-                                    db_host: Optional[str] = None,
-                                    db_port: Optional[int] = None,
-                                    db_extra_args: Optional[Dict[str, Any]] = None,
-                                    scope: Optional[Scope] = None,
-                                    **properties) -> "DataNodeConfig":
+    def _configure_mongo_collection(
+        cls,
+        id: str,
+        db_name: str,
+        collection_name: str,
+        custom_document: Optional[Any] = None,
+        db_username: Optional[str] = None,
+        db_password: Optional[str] = None,
+        db_host: Optional[str] = None,
+        db_port: Optional[int] = None,
+        db_extra_args: Optional[Dict[str, Any]] = None,
+        scope: Optional[Scope] = None,
+        **properties,
+    ) -> "DataNodeConfig":
         """Configure a new Mongo collection data node configuration.
 
         Parameters:

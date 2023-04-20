@@ -112,21 +112,18 @@ class DataNode(_Entity, _Labeled):
 
     @property
     def parent_id(self):
-        """Deprecated. Use `owner_id` instead.
-        """
+        """Deprecated. Use `owner_id` instead."""
         _warn_deprecated("parent_id", suggest="owner_id")
         return self.owner_id
 
     @parent_id.setter
     def parent_id(self, val):
-        """Deprecated. Use `owner_id` instead.
-        """
+        """Deprecated. Use `owner_id` instead."""
         _warn_deprecated("parent_id", suggest="owner_id")
         self.owner_id = val
 
     def get_parents(self):
-        """Get all parents of this data node.
-        """
+        """Get all parents of this data node."""
         from ... import core as tp
 
         return tp.get_parents(self)
@@ -134,15 +131,13 @@ class DataNode(_Entity, _Labeled):
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def parent_ids(self):
-        """List of parent ids of this data node.
-        """
+        """List of parent ids of this data node."""
         return self._parent_ids
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def edits(self):
-        """Get all `Edit^`s of this data node.
-        """
+        """Get all `Edit^`s of this data node."""
         return self._edits
 
     def get_last_edit(self) -> Optional[List[Edit]]:
@@ -171,8 +166,7 @@ class DataNode(_Entity, _Labeled):
 
     @property
     def last_edition_date(self):
-        """Deprecated. Use `last_edit_date` instead.
-        """
+        """Deprecated. Use `last_edit_date` instead."""
         _warn_deprecated("last_edition_date", suggest="last_edit_date")
         return self.last_edit_date
 
@@ -204,8 +198,7 @@ class DataNode(_Entity, _Labeled):
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def expiration_date(self) -> datetime:
-        """Datetime instant of the expiration date of this data node.
-        """
+        """Datetime instant of the expiration date of this data node."""
         last_edit_date = self.last_edit_date
         validity_period = self._validity_period
 
@@ -230,8 +223,7 @@ class DataNode(_Entity, _Labeled):
 
     @property
     def cacheable(self):
-        """Deprecated. Use `skippable` attribute of a `Task^` instead.
-        """
+        """Deprecated. Use `skippable` attribute of a `Task^` instead."""
         _warn_deprecated("cacheable", suggest="the skippable feature")
         return self.properties.get("cacheable", False)
 
@@ -251,29 +243,25 @@ class DataNode(_Entity, _Labeled):
 
     @property
     def edition_in_progress(self):
-        """Deprecated. Use `edit_in_progress` instead.
-        """
+        """Deprecated. Use `edit_in_progress` instead."""
         _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
         return self.edit_in_progress
 
     @edition_in_progress.setter
     def edition_in_progress(self, val):
-        """Deprecated. Use `edit_in_progress` instead.
-        """
+        """Deprecated. Use `edit_in_progress` instead."""
         _warn_deprecated("edition_in_progress", suggest="edit_in_progress")
         self.edit_in_progress = val
 
     @property  # type: ignore
     @_self_reload(_MANAGER_NAME)
     def job_ids(self):
-        """List of the jobs having edited this data node.
-        """
+        """List of the jobs having edited this data node."""
         return [edit.get("job_id") for edit in self.edits if edit.get("job_id")]
 
     @property
     def properties(self):
-        """Dictionary of custom properties.
-        """
+        """Dictionary of custom properties."""
         r = _reload(self._MANAGER_NAME, self)
         self._properties = r._properties
         return self._properties
@@ -365,8 +353,7 @@ class DataNode(_Entity, _Labeled):
         _DataManagerFactory._build_manager()._set(self)
 
     def _track_edit(self, **options):
-        """Add Edit tracking information to this data node.
-        """
+        """Add Edit tracking information to this data node."""
         edit = {}
         for k, v in options.items():
             if v is not None:
@@ -385,8 +372,7 @@ class DataNode(_Entity, _Labeled):
         self.edit_in_progress = True
 
     def lock_edition(self):
-        """Deprecated. Use `lock_edit` instead.
-        """
+        """Deprecated. Use `lock_edit` instead."""
         _warn_deprecated("lock_edition", suggest="lock_edit")
         self.lock_edit()
 
@@ -403,8 +389,7 @@ class DataNode(_Entity, _Labeled):
         self.edit_in_progress = False  # type: ignore
 
     def unlock_edition(self, at: Optional[datetime] = None, job_id: Optional[JobId] = None):
-        """Deprecated. Use `(DataNode.)unlock_edit()^` instead.
-        """
+        """Deprecated. Use `(DataNode.)unlock_edit()^` instead."""
         _warn_deprecated("unlock_edition", suggest="unlock_edit")
         self.unlock_edit()
 
