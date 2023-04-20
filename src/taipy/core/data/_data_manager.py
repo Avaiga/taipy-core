@@ -134,3 +134,4 @@ class _DataManager(_Manager[DataNode]):
     def _delete_by_version(cls, version_number: str):
         cls._clean_pickle_files(cls._get_all(version_number))
         cls._repository._delete_by(attribute="version", value=version_number, version_number="all")  # type: ignore
+        _publish_event(cls._EVENT_ENTITY_TYPE, None, EventOperation.DELETION, None)
