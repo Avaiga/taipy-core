@@ -23,7 +23,7 @@ from .data_node_config import DataNodeConfig
 
 class TaskConfig(Section):
     """
-    Configuration fields needed to create an actual `Task^`.
+    Configuration fields needed to instantiate an actual `Task^`.
 
     Attributes:
         id (str): Identifier of the task config. Must be a valid Python variable name.
