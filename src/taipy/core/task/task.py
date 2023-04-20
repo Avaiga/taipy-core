@@ -178,7 +178,7 @@ class Task(_Entity, _Labeled):
         force: bool = False,
         wait: bool = False,
         timeout: Optional[Union[float, int]] = None,
-    ):
+    ) -> "Job":
         """Submit the task for execution.
 
         Parameters:
@@ -189,6 +189,7 @@ class Task(_Entity, _Labeled):
                 mode.
             timeout (Union[float, int]): The maximum number of seconds to wait for the job to be finished before
                 returning.
+
         Returns:
             The created `Job^`.
         """
