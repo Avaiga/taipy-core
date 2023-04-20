@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from queue import SimpleQueue
+from threading import Lock
 from time import sleep
 
 from src.taipy.core import taipy as tp
@@ -24,22 +25,26 @@ class AllCoreEventConsumerProcessor(CoreEventConsumerBase):
     def __init__(self, registration_id: str, queue: SimpleQueue):
         self.event_type_collected: dict = {}
         self.event_operation_collected: dict = {}
+        self.lock = Lock()
         super().__init__(registration_id, queue)
 
     def process_event(self, event: Event):
-        self.event_type_collected[event.entity_type] = self.event_type_collected.get(event.entity_type, 0) + 1
-        self.event_operation_collected[event.operation] = self.event_operation_collected.get(event.operation, 0) + 1
+        with self.lock:
+            self.event_type_collected[event.entity_type] = self.event_type_collected.get(event.entity_type, 0) + 1
+            self.event_operation_collected[event.operation] = self.event_operation_collected.get(event.operation, 0) + 1
 
 
 class ScenarioCoreEventConsumerProcessor(CoreEventConsumerBase):
     def __init__(self, registration_id: str, queue: SimpleQueue):
         self.scenario_event_collected = 0
         self.event_operation_collected: dict = {}
+        self.lock = Lock()
         super().__init__(registration_id, queue)
 
     def process_event(self, event: Event):
-        self.scenario_event_collected += 1
-        self.event_operation_collected[event.operation] = self.event_operation_collected.get(event.operation, 0) + 1
+        with self.lock:
+            self.scenario_event_collected += 1
+            self.event_operation_collected[event.operation] = self.event_operation_collected.get(event.operation, 0) + 1
 
 
 class PipelineCreationCoreEventConsumerProcessor(CoreEventConsumerBase):
