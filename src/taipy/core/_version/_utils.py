@@ -12,13 +12,13 @@
 
 def _version_migration() -> str:
     """Add version attribute on old entities. Used to migrate from <=2.0 to >=2.1 version."""
-    from ._version_cli import _VersioningCLI
-    from ._version_manager import _VersionManager
+    from ._cli._core_cli import _CoreCLI
+    from ._version_manager_factory import _VersionManagerFactory
 
-    _VersioningCLI._create_parser()
-    mode = _VersioningCLI._parse_arguments()[0]
-    if mode != "development":
-        return _VersionManager._get_latest_version()
+    args = _CoreCLI.parse_arguments()
+
+    if not args.development:
+        return _VersionManagerFactory._build_manager()._get_latest_version()
     else:
-        _VersionManager._get_or_create("LEGACY-VERSION", True)
+        _VersionManagerFactory._build_manager()._get_or_create("LEGACY-VERSION", True)
         return "LEGACY-VERSION"
