@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+
 import json
 import os
 import pathlib
@@ -22,7 +23,7 @@ from taipy.config import Config, Frequency
 
 def test_experiment_mode_converts_old_entities_to_latest_version():
     version = "1.0"
-    with patch("sys.argv", ["prog", "--experiment", version]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", version]):
         file_names = init_migration_test()
 
         Core().run()
@@ -39,7 +40,7 @@ def test_experiment_mode_converts_old_entities_to_latest_version():
 
 def test_production_mode_converts_old_entities_to_latest_version():
     version = "1.0"
-    with patch("sys.argv", ["prog", "--production", version]):
+    with patch("sys.argv", ["prog", "taipy", "--production", version]):
         file_names = init_migration_test()
 
         Core().run()
@@ -55,7 +56,7 @@ def test_production_mode_converts_old_entities_to_latest_version():
 
 
 def test_development_mode_converts_old_entities_to_latest_version():
-    with patch("sys.argv", ["prog", "--development", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--development", "1.0"]):
         file_names = init_migration_test()
 
         Core().run()

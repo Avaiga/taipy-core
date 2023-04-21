@@ -15,7 +15,7 @@ from unittest.mock import patch
 import pytest
 
 from src.taipy.core import Core
-from src.taipy.core._version._version_cli import _VersioningCLI
+from src.taipy.core._version._cli._version_cli import _VersioningCLI
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.cycle._cycle_manager import _CycleManager
 from src.taipy.core.data._data_manager import _DataManager
@@ -34,63 +34,82 @@ from ...conftest import init_config
 
 def test_version_cli_return_value():
     # Test default cli values
-    _VersioningCLI._create_parser()
-    mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "development"
-    assert version_number == ""
-    assert not force
+    with patch("sys.argv", ["prog"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "development"
+        assert service_config["version_number"] == ""
+        assert not service_config["force"]
+        assert not service_config["clean_entities"]
 
     # Test Dev mode
-    with patch("sys.argv", ["prog", "--development"]):
-        mode, _, _, _ = _VersioningCLI._parse_arguments()
-    assert mode == "development"
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "development"
 
-    with patch("sys.argv", ["prog", "-dev"]):
-        mode, _, _, _ = _VersioningCLI._parse_arguments()
-    assert mode == "development"
+    with patch("sys.argv", ["prog", "taipy", "-dev"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "development"
 
     # Test Experiment mode
-    with patch("sys.argv", ["prog", "--experiment"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "experiment"
-    assert version_number == ""
-    assert not force
-    assert not clean_entities
+    with patch("sys.argv", ["prog", "taipy", "--experiment"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "experiment"
+        assert service_config["version_number"] == ""
+        assert not service_config["force"]
+        assert not service_config["clean_entities"]
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "experiment"
-    assert version_number == "2.1"
-    assert not force
-    assert not clean_entities
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "experiment"
+        assert service_config["version_number"] == "2.1"
+        assert not service_config["force"]
+        assert not service_config["clean_entities"]
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1", "--taipy-force"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "experiment"
-    assert version_number == "2.1"
-    assert force
-    assert not clean_entities
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1", "--force"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "experiment"
+        assert service_config["version_number"] == "2.1"
+        assert service_config["force"]
+        assert not service_config["clean_entities"]
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1", "--clean-entities"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "experiment"
-    assert version_number == "2.1"
-    assert not force
-    assert clean_entities
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1", "--clean-entities"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "experiment"
+        assert service_config["version_number"] == "2.1"
+        assert not service_config["force"]
+        assert service_config["clean_entities"]
 
     # Test Production mode
-    with patch("sys.argv", ["prog", "--production"]):
-        mode, version_number, force, clean_entities = _VersioningCLI._parse_arguments()
-    assert mode == "production"
-    assert version_number == ""
-    assert not force
+    with patch("sys.argv", ["prog", "taipy", "--production"]):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "production"
+        assert service_config["version_number"] == ""
+        assert not service_config["force"]
+        assert not service_config["clean_entities"]
 
 
 def test_dev_mode_clean_all_entities_of_the_latest_version():
     scenario_config = config_scenario()
 
     # Create a scenario in development mode
-    Core().run()
+    with patch("sys.argv", ["prog"]):
+        Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
@@ -103,7 +122,7 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_JobManager._get_all(version_number="all")) == 1
 
     # Create a new scenario in experiment mode
-    with patch("sys.argv", ["prog", "--experiment"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
@@ -119,7 +138,7 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
     assert len(_JobManager._get_all(version_number="all")) == 2
 
     # Run development mode again
-    with patch("sys.argv", ["prog", "--development"]):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
 
     # The 1st dev version should be deleted run with development mode
@@ -170,7 +189,7 @@ def test_dev_mode_clean_all_entities_of_the_latest_version():
 
 
 def test_version_number_when_switching_mode():
-    with patch("sys.argv", ["prog", "--development"]):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     ver_1 = _VersionManager._get_latest_version()
     ver_dev = _VersionManager._get_development_version()
@@ -178,26 +197,26 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 1
 
     # Run with dev mode, the version number is the same
-    with patch("sys.argv", ["prog", "--development"]):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == ver_dev
     assert len(_VersionManager._get_all()) == 1
 
     # When run with experiment mode, a new version is created
-    with patch("sys.argv", ["prog", "--experiment"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment"]):
         Core().run()
     ver_3 = _VersionManager._get_latest_version()
     assert ver_3 != ver_dev
     assert len(_VersionManager._get_all()) == 2
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
         Core().run()
     ver_4 = _VersionManager._get_latest_version()
     assert ver_4 == "2.1"
     assert len(_VersionManager._get_all()) == 3
 
-    with patch("sys.argv", ["prog", "--experiment"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment"]):
         Core().run()
     ver_5 = _VersionManager._get_latest_version()
     assert ver_5 != ver_3
@@ -206,7 +225,7 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # When run with production mode, the latest version is used as production
-    with patch("sys.argv", ["prog", "--production"]):
+    with patch("sys.argv", ["prog", "taipy", "--production"]):
         Core().run()
     ver_6 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_versions()
@@ -215,7 +234,7 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # When run with production mode, the "2.1" version is used as production
-    with patch("sys.argv", ["prog", "--production", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
         Core().run()
     ver_7 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_versions()
@@ -224,7 +243,7 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
-    with patch("sys.argv", ["prog", "--development"]):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     ver_7 = _VersionManager._get_latest_version()
     assert ver_1 == ver_7
@@ -234,7 +253,7 @@ def test_version_number_when_switching_mode():
 def test_production_mode_load_all_entities_from_previous_production_version():
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--production"]):
+    with patch("sys.argv", ["prog", "taipy", "--production"]):
         Core().run()
     production_ver_1 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_versions() == [production_ver_1]
@@ -252,7 +271,7 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
-    with patch("sys.argv", ["prog", "--production", "2.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "2.0"]):
         Core().run()
     production_ver_2 = _VersionManager._get_latest_version()
     assert _VersionManager._get_production_versions() == [production_ver_1, production_ver_2]
@@ -273,7 +292,7 @@ def test_production_mode_load_all_entities_from_previous_production_version():
 def test_force_override_experiment_version():
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Core().run()
     ver_1 = _VersionManager._get_latest_version()
     assert ver_1 == "1.0"
@@ -294,13 +313,13 @@ def test_force_override_experiment_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --taipy-force parameter, a SystemExit will be raised
+    # Without --force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+        with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
             Core().run()
 
-    # With --taipy-force parameter
-    with patch("sys.argv", ["prog", "--experiment", "1.0", "--taipy-force"]):
+    # With --force parameter
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0", "--force"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
@@ -321,7 +340,7 @@ def test_force_override_experiment_version():
 def test_force_override_production_version():
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--production", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.0"]):
         Core().run()
     ver_1 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_versions()
@@ -344,13 +363,13 @@ def test_force_override_production_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --taipy-force parameter, a SystemExit will be raised
+    # Without --force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "--production", "1.0"]):
+        with patch("sys.argv", ["prog", "taipy", "--production", "1.0"]):
             Core().run()
 
-    # With --taipy-force parameter
-    with patch("sys.argv", ["prog", "--production", "1.0", "--taipy-force"]):
+    # With --force parameter
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.0", "--force"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
@@ -371,7 +390,7 @@ def test_force_override_production_version():
 def test_clean_experiment_version():
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Core().run()
 
     scenario = _ScenarioManager._create(scenario_config)
@@ -384,7 +403,7 @@ def test_clean_experiment_version():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0", "--clean-entities"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0", "--clean-entities"]):
         Core().run()
 
     # All entities from previous submit should be cleaned and re-created
@@ -402,7 +421,7 @@ def test_clean_experiment_version():
 def test_clean_production_version():
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--production", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.0"]):
         Core().run()
 
     scenario = _ScenarioManager._create(scenario_config)
@@ -415,7 +434,7 @@ def test_clean_production_version():
     assert len(_CycleManager._get_all()) == 1
     assert len(_JobManager._get_all()) == 1
 
-    with patch("sys.argv", ["prog", "--production", "1.0", "--clean-entities"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.0", "--clean-entities"]):
         Core().run()
 
     # All entities from previous submit should be cleaned and re-created
@@ -430,38 +449,38 @@ def test_clean_production_version():
     assert len(_JobManager._get_all()) == 1
 
 
-def test_delete_version():
+def test_delete_version(caplog):
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--development"]):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "--experiment", "1.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.1"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "--production", "1.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.1"]):
         Core().run()
 
-    with patch("sys.argv", ["prog", "--experiment", "2.0"]):
-        Core().run()
-    scenario = _ScenarioManager._create(scenario_config)
-    _ScenarioManager._submit(scenario)
-
-    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.0"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "--production", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
+        Core().run()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
         Core().run()
 
     all_versions = [version.id for version in _VersionManager._get_all()]
@@ -473,19 +492,22 @@ def test_delete_version():
     assert "2.0" in all_versions
     assert "2.1" in all_versions and "2.1" in production_version
 
-    with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "--delete-version", "1.0"]):
-            Core().run()
-    assert str(e.value) == "Successfully delete version 1.0."
+    _VersioningCLI.create_parser()
+    with pytest.raises(SystemExit):
+        with patch("sys.argv", ["prog", "version", "--delete", "1.0"]):
+            _VersioningCLI.parse_arguments()
+
+    assert "Successfully delete version 1.0." in caplog.text
     all_versions = [version.id for version in _VersionManager._get_all()]
     assert len(all_versions) == 4
     assert "1.0" not in all_versions
 
     # Test delete production version will change the version from production to experiment
-    with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "--delete-production-version", "1.1"]):
-            Core().run()
-    assert str(e.value) == "Successfully delete version 1.1 from production version list."
+    with pytest.raises(SystemExit):
+        with patch("sys.argv", ["prog", "version", "--delete-production", "1.1"]):
+            _VersioningCLI.parse_arguments()
+
+    assert "Successfully delete version 1.1 from production version list." in caplog.text
     all_versions = [version.id for version in _VersionManager._get_all()]
     production_version = _VersionManager._get_production_versions()
     assert len(all_versions) == 4
@@ -493,38 +515,41 @@ def test_delete_version():
 
     # Test delete a wrong production version
     with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "--delete-production-version", "non_exist_version"]):
-            Core().run()
+        with patch("sys.argv", ["prog", "version", "--delete-production", "non_exist_version"]):
+            _VersioningCLI.parse_arguments()
+
     assert str(e.value) == "Version non_exist_version is not a production version."
 
 
-def test_list_version():
-    with patch("sys.argv", ["prog", "--development"]):
+def test_list_version(capsys):
+    with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--experiment", "1.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--production", "1.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "1.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--experiment", "2.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.0"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "--production", "2.1"]):
+    with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
         Core().run()
 
-    with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "--list-versions"]):
-            Core().run()
+    _VersioningCLI.create_parser()
+    with pytest.raises(SystemExit):
+        with patch("sys.argv", ["prog", "version", "--list"]):
+            _VersioningCLI.parse_arguments()
 
-    version_list = str(e.value).strip().split("\n")
+    out, _ = capsys.readouterr()
+    version_list = str(out).strip().split("\n")
     assert len(version_list) == 6  # 5 versions with the header
     assert all(column in version_list[0] for column in ["Version number", "Mode", "Creation date"])
     assert all(column in version_list[1] for column in ["2.1", "Production", "latest"])
@@ -537,7 +562,7 @@ def test_list_version():
 def test_modify_job_configuration_dont_stop_application(caplog):
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Config.configure_job_executions(mode="development")
         Core().run(force_restart=True)
     scenario = _ScenarioManager._create(scenario_config)
@@ -547,7 +572,7 @@ def test_modify_job_configuration_dont_stop_application(caplog):
     init_config()
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Config.configure_job_executions(mode="standalone", max_nb_of_workers=5)
         Core().run(force_restart=True)
     scenario = _ScenarioManager._create(scenario_config)
@@ -562,7 +587,7 @@ def test_modify_job_configuration_dont_stop_application(caplog):
 def test_modify_config_properties_without_force(caplog):
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
         Core().run()
         scenario = _ScenarioManager._create(scenario_config)
         _ScenarioManager._submit(scenario)
@@ -572,7 +597,7 @@ def test_modify_config_properties_without_force(caplog):
     scenario_config_2 = config_scenario_2()
 
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "--experiment", "1.0"]):
+        with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
             Core().run()
             scenario = _ScenarioManager._create(scenario_config_2)
             _ScenarioManager._submit(scenario)
