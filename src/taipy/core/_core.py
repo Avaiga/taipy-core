@@ -18,8 +18,8 @@ from taipy.logger._taipy_logger import _TaipyLogger
 from ._orchestrator._dispatcher._job_dispatcher import _JobDispatcher
 from ._orchestrator._orchestrator import _Orchestrator
 from ._orchestrator._orchestrator_factory import _OrchestratorFactory
-from ._version._version_cli import _VersioningCLI
 from ._version._version_manager_factory import _VersionManagerFactory
+from .config._service_config import _ServiceConfig, default_service_config
 from .taipy import clean_all_entities_by_version
 
 
@@ -28,6 +28,8 @@ class Core:
     Core service
     """
 
+    __logger = _TaipyLogger._get_logger()
+
     _orchestrator: Optional[_Orchestrator] = None
     _dispatcher: Optional[_JobDispatcher] = None
 
@@ -35,18 +37,22 @@ class Core:
         """
         Initialize a Core service.
         """
-        _VersioningCLI._create_parser()
-        self.cli_args = _VersioningCLI._parse_arguments()
+        self._service_config = _ServiceConfig()
+        self._service_config._load(default_service_config)
+
         self._orchestrator = _OrchestratorFactory._build_orchestrator()
 
     def run(self, force_restart=False):
         """
         Start a Core service.
 
-        This function check the configuration, start a dispatcher and lock the Config.
+        This function checks the configuration, manages application's version,
+        and starts a dispatcher and lock the Config.
         """
+        self._service_config._build_config()
+
         self.__check_config()
-        self.__manage_version(*self.cli_args)
+        self.__manage_version()
         self.__start_dispatcher(force_restart)
 
     def stop(self):
@@ -59,18 +65,25 @@ class Core:
 
         if self._dispatcher:
             self._dispatcher = _OrchestratorFactory._remove_dispatcher()
-            _TaipyLogger._get_logger().info("Core service has been stopped.")
+            self.__logger.info("Core service has been stopped.")
 
     def __check_config(self):
         Config.check()
         Config.block_update()
 
-    def __manage_version(self, mode, _version_number, force, clean_entities):
+    def __manage_version(self):
+        service_config = self._service_config.service_config
+
+        mode = service_config["mode"]
+        version_number = service_config["version_number"]
+        clean_entities = service_config["clean_entities"]
+        force = service_config["force"]
+
         if mode == "development":
             current_version_number = _VersionManagerFactory._build_manager()._get_development_version()
 
             clean_all_entities_by_version(current_version_number)
-            _TaipyLogger._get_logger().info(f"Development mode: Clean all entities of version {current_version_number}")
+            self.__logger.info(f"Development mode: Clean all entities of version {current_version_number}")
 
             _VersionManagerFactory._build_manager()._set_development_version(current_version_number)
 
@@ -85,14 +98,14 @@ class Core:
                 "production": _VersionManagerFactory._build_manager()._set_production_version,
             }
 
-            if _version_number:
-                current_version_number = _version_number
+            if version_number:
+                current_version_number = version_number
             else:
                 current_version_number = default_version_number[mode]
 
             if clean_entities:
                 clean_all_entities_by_version(current_version_number)
-                _TaipyLogger._get_logger().info(f"Clean all entities of version {current_version_number}")
+                self.__logger.info(f"Clean all entities of version {current_version_number}")
 
             version_setter[mode](current_version_number, force)
 

@@ -16,6 +16,7 @@ from taipy.config.common.scope import Scope  # type: ignore
 from taipy.config.config import Config  # type: ignore
 from taipy.config.global_app.global_app_config import GlobalAppConfig  # type: ignore
 
+from ._service_config import CoreSection, default_service_config
 from .checkers._data_node_config_checker import _DataNodeConfigChecker
 from .checkers._job_config_checker import _JobConfigChecker
 from .checkers._pipeline_config_checker import _PipelineConfigChecker
@@ -77,6 +78,13 @@ _inject_section(
         ("configure_default_scenario", ScenarioConfig._configure_default),
         ("configure_scenario_from_tasks", ScenarioConfig._configure_from_tasks),
     ],
+)
+_inject_section(
+    CoreSection,
+    "core_config",
+    CoreSection(property_list=list(default_service_config)),
+    [("configure_core", CoreSection._configure)],
+    add_to_unconflicted_sections=True,
 )
 
 _Checker.add_checker(_JobConfigChecker)
