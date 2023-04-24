@@ -100,6 +100,9 @@ class _VersioningCLI:
                 raise SystemExit(e)
 
         if args.delete:
-            clean_all_entities_by_version(args.delete)
-            cls.__logger.info(f"Successfully delete version {args.delete}.")
+            if clean_all_entities_by_version(args.delete):
+                cls.__logger.info(f"Successfully delete version {args.delete}.")
+            else:
+                sys.exit(1)
+
             sys.exit(0)

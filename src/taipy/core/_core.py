@@ -82,8 +82,8 @@ class Core:
         if mode == "development":
             current_version_number = _VersionManagerFactory._build_manager()._get_development_version()
 
-            clean_all_entities_by_version(current_version_number)
             self.__logger.info(f"Development mode: Clean all entities of version {current_version_number}")
+            clean_all_entities_by_version(current_version_number)
 
             _VersionManagerFactory._build_manager()._set_development_version(current_version_number)
 
@@ -104,8 +104,8 @@ class Core:
                 current_version_number = default_version_number[mode]
 
             if clean_entities:
-                clean_all_entities_by_version(current_version_number)
-                self.__logger.info(f"Clean all entities of version {current_version_number}")
+                if clean_all_entities_by_version(current_version_number):
+                    self.__logger.info(f"Clean all entities of version {current_version_number}")
 
             version_setter[mode](current_version_number, force)
 
