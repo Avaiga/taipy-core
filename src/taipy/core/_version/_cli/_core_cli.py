@@ -19,9 +19,9 @@ class _CoreCLI:
     """Command-line interface for Taipy Core application."""
 
     _DEFAULT_ARGS = {
-        "development": True,
-        "experiment": "",
-        "production": "",
+        "development": False,
+        "experiment": None,
+        "production": None,
         "force": False,
         "no_force": False,
         "clean_entities": False,
@@ -45,7 +45,7 @@ class _CoreCLI:
         mode_group.add_argument(
             "--experiment",
             nargs="?",
-            const=cls._DEFAULT_ARGS["experiment"],
+            const="",
             metavar="VERSION",
             help="""
                 When execute Taipy application in `experiment` mode, the current Taipy application is saved to a new
@@ -56,7 +56,7 @@ class _CoreCLI:
         mode_group.add_argument(
             "--production",
             nargs="?",
-            const=cls._DEFAULT_ARGS["production"],
+            const="",
             metavar="VERSION",
             help="""
                 When execute in `production` mode, the current version is used in production. All production versions
