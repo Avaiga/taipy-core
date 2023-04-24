@@ -9,6 +9,8 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+from unittest.mock import patch
+
 import pytest
 
 from src.taipy.core import Core
@@ -18,6 +20,7 @@ from src.taipy.core._orchestrator._orchestrator_factory import _OrchestratorFact
 from src.taipy.core.config.job_config import JobConfig
 from taipy.config import Config
 from taipy.config.exceptions.exceptions import ConfigurationUpdateBlocked
+from tests.core.utils.named_temporary_file import NamedTemporaryFile
 
 
 class TestCore:
@@ -87,3 +90,54 @@ class TestCore:
         core.run()
         with pytest.raises(ConfigurationUpdateBlocked):
             Config.configure_data_node(id="i1")
+
+    def test_core_service_arguments_hierarchy(self):
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "development"
+        assert service_config["version_number"] == ""
+        assert not service_config["force"]
+        assert not service_config["clean_entities"]
+        core.stop()
+
+        Config.configure_core(mode="experiment", version_number="test_num", force=True, clean_entities=True)
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "experiment"
+        assert service_config["version_number"] == "test_num"
+        assert service_config["force"]
+        assert service_config["clean_entities"]
+        core.stop()
+
+        toml_config = NamedTemporaryFile(
+            content="""
+[TAIPY]
+
+[core]
+mode = "production"
+version_number = "test_num_2"
+force = "true:bool"
+clean_entities = "false:bool"
+        """
+        )
+        Config.load(toml_config.filename)
+        core = Core()
+        core.run()
+        service_config = core._service_config.service_config
+        assert service_config["mode"] == "production"
+        assert service_config["version_number"] == "test_num_2"
+        assert service_config["force"]
+        assert not service_config["clean_entities"]
+        core.stop()
+
+        with patch("sys.argv", ["prog", "taipy", "--experiment", "test_num_3", "--no-force", "--clean-entities"]):
+            core = Core()
+            core.run()
+            service_config = core._service_config.service_config
+            assert service_config["mode"] == "experiment"
+            assert service_config["version_number"] == "test_num_3"
+            assert not service_config["force"]
+            assert service_config["clean_entities"]
+            core.stop()
