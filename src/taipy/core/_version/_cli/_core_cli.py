@@ -11,7 +11,8 @@
 
 from argparse import ArgumentError, Namespace
 
-from taipy.config._cli._argparser import _Argparser
+from taipy.config._cli._cli import _CLI
+from taipy.logger._taipy_logger import _TaipyLogger
 
 
 class _CoreCLI:
@@ -29,7 +30,7 @@ class _CoreCLI:
 
     @classmethod
     def create_parser(cls):
-        core_parser = _Argparser._add_subparser("taipy", help="Run application with Taipy arguments.")
+        core_parser = _CLI._add_subparser("taipy", help="Run application with Taipy arguments.")
 
         mode_group = core_parser.add_mutually_exclusive_group()
         mode_group.add_argument(
@@ -93,9 +94,13 @@ class _CoreCLI:
     @classmethod
     def parse_arguments(cls):
         try:
-            args = _Argparser._parse()
-        except ArgumentError:
-            return cls.default()
+            args = _CLI._parse()
+        except ArgumentError as err:
+            if "invalid choice" in err.message:
+                _TaipyLogger._get_logger().warn(f"{str(err)}. Ignoring command-line arguments")
+                return cls.default()
+            else:
+                raise err
 
         if getattr(args, "which", None) != "taipy":
             return cls.default()

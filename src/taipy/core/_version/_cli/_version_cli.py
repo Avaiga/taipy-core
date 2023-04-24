@@ -11,7 +11,7 @@
 
 import sys
 
-from taipy.config._cli._argparser import _Argparser
+from taipy.config._cli._cli import _CLI
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from ...exceptions.exceptions import VersionIsNotProductionVersion
@@ -27,7 +27,7 @@ class _VersioningCLI:
 
     @classmethod
     def create_parser(cls):
-        version_parser = _Argparser._add_subparser("version", help="Taipy version control system.")
+        version_parser = _CLI._add_subparser("version", help="Taipy version control system.")
 
         version_parser.add_argument(
             "-l", "--list", action="store_true", help="List all existing versions of the Taipy application."
@@ -47,7 +47,7 @@ class _VersioningCLI:
 
     @classmethod
     def parse_arguments(cls):
-        args = _Argparser._parse()
+        args = _CLI._parse()
 
         if getattr(args, "which", None) != "version":
             return
