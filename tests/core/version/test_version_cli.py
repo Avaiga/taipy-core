@@ -76,6 +76,12 @@ def test_delete_version(caplog):
     assert len(all_versions) == 4
     assert "1.0" not in all_versions
 
+    # Test delete a non-existed version
+    with pytest.raises(SystemExit):
+        with patch("sys.argv", ["prog", "version", "--delete", "non_exist_version"]):
+            _VersioningCLI.parse_arguments()
+    assert "Version 'non_exist_version' does not exist." in caplog.text
+
     # Test delete production version will change the version from production to experiment
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "version", "--delete-production", "1.1"]):
@@ -87,12 +93,12 @@ def test_delete_version(caplog):
     assert len(all_versions) == 4
     assert "1.1" in all_versions and "1.1" not in production_version
 
-    # Test delete a wrong production version
+    # Test delete a non-existed production version
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "version", "--delete-production", "non_exist_version"]):
             _VersioningCLI.parse_arguments()
 
-    assert str(e.value) == "Version non_exist_version is not a production version."
+    assert str(e.value) == "Version 'non_exist_version' is not a production version."
 
 
 def test_list_version(capsys):
