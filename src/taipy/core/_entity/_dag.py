@@ -9,7 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from typing import Iterable
+from typing import Dict, Iterable
 
 import networkx as nx
 
@@ -38,7 +38,7 @@ class _DAG:
         self.nodes = self.__get_nodes_and_compute_width_length(x_increment, y_max)
         self.edges = self.__get_edges(dag)
 
-    def __get_nodes_and_compute_width_length(self, x_increment, y_max) -> dict[str, _Node]:
+    def __get_nodes_and_compute_width_length(self, x_increment, y_max) -> Dict[str, _Node]:
         nodes = {}
         x = 0
         for same_lvl_nodes in self.sorted_nodes:
