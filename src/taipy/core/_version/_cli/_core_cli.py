@@ -11,7 +11,7 @@
 
 from argparse import ArgumentError, Namespace
 
-from taipy.config._cli._cli import _CLI
+from taipy.cli import _CLI
 from taipy.logger._taipy_logger import _TaipyLogger
 
 
