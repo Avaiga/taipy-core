@@ -42,7 +42,7 @@ import json
 import os
 
 from ._core import Core
-from ._version._cli._core_cli import _CoreCLI
+from ._core_cli import _CoreCLI
 from .common.default_custom_document import DefaultCustomDocument
 from .cycle.cycle import Cycle
 from .cycle.cycle_id import CycleId

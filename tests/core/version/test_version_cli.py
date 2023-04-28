@@ -15,7 +15,7 @@ from unittest.mock import patch
 import pytest
 
 from src.taipy.core import Core
-from src.taipy.core._version._cli._version_cli import _VersioningCLI
+from src.taipy.core._version._cli._version_cli import _VersionCLI
 from src.taipy.core._version._version_manager import _VersionManager
 from src.taipy.core.scenario._scenario_manager import _ScenarioManager
 from taipy.config.common.frequency import Frequency
@@ -66,10 +66,10 @@ def test_delete_version(caplog):
     assert "2.0" in all_versions
     assert "2.1" in all_versions and "2.1" in production_version
 
-    _VersioningCLI.create_parser()
+    _VersionCLI.create_parser()
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "version", "--delete", "1.0"]):
-            _VersioningCLI.parse_arguments()
+            _VersionCLI.parse_arguments()
 
     assert "Successfully delete version 1.0." in caplog.text
     all_versions = [version.id for version in _VersionManager._get_all()]
@@ -79,13 +79,13 @@ def test_delete_version(caplog):
     # Test delete a non-existed version
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "version", "--delete", "non_exist_version"]):
-            _VersioningCLI.parse_arguments()
+            _VersionCLI.parse_arguments()
     assert "Version 'non_exist_version' does not exist." in caplog.text
 
     # Test delete production version will change the version from production to experiment
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "version", "--delete-production", "1.1"]):
-            _VersioningCLI.parse_arguments()
+            _VersionCLI.parse_arguments()
 
     assert "Successfully delete version 1.1 from production version list." in caplog.text
     all_versions = [version.id for version in _VersionManager._get_all()]
@@ -96,7 +96,7 @@ def test_delete_version(caplog):
     # Test delete a non-existed production version
     with pytest.raises(SystemExit) as e:
         with patch("sys.argv", ["prog", "version", "--delete-production", "non_exist_version"]):
-            _VersioningCLI.parse_arguments()
+            _VersionCLI.parse_arguments()
 
     assert str(e.value) == "Version 'non_exist_version' is not a production version."
 
@@ -123,10 +123,10 @@ def test_list_version(capsys):
     with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
         Core().run()
 
-    _VersioningCLI.create_parser()
+    _VersionCLI.create_parser()
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "version", "--list"]):
-            _VersioningCLI.parse_arguments()
+            _VersionCLI.parse_arguments()
 
     out, _ = capsys.readouterr()
     version_list = str(out).strip().split("\n")

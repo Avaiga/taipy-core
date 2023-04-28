@@ -20,7 +20,7 @@ from .._version_manager_factory import _VersionManagerFactory
 from ._bcolor import _Bcolors
 
 
-class _VersioningCLI:
+class _VersionCLI:
     """Command-line interface of the versioning system."""
 
     __logger = _TaipyLogger._get_logger()

@@ -27,7 +27,7 @@ from taipy.config.common.scope import Scope
 from taipy.config.config import Config
 from tests.core.utils import assert_true_after_time
 
-from ...conftest import init_config
+from ..conftest import init_config
 
 
 def test_handle_core_cli_arguments():
@@ -35,7 +35,7 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "development"
         assert service_config["version_number"] == ""
         assert not service_config["force"]
@@ -45,20 +45,20 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog", "taipy", "--development"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "development"
 
     with patch("sys.argv", ["prog", "taipy", "-dev"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "development"
 
     # Test Experiment mode
     with patch("sys.argv", ["prog", "taipy", "--experiment"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "experiment"
         assert service_config["version_number"] == ""
         assert not service_config["force"]
@@ -67,7 +67,7 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "experiment"
         assert service_config["version_number"] == "2.1"
         assert not service_config["force"]
@@ -76,7 +76,7 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1", "--force"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "experiment"
         assert service_config["version_number"] == "2.1"
         assert service_config["force"]
@@ -85,7 +85,7 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1", "--clean-entities"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "experiment"
         assert service_config["version_number"] == "2.1"
         assert not service_config["force"]
@@ -95,7 +95,7 @@ def test_handle_core_cli_arguments():
     with patch("sys.argv", ["prog", "taipy", "--production"]):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "production"
         assert service_config["version_number"] == ""
         assert not service_config["force"]
