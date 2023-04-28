@@ -94,7 +94,7 @@ class TestCore:
     def test_core_service_arguments_hierarchy(self):
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "development"
         assert service_config["version_number"] == ""
         assert not service_config["force"]
@@ -104,7 +104,7 @@ class TestCore:
         Config.configure_core(mode="experiment", version_number="test_num", force=True, clean_entities=True)
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "experiment"
         assert service_config["version_number"] == "test_num"
         assert service_config["force"]
@@ -125,7 +125,7 @@ clean_entities = "false:bool"
         Config.load(toml_config.filename)
         core = Core()
         core.run()
-        service_config = core._service_config.service_config
+        service_config = core._service_config
         assert service_config["mode"] == "production"
         assert service_config["version_number"] == "test_num_2"
         assert service_config["force"]
@@ -135,7 +135,7 @@ clean_entities = "false:bool"
         with patch("sys.argv", ["prog", "taipy", "--experiment", "test_num_3", "--no-force", "--clean-entities"]):
             core = Core()
             core.run()
-            service_config = core._service_config.service_config
+            service_config = core._service_config
             assert service_config["mode"] == "experiment"
             assert service_config["version_number"] == "test_num_3"
             assert not service_config["force"]

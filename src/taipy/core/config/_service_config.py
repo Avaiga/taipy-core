@@ -13,9 +13,6 @@ from copy import copy
 from typing import Any, Dict, List, Optional, TypedDict
 
 from taipy.config import Config, UniqueSection
-from taipy.logger._taipy_logger import _TaipyLogger
-
-from .._version._cli._core_cli import _CoreCLI
 
 ServiceConfig = TypedDict(
     "ServiceConfig",
@@ -35,48 +32,6 @@ default_service_config: ServiceConfig = {
     "force": False,
     "clean_entities": False,
 }
-
-
-class _ServiceConfig:
-    __logger = _TaipyLogger._get_logger()
-
-    def __init__(self):
-        self.service_config: ServiceConfig = {}
-
-    def _load(self, config: ServiceConfig) -> None:
-        self.service_config.update(config)
-
-    def _handle_argparse(self):
-        """Load from system arguments"""
-        args = _CoreCLI.parse_arguments()
-
-        if args.development:
-            self.service_config["mode"] = "development"
-        elif args.experiment is not None:
-            self.service_config["mode"] = "experiment"
-            self.service_config["version_number"] = args.experiment
-        elif args.production is not None:
-            self.service_config["mode"] = "production"
-            self.service_config["version_number"] = args.production
-
-        if args.force:
-            self.service_config["force"] = True
-        elif args.no_force:
-            self.service_config["force"] = False
-
-        if args.clean_entities:
-            self.service_config["clean_entities"] = True
-        elif args.no_clean_entities:
-            self.service_config["clean_entities"] = False
-
-    def _build_config(self):
-        try:
-            core_section = Config.unique_sections["core"]
-            self.service_config.update(core_section._to_dict())
-        except KeyError:
-            self.__logger.warn("taipy-config section for taipy-core is not initialized")
-
-        self._handle_argparse()
 
 
 class CoreSection(UniqueSection):
