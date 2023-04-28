@@ -14,6 +14,7 @@ from typing import List, Optional, Union
 
 from taipy.config import Config
 from taipy.config._config_comparator._comparator_result import _ComparatorResult
+from taipy.config.exceptions.exceptions import InconsistentEnvVariableError
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from .._manager._manager import _Manager
@@ -87,7 +88,7 @@ class _VersionManager(_Manager[_Version]):
     def _get_development_version(cls) -> str:
         try:
             return cls._repository._get_development_version()
-        except:  # noqa: E722
+        except (FileNotFoundError, ModelNotFound):
             return cls._set_development_version(str(uuid.uuid4()))
 
     @classmethod
@@ -112,7 +113,7 @@ class _VersionManager(_Manager[_Version]):
     def _get_latest_version(cls) -> str:
         try:
             return cls._repository._get_latest_version()
-        except:  # noqa: E722
+        except (FileNotFoundError, ModelNotFound):
             # If there is no version in the system yet, create a new version as development version
             # This set the default versioning behavior on Jupyter notebook to Development mode
             return cls._set_development_version(str(uuid.uuid4()))
@@ -147,7 +148,7 @@ class _VersionManager(_Manager[_Version]):
     def _get_production_versions(cls) -> List[str]:
         try:
             return cls._repository._get_production_versions()
-        except:  # noqa: E722
+        except (FileNotFoundError, ModelNotFound):
             return []
 
     @classmethod
@@ -155,7 +156,7 @@ class _VersionManager(_Manager[_Version]):
         return cls._repository._delete_production_version(version_number)
 
     @classmethod
-    def _replace_version_number(cls, version_number):
+    def _replace_version_number(cls, version_number: Optional[str]):
         if version_number is None:
             version_number = cls._replace_version_number(cls.__DEFAULT_VERSION)
 
@@ -173,8 +174,12 @@ class _VersionManager(_Manager[_Version]):
             return cls._get_production_versions()
         if version_number in cls.__ALL_VERSION:
             return ""
-        if version := cls._get(version_number):
-            return version.id
+
+        try:
+            if version := cls._get(version_number):
+                return version.id
+        except InconsistentEnvVariableError:  # The version exist but the Config is alternated
+            return version_number
 
         raise NonExistingVersion(version_number)
 

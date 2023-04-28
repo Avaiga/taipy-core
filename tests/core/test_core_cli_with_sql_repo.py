@@ -30,7 +30,9 @@ from tests.core.utils import assert_true_after_time
 from ..conftest import init_config
 
 
-def test_handle_core_cli_arguments():
+def test_handle_core_cli_arguments(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     # Test default cli values
     with patch("sys.argv", ["prog"]):
         core = Core()
@@ -102,7 +104,9 @@ def test_handle_core_cli_arguments():
         assert not service_config["clean_entities"]
 
 
-def test_dev_mode_clean_all_entities_of_the_latest_version():
+def test_dev_mode_clean_all_entities_of_the_latest_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     # Create a scenario in development mode
@@ -218,7 +222,9 @@ def test_dev_mode_clean_all_entities_when_config_is_alternated():
     _ScenarioManager._submit(scenario)
 
 
-def test_version_number_when_switching_mode():
+def test_version_number_when_switching_mode(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     with patch("sys.argv", ["prog", "taipy", "--development"]):
         Core().run()
     ver_1 = _VersionManager._get_latest_version()
@@ -269,7 +275,7 @@ def test_version_number_when_switching_mode():
     ver_7 = _VersionManager._get_latest_version()
     production_versions = _VersionManager._get_production_versions()
     assert ver_7 == "2.1"
-    assert production_versions == [ver_6, ver_7]
+    assert production_versions == [ver_7, ver_6]
     assert len(_VersionManager._get_all()) == 4
 
     # Run with dev mode, the version number is the same as the first dev version to overide it
@@ -280,7 +286,9 @@ def test_version_number_when_switching_mode():
     assert len(_VersionManager._get_all()) == 4
 
 
-def test_production_mode_load_all_entities_from_previous_production_version():
+def test_production_mode_load_all_entities_from_previous_production_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--production"]):
@@ -319,7 +327,9 @@ def test_production_mode_load_all_entities_from_previous_production_version():
     assert len(_JobManager._get_all()) == 2
 
 
-def test_force_override_experiment_version():
+def test_force_override_experiment_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
@@ -367,7 +377,9 @@ def test_force_override_experiment_version():
     assert len(_JobManager._get_all()) == 2
 
 
-def test_force_override_production_version():
+def test_force_override_production_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--production", "1.0"]):
@@ -417,7 +429,9 @@ def test_force_override_production_version():
     assert len(_JobManager._get_all()) == 2
 
 
-def test_clean_experiment_version():
+def test_clean_experiment_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
@@ -448,7 +462,9 @@ def test_clean_experiment_version():
     assert len(_JobManager._get_all()) == 1
 
 
-def test_clean_production_version():
+def test_clean_production_version(tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--production", "1.0"]):
@@ -479,7 +495,9 @@ def test_clean_production_version():
     assert len(_JobManager._get_all()) == 1
 
 
-def test_modify_job_configuration_dont_stop_application(caplog):
+def test_modify_job_configuration_dont_stop_application(caplog, tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
@@ -490,6 +508,8 @@ def test_modify_job_configuration_dont_stop_application(caplog):
     assert all([job.is_finished() for job in jobs])
 
     init_config()
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
@@ -504,7 +524,9 @@ def test_modify_job_configuration_dont_stop_application(caplog):
     assert 'JOB "max_nb_of_workers" was modified' in error_message
 
 
-def test_modify_config_properties_without_force(caplog):
+def test_modify_config_properties_without_force(caplog, tmp_sqlite):
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
+
     scenario_config = config_scenario()
 
     with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
@@ -513,6 +535,7 @@ def test_modify_config_properties_without_force(caplog):
         _ScenarioManager._submit(scenario)
 
     init_config()
+    Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
 
     scenario_config_2 = config_scenario_2()
 
@@ -530,7 +553,6 @@ def test_modify_config_properties_without_force(caplog):
     assert 'DATA_NODE "d2" has attribute "default_path" modified' in error_message
     assert 'Global Configuration "root_folder" was modified' in error_message
     assert 'Global Configuration "clean_entities_enabled" was modified' in error_message
-    assert 'Global Configuration "repository_type" was modified' in error_message
     assert 'JOB "mode" was modified' in error_message
     assert 'JOB "max_nb_of_workers" was modified' in error_message
     assert 'PIPELINE "my_pipeline" has attribute "tasks" modified' in error_message
@@ -541,8 +563,6 @@ def test_modify_config_properties_without_force(caplog):
     assert 'TASK "my_task" has attribute "outputs" modified' in error_message
     assert 'DATA_NODE "d2" has attribute "has_header" modified' in error_message
     assert 'DATA_NODE "d2" has attribute "exposed_type" modified' in error_message
-
-    assert 'Global Configuration "repository_properties" was added' in error_message
 
 
 def twice(a):
@@ -572,8 +592,6 @@ def config_scenario_2():
         # Changing the "storage_folder" will fail since older versions are stored in older folder
         # storage_folder="foo_storage",
         clean_entities_enabled=True,
-        repository_type="bar",
-        repository_properties={"foo": "bar"},
     )
     Config.configure_job_executions(mode="standalone", max_nb_of_workers=5)
     data_node_1_config = Config.configure_data_node(
