@@ -8,8 +8,8 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-
-from typing import Dict, Iterable
+from math import lcm
+from typing import Dict, List, Tuple
 
 import networkx as nx
 
@@ -31,30 +31,53 @@ class _Edge:
 
 
 class _DAG:
-    def __init__(self, dag: nx.DiGraph, x_increment=500, y_max=1000):
-        self.width = 0
-        self.length = 0
-        self.sorted_nodes = list(nodes for nodes in nx.topological_generations(dag))
-        self.nodes = self.__get_nodes_and_compute_width_length(x_increment, y_max)
-        self.edges = self.__get_edges(dag)
+    def __init__(self, dag: nx.DiGraph):
+        self._sorted_nodes = list(nodes for nodes in nx.topological_generations(dag))
+        self._length, self._width = self.__compute_size()
+        self._grid_length, self._grid_width = self.__compute_grid_size()
+        self._nodes = self.__compute_nodes()
+        self._edges = self.__compute_edges(dag)
 
-    def __get_nodes_and_compute_width_length(self, x_increment, y_max) -> Dict[str, _Node]:
+    @property
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def length(self) -> int:
+        return self._length
+
+    @property
+    def nodes(self) -> Dict[str, _Node]:
+        return self._nodes
+
+    @property
+    def edges(self) -> List[_Edge]:
+        return self._edges
+
+    def __compute_size(self) -> Tuple[int, int]:
+        return len(self._sorted_nodes), max([len(i) for i in self._sorted_nodes])
+
+    def __compute_grid_size(self) -> Tuple[int, int]:
+        grid_width = lcm(*[len(i) + 1 if len(i) != self._width else len(i) - 1 for i in self._sorted_nodes]) + 1
+        return len(self._sorted_nodes), grid_width
+
+    def __compute_nodes(self) -> Dict[str, _Node]:
         nodes = {}
         x = 0
-        for same_lvl_nodes in self.sorted_nodes:
+        for same_lvl_nodes in self._sorted_nodes:
             local_width = len(same_lvl_nodes)
-            if local_width > self.width:
-                self.width = local_width
-            x += x_increment
-            y_incr = y_max / (local_width + 1)
-            y = 0
+            is_max = local_width != self.width
+            y_incr = (
+                (self._grid_width - 1) / (local_width + 1) if is_max else (self._grid_width - 1) / (local_width - 1)
+            )
+            y = 0 if is_max else -y_incr
             for node in same_lvl_nodes:
                 y += y_incr
                 nodes[node.id] = _Node(node, x, y)
-        self.length = x / x_increment
+            x += 1
         return nodes
 
-    def __get_edges(self, dag) -> Iterable[_Edge]:
+    def __compute_edges(self, dag) -> List[_Edge]:
         edges = []
         for edge in dag.edges():
             edges.append(_Edge(self.nodes[edge[0].id], self.nodes[edge[1].id]))
