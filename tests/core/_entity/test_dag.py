@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+from typing import List
 
 from src.taipy.core import DataNode, Pipeline, PipelineId, Task, TaskId
 from src.taipy.core._entity._dag import _DAG
@@ -19,13 +20,13 @@ def assert_x(x: int, *nodes):
         assert node.x == x
 
 
-def assert_y(y: list[int], *nodes):
+def assert_y(y: List[int], *nodes):
     for node in nodes:
         assert node.y in y
         y.remove(node.y)
 
 
-def assert_x_y(x: int, y: list[int], *nodes):
+def assert_x_y(x: int, y: List[int], *nodes):
     assert_x(x, *nodes)
     for node in nodes:
         assert node.y in y
