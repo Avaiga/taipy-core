@@ -8,7 +8,8 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-from math import lcm
+import math
+from functools import reduce
 from typing import Dict, List, Tuple
 
 import networkx as nx
@@ -58,7 +59,7 @@ class _DAG:
         return len(self._sorted_nodes), max([len(i) for i in self._sorted_nodes])
 
     def __compute_grid_size(self) -> Tuple[int, int]:
-        grid_width = lcm(*[len(i) + 1 if len(i) != self._width else len(i) - 1 for i in self._sorted_nodes]) + 1
+        grid_width = self.__lcm(*[len(i) + 1 if len(i) != self._width else len(i) - 1 for i in self._sorted_nodes]) + 1
         return len(self._sorted_nodes), grid_width
 
     def __compute_nodes(self) -> Dict[str, _Node]:
@@ -82,3 +83,9 @@ class _DAG:
         for edge in dag.edges():
             edges.append(_Edge(self.nodes[edge[0].id], self.nodes[edge[1].id]))
         return edges
+
+    @staticmethod
+    def __lcm(*integers) -> int:
+        # Function math.lcm is only implemented for Python 3.9+
+        # For compatibility with Python 3.8 it has been re implemented.
+        return reduce(lambda x, y: (x * y) // math.gcd(x, y), integers)
