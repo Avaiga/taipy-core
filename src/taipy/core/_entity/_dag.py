@@ -10,15 +10,13 @@
 # specific language governing permissions and limitations under the License.
 import math
 from functools import reduce
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import networkx as nx
 
-from src.taipy.core._entity._entity import _Entity
-
 
 class _Node:
-    def __init__(self, entity: _Entity, x, y):
+    def __init__(self, entity: Any, x, y):
         self.type = entity.__class__.__name__
         self.entity = entity
         self.x = x
