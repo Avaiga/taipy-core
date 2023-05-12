@@ -10,23 +10,11 @@
 # specific language governing permissions and limitations under the License.
 
 from copy import copy
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional
 
 from taipy.config import Config, UniqueSection
 
-ServiceConfig = TypedDict(
-    "ServiceConfig",
-    {
-        "mode": str,
-        "version_number": str,
-        "force": bool,
-        "clean_entities": bool,
-    },
-    total=False,
-)
-
-
-default_service_config: ServiceConfig = {
+default_service_config = {
     "mode": "development",
     "version_number": "",
     "force": False,

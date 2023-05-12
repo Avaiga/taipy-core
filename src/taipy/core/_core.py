@@ -20,7 +20,7 @@ from ._orchestrator._dispatcher._job_dispatcher import _JobDispatcher
 from ._orchestrator._orchestrator import _Orchestrator
 from ._orchestrator._orchestrator_factory import _OrchestratorFactory
 from ._version._version_manager_factory import _VersionManagerFactory
-from .config._service_config import ServiceConfig, default_service_config
+from .config._service_config import default_service_config
 from .taipy import clean_all_entities_by_version
 
 
@@ -38,8 +38,8 @@ class Core:
         """
         Initialize a Core service.
         """
-        self._service_config: ServiceConfig = {}
-        self.__load_service_config(default_service_config)
+        self._service_config = {}
+        self._service_config.update(default_service_config)
 
         self._orchestrator = _OrchestratorFactory._build_orchestrator()
 
@@ -67,9 +67,6 @@ class Core:
         if self._dispatcher:
             self._dispatcher = _OrchestratorFactory._remove_dispatcher()
             self.__logger.info("Core service has been stopped.")
-
-    def __load_service_config(self, config: ServiceConfig) -> None:
-        self._service_config.update(config)
 
     def __build_service_config(self):
         try:
