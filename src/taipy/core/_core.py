@@ -79,6 +79,7 @@ class Core:
 
     def __handle_argparse(self):
         """Load from system arguments"""
+        _CoreCLI.create_parser()
         args = _CoreCLI.parse_arguments()
 
         if args.development:

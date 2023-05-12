@@ -42,7 +42,6 @@ import json
 import os
 
 from ._core import Core
-from ._core_cli import _CoreCLI
 from .common.default_custom_document import DefaultCustomDocument
 from .cycle.cycle import Cycle
 from .cycle.cycle_id import CycleId
@@ -91,8 +90,6 @@ from .taipy import (
 )
 from .task.task import Task
 from .task.task_id import TaskId
-
-_CoreCLI.create_parser()
 
 with open(f"{os.path.dirname(os.path.abspath(__file__))}{os.sep}version.json") as version_file:
     version = json.load(version_file)

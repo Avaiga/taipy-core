@@ -18,23 +18,12 @@ from taipy.logger._taipy_logger import _TaipyLogger
 class _CoreCLI:
     """Command-line interface for Taipy Core application."""
 
-    _DEFAULT_ARGS = {
-        "development": False,
-        "experiment": None,
-        "production": None,
-        "force": False,
-        "no_force": False,
-        "clean_entities": False,
-        "no_clean_entities": False,
-    }
-
     @classmethod
     def create_parser(cls):
-        core_parser = _CLI._add_subparser("taipy", help="Run application with Taipy arguments.")
+        core_parser = _CLI._add_groupparser("Taipy Core", "Optional arguments for Taipy Core service")
 
         mode_group = core_parser.add_mutually_exclusive_group()
         mode_group.add_argument(
-            "-dev",
             "--development",
             action="store_true",
             help="""
@@ -67,14 +56,15 @@ class _CoreCLI:
 
         force_group = core_parser.add_mutually_exclusive_group()
         force_group.add_argument(
-            "-f",
-            "--force",
+            "--taipy-force",
+            dest="force",
             action="store_true",
             help="Force override the configuration of the version if existed and run the application."
             " Default to False.",
         )
         force_group.add_argument(
-            "--no-force",
+            "--no-taipy-force",
+            dest="no_force",
             action="store_true",
             help="Stop the application if any Config conflict exists.",
         )
@@ -93,24 +83,4 @@ class _CoreCLI:
 
     @classmethod
     def parse_arguments(cls):
-        try:
-            args = _CLI._parse()
-        except ArgumentError as err:
-            if "invalid choice" in err.message:
-                _TaipyLogger._get_logger().warn(f"{str(err)}. Ignoring command-line arguments")
-                return cls.default()
-            else:
-                raise err
-
-        if getattr(args, "which", None) != "taipy":
-            return cls.default()
-
-        return args
-
-    @classmethod
-    def default(cls):
-        default_args = Namespace()
-        for attr, value in cls._DEFAULT_ARGS.items():
-            setattr(default_args, attr, value)
-
-        return default_args
+        return _CLI._parse()

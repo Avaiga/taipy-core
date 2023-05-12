@@ -28,35 +28,35 @@ def test_delete_version(caplog, tmp_sqlite):
 
     scenario_config = config_scenario()
 
-    with patch("sys.argv", ["prog", "taipy", "--development"]):
+    with patch("sys.argv", ["prog", "--development"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.1"]):
+    with patch("sys.argv", ["prog", "--experiment", "1.1"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "taipy", "--production", "1.1"]):
+    with patch("sys.argv", ["prog", "--production", "1.1"]):
         Core().run()
 
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.0"]):
-        Core().run()
-    scenario = _ScenarioManager._create(scenario_config)
-    _ScenarioManager._submit(scenario)
-
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
+    with patch("sys.argv", ["prog", "--experiment", "2.0"]):
         Core().run()
     scenario = _ScenarioManager._create(scenario_config)
     _ScenarioManager._submit(scenario)
 
-    with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
+    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
+        Core().run()
+    scenario = _ScenarioManager._create(scenario_config)
+    _ScenarioManager._submit(scenario)
+
+    with patch("sys.argv", ["prog", "--production", "2.1"]):
         Core().run()
 
     all_versions = [version.id for version in _VersionManager._get_all()]
@@ -106,25 +106,25 @@ def test_delete_version(caplog, tmp_sqlite):
 def test_list_version(capsys, tmp_sqlite):
     Config.configure_global_app(repository_type="sql", repository_properties={"db_location": tmp_sqlite})
 
-    with patch("sys.argv", ["prog", "taipy", "--development"]):
+    with patch("sys.argv", ["prog", "--development"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.0"]):
+    with patch("sys.argv", ["prog", "--experiment", "1.0"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "1.1"]):
+    with patch("sys.argv", ["prog", "--experiment", "1.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--production", "1.1"]):
+    with patch("sys.argv", ["prog", "--production", "1.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.0"]):
+    with patch("sys.argv", ["prog", "--experiment", "2.0"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--experiment", "2.1"]):
+    with patch("sys.argv", ["prog", "--experiment", "2.1"]):
         Core().run()
     sleep(0.05)
-    with patch("sys.argv", ["prog", "taipy", "--production", "2.1"]):
+    with patch("sys.argv", ["prog", "--production", "2.1"]):
         Core().run()
 
     _VersionCLI.create_parser()
