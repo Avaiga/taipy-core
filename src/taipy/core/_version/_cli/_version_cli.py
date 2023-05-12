@@ -27,7 +27,7 @@ class _VersionCLI:
 
     @classmethod
     def create_parser(cls):
-        version_parser = _CLI._add_subparser("version", help="Taipy version control system.")
+        version_parser = _CLI._add_subparser("manage-versions", help="Taipy version control system.")
 
         version_parser.add_argument(
             "-l", "--list", action="store_true", help="List all existing versions of the Taipy application."
@@ -49,7 +49,7 @@ class _VersionCLI:
     def parse_arguments(cls):
         args = _CLI._parse()
 
-        if getattr(args, "which", None) != "version":
+        if getattr(args, "which", None) != "manage-versions":
             return
 
         if args.list:

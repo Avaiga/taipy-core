@@ -91,9 +91,9 @@ class Core:
             self._service_config["mode"] = "production"
             self._service_config["version_number"] = args.production
 
-        if args.force:
+        if args.taipy_force:
             self._service_config["force"] = True
-        elif args.no_force:
+        elif args.no_taipy_force:
             self._service_config["force"] = False
 
         if args.clean_entities:

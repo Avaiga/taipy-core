@@ -68,7 +68,7 @@ def test_delete_version(caplog):
 
     _VersionCLI.create_parser()
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "version", "--delete", "1.0"]):
+        with patch("sys.argv", ["prog", "manage-versions", "--delete", "1.0"]):
             _VersionCLI.parse_arguments()
 
     assert "Successfully delete version 1.0." in caplog.text
@@ -78,13 +78,13 @@ def test_delete_version(caplog):
 
     # Test delete a non-existed version
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "version", "--delete", "non_exist_version"]):
+        with patch("sys.argv", ["prog", "manage-versions", "--delete", "non_exist_version"]):
             _VersionCLI.parse_arguments()
     assert "Version 'non_exist_version' does not exist." in caplog.text
 
     # Test delete production version will change the version from production to experiment
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "version", "--delete-production", "1.1"]):
+        with patch("sys.argv", ["prog", "manage-versions", "--delete-production", "1.1"]):
             _VersionCLI.parse_arguments()
 
     assert "Successfully delete version 1.1 from production version list." in caplog.text
@@ -95,7 +95,7 @@ def test_delete_version(caplog):
 
     # Test delete a non-existed production version
     with pytest.raises(SystemExit) as e:
-        with patch("sys.argv", ["prog", "version", "--delete-production", "non_exist_version"]):
+        with patch("sys.argv", ["prog", "manage-versions", "--delete-production", "non_exist_version"]):
             _VersionCLI.parse_arguments()
 
     assert str(e.value) == "Version 'non_exist_version' is not a production version."
@@ -125,7 +125,7 @@ def test_list_version(capsys):
 
     _VersionCLI.create_parser()
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["prog", "version", "--list"]):
+        with patch("sys.argv", ["prog", "manage-versions", "--list"]):
             _VersionCLI.parse_arguments()
 
     out, _ = capsys.readouterr()

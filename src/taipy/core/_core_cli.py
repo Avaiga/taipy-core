@@ -9,10 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from argparse import ArgumentError, Namespace
-
 from taipy.cli import _CLI
-from taipy.logger._taipy_logger import _TaipyLogger
 
 
 class _CoreCLI:
@@ -57,14 +54,12 @@ class _CoreCLI:
         force_group = core_parser.add_mutually_exclusive_group()
         force_group.add_argument(
             "--taipy-force",
-            dest="force",
             action="store_true",
             help="Force override the configuration of the version if existed and run the application."
             " Default to False.",
         )
         force_group.add_argument(
             "--no-taipy-force",
-            dest="no_force",
             action="store_true",
             help="Stop the application if any Config conflict exists.",
         )

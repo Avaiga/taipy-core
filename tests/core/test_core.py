@@ -132,7 +132,7 @@ clean_entities = "false:bool"
         assert not service_config["clean_entities"]
         core.stop()
 
-        with patch("sys.argv", ["prog", "--experiment", "test_num_3", "--no-force", "--clean-entities"]):
+        with patch("sys.argv", ["prog", "--experiment", "test_num_3", "--no-taipy-force", "--clean-entities"]):
             core = Core()
             core.run()
             service_config = core._service_config

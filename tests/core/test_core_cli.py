@@ -73,7 +73,7 @@ def test_handle_core_cli_arguments():
         assert not service_config["force"]
         assert not service_config["clean_entities"]
 
-    with patch("sys.argv", ["prog", "--experiment", "2.1", "--force"]):
+    with patch("sys.argv", ["prog", "--experiment", "2.1", "--taipy-force"]):
         core = Core()
         core.run()
         service_config = core._service_config
@@ -343,13 +343,13 @@ def test_force_override_experiment_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --force parameter, a SystemExit will be raised
+    # Without --taipy-force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--experiment", "1.0"]):
             Core().run()
 
-    # With --force parameter
-    with patch("sys.argv", ["prog", "--experiment", "1.0", "--force"]):
+    # With --taipy-force parameter
+    with patch("sys.argv", ["prog", "--experiment", "1.0", "--taipy-force"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
@@ -393,13 +393,13 @@ def test_force_override_production_version():
     Config.unblock_update()
     Config.configure_global_app(clean_entities_enabled=True)
 
-    # Without --force parameter, a SystemExit will be raised
+    # Without --taipy-force parameter, a SystemExit will be raised
     with pytest.raises(SystemExit):
         with patch("sys.argv", ["prog", "--production", "1.0"]):
             Core().run()
 
-    # With --force parameter
-    with patch("sys.argv", ["prog", "--production", "1.0", "--force"]):
+    # With --taipy-force parameter
+    with patch("sys.argv", ["prog", "--production", "1.0", "--taipy-force"]):
         Core().run()
     ver_2 = _VersionManager._get_latest_version()
     assert ver_2 == "1.0"
