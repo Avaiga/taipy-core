@@ -11,7 +11,7 @@
 
 import sys
 
-from taipy.cli import _CLI
+from taipy._cli._base_cli import _CLI
 from taipy.logger._taipy_logger import _TaipyLogger
 
 from ...exceptions.exceptions import VersionIsNotProductionVersion
