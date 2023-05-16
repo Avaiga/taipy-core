@@ -30,76 +30,79 @@ from tests.core.utils import assert_true_after_time
 from ..conftest import init_config
 
 
-def test_handle_core_cli_arguments():
-    # Test default cli values
+def test_core_cli_no_arguments():
     with patch("sys.argv", ["prog"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "development"
-        assert service_config["version_number"] == ""
-        assert not service_config["force"]
-        assert not service_config["clean_entities"]
+        assert Config.core.mode == "development"
+        assert Config.core.version_number == ""
+        assert not Config.core.force
+        assert not Config.core.clean_entities
 
-    # Test Dev mode
+
+def test_core_cli_development_mode():
     with patch("sys.argv", ["prog", "--development"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "development"
+        assert Config.core.mode == "development"
 
+
+def test_core_cli_dev_mode():
     with patch("sys.argv", ["prog", "-dev"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "development"
+        assert Config.core.mode == "development"
 
-    # Test Experiment mode
+
+def test_core_cli_experiment_mode():
     with patch("sys.argv", ["prog", "--experiment"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "experiment"
-        assert service_config["version_number"] == ""
-        assert not service_config["force"]
-        assert not service_config["clean_entities"]
+        assert Config.core.mode == "experiment"
+        assert Config.core.version_number == ""
+        assert not Config.core.force
+        assert not Config.core.clean_entities
 
+
+def test_core_cli_experiment_mode_with_version():
     with patch("sys.argv", ["prog", "--experiment", "2.1"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "experiment"
-        assert service_config["version_number"] == "2.1"
-        assert not service_config["force"]
-        assert not service_config["clean_entities"]
+        assert Config.core.mode == "experiment"
+        assert Config.core.version_number == "2.1"
+        assert not Config.core.force
+        assert not Config.core.clean_entities
 
+
+def test_core_cli_experiment_mode_with_force_version():
     with patch("sys.argv", ["prog", "--experiment", "2.1", "--taipy-force"]):
+        init_config()
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "experiment"
-        assert service_config["version_number"] == "2.1"
-        assert service_config["force"]
-        assert not service_config["clean_entities"]
+        assert Config.core.mode == "experiment"
+        assert Config.core.version_number == "2.1"
+        assert Config.core.force
+        assert not Config.core.clean_entities
 
+
+def test_core_cli_experiment_mode_with_version_cleaning_entities():
     with patch("sys.argv", ["prog", "--experiment", "2.1", "--clean-entities"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "experiment"
-        assert service_config["version_number"] == "2.1"
-        assert not service_config["force"]
-        assert service_config["clean_entities"]
+        assert Config.core.mode == "experiment"
+        assert Config.core.version_number == "2.1"
+        assert not Config.core.force
+        assert Config.core.clean_entities
 
-    # Test Production mode
+
+def test_core_cli_production_mode():
     with patch("sys.argv", ["prog", "--production"]):
         core = Core()
         core.run()
-        service_config = core._service_config
-        assert service_config["mode"] == "production"
-        assert service_config["version_number"] == ""
-        assert not service_config["force"]
-        assert not service_config["clean_entities"]
+        assert Config.core.mode == "production"
+        assert Config.core.version_number == ""
+        assert not Config.core.force
+        assert not Config.core.clean_entities
 
 
 def test_dev_mode_clean_all_entities_of_the_latest_version():

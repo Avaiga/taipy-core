@@ -11,6 +11,8 @@
 
 from taipy._cli._base_cli import _CLI
 
+from .config import CoreSection
+
 
 class _CoreCLI:
     """Command-line interface for Taipy Core application."""
@@ -78,4 +80,24 @@ class _CoreCLI:
 
     @classmethod
     def parse_arguments(cls):
-        return _CLI._parse()
+        args = _CLI._parse()
+        as_dict = {}
+        if args.development:
+            as_dict[CoreSection._MODE_KEY] = CoreSection._DEVELOPMENT_MODE
+        elif args.experiment is not None:
+            as_dict[CoreSection._MODE_KEY] = CoreSection._EXPERIMENT_MODE
+            as_dict[CoreSection._VERSION_NUMBER_KEY] = args.experiment
+        elif args.production is not None:
+            as_dict[CoreSection._MODE_KEY] = CoreSection._PRODUCTION_MODE
+            as_dict[CoreSection._VERSION_NUMBER_KEY] = args.production
+
+        if args.taipy_force:
+            as_dict[CoreSection._TAIPY_FORCE_KEY] = True
+        elif args.no_taipy_force:
+            as_dict[CoreSection._TAIPY_FORCE_KEY] = False
+
+        if args.clean_entities:
+            as_dict[CoreSection._CLEAN_ENTITIES_KEY] = True
+        elif args.no_clean_entities:
+            as_dict[CoreSection._CLEAN_ENTITIES_KEY] = False
+        return as_dict
