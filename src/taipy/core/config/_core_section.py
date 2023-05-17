@@ -37,7 +37,7 @@ class CoreSection(UniqueSection):
         version_number: Optional[str] = None,
         force: Optional[bool] = None,
         clean_entities: Optional[bool] = None,
-        **properties
+        **properties,
     ):
         self.mode = mode or self._DEFAULT_MODE
         self.version_number = version_number or self._DEFAULT_VERSION_NUMBER
@@ -47,9 +47,6 @@ class CoreSection(UniqueSection):
 
     def __copy__(self):
         return CoreSection(self.mode, self.version_number, self.force, self.clean_entities, **copy(self._properties))
-
-    def __getattr__(self, item: str) -> Optional[Any]:
-        return _tpl._replace_templates(self._properties.get(item))
 
     @classmethod
     def default_config(cls):
@@ -99,7 +96,7 @@ class CoreSection(UniqueSection):
         version_number: Optional[str] = None,
         force: Optional[bool] = None,
         clean_entities: Optional[bool] = None,
-        **properties
+        **properties,
     ):
         """Configure the Core service.
 
