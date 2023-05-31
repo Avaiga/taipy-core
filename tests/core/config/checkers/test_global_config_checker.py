@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 from taipy.config._config import _Config
-from taipy.config.checker._checkers._gLobal_config_checker import _GlobalConfigChecker
+from taipy.config.checker._checkers._global_config_checker import _GlobalConfigChecker
 from taipy.config.checker.issue_collector import IssueCollector
 from taipy.config.global_app.global_app_config import GlobalAppConfig
 
