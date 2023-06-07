@@ -236,18 +236,6 @@ class _ScenarioManager(_Manager[Scenario]):
         cls._set(scenario)
 
     @classmethod
-    def _delete(cls, scenario_id: ScenarioId):
-        scenario = cls._get(scenario_id)
-        if scenario.is_primary:
-            if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
-                raise DeletingPrimaryScenario(
-                    f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
-                    f"other scenarios in the same cycle. "
-                )
-            _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
-        super()._delete(scenario_id)
-
-    @classmethod
     def _compare(cls, *scenarios: Scenario, data_node_config_id: Optional[str] = None):
         if len(scenarios) < 2:
             raise InsufficientScenarioToCompare("At least two scenarios are required to compare.")
@@ -279,6 +267,27 @@ class _ScenarioManager(_Manager[Scenario]):
     @staticmethod
     def __get_config(scenario: Scenario):
         return Config.scenarios.get(scenario.config_id, None)
+
+    @classmethod
+    def _is_deletable(cls, scenario: Union[Scenario, ScenarioId]):
+        if isinstance(scenario, str):
+            scenario = cls._get(scenario)
+        if scenario.is_primary:
+            if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
+                return False
+        return True
+
+    @classmethod
+    def _delete(cls, scenario_id: ScenarioId):
+        scenario = cls._get(scenario_id)
+        if scenario.is_primary:
+            if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
+                raise DeletingPrimaryScenario(
+                    f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
+                    f"other scenarios in the same cycle. "
+                )
+            _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
+        super()._delete(scenario_id)
 
     @classmethod
     def _hard_delete(cls, scenario_id: ScenarioId):
