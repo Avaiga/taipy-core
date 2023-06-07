@@ -280,29 +280,29 @@ class _ScenarioManager(_Manager[Scenario]):
     @classmethod
     def _delete(cls, scenario_id: ScenarioId):
         scenario = cls._get(scenario_id)
+        if not cls._is_deletable(scenario):
+            raise DeletingPrimaryScenario(
+                f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
+                f"other scenarios in the same cycle. "
+            )
         if scenario.is_primary:
-            if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
-                raise DeletingPrimaryScenario(
-                    f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
-                    f"other scenarios in the same cycle. "
-                )
             _CycleManagerFactory._build_manager()._delete(scenario.cycle.id)
         super()._delete(scenario_id)
 
     @classmethod
     def _hard_delete(cls, scenario_id: ScenarioId):
         scenario = cls._get(scenario_id)
+        if not cls._is_deletable(scenario):
+            raise DeletingPrimaryScenario(
+                f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
+                f"other scenarios in the same cycle. "
+            )
         if scenario.is_primary:
-            if len(cls._get_all_by_cycle(scenario.cycle)) > 1:
-                raise DeletingPrimaryScenario(
-                    f"Scenario {scenario.id}, which has config id {scenario.config_id}, is primary and there are "
-                    f"other scenarios in the same cycle. "
-                )
             _CycleManagerFactory._build_manager()._hard_delete(scenario.cycle.id)
-            return
-        entity_ids_to_delete = cls._get_children_entity_ids(scenario)
-        entity_ids_to_delete.scenario_ids.add(scenario.id)
-        cls._delete_entities_of_multiple_types(entity_ids_to_delete)
+        else:
+            entity_ids_to_delete = cls._get_children_entity_ids(scenario)
+            entity_ids_to_delete.scenario_ids.add(scenario.id)
+            cls._delete_entities_of_multiple_types(entity_ids_to_delete)
 
     @classmethod
     def _delete_by_version(cls, version_number: str):
