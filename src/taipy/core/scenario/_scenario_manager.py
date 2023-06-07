@@ -269,7 +269,7 @@ class _ScenarioManager(_Manager[Scenario]):
         return Config.scenarios.get(scenario.config_id, None)
 
     @classmethod
-    def _is_deletable(cls, scenario: Union[Scenario, ScenarioId]):
+    def _is_deletable(cls, scenario: Union[Scenario, ScenarioId]) -> bool:
         if isinstance(scenario, str):
             scenario = cls._get(scenario)
         if scenario.is_primary:

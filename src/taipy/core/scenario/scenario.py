@@ -363,7 +363,7 @@ class Scenario(_Entity, _Submittable, _Labeled):
 
         return tp.untag(self, tag)
 
-    def is_deletable(self):
+    def is_deletable(self) -> bool:
         """Indicate if the scenario can be deleted.
 
         Returns:
