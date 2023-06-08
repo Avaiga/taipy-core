@@ -54,6 +54,13 @@ class CoreSection(UniqueSection):
             cls._DEFAULT_MODE, cls._DEFAULT_VERSION_NUMBER, cls._DEFAULT_TAIPY_FORCE, cls._DEFAULT_CLEAN_ENTITIES
         )
 
+    def _clean(self):
+        self.mode = self._DEFAULT_MODE
+        self.version_number = self._DEFAULT_VERSION_NUMBER
+        self.force = self._DEFAULT_TAIPY_FORCE
+        self.clean_entities = self._DEFAULT_CLEAN_ENTITIES
+        self._properties.clear()
+
     def _to_dict(self):
         as_dict = {}
         if self.mode is not None:
@@ -101,6 +108,14 @@ class CoreSection(UniqueSection):
         """Configure the Core service.
 
         Parameters:
+            mode (Optional[str], optional): Indicates the mode of the version management system.
+                Possible values are *"development"*, *"experiment"*, or *"production"*.
+            version_number (Optional[str], optional): The string identifier of the version.
+                 In development mode, the version number is ignored.
+            force (Optional[bool], optional): If True, Taipy will override a version even if the configuration
+                has changed and run the application.
+            clean_entities (Optional[bool], optional): If True, running a Taipy Core service will clean all current
+                version entities before running the application.
             **properties (Dict[str, Any]): A keyworded variable length list of additional arguments configure the
                 behavior of the `Core^` service.
         Returns:
