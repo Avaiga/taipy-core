@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import functools
+from multiprocessing import Lock
 
 from ..notification import EventOperation, _publish_event
 
@@ -18,6 +19,7 @@ class _Reloader:
     """The _Reloader singleton class"""
 
     _instance = None
+    _lock = Lock()
 
     _no_reload_context = False
 
@@ -32,11 +34,13 @@ class _Reloader:
         return _get_manager(manager)._get(obj, obj)
 
     def __enter__(self):
+        self._lock.acquire()
         self._no_reload_context = True
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self._no_reload_context = False
+        self._lock.release()
 
 
 def _self_reload(manager):
