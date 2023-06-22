@@ -140,6 +140,12 @@ class _ScenarioManager(_Manager[Scenario]):
             pipeline_manager._set(i)
 
     @classmethod
+    def _is_submittable(cls, scenario: Union[Scenario, ScenarioId]) -> bool:
+        if isinstance(scenario, str):
+            scenario = cls._get(scenario)
+        return True if isinstance(scenario, Scenario) else False
+
+    @classmethod
     def _submit(
         cls,
         scenario: Union[Scenario, ScenarioId],
