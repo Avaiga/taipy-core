@@ -66,6 +66,7 @@ def set(entity: Union[DataNode, Task, Pipeline, Scenario, Cycle]):
 
 def is_submittable(entity: Union[Scenario, ScenarioId, Pipeline, PipelineId, Task, TaskId]) -> bool:
     """Indicate if an entity can be submitted.
+
     Returns:
         True if the given entity can be submitted. False otherwise.
     """
