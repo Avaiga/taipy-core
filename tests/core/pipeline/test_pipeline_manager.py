@@ -126,6 +126,7 @@ def test_is_submittable():
 
     assert len(_PipelineManager._get_all()) == 1
     assert _PipelineManager._is_submittable(pipeline)
+    assert _PipelineManager._is_submittable(pipeline.id)
     assert not _PipelineManager._is_submittable("Pipeline_temp")
 
 

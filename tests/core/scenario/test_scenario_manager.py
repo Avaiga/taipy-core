@@ -923,6 +923,7 @@ def test_is_submittable():
 
     assert len(_ScenarioManager._get_all()) == 1
     assert _ScenarioManager._is_submittable(scenario)
+    assert _ScenarioManager._is_submittable(scenario.id)
     assert not _ScenarioManager._is_submittable("Scenario_temp")
 
 

@@ -307,6 +307,7 @@ def test_is_submittable():
 
     assert len(_TaskManager._get_all()) == 1
     assert _TaskManager._is_submittable(task)
+    assert _TaskManager._is_submittable(task.id)
     assert not _TaskManager._is_submittable("Task_temp")
 
 
