@@ -54,7 +54,9 @@ class _VersionManager(_Manager[_Version]):
             comparator_result = Config._comparator._find_conflict_config(version.config, Config._applied_config, id)
             if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
                 if force:
-                    _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
+                    cls.__logger.warning(
+                        f"Option --taipy-force is detected, overriding the configuration of version {id} ..."
+                    )
                     version.config = Config._applied_config
                 else:
                     cls.__logger.error(
@@ -135,8 +137,16 @@ class _VersionManager(_Manager[_Version]):
                     version.config, Config._applied_config, production_version
                 )
                 if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
-                    cls.__logger.error(f"Please remove version {version.id} from production to avoid conflict.")
-                    raise SystemExit()
+                    if force:
+                        cls.__logger.warning(
+                            f"Option --taipy-force is detected, the conflicted changes"
+                            f" compared to version {version.id} are ignored."
+                        )
+                    else:
+                        cls.__logger.error(
+                            "To force running the application with the changes, run your application with --taipy-force option."
+                        )
+                        raise SystemExit()
 
             else:
                 raise NonExistingVersion(production_version)
