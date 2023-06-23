@@ -54,10 +54,15 @@ class _VersionManager(_Manager[_Version]):
             comparator_result = Config._comparator._find_conflict_config(version.config, Config._applied_config, id)
             if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
                 if force:
-                    _TaipyLogger._get_logger().warning(f"Overriding version {id} ...")
+                    cls.__logger.warning(
+                        f"Option --taipy-force is detected, overriding the configuration of version {id} ..."
+                    )
                     version.config = Config._applied_config
                 else:
-                    raise SystemExit("The application is stopped. Please check the error log for more information.")
+                    cls.__logger.error(
+                        "To force running the application with the changes, run your application with --taipy-force option."
+                    )
+                    raise SystemExit()
         else:
             version = _Version(id=id, config=Config._applied_config)
 
@@ -132,7 +137,16 @@ class _VersionManager(_Manager[_Version]):
                     version.config, Config._applied_config, production_version
                 )
                 if comparator_result.get(_ComparatorResult.CONFLICTED_SECTION_KEY):
-                    raise SystemExit("The application is stopped. Please check the error log for more information.")
+                    if force:
+                        cls.__logger.warning(
+                            f"Option --taipy-force is detected, the conflicted changes"
+                            f" compared to version {version.id} are ignored."
+                        )
+                    else:
+                        cls.__logger.error(
+                            "To force running the application with the changes, run your application with --taipy-force option."
+                        )
+                        raise SystemExit()
 
             else:
                 raise NonExistingVersion(production_version)
@@ -170,7 +184,7 @@ class _VersionManager(_Manager[_Version]):
             return cls._get_latest_version()
         if version_number in cls.__DEVELOPMENT_VERSION:
             return cls._get_development_version()
-        if version_number in cls.__PRODUCTION_VERSION:
+        if version_number == cls.__PRODUCTION_VERSION:
             return cls._get_production_versions()
         if version_number in cls.__ALL_VERSION:
             return ""
