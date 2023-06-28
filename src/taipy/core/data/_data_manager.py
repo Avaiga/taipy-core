@@ -42,10 +42,11 @@ class _DataManager(_Manager[DataNode], _VersionMixin):
     @classmethod
     def _bulk_get_or_create(
         cls,
-        data_node_configs: Set[DataNodeConfig],
+        data_node_configs: List[DataNodeConfig],
         cycle_id: Optional[CycleId] = None,
         scenario_id: Optional[ScenarioId] = None,
     ) -> Dict[DataNodeConfig, DataNode]:
+        data_node_configs = [Config.data_nodes[dnc.id] for dnc in data_node_configs]
         dn_configs_and_owner_id = []
         for dn_config in data_node_configs:
             scope = dn_config.scope
@@ -131,8 +132,7 @@ class _DataManager(_Manager[DataNode], _VersionMixin):
     @classmethod
     def _remove_dn_file_paths_in_backup_file(cls, data_nodes: Iterable[DataNode]):
         for data_node in data_nodes:
-            if isinstance(data_node, _AbstractFileDataNode):
-                _remove_from_backup_file(to_remove_file_path=data_node.path)
+            cls._remove_dn_file_path_in_backup_file(data_node)
 
     @classmethod
     def _delete(cls, data_node_id: DataNodeId):

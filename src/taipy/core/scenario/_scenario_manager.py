@@ -91,12 +91,12 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
     @classmethod
     def __add_subscriber(cls, callback, params, scenario):
         scenario._add_subscriber(callback, params)
-        cls._set(scenario)
+        _publish_event(cls._EVENT_ENTITY_TYPE, scenario.id, EventOperation.UPDATE, "subscribers")
 
     @classmethod
     def __remove_subscriber(cls, callback, params, scenario):
         scenario._remove_subscriber(callback, params)
-        cls._set(scenario)
+        _publish_event(cls._EVENT_ENTITY_TYPE, scenario.id, EventOperation.UPDATE, "subscribers")
 
     @classmethod
     def _create(
@@ -105,6 +105,7 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
         creation_date: Optional[datetime.datetime] = None,
         name: Optional[str] = None,
     ) -> Scenario:
+        config = Config.scenarios[config.id]
         scenario_id = Scenario._new_id(str(config.id))
         cycle = (
             _CycleManagerFactory._build_manager()._get_or_create(config.frequency, creation_date)
@@ -113,7 +114,9 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
         )
 
         pipelines = [
-            _PipelineManagerFactory._build_manager()._get_or_create(p_config, cycle.id if cycle else None, scenario_id)
+            _PipelineManagerFactory._build_manager()._get_or_create(
+                Config.pipelines[p_config.id], cycle.id if cycle else None, scenario_id
+            )
             for p_config in config.pipeline_configs
         ]
 
@@ -144,6 +147,12 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
         pipeline_manager = _PipelineManagerFactory._build_manager()
         for i in pipelines:
             pipeline_manager._set(i)
+
+    @classmethod
+    def _is_submittable(cls, scenario: Union[Scenario, ScenarioId]) -> bool:
+        if isinstance(scenario, str):
+            scenario = cls._get(scenario)
+        return isinstance(scenario, Scenario)
 
     @classmethod
     def _submit(
@@ -214,14 +223,20 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
         return primary_scenarios
 
     @classmethod
+    def _is_promotable_to_primary(cls, scenario: Union[Scenario, ScenarioId]) -> bool:
+        if isinstance(scenario, str):
+            scenario = cls._get(scenario)
+        if scenario and not scenario.is_primary and scenario.cycle:
+            return True
+        return False
+
+    @classmethod
     def _set_primary(cls, scenario: Scenario):
         if scenario.cycle:
             primary_scenario = cls._get_primary(scenario.cycle)
             if primary_scenario:
-                primary_scenario._primary_scenario = False
-                cls._set(primary_scenario)
-            scenario._primary_scenario = True
-            cls._set(scenario)
+                primary_scenario.is_primary = False  # type: ignore
+            scenario.is_primary = True  # type: ignore
         else:
             raise DoesNotBelongToACycle(
                 f"Can't set scenario {scenario.id} to primary because it doesn't belong to a cycle."
@@ -239,11 +254,13 @@ class _ScenarioManager(_Manager[Scenario], _VersionMixin):
                 cls._set(old_tagged_scenario)
         scenario._add_tag(tag)
         cls._set(scenario)
+        _publish_event(cls._EVENT_ENTITY_TYPE, scenario.id, EventOperation.UPDATE, "tags")
 
     @classmethod
     def _untag(cls, scenario: Scenario, tag: str):
         scenario._remove_tag(tag)
         cls._set(scenario)
+        _publish_event(cls._EVENT_ENTITY_TYPE, scenario.id, EventOperation.UPDATE, "tags")
 
     @classmethod
     def _compare(cls, *scenarios: Scenario, data_node_config_id: Optional[str] = None):

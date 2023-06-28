@@ -12,6 +12,7 @@
 from functools import partial
 from typing import Any, Callable, List, Optional, Union
 
+from taipy.config import Config
 from taipy.config.common.scope import Scope
 
 from .._entity._entity_ids import _EntityIds
@@ -79,12 +80,12 @@ class _PipelineManager(_Manager[Pipeline], _VersionMixin):
     @classmethod
     def __add_subscriber(cls, callback, params, pipeline):
         pipeline._add_subscriber(callback, params)
-        cls._set(pipeline)
+        _publish_event(cls._EVENT_ENTITY_TYPE, pipeline.id, EventOperation.UPDATE, "subscribers")
 
     @classmethod
     def __remove_subscriber(cls, callback, params, pipeline):
         pipeline._remove_subscriber(callback, params)
-        cls._set(pipeline)
+        _publish_event(cls._EVENT_ENTITY_TYPE, pipeline.id, EventOperation.UPDATE, "subscribers")
 
     @classmethod
     def _get_or_create(
@@ -95,8 +96,9 @@ class _PipelineManager(_Manager[Pipeline], _VersionMixin):
     ) -> Pipeline:
         pipeline_id = Pipeline._new_id(str(pipeline_config.id))
 
+        task_configs = [Config.tasks[t.id] for t in pipeline_config.task_configs]
         task_manager = _TaskManagerFactory._build_manager()
-        tasks = task_manager._bulk_get_or_create(pipeline_config.task_configs, cycle_id, scenario_id)
+        tasks = task_manager._bulk_get_or_create(task_configs, cycle_id, scenario_id)
         scope = min(task.scope for task in tasks) if len(tasks) != 0 else Scope.GLOBAL
         owner_id: Union[Optional[PipelineId], Optional[ScenarioId], Optional[CycleId]]
         if scope == Scope.SCENARIO:
@@ -134,6 +136,12 @@ class _PipelineManager(_Manager[Pipeline], _VersionMixin):
         task_manager = _TaskManagerFactory._build_manager()
         for i in tasks:
             task_manager._set(i)
+
+    @classmethod
+    def _is_submittable(cls, pipeline: Union[Pipeline, PipelineId]) -> bool:
+        if isinstance(pipeline, str):
+            pipeline = cls._get(pipeline)
+        return isinstance(pipeline, Pipeline)
 
     @classmethod
     def _submit(
