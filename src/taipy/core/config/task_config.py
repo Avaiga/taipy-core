@@ -192,7 +192,21 @@ class TaskConfig(Section):
         skippable: Optional[bool] = False,
         **properties,
     ) -> "TaskConfig":
-        """Configure the default values for task configurations.
+        """
+        Deprecated. Use set_default_task_configuration() instead.
+        """
+        _warn_deprecated("configure_default_task", suggest="set_default_task_configuration")
+        return TaskConfig._set_default_configuration(function, input, output, skippable, **properties)
+
+    @staticmethod
+    def _set_default_configuration(
+        function,
+        input: Optional[Union[DataNodeConfig, List[DataNodeConfig]]] = None,
+        output: Optional[Union[DataNodeConfig, List[DataNodeConfig]]] = None,
+        skippable: Optional[bool] = False,
+        **properties,
+    ) -> "TaskConfig":
+        """Sets the default values for task configurations.
 
         This function creates the *default task configuration* object,
         where all task configuration objects will find their default
