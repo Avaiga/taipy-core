@@ -216,7 +216,7 @@ class ScenarioConfig(Section):
         **properties,
     ) -> "ScenarioConfig":
         """
-        Deprecated. Use set_default_scenario_configuration() instead.
+        Deprecated since taipy version 2.3.2. Use set_default_scenario_configuration() instead.
         """
         _warn_deprecated("configure_default_scenario", suggest="set_default_scenario_configuration")
         return ScenarioConfig._set_default_configuration(pipeline_configs, frequency, comparators, **properties)

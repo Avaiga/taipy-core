@@ -362,7 +362,7 @@ class DataNodeConfig(Section):
         storage_type: str, scope: Optional[Scope] = None, validity_period: Optional[timedelta] = None, **properties
     ) -> "DataNodeConfig":
         """
-        Deprecated. Use set_default_data_node_configuration instead.
+        Deprecated since taipy version 2.3.2. Use set_default_data_node_configuration instead.
         """
         _warn_deprecated("configure_default_data_node", suggest="set_default_data_node_configuration")
         return DataNodeConfig._set_default_configuration(storage_type, scope, validity_period, **properties)

@@ -193,7 +193,7 @@ class TaskConfig(Section):
         **properties,
     ) -> "TaskConfig":
         """
-        Deprecated. Use set_default_task_configuration() instead.
+        Deprecated since taipy version 2.3.2. Use set_default_task_configuration() instead.
         """
         _warn_deprecated("configure_default_task", suggest="set_default_task_configuration")
         return TaskConfig._set_default_configuration(function, input, output, skippable, **properties)
