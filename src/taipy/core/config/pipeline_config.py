@@ -106,7 +106,15 @@ class PipelineConfig(Section):
 
     @staticmethod
     def _configure_default(task_configs: Union[TaskConfig, List[TaskConfig]], **properties) -> "PipelineConfig":
-        """Configure the default values for pipeline configurations.
+        """
+        Deprecated since taipy version 2.3.2. Use set_default_pipeline_configuration() instead.
+        """
+        _warn_deprecated("configure_default_pipeline", suggest="set_default_pipeline_configuration")
+        return PipelineConfig._set_default_configuration(task_configs, **properties)
+
+    @staticmethod
+    def _set_default_configuration(task_configs: Union[TaskConfig, List[TaskConfig]], **properties) -> "PipelineConfig":
+        """Set the default values for pipeline configurations.
 
         This function creates the *default pipeline configuration* object,
         where all pipeline configuration objects will find their default

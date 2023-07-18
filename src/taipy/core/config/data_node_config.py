@@ -361,7 +361,17 @@ class DataNodeConfig(Section):
     def _configure_default(
         storage_type: str, scope: Optional[Scope] = None, validity_period: Optional[timedelta] = None, **properties
     ) -> "DataNodeConfig":
-        """Configure the default values for data node configurations.
+        """
+        Deprecated since taipy version 2.3.2. Use set_default_data_node_configuration instead.
+        """
+        _warn_deprecated("configure_default_data_node", suggest="set_default_data_node_configuration")
+        return DataNodeConfig._set_default_configuration(storage_type, scope, validity_period, **properties)
+
+    @staticmethod
+    def _set_default_configuration(
+        storage_type: str, scope: Optional[Scope] = None, validity_period: Optional[timedelta] = None, **properties
+    ) -> "DataNodeConfig":
+        """Set the default values for data node configurations.
 
         This function creates the _default data node configuration_ object,
         where all data node configuration objects will find their default
@@ -404,12 +414,12 @@ class DataNodeConfig(Section):
             storage_type (Optional[str]): The data node configuration storage type. The possible values
                 are None (which is the default value of *"pickle"*, unless it has been overloaded by the
                 *storage_type* value set in the default data node configuration
-                (see `(Config.)configure_default_data_node()^`)), *"pickle"*, *"csv"*, *"excel"*,
+                (see `(Config.)set_default_data_node_configuration()^`)), *"pickle"*, *"csv"*, *"excel"*,
                 *"sql_table"*, *"sql"*, *"json"*, *"parquet"*, *"mongo_collection"*, *"in_memory"*, or
                 *"generic"*.
             scope (Optional[Scope^]): The scope of the data node configuration.<br/>
                 The default value is `Scope.SCENARIO` (or the one specified in
-                `(Config.)configure_default_data_node()^`).
+                `(Config.)set_default_data_node_configuration()^`).
             validity_period (Optional[timedelta]): The duration since the last edit date for which the data node can be
                 considered up-to-date. Once the validity period has passed, the data node is considered stale and
                 relevant tasks will run even if they are skippable (see the

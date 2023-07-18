@@ -215,7 +215,20 @@ class ScenarioConfig(Section):
         comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
         **properties,
     ) -> "ScenarioConfig":
-        """Configure the default values for scenario configurations.
+        """
+        Deprecated since taipy version 2.3.2. Use set_default_scenario_configuration() instead.
+        """
+        _warn_deprecated("configure_default_scenario", suggest="set_default_scenario_configuration")
+        return ScenarioConfig._set_default_configuration(pipeline_configs, frequency, comparators, **properties)
+
+    @staticmethod
+    def _set_default_configuration(
+        pipeline_configs: List[PipelineConfig],
+        frequency: Optional[Frequency] = None,
+        comparators: Optional[Dict[str, Union[List[Callable], Callable]]] = None,
+        **properties,
+    ) -> "ScenarioConfig":
+        """Set the default values for scenario configurations.
 
         This function creates the *default scenario configuration* object,
         where all scenario configuration objects will find their default
