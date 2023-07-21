@@ -34,7 +34,7 @@ requirements = [
     "pymongo>=4.2.0,<5.0",
     "sqlalchemy>2.0",
     "toml>=0.10,<0.11",
-    "taipy-config>=2.4,<2.5",
+    "taipy-config@git+https://git@github.com/Avaiga/taipy-config.git@develop",
 ]
 
 test_requirements = ["pytest>=3.8"]
