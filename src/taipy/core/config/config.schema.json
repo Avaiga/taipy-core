@@ -8,7 +8,9 @@
     "CORE": {
       "description": "Data nodes",
       "type": "object",
-      "properties": {},
+      "properties": {
+        "version": "3.0.0"
+      },
       "required": [],
       "additionalProperties": {
         "properties": {
@@ -408,8 +410,8 @@
             }
           },
           "sequences": {
-            "description": "The dictionary of sequence descriptions.",
-            "type": "object",
+            "description": "The list of task configs.",
+            "type": "array",
             "items": {
               "type": "string"
             },
