@@ -1,7 +1,7 @@
 name: Benchmark on taipy-integration-testing
 on:
   push:
-    branches: [develop]
+    branches: [develop, feature/test-benchmark]
 
 jobs:
   build:
