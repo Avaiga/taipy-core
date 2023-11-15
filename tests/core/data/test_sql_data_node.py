@@ -388,9 +388,9 @@ class TestSQLDataNode:
         )
 
         # Test datanode indexing and slicing
-        assert dn["foo"].equals(pd.Series([1, 1, 1, 2, 2, 2]))
-        assert dn["bar"].equals(pd.Series([1, 2, 3, 1, 2, 3]))
-        assert dn[:2].equals(modin_pd.DataFrame([{"foo": 1, "bar": 1}, {"foo": 1, "bar": 2}]))
+        df_equals(dn["foo"], pd.Series([1, 1, 1, 2, 2, 2]))
+        df_equals(dn["bar"], pd.Series([1, 2, 3, 1, 2, 3]))
+        df_equals(dn[:2], modin_pd.DataFrame([{"foo": 1, "bar": 1}, {"foo": 1, "bar": 2}]))
 
         # Test filter data
         filtered_by_filter_method = dn.filter(("foo", 1, Operator.EQUAL))

@@ -378,9 +378,9 @@ class TestParquetDataNode:
         )
 
         # Test datanode indexing and slicing
-        assert dn["foo"].equals(modin_pd.Series([1, 1, 1, 2, None]))
-        assert dn["bar"].equals(modin_pd.Series([1, 2, None, 2, 2]))
-        assert dn[:2].equals(modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
+        df_equals(dn["foo"], modin_pd.Series([1, 1, 1, 2, None]))
+        df_equals(dn["bar"], modin_pd.Series([1, 2, None, 2, 2]))
+        df_equals(dn[:2], modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
 
         # Test filter data
         filtered_by_filter_method = dn.filter(("foo", 1, Operator.EQUAL))

@@ -17,6 +17,7 @@ from time import sleep
 import modin.pandas as modin_pd
 import pandas as pd
 import pytest
+from modin.pandas.test.utils import df_equals
 
 from src.taipy.core.data._data_manager import _DataManager
 from src.taipy.core.data.pickle import PickleDataNode
@@ -137,7 +138,7 @@ class TestPickleDataNodeEntity:
         assert new_pandas_df.equals(pickle_pandas.read())
         assert isinstance(pickle_pandas.read(), pd.DataFrame)
         pickle_pandas.write(new_modin_df)
-        assert new_modin_df.equals(pickle_pandas.read())
+        df_equals(new_modin_df, pickle_pandas.read())
         assert isinstance(pickle_pandas.read(), modin_pd.DataFrame)
         pickle_pandas.write(1998)
         assert pickle_pandas.read() == 1998

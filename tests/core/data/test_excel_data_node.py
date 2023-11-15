@@ -11,9 +11,10 @@
 
 import os
 import pathlib
+from ast import arg
 from datetime import datetime
 from time import sleep
-from typing import Dict
+from typing import Dict, Protocol
 
 import modin.pandas as modin_pd
 import numpy as np
@@ -35,6 +36,20 @@ from src.taipy.core.exceptions.exceptions import (
 )
 from taipy.config.common.scope import Scope
 from taipy.config.config import Config
+
+
+class ToNumpy(Protocol):
+    def to_numpy(self, *args, **kwargs):
+        ...
+
+
+def compare_to_numpy(arg1: ToNumpy, arg2: ToNumpy):
+    """
+    Compare two objects that respect the `ToNumpy` protocol.
+    """
+    numpy_array1 = arg1.to_numpy()
+    numpy_array2 = arg2.to_numpy()
+    return (numpy_array1 == numpy_array2).all()
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -67,6 +82,14 @@ class MyCustomObject2:
 
 
 class TestExcelDataNode:
+    # def test_read_modin(self, monkeypatch):
+    #     path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
+
+    #     data_modin = modin_pd.read_excel(path)
+    #     data_pandas = pd.read_excel(path)
+    #     assert data_modin.equals(data_pandas)
+    #     # assert (data_modin.to_numpy() == data_pandas.to_numpy()).all()
+
     def test_new_excel_data_node_with_existing_file_is_ready_for_reading(self):
         not_ready_dn_cfg = Config.configure_data_node("not_ready_data_node_config_id", "excel", path="NOT_EXISTING.csv")
         path = os.path.join(pathlib.Path(__file__).parent.resolve(), "data_sample/example.xlsx")
@@ -474,7 +497,7 @@ class TestExcelDataNode:
         )
         assert list(data_modin.keys()) == sheet_names
         for sheet_name in sheet_names:
-            assert data_modin[sheet_name].equals(modin_pd.read_excel(path, sheet_name=sheet_name))
+            df_equals(modin_pd.read_excel(path, sheet_name=sheet_name), data_modin[sheet_name])
 
         excel_data_node_as_pandas_no_sheet_name = ExcelDataNode(
             "bar", Scope.SCENARIO, properties={"path": path, "exposed_type": "modin"}
@@ -484,7 +507,7 @@ class TestExcelDataNode:
         assert isinstance(data_modin_no_sheet_name, Dict)
         for key in data_modin_no_sheet_name.keys():
             assert isinstance(data_modin_no_sheet_name[key], modin_pd.DataFrame)
-            assert data_modin[key].equals(data_modin_no_sheet_name[key])
+            df_equals(data_modin[key], data_modin_no_sheet_name[key])
 
         # Create ExcelDataNode with numpy exposed_type
         excel_data_node_as_numpy = ExcelDataNode(
@@ -684,7 +707,9 @@ class TestExcelDataNode:
         assert list(data_modin.keys()) == sheet_names
         for sheet_name in sheet_names:
             assert isinstance(data_modin[sheet_name], modin_pd.DataFrame)
-            assert data_modin[sheet_name].equals(pd.read_excel(path, header=None, sheet_name=sheet_name))
+            data_modin_sheet = data_modin[sheet_name].to_numpy()
+            data_panda_sheet = pd.read_excel(path, header=None, sheet_name=sheet_name).to_numpy()
+            assert (data_modin_sheet == data_panda_sheet).all()
 
         excel_data_node_as_modin_no_sheet_name = ExcelDataNode(
             "bar", Scope.SCENARIO, properties={"path": path, "has_header": False, "exposed_type": "modin"}
@@ -693,7 +718,7 @@ class TestExcelDataNode:
         assert isinstance(data_modin_no_sheet_name, Dict)
         for key in data_modin_no_sheet_name.keys():
             assert isinstance(data_modin_no_sheet_name[key], modin_pd.DataFrame)
-            assert data_modin[key].equals(data_modin_no_sheet_name[key])
+            df_equals(data_modin[key], data_modin_no_sheet_name[key])
 
         # Create ExcelDataNode with numpy exposed_type
         excel_data_node_as_numpy = ExcelDataNode(
@@ -1076,9 +1101,9 @@ class TestExcelDataNode:
         )
 
         # Test datanode indexing and slicing
-        assert dn["foo"].equals(modin_pd.Series([1, 1, 1, 2, None]))
-        assert dn["bar"].equals(modin_pd.Series([1, 2, None, 2, 2]))
-        assert dn[:2].equals(modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
+        df_equals(dn["foo"], modin_pd.Series([1, 1, 1, 2, None]))
+        df_equals(dn["bar"], modin_pd.Series([1, 2, None, 2, 2]))
+        df_equals(dn[:2], modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
 
         # Test filter data
         filtered_by_filter_method = dn.filter(("foo", 1, Operator.EQUAL))
@@ -1129,9 +1154,9 @@ class TestExcelDataNode:
         assert len(dn.filter(("bar", 2, Operator.EQUAL))["Sheet1"]) == 3
         assert len(dn.filter([("bar", 1, Operator.EQUAL), ("bar", 2, Operator.EQUAL)], JoinOperator.OR)["Sheet1"]) == 4
 
-        assert dn["Sheet1"]["foo"].equals(modin_pd.Series([1, 1, 1, 2, None]))
-        assert dn["Sheet1"]["bar"].equals(modin_pd.Series([1, 2, None, 2, 2]))
-        assert dn["Sheet1"][:2].equals(modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
+        df_equals(dn["Sheet1"]["foo"], modin_pd.Series([1, 1, 1, 2, None]))
+        df_equals(dn["Sheet1"]["bar"], modin_pd.Series([1, 2, None, 2, 2]))
+        df_equals(dn["Sheet1"][:2], modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
 
     def test_filter_modin_exposed_type_multisheet(self, excel_file):
         dn = ExcelDataNode(
@@ -1178,12 +1203,12 @@ class TestExcelDataNode:
         assert len(dn.filter([("bar", 1, Operator.EQUAL), ("bar", 2, Operator.EQUAL)], JoinOperator.OR)["sheet_1"]) == 4
         assert len(dn.filter([("bar", 1, Operator.EQUAL), ("bar", 2, Operator.EQUAL)], JoinOperator.OR)["sheet_2"]) == 0
 
-        assert dn["sheet_1"]["foo"].equals(modin_pd.Series([1, 1, 1, 2, None]))
-        assert dn["sheet_2"]["foo"].equals(modin_pd.Series([1, 1, 1, 2, None]))
-        assert dn["sheet_1"]["bar"].equals(modin_pd.Series([1, 2, None, 2, 2]))
-        assert dn["sheet_2"]["bar"].equals(modin_pd.Series([3, 4, None, 4, 4]))
-        assert dn["sheet_1"][:2].equals(modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
-        assert dn["sheet_2"][:2].equals(modin_pd.DataFrame([{"foo": 1.0, "bar": 3.0}, {"foo": 1.0, "bar": 4.0}]))
+        df_equals(dn["sheet_1"]["foo"], modin_pd.Series([1, 1, 1, 2, None]))
+        df_equals(dn["sheet_2"]["foo"], modin_pd.Series([1, 1, 1, 2, None]))
+        df_equals(dn["sheet_1"]["bar"], modin_pd.Series([1, 2, None, 2, 2]))
+        df_equals(dn["sheet_2"]["bar"], modin_pd.Series([3, 4, None, 4, 4]))
+        df_equals(dn["sheet_1"][:2], modin_pd.DataFrame([{"foo": 1.0, "bar": 1.0}, {"foo": 1.0, "bar": 2.0}]))
+        df_equals(dn["sheet_2"][:2], modin_pd.DataFrame([{"foo": 1.0, "bar": 3.0}, {"foo": 1.0, "bar": 4.0}]))
 
     def test_filter_numpy_exposed_type_with_sheetname(self, excel_file):
         dn = ExcelDataNode(

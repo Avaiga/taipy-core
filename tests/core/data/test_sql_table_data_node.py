@@ -353,7 +353,7 @@ class TestSQLTableDataNode:
 
             with patch("src.taipy.core.data.sql_table.SQLTableDataNode._insert_dataframe") as mck:
                 dn.write(df)
-                assert mck.call_args[0][0].equals(df)
+                df_equals(mck.call_args[0][0], df)
 
         # test write modin dataframe
         custom_properties = modin_properties.copy()
@@ -369,7 +369,7 @@ class TestSQLTableDataNode:
 
             with patch("src.taipy.core.data.sql_table.SQLTableDataNode._insert_dataframe") as mck:
                 dn.write(df)
-                assert mck.call_args[0][0].equals(df)
+                df_equals(mck.call_args[0][0], df)
 
     @pytest.mark.parametrize(
         "data",
@@ -526,9 +526,9 @@ class TestSQLTableDataNode:
         )
 
         # Test datanode indexing and slicing
-        assert dn["foo"].equals(pd.Series([1, 1, 1, 2, 2, 2]))
-        assert dn["bar"].equals(pd.Series([1, 2, 3, 1, 2, 3]))
-        assert dn[:2].equals(modin_pd.DataFrame([{"foo": 1, "bar": 1}, {"foo": 1, "bar": 2}]))
+        df_equals(dn["foo"], pd.Series([1, 1, 1, 2, 2, 2]))
+        df_equals(dn["bar"], pd.Series([1, 2, 3, 1, 2, 3]))
+        df_equals(dn[:2], modin_pd.DataFrame([{"foo": 1, "bar": 1}, {"foo": 1, "bar": 2}]))
 
         # Test filter data
         filtered_by_filter_method = dn.filter(("foo", 1, Operator.EQUAL))
