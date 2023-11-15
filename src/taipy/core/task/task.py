@@ -24,6 +24,7 @@ from .._version._version_manager_factory import _VersionManagerFactory
 from ..data._data_manager_factory import _DataManagerFactory
 from ..data.data_node import DataNode
 from ..exceptions.exceptions import NonExistingDataNode
+from ..notification.event import Event, EventEntityType, EventOperation, make_event
 from .task_id import TaskId
 
 if TYPE_CHECKING:
@@ -207,3 +208,24 @@ class Task(_Entity, _Labeled):
             The simple label of the task as a string.
         """
         return self._get_simple_label()
+
+
+@make_event.register(Task)
+def make_event_for_task(
+    task: Task,
+    operation: EventOperation,
+    /,
+    attribute_name: Optional[str] = None,
+    attribute_value: Optional[Any] = None,
+    **kwargs,
+) -> Event:
+    metadata = {"version": task.version}
+    return Event(
+        entity_type=EventEntityType.TASK,
+        entity_id=task.id,
+        config_id=task.config_id,
+        operation=operation,
+        attribute_name=attribute_name,
+        attribute_value=attribute_value,
+        metadata={**metadata, **kwargs},
+    )

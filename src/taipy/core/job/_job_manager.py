@@ -24,7 +24,6 @@ from .job_id import JobId
 
 
 class _JobManager(_Manager[Job], _VersionMixin):
-
     _ENTITY_NAME = Job.__name__
     _ID_PREFIX = "JOB_"
     _repository: _AbstractRepository
@@ -53,7 +52,7 @@ class _JobManager(_Manager[Job], _VersionMixin):
             version=version,
         )
         cls._set(job)
-        _publish_event(cls._EVENT_ENTITY_TYPE, job.id, EventOperation.CREATION, None)
+        _publish_event(EventEntityType.JOB, EventOperation.CREATION, entity_id=job.id, config_id=job._task.config_id)
         job._on_status_change(*callbacks)
         return job
 
