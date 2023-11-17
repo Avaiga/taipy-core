@@ -11,6 +11,7 @@ pyarrow = "==10.0.1"
 pymongo = {extras = ["srv"], version = "==4.2.0"}
 sqlalchemy = "==2.0.16"
 toml = "==0.10"
+boto3 = "==1.29.1"
 taipy-config = {ref = "develop", git = "https://github.com/avaiga/taipy-config.git"}
 
 [dev-packages]
@@ -27,6 +28,7 @@ tox = ">=3.24"
 types-toml = ">=0.10.0"
 autopep8 = "*"
 mongomock = ">=4.1.2"
+moto = ">=4.2.9"
 
 [requires]
 python_version = "3"
