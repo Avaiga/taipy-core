@@ -18,13 +18,13 @@ from moto import mock_s3
 import pytest
 
 from src.taipy.core.data.data_node_id import DataNodeId
-from src.taipy.core.data.aws_s3 import AWSs3DataNode
+from src.taipy.core.data.aws_s3 import S3DataNode
 from src.taipy.core.exceptions.exceptions import InvalidCustomDocument, MissingRequiredProperty
 from taipy.config.common.scope import Scope
 
 
 
-class TestAWSs3DataNode:
+class TestS3DataNode:
     __properties = [
         {
             "aws_access_key": "testing",
@@ -38,13 +38,13 @@ class TestAWSs3DataNode:
     @mock_s3
     @pytest.mark.parametrize("properties", __properties)
     def test_create(self, properties):
-        aws_s3_dn = AWSs3DataNode(
+        aws_s3_dn = S3DataNode(
             "foo_bar_aws_s3",
             Scope.SCENARIO,
             properties=properties,
         )
-        assert isinstance(aws_s3_dn, AWSs3DataNode)
-        assert aws_s3_dn.storage_type() == "aws_s3_bucket"
+        assert isinstance(aws_s3_dn, S3DataNode)
+        assert aws_s3_dn.storage_type() == "aws_s3"
         assert aws_s3_dn.config_id == "foo_bar_aws_s3"
         assert aws_s3_dn.scope == Scope.SCENARIO
         assert aws_s3_dn.id is not None
@@ -54,41 +54,45 @@ class TestAWSs3DataNode:
 
 
     @mock_s3
-    @pytest.mark.parametrize('bucket_name, object_key, data', [
-        ('taipy-bucket', 'taipy-object', 'Hello, world!'),
+    @pytest.mark.parametrize(' object_key, data', [
+        ('taipy-object', 'Hello, world!'),
     ])
     @pytest.mark.parametrize("properties", __properties)
-    def test_write_object_stream(self, properties ,bucket_name, object_key, data ):
+    def test_write(self, properties , object_key, data ):
+        bucket_name = properties["aws_s3_bucket_name"]
+
         # Create an S3 client
         s3_client = boto3.client('s3')
 
         # Create a bucket
         s3_client.create_bucket(Bucket=bucket_name)
 
-        aws_s3_dn = AWSs3DataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)
-        aws_s3_dn.write_object_stream(bucket_name , object_key ,  data)
+        aws_s3_dn = S3DataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)
+        aws_s3_dn._write( object_key ,  data)
 
-        response = aws_s3_dn.read_object_stream(bucket_name , object_key)
+        response = aws_s3_dn._read( object_key)
 
         assert response == data
 
 
     @mock_s3
-    @pytest.mark.parametrize('bucket_name, object_key, data', [
-        ('taipy-other-bucket', 'taipy-other-object', 'Hello, other world!'),
+    @pytest.mark.parametrize(' object_key, data', [
+        ( 'taipy-other-object', 'Hello, other world!'),
     ])
     @pytest.mark.parametrize("properties", __properties)
-    def test_read_object_stream(self, properties ,bucket_name, object_key, data ):
+    def test_read(self, properties , object_key, data ):
+
+        bucket_name = properties["aws_s3_bucket_name"]
         # Create an S3 client
         s3_client = boto3.client('s3')
 
         # Create a bucket
         s3_client.create_bucket(Bucket=bucket_name)
 
-        aws_s3_dn = AWSs3DataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)
-        aws_s3_dn.write_object_stream(bucket_name , object_key ,  data)
+        aws_s3_dn = S3DataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)
+        aws_s3_dn._write( object_key ,  data)
 
-        response = aws_s3_dn.read_object_stream(bucket_name , object_key)
+        response = aws_s3_dn._read( object_key)
 
         assert response == data
 
