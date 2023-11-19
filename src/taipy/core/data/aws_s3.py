@@ -24,7 +24,7 @@ from .data_node_id import DataNodeId, Edit
 
 
 
-class AWSs3DataNode(DataNode):
+class S3DataNode(DataNode):
     """Data Node stored in a Amazon Web Service S3 Bucket .
 
     Attributes:
@@ -49,22 +49,22 @@ class AWSs3DataNode(DataNode):
         editor_id (Optional[str]): The identifier of the user who is currently editing the data node.
         editor_expiration_date (Optional[datetime]): The expiration date of the editor lock.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"db_name"_ and _"collection_name"_:
+            _properties_ parameter must at least contain an entry for _"aws_access_key"_ and _"aws_secret_acces_key"_:
 
             - _"aws_access_key"_ `(str)`: Amazon Web Services ID for to identify account\n
             - _"aws_secret_acces_key"_ `(str)`: Amazon Web Services access key to authenticate programmatic requests.\n
             - _"aws_region"_ `(Any)`: Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.\n
             - _"aws_s3_bucket_name"_ `(str)`: unique identifier for a container that stores objects in Amazon Simple Storage Service (S3).\n
-            - _"aws _S3_object_parameters"_ `(str)`: A dictionary of additional arguments to be passed to interact with the AWS service\n
+            - _"aws _s3_object_parameters"_ `(str)`: A dictionary of additional arguments to be passed to interact with the AWS service\n
 
     """
 
-    __STORAGE_TYPE = "aws_s3_bucket"
+    __STORAGE_TYPE = "aws_s3"
     __AWS_ACCESS_KEY_ID = "aws_access_key"
     __AWS_SECRET_ACCESS_KEY = "aws_secret_acces_key"
     __AWS_REGION = "aws_region"
     __AWS_STORAGE_BUCKET_NAME = "aws_s3_bucket_name"
-    __AWS_S3_OBJECT_PARAMETERS  = "aws _S3_object_parameters"
+    __AWS_S3_OBJECT_PARAMETERS  = "aws _s3_object_parameters"
 
 
     _REQUIRED_PROPERTIES: List[str] = [
@@ -136,16 +136,16 @@ class AWSs3DataNode(DataNode):
         return cls.__STORAGE_TYPE
 
 
-    def read_object_stream(self ,bucket_name , object_key ):
+    def _read(self , object_key ):
         aws_s3_object = self.s3_client.get_object(
-            Bucket = bucket_name,
+            Bucket = self.properties[self.__AWS_STORAGE_BUCKET_NAME],
             Key = object_key
         )
         return  aws_s3_object['Body'].read().decode('utf-8')
 
-    def write_object_stream(self , bucket_name , object_key ,  data  ):
+    def _write(self ,object_key ,  data  ):
         self.s3_client.put_object(
-            Bucket = bucket_name,
+            Bucket = self.properties[self.__AWS_STORAGE_BUCKET_NAME],
             Key = object_key,
             Body = data
             )
