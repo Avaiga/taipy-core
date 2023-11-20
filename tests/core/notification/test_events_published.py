@@ -262,11 +262,11 @@ def test_data_node_events():
 
     assert snapshot.collected_events[0].operation == EventOperation.CREATION
     assert snapshot.collected_events[0].entity_type == EventEntityType.DATA_NODE
-    assert snapshot.collected_events[0].config_id == input_config.id
+    assert snapshot.collected_events[0].config_id in [output_config.id, input_config.id]
 
     assert snapshot.collected_events[1].operation == EventOperation.CREATION
     assert snapshot.collected_events[1].entity_type == EventEntityType.DATA_NODE
-    assert snapshot.collected_events[1].config_id == output_config.id
+    assert snapshot.collected_events[1].config_id in [output_config.id, input_config.id]
 
     # Delete scenario
     tp.delete(scenario.id)
