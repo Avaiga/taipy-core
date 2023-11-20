@@ -21,7 +21,7 @@ from .._entity._labeled import _Labeled
 from .._entity._properties import _Properties
 from .._entity._reload import _Reloader, _self_reload, _self_setter
 from ..exceptions.exceptions import _SuspiciousFileOperation
-from ..notification.event import Event, EventEntityType, EventOperation, make_event
+from ..notification.event import Event, EventEntityType, EventOperation, _make_event
 from .cycle_id import CycleId
 
 
@@ -179,8 +179,8 @@ class Cycle(_Entity, _Labeled):
         return self._get_simple_label()
 
 
-@make_event.register(Cycle)
-def make_event_for_cycle(
+@_make_event.register(Cycle)
+def _make_event_for_cycle(
     cycle: Cycle,
     operation: EventOperation,
     /,
@@ -188,11 +188,12 @@ def make_event_for_cycle(
     attribute_value: Optional[Any] = None,
     **kwargs,
 ) -> Event:
+    metadata = {**kwargs}
     return Event(
         entity_type=EventEntityType.CYCLE,
         entity_id=cycle.id,
         operation=operation,
         attribute_name=attribute_name,
         attribute_value=attribute_value,
-        metadata=kwargs,
+        metadata=metadata,
     )

@@ -17,7 +17,7 @@ from .._repository._abstract_repository import _AbstractRepository
 from .._version._version_manager_factory import _VersionManagerFactory
 from .._version._version_mixin import _VersionMixin
 from ..exceptions.exceptions import JobNotDeletedException
-from ..notification import EventEntityType, EventOperation, _publish_event
+from ..notification import EventEntityType, EventOperation, Notifier, _make_event
 from ..task.task import Task
 from .job import Job
 from .job_id import JobId
@@ -52,7 +52,7 @@ class _JobManager(_Manager[Job], _VersionMixin):
             version=version,
         )
         cls._set(job)
-        _publish_event(EventEntityType.JOB, EventOperation.CREATION, entity_id=job.id, config_id=job._task.config_id)
+        Notifier.publish(_make_event(job, EventOperation.CREATION))
         job._on_status_change(*callbacks)
         return job
 

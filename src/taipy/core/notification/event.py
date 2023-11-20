@@ -83,7 +83,6 @@ class Event:
     entity_type: EventEntityType
     operation: EventOperation
     entity_id: Optional[str] = None
-    config_id: Optional[str] = None
     attribute_name: Optional[str] = None
     attribute_value: Optional[Any] = None
 
@@ -104,7 +103,7 @@ class Event:
 
 
 @singledispatch
-def make_event(
+def _make_event(
     entity: Any,
     operation: EventOperation,
     /,

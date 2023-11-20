@@ -22,7 +22,6 @@ def _publish_event(
     operation: EventOperation,
     /,
     entity_id: Optional[str] = None,
-    config_id: Optional[str] = None,
     attribute_name: Optional[str] = None,
     attribute_value: Optional[Any] = None,
     **kwargs,
@@ -36,7 +35,6 @@ def _publish_event(
         entity_type (EventEntityType^)
         operation (EventOperation^)
         entity_id (Optional[str])
-        config_id (Optional[str])
         attribute_name (Optional[str])
         attribute_value (Optional[Any])
         **kwargs
@@ -45,7 +43,6 @@ def _publish_event(
         entity_id=entity_id,
         entity_type=entity_type,
         operation=operation,
-        config_id=config_id,
         attribute_name=attribute_name,
         attribute_value=attribute_value,
         metadata=kwargs,

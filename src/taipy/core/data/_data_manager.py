@@ -22,7 +22,7 @@ from .._version._version_mixin import _VersionMixin
 from ..config.data_node_config import DataNodeConfig
 from ..cycle.cycle_id import CycleId
 from ..exceptions.exceptions import InvalidDataNodeType
-from ..notification import Event, EventEntityType, EventOperation, Notifier, _publish_event
+from ..notification import Event, EventEntityType, EventOperation, Notifier, _make_event
 from ..scenario.scenario_id import ScenarioId
 from ..sequence.sequence_id import SequenceId
 from ._abstract_file import _AbstractFileDataNode
@@ -76,9 +76,7 @@ class _DataManager(_Manager[DataNode], _VersionMixin):
         cls._set(data_node)
         if isinstance(data_node, _AbstractFileDataNode):
             _append_to_backup_file(new_file_path=data_node._path)
-        _publish_event(
-            EventEntityType.DATA_NODE, EventOperation.CREATION, entity_id=data_node.id, config_id=data_node.config_id
-        )
+        Notifier.publish(_make_event(data_node, EventOperation.CREATION))
         return data_node
 
     @classmethod

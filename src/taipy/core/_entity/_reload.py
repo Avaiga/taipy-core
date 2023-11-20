@@ -11,7 +11,7 @@
 
 import functools
 
-from ..notification import EventOperation, Notifier, make_event
+from ..notification import EventOperation, Notifier, _make_event
 
 
 class _Reloader:
@@ -69,7 +69,7 @@ def _self_setter(manager):
                 value = args[0]
             else:
                 value = args
-            event = make_event(
+            event = _make_event(
                 self,
                 EventOperation.UPDATE,
                 attribute_name=fct.__name__,

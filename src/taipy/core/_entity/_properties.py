@@ -11,7 +11,7 @@
 
 from collections import UserDict
 
-from ..notification import _ENTITY_TO_EVENT_ENTITY_TYPE, EventOperation, Notifier, make_event
+from ..notification import _ENTITY_TO_EVENT_ENTITY_TYPE, EventOperation, Notifier, _make_event
 
 
 class _Properties(UserDict):
@@ -28,7 +28,7 @@ class _Properties(UserDict):
         from ... import core as tp
 
         if hasattr(self, "_entity_owner"):
-            event = make_event(
+            event = _make_event(
                 self._entity_owner,
                 EventOperation.UPDATE,
                 attribute_name=self.__PROPERTIES_ATTRIBUTE_NAME,
@@ -53,7 +53,7 @@ class _Properties(UserDict):
         from ... import core as tp
 
         if hasattr(self, "_entity_owner"):
-            event = make_event(
+            event = _make_event(
                 self._entity_owner,
                 EventOperation.UPDATE,
                 attribute_name=self.__PROPERTIES_ATTRIBUTE_NAME,

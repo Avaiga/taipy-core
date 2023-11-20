@@ -22,7 +22,7 @@ from .._entity._labeled import _Labeled
 from .._entity._reload import _self_reload, _self_setter
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..common._utils import _fcts_to_dict
-from ..notification.event import Event, EventEntityType, EventOperation, make_event
+from ..notification.event import Event, EventEntityType, EventOperation, _make_event
 from ..task.task import Task
 from .job_id import JobId
 from .status import Status
@@ -357,8 +357,8 @@ class Job(_Entity, _Labeled):
         return tp.is_deletable(self)
 
 
-@make_event.register(Job)
-def make_event_for_job(
+@_make_event.register(Job)
+def _make_event_for_job(
     job: Job,
     operation: EventOperation,
     /,
@@ -366,11 +366,10 @@ def make_event_for_job(
     attribute_value: Optional[Any] = None,
     **kwargs,
 ) -> Event:
-    metadata = {"creation_date": job.creation_date}
+    metadata = {"creation_date": job.creation_date, "task_config_id": job._task.config_id}
     return Event(
         entity_type=EventEntityType.JOB,
         entity_id=job.id,
-        config_id=job._task.config_id,  # OK
         operation=operation,
         attribute_name=attribute_name,
         attribute_value=attribute_value,

@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import pathlib
+from importlib import metadata
 from typing import Dict, Generic, Iterable, List, Optional, TypeVar, Union
 
 from taipy.logger._taipy_logger import _TaipyLogger
@@ -17,7 +18,7 @@ from taipy.logger._taipy_logger import _TaipyLogger
 from .._entity._entity_ids import _EntityIds
 from .._repository._abstract_repository import _AbstractRepository
 from ..exceptions.exceptions import ModelNotFound
-from ..notification import EventOperation, _publish_event
+from ..notification import Event, EventOperation, Notifier
 
 EntityType = TypeVar("EntityType")
 
@@ -34,10 +35,12 @@ class _Manager(Generic[EntityType]):
         """
         cls._repository._delete_all()
         if hasattr(cls, "_EVENT_ENTITY_TYPE"):
-            _publish_event(
-                cls._EVENT_ENTITY_TYPE,
-                EventOperation.DELETION,
-                delete_all=True,
+            Notifier.publish(
+                Event(
+                    cls._EVENT_ENTITY_TYPE,
+                    EventOperation.DELETION,
+                    metadata={"delete_all": True},
+                )
             )
 
     @classmethod
@@ -48,11 +51,13 @@ class _Manager(Generic[EntityType]):
         cls._repository._delete_many(ids)
         if hasattr(cls, "_EVENT_ENTITY_TYPE"):
             for entity_id in ids:
-                _publish_event(
-                    cls._EVENT_ENTITY_TYPE,  # type: ignore
-                    EventOperation.DELETION,
-                    entity_id=entity_id,
-                    delete_all=True,
+                Notifier.publish(
+                    Event(
+                        cls._EVENT_ENTITY_TYPE,  # type: ignore
+                        EventOperation.DELETION,
+                        entity_id=entity_id,
+                        metadata={"delete_all": True},
+                    )
                 )
 
     @classmethod
@@ -62,10 +67,12 @@ class _Manager(Generic[EntityType]):
         """
         cls._repository._delete_by(attribute="version", value=version_number)
         if hasattr(cls, "_EVENT_ENTITY_TYPE"):
-            _publish_event(
-                cls._EVENT_ENTITY_TYPE,  # type: ignore
-                EventOperation.DELETION,
-                delete_by_version=version_number,
+            Notifier.publish(
+                Event(
+                    cls._EVENT_ENTITY_TYPE,  # type: ignore
+                    EventOperation.DELETION,
+                    metadata={"delete_by_version": version_number},
+                )
             )
 
     @classmethod
@@ -75,10 +82,12 @@ class _Manager(Generic[EntityType]):
         """
         cls._repository._delete(id)
         if hasattr(cls, "_EVENT_ENTITY_TYPE"):
-            _publish_event(
-                cls._EVENT_ENTITY_TYPE,
-                EventOperation.DELETION,
-                entity_id=id,
+            Notifier.publish(
+                Event(
+                    cls._EVENT_ENTITY_TYPE,
+                    EventOperation.DELETION,
+                    entity_id=id,
+                )
             )
 
     @classmethod

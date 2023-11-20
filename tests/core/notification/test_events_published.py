@@ -186,11 +186,11 @@ def test_job_events():
     assert len(snapshot.collected_events) == 2
     assert snapshot.collected_events[0].operation == EventOperation.CREATION
     assert snapshot.collected_events[0].entity_type == EventEntityType.JOB
-    assert snapshot.collected_events[0].config_id == task_config.id
+    assert snapshot.collected_events[0].metadata.get("task_config_id") == task_config.id
 
     assert snapshot.collected_events[1].operation == EventOperation.UPDATE
     assert snapshot.collected_events[1].entity_type == EventEntityType.JOB
-    assert snapshot.collected_events[1].config_id == task_config.id
+    assert snapshot.collected_events[1].metadata.get("task_config_id") == task_config.id
     assert snapshot.collected_events[1].attribute_name == "status"
     assert snapshot.collected_events[1].attribute_value == Status.BLOCKED
 
@@ -200,7 +200,7 @@ def test_job_events():
     snapshot = consumer.capture()
     assert len(snapshot.collected_events) == 1
     event = snapshot.collected_events[0]
-    assert event.config_id == task_config.id
+    assert event.metadata.get("task_config_id") == task_config.id
     assert event.attribute_name == "status"
     assert event.attribute_value == Status.CANCELED
 
@@ -223,14 +223,14 @@ def test_scenario_events():
     assert len(snapshot.collected_events) == 1
     assert snapshot.collected_events[0].operation == EventOperation.CREATION
     assert snapshot.collected_events[0].entity_type == EventEntityType.SCENARIO
-    assert snapshot.collected_events[0].config_id == scenario.config_id
+    assert snapshot.collected_events[0].metadata.get("config_id") == scenario.config_id
 
     scenario.submit()
     snapshot = consumer.capture()
     assert len(snapshot.collected_events) == 1
     assert snapshot.collected_events[0].operation == EventOperation.SUBMISSION
     assert snapshot.collected_events[0].entity_type == EventEntityType.SCENARIO
-    assert snapshot.collected_events[0].config_id == scenario.config_id
+    assert snapshot.collected_events[0].metadata.get("config_id") == scenario.config_id
 
     # Delete scenario
     tp.delete(scenario.id)
@@ -262,11 +262,11 @@ def test_data_node_events():
 
     assert snapshot.collected_events[0].operation == EventOperation.CREATION
     assert snapshot.collected_events[0].entity_type == EventEntityType.DATA_NODE
-    assert snapshot.collected_events[0].config_id in [output_config.id, input_config.id]
+    assert snapshot.collected_events[0].metadata.get("config_id") in [output_config.id, input_config.id]
 
     assert snapshot.collected_events[1].operation == EventOperation.CREATION
     assert snapshot.collected_events[1].entity_type == EventEntityType.DATA_NODE
-    assert snapshot.collected_events[1].config_id in [output_config.id, input_config.id]
+    assert snapshot.collected_events[1].metadata.get("config_id") in [output_config.id, input_config.id]
 
     # Delete scenario
     tp.delete(scenario.id)
