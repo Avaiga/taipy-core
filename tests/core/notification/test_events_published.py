@@ -126,9 +126,11 @@ def test_event_published():
     assert snapshot.operation_collected.get(EventOperation.CREATION, 0) == 0
     assert snapshot.operation_collected.get(EventOperation.UPDATE, 0) == 4
 
-    # Submit a scenario trigger 1 scenario submission event
+    # Submit a scenario triggers 12 events:
+    # 1 scenario submission event
     # 7 data node update events (for last_edit_date, editor_id(x2), editor_expiration_date(x2) and edit_in_progress(x2))
-    # 1 job creation event and 3 job update events (for status: PENDING, RUNNING and COMPLETED)
+    # 1 job creation event
+    # 3 job update events (for status: PENDING, RUNNING and COMPLETED)
     sc.submit()
     snapshot = all_evts.capture()
     assert len(snapshot.events_collected) == 12
