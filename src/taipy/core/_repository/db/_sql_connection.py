@@ -44,6 +44,7 @@ class _SQLConnection:
         from ...data._data_model import _DataNodeModel
         from ...job._job_model import _JobModel
         from ...scenario._scenario_model import _ScenarioModel
+        from ...submission._submission_model import _SubmissionModel
         from ...task._task_model import _TaskModel
 
         cls._connection.execute(
@@ -64,6 +65,9 @@ class _SQLConnection:
         cls._connection.execute(
             str(CreateTable(_VersionModel.__table__, if_not_exists=True).compile(dialect=sqlite.dialect()))
         )
+        cls._connection.execute(
+            str(CreateTable(_SubmissionModel.__table__, if_not_exists=True).compile(dialect=sqlite.dialect()))
+        )
 
         return cls._connection
 
@@ -76,7 +80,7 @@ def _build_connection() -> Connection:
     try:
         db_location = properties["db_location"]
     except KeyError:
-        raise MissingRequiredProperty("Missing property db_location")
+        raise MissingRequiredProperty("Missing property db_location.")
 
     return __build_connection(db_location)
 
