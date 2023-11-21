@@ -54,7 +54,7 @@ class S3ObjectDataNode(DataNode):
             - _"aws_secret_acces_key"_ `(str)`: Amazon Web Services access key to authenticate programmatic requests.\n
             - _"aws_region"_ `(Any)`: Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.\n
             - _"aws_s3_bucket_name"_ `(str)`: unique identifier for a container that stores objects in Amazon Simple Storage Service (S3).\n
-            - _"aws_s3_object_key"_`(str)`:  unique idntifier for the name of the object(file) that has to be read or written. \n
+            - _"aws_s3_object_key"_ `(str)`:  unique idntifier for the name of the object(file) that has to be read or written. \n
             - _"aws _s3_object_parameters"_ `(str)`: A dictionary of additional arguments to be passed to interact with the AWS service\n
 
     """
