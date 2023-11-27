@@ -89,7 +89,7 @@ class MockJob:
         return self.status == Status.SUBMITTED
 
 
-def mock_get_jobs(job_ids):
+def __test_update_submission_status(job_ids, expected_submission_status):
     jobs = {
         "job0_submitted": MockJob("job0_submitted", Status.SUBMITTED),
         "job1_failed": MockJob("job1_failed", Status.FAILED),
@@ -101,20 +101,13 @@ def mock_get_jobs(job_ids):
         "job7_skipped": MockJob("job7_skipped", Status.SKIPPED),
         "job8_abandoned": MockJob("job8_abandoned", Status.ABANDONED),
     }
-    return [jobs[job_id] for job_id in job_ids]
 
-
-def __test_update_submission_status(job_ids, expected_submission_status):
-    with (
-        patch(
-            "src.taipy.core.submission.submission.Submission.jobs",
-            new_callable=mock.PropertyMock,
-            return_value=(mock_get_jobs(job_ids)),
-        )
-    ):
-        submission = Submission("submission_id", "ENTITY_TYPE")
-        submission._update_submission_status(None)
-        assert submission.submission_status == expected_submission_status
+    submission = Submission("submission_id", "ENTITY_TYPE")
+    submission.jobs = [jobs[job_id] for job_id in job_ids]
+    for job_id in job_ids:
+        job = jobs[job_id]
+        submission._update_submission_status(job)
+    assert submission.submission_status == expected_submission_status
 
 
 @pytest.mark.parametrize(
@@ -145,7 +138,6 @@ def test_update_single_submission_status(job_ids, expected_submission_status):
         (["job1_failed", "job6_completed"], SubmissionStatus.FAILED),
         (["job1_failed", "job7_skipped"], SubmissionStatus.FAILED),
         (["job1_failed", "job8_abandoned"], SubmissionStatus.FAILED),
-        (["job2_canceled", "job1_failed"], SubmissionStatus.FAILED),
         (["job3_blocked", "job1_failed"], SubmissionStatus.FAILED),
         (["job4_pending", "job1_failed"], SubmissionStatus.FAILED),
         (["job5_running", "job1_failed"], SubmissionStatus.FAILED),
@@ -168,6 +160,7 @@ def test_update_submission_status_with_one_failed_job_in_jobs(job_ids, expected_
         (["job2_canceled", "job6_completed"], SubmissionStatus.CANCELED),
         (["job2_canceled", "job7_skipped"], SubmissionStatus.CANCELED),
         (["job2_canceled", "job8_abandoned"], SubmissionStatus.CANCELED),
+        (["job2_canceled", "job1_failed"], SubmissionStatus.CANCELED),
         (["job3_blocked", "job2_canceled"], SubmissionStatus.CANCELED),
         (["job4_pending", "job2_canceled"], SubmissionStatus.CANCELED),
         (["job5_running", "job2_canceled"], SubmissionStatus.CANCELED),
