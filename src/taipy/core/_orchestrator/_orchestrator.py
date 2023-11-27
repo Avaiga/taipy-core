@@ -67,7 +67,10 @@ class _Orchestrator(_AbstractOrchestrator):
         Returns:
             The created Jobs.
         """
-        submission = _SubmissionManagerFactory._build_manager()._create(submittable.id, submittable._ID_PREFIX)  # type: ignore
+        submission = _SubmissionManagerFactory._build_manager()._create(
+            submittable.id, submittable._ID_PREFIX  # type: ignore
+        )
+
         jobs = []
         tasks = submittable._get_sorted_tasks()
         with cls.lock:
