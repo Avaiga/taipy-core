@@ -149,56 +149,44 @@ class Submission(_Entity, _Labeled):
     def __ge__(self, other):
         return self.creation_date.timestamp() >= other.creation_date.timestamp()
 
-    def _update_submission_status(self, j: Job):
-        abandoned = False
-        canceled = False
-        blocked = False
-        pending = False
-        running = False
-        completed = False
+    def _update_submission_status(self, job: Job):
 
-        for job in self.jobs:
-            if not job:
-                continue
-            if job.is_failed():
-                self.submission_status = SubmissionStatus.FAILED  # type: ignore
-                return
-            if job.is_canceled():
-                canceled = True
-                continue
-            if job.is_blocked():
-                blocked = True
-                continue
-            if job.is_pending() or job.is_submitted():
-                pending = True
-                continue
-            if job.is_running():
-                running = True
-                continue
-            if job.is_completed() or job.is_skipped():
-                completed = True
-                continue
-            if job.is_abandoned():
-                abandoned = True
-        if canceled:
+        if job.id not in self.job_ids:
+            return
+        if self.__failed or self.__canceled:
+            return
+
+        if job.is_failed():
+            self.submission_status = SubmissionStatus.FAILED  # type: ignore
+            self.__failed = True
+            return
+        if job.is_canceled():
             self.submission_status = SubmissionStatus.CANCELED  # type: ignore
+            self.__canceled = True
             return
-        if abandoned:
+        if job.is_blocked():
+            self.__blocked = True
+        if job.is_pending() or job.is_submitted():
+            self.__pending = True
+        if job.is_running():
+            self.__running = True
+        if job.is_completed() or job.is_skipped():
+            self.__completed = True
+        if job.is_abandoned():
+            self.__abandoned = True
+
+        if self.__abandoned:
             self.submission_status = SubmissionStatus.UNDEFINED  # type: ignore
-            return
-        if running:
+        elif self.__running:
             self.submission_status = SubmissionStatus.RUNNING  # type: ignore
-            return
-        if pending:
+        elif self.__pending:
             self.submission_status = SubmissionStatus.PENDING  # type: ignore
-            return
-        if blocked:
+        elif self.__blocked:
             self.submission_status = SubmissionStatus.BLOCKED  # type: ignore
-            return
-        if completed:
+        elif self.__completed:
             self.submission_status = SubmissionStatus.COMPLETED  # type: ignore
-            return
-        self.submission_status = SubmissionStatus.UNDEFINED  # type: ignore
+        else:
+            self.submission_status = SubmissionStatus.UNDEFINED  # type: ignore
 
 
 @_make_event.register(Submission)
