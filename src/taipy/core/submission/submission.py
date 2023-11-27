@@ -18,7 +18,7 @@ from .._entity._labeled import _Labeled
 from .._entity._reload import _self_reload, _self_setter
 from .._version._version_manager_factory import _VersionManagerFactory
 from ..job._job_manager_factory import _JobManagerFactory
-from ..job.job import Job, JobId
+from ..job.job import Job, JobId, Status
 from ..notification.event import Event, EventEntityType, EventOperation, _make_event
 from .submission_id import SubmissionId
 from .submission_status import SubmissionStatus
@@ -157,27 +157,29 @@ class Submission(_Entity, _Labeled):
         if self.__failed or self.__canceled:
             return
 
-        if job.is_failed():
+        job_status = job.status
+
+        if job_status == Status.FAILED:
             self.submission_status = SubmissionStatus.FAILED  # type: ignore
             self.__failed = True
             return
-        if job.is_canceled():
+        if job_status == Status.CANCELED:
             self.submission_status = SubmissionStatus.CANCELED  # type: ignore
             self.__canceled = True
             return
 
-        if job.is_blocked():
+        if job_status == Status.BLOCKED:
             self.__blocked_jobs.add(job.id)
-        if job.is_pending() or job.is_submitted():
+        if job_status == Status.PENDING or job_status == Status.SUBMITTED:
             self.__pending_jobs.add(job.id)
             self.__blocked_jobs.discard(job.id)
-        if job.is_running():
+        if job_status == Status.RUNNING:
             self.__running_jobs.add(job.id)
             self.__pending_jobs.discard(job.id)
-        if job.is_completed() or job.is_skipped():
+        if job_status == Status.COMPLETED or job_status == Status.SKIPPED:
             self.__completed = True
             self.__running_jobs.discard(job.id)
-        if job.is_abandoned():
+        if job_status == Status.ABANDONED:
             self.__abandoned = True
 
         if self.__abandoned:
