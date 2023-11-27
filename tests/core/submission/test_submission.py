@@ -50,7 +50,7 @@ def test_create_submission(scenario, job, current_datetime):
 
     assert submission_2.id == "submission_id"
     assert submission_2.entity_id == scenario.id
-    assert submission_2._job_ids == [job.id]
+    assert submission_2._jobs == [job]
     assert submission_2.creation_date == current_datetime
     assert submission_2._submission_status == SubmissionStatus.COMPLETED
     assert submission_2._version == "version_id"

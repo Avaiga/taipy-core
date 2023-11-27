@@ -9,6 +9,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import threading
 import uuid
 from datetime import datetime
 from typing import Any, List, MutableSet, Optional, Union
@@ -40,6 +41,7 @@ class Submission(_Entity, _Labeled):
     _ID_PREFIX = "SUBMISSION"
     _MANAGER_NAME = "submission"
     __SEPARATOR = "_"
+    lock = threading.Lock()
 
     def __init__(
         self,
@@ -54,15 +56,13 @@ class Submission(_Entity, _Labeled):
         self._entity_id = entity_id
         self._entity_type = entity_type
         self.id = id or self.__new_id()
-        self._job_ids = [job if isinstance(job, str) else job.id for job in jobs] if jobs else []
+        self._jobs: Union[List[Job], List[JobId], List] = jobs or []
         self._creation_date = creation_date or datetime.now()
         self._submission_status = submission_status or SubmissionStatus.SUBMITTED
         self._version = version or _VersionManagerFactory._build_manager()._get_latest_version()
 
         self.__abandoned = False
-        self.__canceled = False
         self.__completed = False
-        self.__failed = False
 
         self.__running_jobs: MutableSet[str] = set()
         self.__blocked_jobs: MutableSet[str] = set()
@@ -107,20 +107,15 @@ class Submission(_Entity, _Labeled):
         jobs = []
         job_manager = _JobManagerFactory._build_manager()
 
-        for job_id in self._job_ids:
-            jobs.append(job_manager._get(job_id))
+        for job in self._jobs:
+            jobs.append(job_manager._get(job))
 
         return jobs
-
-    @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
-    def job_ids(self) -> List[JobId]:
-        return self._job_ids
 
     @jobs.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
     def jobs(self, jobs: Union[List[Job], List[JobId]]):
-        self._job_ids = [job if isinstance(job, str) else job.id for job in jobs]
+        self._jobs = jobs
 
     def __hash__(self):
         return hash(self.id)
@@ -151,36 +146,32 @@ class Submission(_Entity, _Labeled):
         return self.creation_date.timestamp() >= other.creation_date.timestamp()
 
     def _update_submission_status(self, job: Job):
-
-        if job.id not in self.job_ids:
-            return
-        if self.__failed or self.__canceled:
+        if self._submission_status == SubmissionStatus.FAILED or self._submission_status == SubmissionStatus.CANCELED:
             return
 
         job_status = job.status
 
         if job_status == Status.FAILED:
             self.submission_status = SubmissionStatus.FAILED  # type: ignore
-            self.__failed = True
             return
         if job_status == Status.CANCELED:
             self.submission_status = SubmissionStatus.CANCELED  # type: ignore
-            self.__canceled = True
             return
 
-        if job_status == Status.BLOCKED:
-            self.__blocked_jobs.add(job.id)
-        if job_status == Status.PENDING or job_status == Status.SUBMITTED:
-            self.__pending_jobs.add(job.id)
-            self.__blocked_jobs.discard(job.id)
-        if job_status == Status.RUNNING:
-            self.__running_jobs.add(job.id)
-            self.__pending_jobs.discard(job.id)
-        if job_status == Status.COMPLETED or job_status == Status.SKIPPED:
-            self.__completed = True
-            self.__running_jobs.discard(job.id)
-        if job_status == Status.ABANDONED:
-            self.__abandoned = True
+        with self.lock:
+            if job_status == Status.BLOCKED:
+                self.__blocked_jobs.add(job.id)
+            if job_status == Status.PENDING or job_status == Status.SUBMITTED:
+                self.__pending_jobs.add(job.id)
+                self.__blocked_jobs.discard(job.id)
+            if job_status == Status.RUNNING:
+                self.__running_jobs.add(job.id)
+                self.__pending_jobs.discard(job.id)
+            if job_status == Status.COMPLETED or job_status == Status.SKIPPED:
+                self.__completed = True
+                self.__running_jobs.discard(job.id)
+            if job_status == Status.ABANDONED:
+                self.__abandoned = True
 
         if self.__abandoned:
             self.submission_status = SubmissionStatus.UNDEFINED  # type: ignore
