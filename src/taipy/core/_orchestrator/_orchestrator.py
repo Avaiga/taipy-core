@@ -225,7 +225,6 @@ class _Orchestrator(_AbstractOrchestrator):
         if job.is_completed() or job.is_skipped():
             cls.__unblock_jobs()
         elif job.is_failed():
-            print(f"\nJob {job.id} failed, abandoning subsequent jobs.\n")
             cls._fail_subsequent_jobs(job)
 
     @classmethod
@@ -298,7 +297,6 @@ class _Orchestrator(_AbstractOrchestrator):
                 cls.__find_subsequent_jobs(failed_job.submit_id, set(failed_job.task.output.keys()))
             )
             for job in to_fail_or_abandon_jobs:
-                print(f"Abandoning job: {job.id}")
                 job.abandoned()
             to_fail_or_abandon_jobs.update([failed_job])
             cls.__remove_blocked_jobs(to_fail_or_abandon_jobs)
