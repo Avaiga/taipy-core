@@ -54,18 +54,10 @@ class Submission(_Entity, _Labeled):
         self._entity_id = entity_id
         self._entity_type = entity_type
         self.id = id or self.__new_id()
-        self._job_ids = [job if isinstance(job, str) else job.id for job in jobs] if jobs else []
+        self._jobs: Union[List[Job], List[JobId], List] = jobs or []
         self._creation_date = creation_date or datetime.now()
         self._submission_status = submission_status or SubmissionStatus.SUBMITTED
         self._version = version or _VersionManagerFactory._build_manager()._get_latest_version()
-
-        self.__abandoned = False
-        self.__canceled = False
-        self.__blocked = False
-        self.__pending = False
-        self.__running = False
-        self.__completed = False
-        self.__failed = False
 
     @staticmethod
     def __new_id() -> str:
@@ -106,20 +98,15 @@ class Submission(_Entity, _Labeled):
         jobs = []
         job_manager = _JobManagerFactory._build_manager()
 
-        for job_id in self._job_ids:
-            jobs.append(job_manager._get(job_id))
+        for job in self._jobs:
+            jobs.append(job_manager._get(job))
 
         return jobs
-
-    @property  # type: ignore
-    @_self_reload(_MANAGER_NAME)
-    def job_ids(self) -> List[JobId]:
-        return self._job_ids
 
     @jobs.setter  # type: ignore
     @_self_setter(_MANAGER_NAME)
     def jobs(self, jobs: Union[List[Job], List[JobId]]):
-        self._job_ids = [job if isinstance(job, str) else job.id for job in jobs]
+        self._jobs = jobs
 
     def __hash__(self):
         return hash(self.id)

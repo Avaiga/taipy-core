@@ -25,7 +25,7 @@ class _SubmissionConverter(_AbstractConverter):
             id=submission.id,
             entity_id=submission._entity_id,
             entity_type=submission.entity_type,
-            job_ids=submission._job_ids,
+            job_ids=[job.id if isinstance(job, Job) else JobId(str(job)) for job in list(submission._jobs)],
             creation_date=submission._creation_date.isoformat(),
             submission_status=submission._submission_status,
             version=submission._version,
