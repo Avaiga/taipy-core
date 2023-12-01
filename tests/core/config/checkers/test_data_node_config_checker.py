@@ -123,6 +123,11 @@ class TestDataNodeConfigChecker:
         Config.check()
         assert len(Config._collector.errors) == 0
 
+        config._sections[DataNodeConfig.name]["new"].storage_type = "s3_object"
+        Config._collector = IssueCollector()
+        Config.check()
+        assert len(Config._collector.errors) == 0
+
         config._sections[DataNodeConfig.name]["new"].storage_type = "generic"
         with pytest.raises(SystemExit):
             Config._collector = IssueCollector()
@@ -349,6 +354,17 @@ class TestDataNodeConfigChecker:
 
         config._sections[DataNodeConfig.name]["new"].storage_type = "mongo_collection"
         config._sections[DataNodeConfig.name]["new"].properties = {"db_name": "foo", "collection_name": "bar"}
+        Config._collector = IssueCollector()
+        Config.check()
+        assert len(Config._collector.errors) == 0
+
+        config._sections[DataNodeConfig.name]["new"].storage_type = "s3_object"
+        config._sections[DataNodeConfig.name]["new"].properties = {
+            "aws_access_key": "access_key",
+            "aws_secret_access_key": "secret_acces_key",
+            "aws_s3_bucket_name": "s3_bucket_name", 
+            "aws_s3_object_key": "s3_object_key",
+        }
         Config._collector = IssueCollector()
         Config.check()
         assert len(Config._collector.errors) == 0
