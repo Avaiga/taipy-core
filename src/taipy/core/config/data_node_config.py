@@ -35,8 +35,8 @@ class DataNodeConfig(Section):
     Attributes:
         id (str): Unique identifier of the data node config. It must be a valid Python variable name.
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
-            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json", "parquet" and
-            "in_memory".
+            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json", "parquet", 
+            "in_memory and "s3_object".
             The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
         scope (Optional[Scope^]): The optional `Scope^` of the data nodes instantiated from the data node config.
@@ -57,7 +57,7 @@ class DataNodeConfig(Section):
     _STORAGE_TYPE_VALUE_GENERIC = "generic"
     _STORAGE_TYPE_VALUE_JSON = "json"
     _STORAGE_TYPE_VALUE_PARQUET = "parquet"
-    _STORAGE_TYPE_VALUE_S3_OBJECT = "aws_s3_object"
+    _STORAGE_TYPE_VALUE_S3_OBJECT = "s3_object"
 
     _DEFAULT_STORAGE_TYPE = _STORAGE_TYPE_VALUE_PICKLE
     _ALL_STORAGE_TYPES = [
@@ -150,9 +150,9 @@ class DataNodeConfig(Section):
     _OPTIONAL_WRITE_KWARGS_PARQUET_PROPERTY = "write_kwargs"
     # S3object
     _REQUIRED_AWS_ACCESS_KEY_ID_PROPERTY = "aws_access_key"
-    _REQUIRED_AWS_SECRET_ACCESS_KEY_PROPERTY = "aws_secret_acces_key"
+    _REQUIRED_AWS_SECRET_ACCESS_KEY_PROPERTY = "aws_secret_access_key"
     _REQUIRED_AWS_STORAGE_BUCKET_NAME_PROPERTY = "aws_s3_bucket_name"
-    _REQUIRED_AWS_S3_OBJECT_KEY = "aws_s3_object_key"
+    _REQUIRED_AWS_S3_OBJECT_KEY_PROPERTY = "aws_s3_object_key"
     _OPTIONAL_AWS_REGION_PROPERTY = "aws_region"
     _OPTIONAL_AWS_S3_OBJECT_PARAMETERS_PROPERTY = "aws_s3_object_parameters"
 
@@ -184,7 +184,7 @@ class DataNodeConfig(Section):
             _REQUIRED_AWS_ACCESS_KEY_ID_PROPERTY,
             _REQUIRED_AWS_SECRET_ACCESS_KEY_PROPERTY,
             _REQUIRED_AWS_STORAGE_BUCKET_NAME_PROPERTY,
-            _REQUIRED_AWS_S3_OBJECT_KEY,
+            _REQUIRED_AWS_S3_OBJECT_KEY_PROPERTY,
         ],
     }
 
@@ -1057,8 +1057,9 @@ class DataNodeConfig(Section):
         cls,
         id: str,
         aws_access_key: str,
-        aws_secret_acces_key: str,
+        aws_secret_access_key: str,
         aws_s3_bucket_name: str,
+        aws_s3_object_key: str,
         aws_region: Optional[str] = None,
         aws_s3_object_parameters: Optional[Dict[str, Any]] = None,
         scope: Optional[Scope] = None,
@@ -1070,7 +1071,7 @@ class DataNodeConfig(Section):
         Parameters:
             id (str): The unique identifier of the new S3 Object data node configuration.
             aws_access_key (str): Amazon Web Services ID for to identify account.
-            aws_secret_acces_key (str): Amazon Web Services access key to authenticate programmatic requests.
+            aws_secret_access_key (str): Amazon Web Services access key to authenticate programmatic requests.
             aws_s3_bucket_name (str): The bucket in S3 to read from and to write the data to.
             aws_region (Optional[str]): Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.
             aws_s3_object_parameters (Optional[dict[str, any]]): A dictionary of additional arguments to be passed
@@ -1090,9 +1091,9 @@ class DataNodeConfig(Section):
         properties.update(
             {
                 cls._REQUIRED_AWS_ACCESS_KEY_ID_PROPERTY: aws_access_key,
-                cls._REQUIRED_AWS_SECRET_ACCESS_KEY_PROPERTY: aws_secret_acces_key,
+                cls._REQUIRED_AWS_SECRET_ACCESS_KEY_PROPERTY: aws_secret_access_key,
                 cls._REQUIRED_AWS_STORAGE_BUCKET_NAME_PROPERTY: aws_s3_bucket_name,
-                cls._REQUIRED_AWS_S3_OBJECT_KEY: aws_s3_object_key,
+                cls._REQUIRED_AWS_S3_OBJECT_KEY_PROPERTY: aws_s3_object_key,
             }
         )
 
