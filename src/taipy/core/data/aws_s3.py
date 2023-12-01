@@ -48,10 +48,10 @@ class S3ObjectDataNode(DataNode):
         editor_id (Optional[str]): The identifier of the user who is currently editing the data node.
         editor_expiration_date (Optional[datetime]): The expiration date of the editor lock.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"aws_access_key"_ , _"aws_secret_acces_key"_ , _aws_s3_bucket_name_ and _aws_s3_object_key_ :
+            _properties_ parameter must at least contain an entry for _"aws_access_key"_ , _"aws_secret_access_key"_ , _aws_s3_bucket_name_ and _aws_s3_object_key_ :
 
             - _"aws_access_key"_ `(str)`: Amazon Web Services ID for to identify account\n
-            - _"aws_secret_acces_key"_ `(str)`: Amazon Web Services access key to authenticate programmatic requests.\n
+            - _"aws_secret_access_key"_ `(str)`: Amazon Web Services access key to authenticate programmatic requests.\n
             - _"aws_region"_ `(Any)`: Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.\n
             - _"aws_s3_bucket_name"_ `(str)`: unique identifier for a container that stores objects in Amazon Simple Storage Service (S3).\n
             - _"aws_s3_object_key"_ `(str)`:  unique idntifier for the name of the object(file) that has to be read or written. \n
@@ -59,12 +59,13 @@ class S3ObjectDataNode(DataNode):
 
     """
 
-    __STORAGE_TYPE = "aws_s3"
+    __STORAGE_TYPE = "s3_object"
+
     __AWS_ACCESS_KEY_ID = "aws_access_key"
-    __AWS_SECRET_ACCESS_KEY = "aws_secret_acces_key"
-    __AWS_REGION = "aws_region"
+    __AWS_SECRET_ACCESS_KEY = "aws_secret_access_key"
     __AWS_STORAGE_BUCKET_NAME = "aws_s3_bucket_name"
     __AWS_S3_OBJECT_KEY = "aws_s3_object_key"
+    __AWS_REGION = "aws_region"    
     __AWS_S3_OBJECT_PARAMETERS  = "aws_s3_object_parameters"
 
 
@@ -84,13 +85,13 @@ class S3ObjectDataNode(DataNode):
         owner_id: Optional[str] = None,
         parent_ids: Optional[Set[str]] = None,
         last_edit_date: Optional[datetime] = None,
-        edits: List[Edit] = None,
+        edits: Optional[List[Edit]] = None,
         version: str = None,
         validity_period: Optional[timedelta] = None,
         edit_in_progress: bool = False,
         editor_id: Optional[str] = None,
         editor_expiration_date: Optional[datetime] = None,
-        properties: Dict = None,
+        properties: Optional[Dict] = None,
     ):
         if properties is None:
             properties = {}
@@ -129,8 +130,9 @@ class S3ObjectDataNode(DataNode):
             {
                 self.__AWS_ACCESS_KEY_ID,
                 self.__AWS_SECRET_ACCESS_KEY,
-                self.__AWS_REGION,
                 self.__AWS_STORAGE_BUCKET_NAME,
+                self.__AWS_S3_OBJECT_KEY,
+                self.__AWS_REGION,
                 self.__AWS_S3_OBJECT_PARAMETERS,
             }
         )
