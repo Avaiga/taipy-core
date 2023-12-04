@@ -126,7 +126,7 @@ def test_data_node_config_check(caplog):
         Config.check()
     expected_error_message = (
         "`storage_type` field of DataNodeConfig `data_nodes` must be either csv, sql_table,"
-        " sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory. Current"
+        " sql, mongo_collection, pickle, excel, generic, json, parquet, s3_object, or in_memory. Current"
         ' value of property `storage_type` is "bar".'
     )
     assert expected_error_message in caplog.text
@@ -148,7 +148,7 @@ def test_data_node_config_check(caplog):
         Config.check()
     expected_error_message = (
         "`storage_type` field of DataNodeConfig `data_nodes` must be either csv, sql_table,"
-        " sql, mongo_collection, pickle, excel, generic, json, parquet, or in_memory."
+        " sql, mongo_collection, pickle, excel, generic, json, parquet, s3_object, or in_memory."
         ' Current value of property `storage_type` is "bar".'
     )
     assert expected_error_message in caplog.text
