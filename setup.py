@@ -34,6 +34,7 @@ requirements = [
     "pymongo[srv]>=4.2.0,<5.0",
     "sqlalchemy>=2.0.16,<2.1",
     "toml>=0.10,<0.11",
+    "boto3>=1.29.1",
     "taipy-config@git+https://git@github.com/Avaiga/taipy-config.git@develop",
 ]
 
