@@ -23,14 +23,13 @@ from src.taipy.core.exceptions.exceptions import InvalidCustomDocument, MissingR
 from taipy.config.common.scope import Scope
 
 
-
 class TestS3ObjectDataNode:
     __properties = [
         {
             "aws_access_key": "testing",
             "aws_secret_access_key": "testing",
-            "aws_s3_bucket_name":"taipy",
-            "aws_s3_object_key":"taipy-object",
+            "aws_s3_bucket_name": "taipy",
+            "aws_s3_object_key": " taipy-object",
             "aws_region": "us-east-1",
             "aws_s3_object_parameters": {},
         }
@@ -53,11 +52,10 @@ class TestS3ObjectDataNode:
         assert aws_s3_object_dn.job_ids == []
         assert aws_s3_object_dn.is_ready_for_reading
 
-
     @mock_s3
     @pytest.mark.parametrize('data', [('Hello, write world!'),])
     @pytest.mark.parametrize("properties", __properties)
-    def test_write(self, properties, data ):
+    def test_write(self, properties, data):
         bucket_name = properties["aws_s3_bucket_name"]
         # Create an S3 client
         s3_client = boto3.client('s3')
@@ -74,7 +72,6 @@ class TestS3ObjectDataNode:
 
         assert response['Body'].read().decode('utf-8') == "Hello, write world!"
 
-
     @mock_s3
     @pytest.mark.parametrize('data', [('Hello, read world!'),])
     @pytest.mark.parametrize("properties", __properties)
@@ -89,7 +86,7 @@ class TestS3ObjectDataNode:
         object_body = 'Hello, read world!'
         client.put_object(Body=object_body, Bucket=bucket_name, Key=object_key)
         # Create Taipy S3ObjectDataNode
-        aws_s3_object_dn = S3ObjectDataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)        
+        aws_s3_object_dn = S3ObjectDataNode("foo_aws_s3", Scope.SCENARIO, properties=properties)
         # Read the Object from bucket with Taipy
         response = aws_s3_object_dn._read()
 
