@@ -35,7 +35,7 @@ class DataNodeConfig(Section):
     Attributes:
         id (str): Unique identifier of the data node config. It must be a valid Python variable name.
         storage_type (str): Storage type of the data nodes created from the data node config. The possible values
-            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json", "parquet", 
+            are : "csv", "excel", "pickle", "sql_table", "sql", "mongo_collection", "generic", "json", "parquet",
             "in_memory and "s3_object".
             The default value is "pickle".
             Note that the "in_memory" value can only be used when `JobConfig^`.mode is "standalone".
@@ -172,7 +172,7 @@ class DataNodeConfig(Section):
         _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
             _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
-        ],        
+        ]
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [],
@@ -1073,7 +1073,8 @@ class DataNodeConfig(Section):
             aws_access_key (str): Amazon Web Services ID for to identify account.
             aws_secret_access_key (str): Amazon Web Services access key to authenticate programmatic requests.
             aws_s3_bucket_name (str): The bucket in S3 to read from and to write the data to.
-            aws_region (Optional[str]): Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.
+            aws_region (Optional[str]): Self-contained geographic area where Amazon Web Services (AWS) 
+                infrastructure is located.
             aws_s3_object_parameters (Optional[dict[str, any]]): A dictionary of additional arguments to be passed
                 into AWS S3 bucket access string.
             scope (Optional[Scope^]): The scope of the S3 Object data node configuration.<br/>
