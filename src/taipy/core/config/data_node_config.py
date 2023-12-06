@@ -1073,7 +1073,7 @@ class DataNodeConfig(Section):
             aws_access_key (str): Amazon Web Services ID for to identify account.
             aws_secret_access_key (str): Amazon Web Services access key to authenticate programmatic requests.
             aws_s3_bucket_name (str): The bucket in S3 to read from and to write the data to.
-            aws_region (Optional[str]): Self-contained geographic area where Amazon Web Services (AWS) 
+            aws_region (Optional[str]): Self-contained geographic area where Amazon Web Services (AWS)
                 infrastructure is located.
             aws_s3_object_parameters (Optional[dict[str, any]]): A dictionary of additional arguments to be passed
                 into AWS S3 bucket access string.
