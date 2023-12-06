@@ -47,6 +47,7 @@ def test_set_default_data_node_configuration():
     assert data_node5.scope == Scope.SCENARIO
     assert data_node5.validity_period == timedelta(1)
 
+
 def test_set_default_data_node_configuration_replace_old_default_config():
     Config.set_default_data_node_configuration(
         "in_memory",
@@ -592,7 +593,7 @@ def test_set_default_s3_object_data_node_configuration():
         storage_type="s3_object",
         aws_access_key="default_access_key",
         aws_secret_access_key="default_secret_acces_key",
-        aws_s3_bucket_name ="default_bucket_name",
+        aws_s3_bucket_name="default_bucket_name",
         aws_s3_object_key="default_object_key",
         aws_region="",
         aws_s3_object_parameters={"default": "default"},
@@ -619,7 +620,7 @@ def test_set_default_s3_object_data_node_configuration():
         id="dn2",
         aws_access_key="custom_access_key_2",
         aws_secret_access_key="custom_secret_acces_key_2",
-        aws_s3_bucket_name ="custom_bucket_name_2",
+        aws_s3_bucket_name="custom_bucket_name_2",
         aws_s3_object_key="custom_object_key_2",
     )
     assert dn2.storage_type == "s3_object"
@@ -639,7 +640,7 @@ def test_set_default_s3_object_data_node_configuration():
         storage_type="s3_object",
         aws_access_key="custom_access_key_3",
         aws_secret_access_key="custom_secret_acces_key_3",
-        aws_s3_bucket_name ="custom_bucket_name_3",
+        aws_s3_bucket_name="custom_bucket_name_3",
         aws_s3_object_key="custom_object_key_3",
         aws_region="",
         aws_s3_object_parameters={"default": "default"},
