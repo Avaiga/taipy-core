@@ -91,7 +91,7 @@ class TestDataNodeConfigChecker:
             " sql, mongo_collection, pickle, excel, generic, json, parquet, s3_object, or in_memory."
             ' Current value of property `storage_type` is "bar".'
         )
-        assert expected_error_message  in caplog.text
+        assert expected_error_message in caplog.text
 
         config._sections[DataNodeConfig.name]["new"].storage_type = "csv"
         Config._collector = IssueCollector()
@@ -370,7 +370,7 @@ class TestDataNodeConfigChecker:
         config._sections[DataNodeConfig.name]["new"].properties = {
             "aws_access_key": "access_key",
             "aws_secret_access_key": "secret_acces_key",
-            "aws_s3_bucket_name": "s3_bucket_name", 
+            "aws_s3_bucket_name": "s3_bucket_name",
             "aws_s3_object_key": "s3_object_key",
         }
         Config._collector = IssueCollector()
