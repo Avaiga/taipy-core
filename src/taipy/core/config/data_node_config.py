@@ -172,7 +172,7 @@ class DataNodeConfig(Section):
         _STORAGE_TYPE_VALUE_MONGO_COLLECTION: [
             _REQUIRED_DB_NAME_MONGO_PROPERTY,
             _REQUIRED_COLLECTION_NAME_MONGO_PROPERTY,
-        ]
+        ],
         _STORAGE_TYPE_VALUE_CSV: [],
         _STORAGE_TYPE_VALUE_EXCEL: [],
         _STORAGE_TYPE_VALUE_IN_MEMORY: [],
