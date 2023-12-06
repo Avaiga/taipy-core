@@ -48,14 +48,19 @@ class S3ObjectDataNode(DataNode):
         editor_id (Optional[str]): The identifier of the user who is currently editing the data node.
         editor_expiration_date (Optional[datetime]): The expiration date of the editor lock.
         properties (dict[str, Any]): A dictionary of additional properties. Note that the
-            _properties_ parameter must at least contain an entry for _"aws_access_key"_ , _"aws_secret_access_key"_ , _aws_s3_bucket_name_ and _aws_s3_object_key_ :
+            _properties_ parameter must at least contain an entry for _"aws_access_key"_ , _"aws_secret_access_key"_ ,
+            _aws_s3_bucket_name_ and _aws_s3_object_key_ :
 
             - _"aws_access_key"_ `(str)`: Amazon Web Services ID for to identify account\n
             - _"aws_secret_access_key"_ `(str)`: Amazon Web Services access key to authenticate programmatic requests.\n
-            - _"aws_region"_ `(Any)`: Self-contained geographic area where Amazon Web Services (AWS) infrastructure is located.\n
-            - _"aws_s3_bucket_name"_ `(str)`: unique identifier for a container that stores objects in Amazon Simple Storage Service (S3).\n
-            - _"aws_s3_object_key"_ `(str)`:  unique idntifier for the name of the object(file) that has to be read or written. \n
-            - _"aws _s3_object_parameters"_ `(str)`: A dictionary of additional arguments to be passed to interact with the AWS service\n
+            - _"aws_region"_ `(Any)`: Self-contained geographic area where Amazon Web Services (AWS) infrastructure is
+                    located.\n
+            - _"aws_s3_bucket_name"_ `(str)`: unique identifier for a container that stores objects in Amazon Simple
+                    Storage Service (S3).\n
+            - _"aws_s3_object_key"_ `(str)`:  unique idntifier for the name of the object(file) that has to be read
+                    or written. \n
+            - _"aws _s3_object_parameters"_ `(str)`: A dictionary of additional arguments to be passed to interact with
+                    the AWS service\n
 
     """
 
@@ -65,9 +70,8 @@ class S3ObjectDataNode(DataNode):
     __AWS_SECRET_ACCESS_KEY = "aws_secret_access_key"
     __AWS_STORAGE_BUCKET_NAME = "aws_s3_bucket_name"
     __AWS_S3_OBJECT_KEY = "aws_s3_object_key"
-    __AWS_REGION = "aws_region"    
-    __AWS_S3_OBJECT_PARAMETERS  = "aws_s3_object_parameters"
-
+    __AWS_REGION = "aws_region"
+    __AWS_S3_OBJECT_PARAMETERS = "aws_s3_object_parameters"
 
     _REQUIRED_PROPERTIES: List[str] = [
         __AWS_ACCESS_KEY_ID,
@@ -100,8 +104,6 @@ class S3ObjectDataNode(DataNode):
             raise MissingRequiredProperty(
                 f"The following properties " f"{', '.join(x for x in missing)} were not informed and are required."
             )
-
-
         super().__init__(
             config_id,
             scope,
@@ -118,7 +120,8 @@ class S3ObjectDataNode(DataNode):
             **properties,
         )
 
-        self._s3_client = boto3.client('s3',
+        self._s3_client = boto3.client(
+            's3',
             aws_access_key_id=properties.get(self.__AWS_ACCESS_KEY_ID),
             aws_secret_access_key=properties.get(self.__AWS_SECRET_ACCESS_KEY),
         )
@@ -141,17 +144,16 @@ class S3ObjectDataNode(DataNode):
     def storage_type(cls) -> str:
         return cls.__STORAGE_TYPE
 
-
     def _read(self):
         aws_s3_object = self._s3_client.get_object(
-            Bucket = self.properties[self.__AWS_STORAGE_BUCKET_NAME],
-            Key = self.properties[self.__AWS_S3_OBJECT_KEY],
+            Bucket=self.properties[self.__AWS_STORAGE_BUCKET_NAME],
+            Key=self.properties[self.__AWS_S3_OBJECT_KEY],
         )
-        return  aws_s3_object['Body'].read().decode('utf-8')
+        return aws_s3_object['Body'].read().decode('utf-8')
 
     def _write(self, data: Any):
         self._s3_client.put_object(
-            Bucket = self.properties[self.__AWS_STORAGE_BUCKET_NAME],
-            Key = self.properties[self.__AWS_S3_OBJECT_KEY],
-            Body = data,
+            Bucket=self.properties[self.__AWS_STORAGE_BUCKET_NAME],
+            Key=self.properties[self.__AWS_S3_OBJECT_KEY],
+            Body=data,
         )
