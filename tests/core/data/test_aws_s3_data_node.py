@@ -53,7 +53,7 @@ class TestS3ObjectDataNode:
         assert aws_s3_object_dn.is_ready_for_reading
 
     @mock_s3
-    @pytest.mark.parametrize('data', [('Hello, write world!'),])
+    @pytest.mark.parametrize('data', [('Hello, write world!'), ])
     @pytest.mark.parametrize("properties", __properties)
     def test_write(self, properties, data):
         bucket_name = properties["aws_s3_bucket_name"]
@@ -73,7 +73,7 @@ class TestS3ObjectDataNode:
         assert response['Body'].read().decode('utf-8') == "Hello, write world!"
 
     @mock_s3
-    @pytest.mark.parametrize('data', [('Hello, read world!'),])
+    @pytest.mark.parametrize('data', [('Hello, read world!'), ])
     @pytest.mark.parametrize("properties", __properties)
     def test_read(self, properties, data):
         bucket_name = properties["aws_s3_bucket_name"]
